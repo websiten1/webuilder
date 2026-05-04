@@ -193,7 +193,89 @@ const SPEED_OPTS = [
   { id: "ai-decide",label: "AI decides",          desc: "Best for your style" },
 ];
 
-const COLOR_PRESETS = ["#6366f1","#3b82f6","#10b981","#ef4444","#8b5cf6","#f59e0b","#0f172a","#f97316","#ec4899"];
+const COLOR_GROUPS: { label: string; colors: { hex: string; name: string }[] }[] = [
+  { label: "Neutrals", colors: [
+    { hex: "#ffffff", name: "White" },
+    { hex: "#f5f5f5", name: "Off White" },
+    { hex: "#e5e7eb", name: "Light Gray" },
+    { hex: "#9ca3af", name: "Gray" },
+    { hex: "#6b7280", name: "Mid Gray" },
+    { hex: "#374151", name: "Dark Gray" },
+    { hex: "#1f2937", name: "Charcoal" },
+    { hex: "#111827", name: "Near Black" },
+    { hex: "#0a0a0a", name: "Black" },
+  ]},
+  { label: "Blues", colors: [
+    { hex: "#bfdbfe", name: "Light Blue" },
+    { hex: "#60a5fa", name: "Sky Blue" },
+    { hex: "#3b82f6", name: "Blue" },
+    { hex: "#2563eb", name: "Royal Blue" },
+    { hex: "#1d4ed8", name: "Dark Blue" },
+    { hex: "#1e3a5f", name: "Navy" },
+    { hex: "#0f172a", name: "Midnight" },
+  ]},
+  { label: "Purples & Indigos", colors: [
+    { hex: "#e9d5ff", name: "Lavender" },
+    { hex: "#c084fc", name: "Light Purple" },
+    { hex: "#a855f7", name: "Purple" },
+    { hex: "#8b5cf6", name: "Violet" },
+    { hex: "#7c3aed", name: "Deep Violet" },
+    { hex: "#6366f1", name: "Indigo" },
+    { hex: "#4f46e5", name: "Deep Indigo" },
+  ]},
+  { label: "Greens", colors: [
+    { hex: "#a7f3d0", name: "Mint" },
+    { hex: "#34d399", name: "Emerald" },
+    { hex: "#10b981", name: "Green" },
+    { hex: "#059669", name: "Forest" },
+    { hex: "#065f46", name: "Dark Green" },
+    { hex: "#6b7c3f", name: "Olive" },
+  ]},
+  { label: "Reds & Burgundy", colors: [
+    { hex: "#fca5a5", name: "Blush" },
+    { hex: "#f87171", name: "Coral" },
+    { hex: "#ef4444", name: "Red" },
+    { hex: "#dc2626", name: "Dark Red" },
+    { hex: "#b91c1c", name: "Crimson" },
+    { hex: "#991b1b", name: "Deep Crimson" },
+    { hex: "#800020", name: "Burgundy" },
+    { hex: "#6b1a1a", name: "Wine" },
+    { hex: "#4a0e0e", name: "Maroon" },
+  ]},
+  { label: "Pinks", colors: [
+    { hex: "#fce7f3", name: "Baby Pink" },
+    { hex: "#f9a8d4", name: "Light Pink" },
+    { hex: "#ec4899", name: "Pink" },
+    { hex: "#db2777", name: "Hot Pink" },
+    { hex: "#be185d", name: "Deep Pink" },
+    { hex: "#9d174d", name: "Magenta" },
+  ]},
+  { label: "Oranges & Ambers", colors: [
+    { hex: "#fef3c7", name: "Cream" },
+    { hex: "#fde68a", name: "Light Yellow" },
+    { hex: "#fbbf24", name: "Amber" },
+    { hex: "#f59e0b", name: "Gold" },
+    { hex: "#f97316", name: "Orange" },
+    { hex: "#ea580c", name: "Deep Orange" },
+    { hex: "#c2410c", name: "Burnt Orange" },
+  ]},
+  { label: "Teals & Cyans", colors: [
+    { hex: "#a5f3fc", name: "Light Cyan" },
+    { hex: "#22d3ee", name: "Cyan" },
+    { hex: "#06b6d4", name: "Sky Cyan" },
+    { hex: "#0891b2", name: "Teal" },
+    { hex: "#0e7490", name: "Dark Teal" },
+    { hex: "#134e4a", name: "Deep Teal" },
+  ]},
+  { label: "Browns & Warm", colors: [
+    { hex: "#faf8f5", name: "Warm White" },
+    { hex: "#c8b8a2", name: "Warm Beige" },
+    { hex: "#a67c52", name: "Bronze" },
+    { hex: "#92400e", name: "Brown" },
+    { hex: "#78350f", name: "Dark Brown" },
+    { hex: "#3d2b1f", name: "Chocolate" },
+  ]},
+];
 
 // ─── Small UI helpers ──────────────────────────────────────────────────────────
 
@@ -301,6 +383,55 @@ function Toggle({ checked, onChange, label, desc }: {
   );
 }
 
+function ColorPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {/* Selected color + custom input */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ width: 32, height: 32, borderRadius: 8, background: value, border: "2px solid rgba(255,255,255,0.2)", flexShrink: 0 }} />
+        <span style={{ fontSize: 12, fontFamily: "ui-monospace,monospace", color: "var(--text2)" }}>{value}</span>
+        <label style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: "auto", fontSize: 11, color: "var(--text3)", cursor: "pointer" }}>
+          Custom
+          <input type="color" value={value} onChange={e => onChange(e.target.value)}
+            style={{ width: 28, height: 28, border: "none", cursor: "pointer", borderRadius: 6, padding: 1, background: "transparent" }} />
+        </label>
+      </div>
+      {/* Grouped palette */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "12px 14px", borderRadius: 12, border: "1px solid var(--border)", background: "rgba(255,255,255,0.02)" }}>
+        {COLOR_GROUPS.map(group => (
+          <div key={group.label}>
+            <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text3)", marginBottom: 5 }}>{group.label}</p>
+            <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+              {group.colors.map(c => {
+                const selected = value.toLowerCase() === c.hex.toLowerCase();
+                const isLight = c.hex === "#ffffff" || c.hex === "#f5f5f5" || c.hex === "#e5e7eb" || c.hex === "#faf8f5" || c.hex === "#fef3c7" || c.hex === "#fce7f3" || c.hex === "#fde68a" || c.hex === "#a5f3fc" || c.hex === "#a7f3d0" || c.hex === "#bfdbfe" || c.hex === "#e9d5ff" || c.hex === "#f9a8d4" || c.hex === "#fca5a5" || c.hex === "#c8b8a2" || c.hex === "#fef3c7";
+                return (
+                  <div
+                    key={c.hex}
+                    title={c.name}
+                    onClick={() => onChange(c.hex)}
+                    style={{
+                      width: 24, height: 24, borderRadius: 6, background: c.hex, cursor: "pointer",
+                      border: selected
+                        ? "2.5px solid #fff"
+                        : isLight ? "1.5px solid rgba(0,0,0,0.15)" : "1.5px solid rgba(255,255,255,0.08)",
+                      boxShadow: selected ? "0 0 0 2px rgba(99,102,241,0.7)" : "none",
+                      transition: "transform 0.1s, box-shadow 0.1s",
+                      transform: selected ? "scale(1.15)" : "scale(1)",
+                    }}
+                    onMouseEnter={e => { if (!selected) (e.currentTarget as HTMLDivElement).style.transform = "scale(1.1)"; }}
+                    onMouseLeave={e => { if (!selected) (e.currentTarget as HTMLDivElement).style.transform = "scale(1)"; }}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Step 1: Business Basics ──────────────────────────────────────────────────
 
 function Step1({ data, onChange }: { data: WizardData["business"]; onChange: (d: WizardData["business"]) => void }) {
@@ -384,38 +515,12 @@ function Step2({ data, onChange }: { data: WizardData["design"]; onChange: (d: W
 
       <div>
         <SectionLabel label="Primary brand color" />
-        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-          <input type="color" value={data.primaryColor} onChange={e => set("primaryColor", e.target.value)}
-            style={{ width: 48, height: 36, border: "none", cursor: "pointer", borderRadius: 8, padding: 2, background: "transparent" }} />
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {COLOR_PRESETS.map(c => (
-              <div key={c} onClick={() => set("primaryColor", c)} style={{
-                width: 22, height: 22, borderRadius: "50%", background: c, cursor: "pointer",
-                border: data.primaryColor === c ? "2.5px solid white" : "2px solid transparent",
-                boxShadow: data.primaryColor === c ? "0 0 0 1.5px rgba(255,255,255,0.4)" : "none",
-                transition: "all 0.15s",
-              }} />
-            ))}
-          </div>
-        </div>
+        <ColorPicker value={data.primaryColor} onChange={v => set("primaryColor", v)} />
       </div>
 
       <div>
         <SectionLabel label="Accent / secondary color" />
-        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-          <input type="color" value={data.secondaryColor} onChange={e => set("secondaryColor", e.target.value)}
-            style={{ width: 48, height: 36, border: "none", cursor: "pointer", borderRadius: 8, padding: 2, background: "transparent" }} />
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {COLOR_PRESETS.map(c => (
-              <div key={c} onClick={() => set("secondaryColor", c)} style={{
-                width: 22, height: 22, borderRadius: "50%", background: c, cursor: "pointer",
-                border: data.secondaryColor === c ? "2.5px solid white" : "2px solid transparent",
-                boxShadow: data.secondaryColor === c ? "0 0 0 1.5px rgba(255,255,255,0.4)" : "none",
-                transition: "all 0.15s",
-              }} />
-            ))}
-          </div>
-        </div>
+        <ColorPicker value={data.secondaryColor} onChange={v => set("secondaryColor", v)} />
       </div>
 
       <Toggle checked={data.darkMode} onChange={v => set("darkMode", v)}
