@@ -1,12 +1,12 @@
 // app/api/generate-site/route.ts - Main endpoint for generating websites
 
 import { NextRequest, NextResponse } from "next/server";
+import { generateWebsiteCode } from "@/lib/anthropic";
 import {
   createGitHubRepository,
   pushCodeToGitHub,
 } from "@/lib/github";
 import { deployToVercel } from "@/lib/vercel";
-// import { generateWebsiteCode } from "@/lib/claude";
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     // Step 4: Deploy to Vercel
     console.log("Deploying to Vercel...");
-    const deployment = await deployToVercel(repo.html_url);
+    const deployment = await deployToVercel(repoName, websiteCode);
     console.log("✅ Deployment started:", deployment.url);
 
     // Step 5: Return success response

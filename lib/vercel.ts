@@ -1,0 +1,135 @@
+// lib/vercel.ts - Vercel API integration
+
+export async function deployToVercel(
+  projectName: string,
+  code: string
+): Promise<{ id: string; url: string }> {
+  const token = process.env.VERCEL_API_TOKEN;
+
+  if (!token) {
+    throw new Error("VERCEL_API_TOKEN not set");
+  }
+
+  const packageJson = JSON.stringify(
+    {
+      name: projectName,
+      version: "0.1.0",
+      scripts: { dev: "next dev", build: "next build", start: "next start" },
+      dependencies: {
+        next: "^14.2.0",
+        react: "^18.3.0",
+        "react-dom": "^18.3.0",
+      },
+      devDependencies: {
+        typescript: "^5.0.0",
+        "@types/react": "^18.3.0",
+        "@types/node": "^20.0.0",
+        "@types/react-dom": "^18.3.0",
+      },
+    },
+    null,
+    2
+  );
+
+  const tsConfig = JSON.stringify(
+    {
+      compilerOptions: {
+        target: "es5",
+        lib: ["dom", "dom.iterable", "esnext"],
+        allowJs: true,
+        skipLibCheck: true,
+        strict: false,
+        noEmit: true,
+        esModuleInterop: true,
+        module: "esnext",
+        moduleResolution: "bundler",
+        resolveJsonModule: true,
+        isolatedModules: true,
+        jsx: "preserve",
+        incremental: true,
+      },
+      include: ["**/*.ts", "**/*.tsx"],
+      exclude: ["node_modules"],
+    },
+    null,
+    2
+  );
+
+  try {
+    const response = await fetch("https://api.vercel.com/v13/deployments", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: projectName,
+        files: [
+          { file: "package.json", data: packageJson },
+          { file: "tsconfig.json", data: tsConfig },
+          { file: "next.config.js", data: `/** @type {import('next').NextConfig} */\nmodule.exports = { typescript: { ignoreBuildErrors: true }, eslint: { ignoreDuringBuilds: true } };` },
+          { file: "pages/index.tsx", data: code },
+        ],
+        target: "production",
+        projectSettings: {
+          framework: "nextjs",
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      const errBody = await response.json().catch(() => response.text());
+      throw new Error(
+        `Vercel API error: ${response.status} ${JSON.stringify(errBody)}`
+      );
+    }
+
+    const data = await response.json();
+
+    return {
+      id: data.id,
+      url: data.url,
+    };
+  } catch (error) {
+    console.error("Error deploying to Vercel:", error);
+    throw error;
+  }
+}
+
+export async function checkDeploymentStatus(
+  deploymentId: string
+): Promise<{ state: string; url?: string }> {
+  const token = process.env.VERCEL_API_TOKEN;
+
+  if (!token) {
+    throw new Error("VERCEL_API_TOKEN not set");
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.vercel.com/v13/deployments/${deploymentId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errBody = await response.json().catch(() => response.text());
+      throw new Error(
+        `Vercel API error: ${response.status} ${JSON.stringify(errBody)}`
+      );
+    }
+
+    const data = await response.json();
+
+    return {
+      state: data.state,
+      url: data.url,
+    };
+  } catch (error) {
+    console.error("Error checking deployment status:", error);
+    throw error;
+  }
+}
