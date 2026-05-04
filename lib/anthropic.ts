@@ -1,13 +1,10 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-const apiKey = process.env.ANTHROPIC_API_KEY;
-if (!apiKey) {
-  throw new Error("Missing ANTHROPIC_API_KEY environment variable");
-}
-
-const client = new Anthropic({ apiKey });
-
 export async function generateWebsiteCode(prompt: string): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) throw new Error("Missing ANTHROPIC_API_KEY environment variable");
+
+  const client = new Anthropic({ apiKey });
   const response = await client.messages.create({
     model: "claude-opus-4-7",
     max_tokens: 16000,
