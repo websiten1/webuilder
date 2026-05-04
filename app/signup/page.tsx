@@ -21,78 +21,88 @@ export default function SignupPage() {
         localStorage.setItem("email", email);
         router.push("/dashboard");
       } else {
-        setError("Please fill in all fields");
+        setError("Please fill in all fields.");
       }
     } catch {
-      setError("Signup failed");
+      setError("Signup failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <nav className="border-b border-gray-100 px-6 h-16 flex items-center">
-        <Link href="/" className="text-sm font-semibold tracking-tight text-gray-900">WebBuilder</Link>
+    <div style={{ background: "#050510", minHeight: "100vh", color: "#fff" }} className="flex flex-col">
+      <nav className="px-6 h-16 flex items-center" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        <Link href="/" className="font-bold tracking-tight text-sm">WebBuilder</Link>
       </nav>
 
       <div className="flex-1 flex items-center justify-center px-6 py-16">
-        <div className="w-full max-w-sm">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900">Create your account</h1>
-            <p className="text-sm text-gray-500 mt-1">Get your website live in under 5 minutes.</p>
-          </div>
+        <div className="w-full" style={{ maxWidth: 400 }}>
+          <div style={{
+            position: "absolute", left: "50%", top: "30%", transform: "translate(-50%,-50%)",
+            width: 400, height: 400,
+            background: "radial-gradient(circle, rgba(168,85,247,0.15), transparent 70%)",
+            pointerEvents: "none",
+          }} />
 
-          <form onSubmit={handleSignup} className="space-y-4">
-            {error && (
-              <div className="text-sm text-red-600 bg-red-50 border border-red-100 px-4 py-3 rounded-md">
-                {error}
+          <div className="relative">
+            <div className="mb-8">
+              <h1 className="font-bold tracking-tight mb-1" style={{ fontSize: "1.8rem" }}>Create your account</h1>
+              <p className="text-sm" style={{ color: "var(--text2)" }}>Get your website live in 100 seconds.</p>
+            </div>
+
+            <form onSubmit={handleSignup} className="space-y-4">
+              {error && (
+                <div className="text-sm px-4 py-3 rounded-xl"
+                  style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#fca5a5" }}>
+                  {error}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text2)" }}>Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="inp"
+                  required
+                />
               </div>
-            )}
 
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1.5">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 transition-colors"
-                required
-              />
-            </div>
+              <div>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text2)" }}>Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Create a secure password"
+                  className="inp"
+                  required
+                />
+              </div>
 
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1.5">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 transition-colors"
-                required
-              />
-            </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary w-full rounded-xl py-3.5 text-sm mt-2"
+              >
+                {loading ? "Creating account..." : "Create account — €49.99"}
+              </button>
+            </form>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gray-900 text-white text-sm font-medium py-2.5 rounded-md hover:bg-gray-700 transition-colors disabled:opacity-40 mt-2"
-            >
-              {loading ? "Creating account..." : "Create account — €50"}
-            </button>
-          </form>
+            <p className="text-xs text-center mt-3" style={{ color: "var(--text3)" }}>
+              One-time payment. No monthly fees. No surprises.
+            </p>
 
-          <p className="text-xs text-gray-400 text-center mt-4">
-            One-time payment. No monthly fees.
-          </p>
-
-          <p className="text-sm text-gray-500 text-center mt-6">
-            Already have an account?{" "}
-            <Link href="/login" className="text-gray-900 font-medium hover:underline">
-              Sign in
-            </Link>
-          </p>
+            <p className="text-sm text-center mt-6" style={{ color: "var(--text2)" }}>
+              Already have an account?{" "}
+              <Link href="/login" className="font-medium" style={{ color: "var(--accent)" }}>
+                Sign in
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
