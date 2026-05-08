@@ -3,21 +3,34 @@ import fs from "fs";
 import path from "path";
 
 function getApiKey(): string {
-  // 1. Try process.env (works in production and normal dev)
-  if (process.env.ANTHROPIC_API_KEY) {
-    return process.env.ANTHROPIC_API_KEY;
+  const fromEnv = process.env.ANTHROPIC_API_KEY;
+  if (fromEnv) return fromEnv;
+
+  // Fallback: read directly from .env.local
+  const envPath = path.join(process.cwd(), ".env.local");
+  try {
+    const content = fs.readFileSync(envPath, "utf8");
+    for (const line of content.split("\n")) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("ANTHROPIC_API_KEY=")) {
+        const key = trimmed.slice("ANTHROPIC_API_KEY=".length).trim();
+        if (key) return key;
+      }
+    }
+  } catch {
+    // ignore
   }
 
-  // 2. Fallback: parse .env.local directly (handles Turbopack env loading edge cases)
-  try {
-    const envPath = path.join(process.cwd(), ".env.local");
-    const content = fs.readFileSync(envPath, "utf8");
-    const match = content.match(/^ANTHROPIC_API_KEY=(.+)$/m);
-    const key = match?.[1]?.trim();
-    if (key) return key;
-  } catch {}
+  throw new Error("ANTHROPIC_API_KEY is not set. Check your .env.local file.");
+}
 
-  throw new Error("ANTHROPIC_API_KEY is not set in .env.local");
+function stripCodeFences(text: string): string {
+  // Remove leading code fence with optional language tag
+  let result = text.trim();
+  result = result.replace(/^```(?:tsx?|jsx?|javascript|typescript|js|ts)?\s*\n?/i, "");
+  // Remove trailing code fence
+  result = result.replace(/\n?```\s*$/m, "");
+  return result.trim();
 }
 
 export async function generateWebsiteCode(prompt: string): Promise<string> {
@@ -48,8 +61,5 @@ STRICT RULES:
     throw new Error("No text content in Claude response");
   }
 
-  return textBlock.text
-    .replace(/^```(?:tsx?|jsx?|javascript|typescript)?\n?/i, "")
-    .replace(/\n?```$/m, "")
-    .trim();
+  return stripCodeFences(textBlock.text);
 }

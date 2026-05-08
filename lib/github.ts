@@ -1,146 +1,163 @@
 // lib/github.ts - GitHub API integration
 
+const GH_HEADERS = (token: string) => ({
+  Authorization: `Bearer ${token}`,
+  "Content-Type": "application/json",
+  Accept: "application/vnd.github+json",
+  "X-GitHub-Api-Version": "2022-11-28",
+});
+
+async function ghFetch(url: string, init: RequestInit & { token: string }) {
+  const { token, ...rest } = init;
+  const res = await fetch(url, { ...rest, headers: { ...GH_HEADERS(token), ...(rest.headers ?? {}) } });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(`GitHub API error ${res.status} at ${url}: ${body.message ?? res.statusText}`);
+  }
+  return res.json();
+}
+
 export async function createGitHubRepository(
   repoName: string,
   description: string
 ): Promise<{ owner: string; name: string; html_url: string }> {
   const token = process.env.GITHUB_BOT_TOKEN;
+  if (!token) throw new Error("GITHUB_BOT_TOKEN not set");
 
-  if (!token) {
-    throw new Error("GITHUB_BOT_TOKEN not set");
-  }
+  const data = await ghFetch("https://api.github.com/user/repos", {
+    token,
+    method: "POST",
+    body: JSON.stringify({ name: repoName, description, private: false, auto_init: true }),
+  });
 
-  try {
-    const response = await fetch("https://api.github.com/user/repos", {
-      method: "POST",
-      headers: {
-        Authorization: `token ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: repoName,
-        description,
-        private: false,
-        auto_init: true,
-      }),
-    });
+  // Wait briefly for the auto-init commit to propagate
+  await new Promise((r) => setTimeout(r, 2000));
 
-    if (!response.ok) {
-      throw new Error(`GitHub API error: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-
-    return {
-      owner: data.owner.login,
-      name: data.name,
-      html_url: data.html_url,
-    };
-  } catch (error) {
-    console.error("Error creating GitHub repository:", error);
-    throw error;
-  }
+  return { owner: data.owner.login, name: data.name, html_url: data.html_url };
 }
 
 export async function pushCodeToGitHub(
   owner: string,
   repo: string,
-  code: string,
-  filePath: string = "pages/index.tsx"
+  code: string
 ): Promise<void> {
   const token = process.env.GITHUB_BOT_TOKEN;
+  if (!token) throw new Error("GITHUB_BOT_TOKEN not set");
 
-  if (!token) {
-    throw new Error("GITHUB_BOT_TOKEN not set");
-  }
+  // 1. Get the HEAD commit SHA on main
+  const refData = await ghFetch(
+    `https://api.github.com/repos/${owner}/${repo}/git/refs/heads/main`,
+    { token }
+  );
+  const headCommitSha: string = refData.object.sha;
 
-  try {
-    const branchResponse = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/git/refs/heads/main`,
-      {
-        headers: {
-          Authorization: `token ${token}`,
-        },
-      }
-    );
+  // 2. Get the tree SHA of that commit (base_tree must be a tree SHA, not a commit SHA)
+  const commitData = await ghFetch(
+    `https://api.github.com/repos/${owner}/${repo}/git/commits/${headCommitSha}`,
+    { token }
+  );
+  const baseTreeSha: string = commitData.tree.sha;
 
-    const branchData = await branchResponse.json();
-    const parentSha = branchData.object.sha;
+  // 3. Build the full set of files for a runnable Next.js project
+  const packageJson = JSON.stringify(
+    {
+      name: repo,
+      version: "0.1.0",
+      private: true,
+      scripts: { dev: "next dev", build: "next build", start: "next start" },
+      dependencies: { next: "^14.2.0", react: "^18.3.0", "react-dom": "^18.3.0" },
+      devDependencies: {
+        typescript: "^5.0.0",
+        "@types/react": "^18.3.0",
+        "@types/node": "^20.0.0",
+        "@types/react-dom": "^18.3.0",
+      },
+    },
+    null,
+    2
+  );
 
-    const blobResponse = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/git/blobs`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `token ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: code,
-          encoding: "utf-8",
-        }),
-      }
-    );
+  const tsconfig = JSON.stringify(
+    {
+      compilerOptions: {
+        target: "es5",
+        lib: ["dom", "dom.iterable", "esnext"],
+        allowJs: true,
+        skipLibCheck: true,
+        strict: false,
+        noEmit: true,
+        esModuleInterop: true,
+        module: "esnext",
+        moduleResolution: "bundler",
+        resolveJsonModule: true,
+        isolatedModules: true,
+        jsx: "preserve",
+        incremental: true,
+      },
+      include: ["**/*.ts", "**/*.tsx"],
+      exclude: ["node_modules"],
+    },
+    null,
+    2
+  );
 
-    const blobData = await blobResponse.json();
+  const nextConfig = `/** @type {import('next').NextConfig} */
+module.exports = { typescript: { ignoreBuildErrors: true }, eslint: { ignoreDuringBuilds: true } };
+`;
 
-    const treeResponse = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/git/trees`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `token ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          base_tree: parentSha,
-          tree: [
-            {
-              path: filePath,
-              mode: "100644",
-              type: "blob",
-              sha: blobData.sha,
-            },
-          ],
-        }),
-      }
-    );
+  const files = [
+    { path: "package.json", content: packageJson },
+    { path: "tsconfig.json", content: tsconfig },
+    { path: "next.config.js", content: nextConfig },
+    { path: "pages/index.tsx", content: code },
+  ];
 
-    const treeData = await treeResponse.json();
+  // 4. Create one blob per file
+  const treeItems = await Promise.all(
+    files.map(async (f) => {
+      const blob = await ghFetch(
+        `https://api.github.com/repos/${owner}/${repo}/git/blobs`,
+        {
+          token,
+          method: "POST",
+          body: JSON.stringify({ content: f.content, encoding: "utf-8" }),
+        }
+      );
+      return { path: f.path, mode: "100644", type: "blob", sha: blob.sha };
+    })
+  );
 
-    const commitResponse = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/git/commits`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `token ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: "Initial website code",
-          tree: treeData.sha,
-          parents: [parentSha],
-        }),
-      }
-    );
+  // 5. Create a new tree on top of the base tree
+  const treeData = await ghFetch(
+    `https://api.github.com/repos/${owner}/${repo}/git/trees`,
+    {
+      token,
+      method: "POST",
+      body: JSON.stringify({ base_tree: baseTreeSha, tree: treeItems }),
+    }
+  );
 
-    const commitData = await commitResponse.json();
+  // 6. Create a commit pointing at the new tree
+  const newCommit = await ghFetch(
+    `https://api.github.com/repos/${owner}/${repo}/git/commits`,
+    {
+      token,
+      method: "POST",
+      body: JSON.stringify({
+        message: "Add AI-generated website",
+        tree: treeData.sha,
+        parents: [headCommitSha],
+      }),
+    }
+  );
 
-    await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/git/refs/heads/main`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `token ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sha: commitData.sha,
-        }),
-      }
-    );
-  } catch (error) {
-    console.error("Error pushing code to GitHub:", error);
-    throw error;
-  }
+  // 7. Fast-forward the main branch to the new commit
+  await ghFetch(
+    `https://api.github.com/repos/${owner}/${repo}/git/refs/heads/main`,
+    {
+      token,
+      method: "PATCH",
+      body: JSON.stringify({ sha: newCommit.sha }),
+    }
+  );
 }

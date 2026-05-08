@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateWebsiteCode } from "@/lib/anthropic";
 import { createGitHubRepository, pushCodeToGitHub } from "@/lib/github";
 import { deployToVercel } from "@/lib/vercel";
+import { getSession } from "@/lib/session";
+import { getUserById, saveSite } from "@/lib/db";
 import type { WizardData } from "@/app/components/GenerateWizard";
+
+export const maxDuration = 300;
 
 function buildPrompt(f: WizardData): string {
   const styleMap: Record<string, string> = {
@@ -167,16 +171,27 @@ TECHNICAL REQUIREMENTS
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { formData, userId } = body as { formData: WizardData; userId: string };
+    // Authenticate and check payment
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+    }
 
-    if (!formData || !userId) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    const user = await getUserById(session.userId);
+    if (!user || user.payment_status !== "paid") {
+      return NextResponse.json({ error: "Payment required." }, { status: 403 });
+    }
+
+    const body = await request.json();
+    const { formData } = body as { formData: WizardData };
+
+    if (!formData) {
+      return NextResponse.json({ error: "Missing form data." }, { status: 400 });
     }
 
     const siteName = formData.business.name;
     if (!siteName || !formData.business.description) {
-      return NextResponse.json({ error: "Business name and description are required" }, { status: 400 });
+      return NextResponse.json({ error: "Business name and description are required." }, { status: 400 });
     }
 
     const prompt = buildPrompt(formData);
@@ -186,7 +201,7 @@ export async function POST(request: NextRequest) {
     const websiteCode = await generateWebsiteCode(prompt);
     console.log("✅ Code generated");
 
-    const repoName = `website-${userId}-${Date.now()}`;
+    const repoName = `website-${user.id.slice(0, 8)}-${Date.now()}`;
     console.log("Creating GitHub repo:", repoName);
     const repo = await createGitHubRepository(repoName, `AI-generated website: ${siteName}`);
     console.log("✅ GitHub repo created:", repo.html_url);
@@ -199,9 +214,22 @@ export async function POST(request: NextRequest) {
     const deployment = await deployToVercel(repoName, websiteCode);
     console.log("✅ Deployment started:", deployment.url);
 
+    const siteUrl = `https://${deployment.url}`;
+
+    // Save to database
+    const site = await saveSite(
+      user.id,
+      siteName,
+      formData.business.type,
+      repo.html_url,
+      siteUrl,
+      repo.name
+    );
+
     return NextResponse.json({
       success: true,
-      siteUrl: `https://${deployment.url}`,
+      siteId: site.id,
+      siteUrl,
       githubUrl: repo.html_url,
       repoName: repo.name,
       message: "Your website is ready!",

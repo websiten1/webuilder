@@ -881,13 +881,11 @@ export default function GenerateWizard() {
   const [countdown, setCountdown] = useState(100);
   const [stageMsg, setStageMsg]   = useState("");
 
-  // Persist to localStorage
+  // Restore wizard progress from localStorage
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) { router.push("/login"); return; }
     const saved = localStorage.getItem("wizard_data");
     if (saved) { try { setData(JSON.parse(saved)); } catch {} }
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("wizard_data", JSON.stringify(data));
@@ -922,28 +920,28 @@ export default function GenerateWizard() {
     setLoading(true);
     setError("");
     try {
-      const userId = localStorage.getItem("userId");
+      // userId is read from the session cookie server-side — no need to send it
       const res = await fetch("/api/generate-site", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ formData: data, userId }),
+        body: JSON.stringify({ formData: data }),
       });
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Generation failed");
+        let errMsg = `Server error ${res.status}`;
+        try {
+          const err = await res.json();
+          errMsg = err.error || errMsg;
+        } catch {
+          errMsg = await res.text().catch(() => errMsg);
+        }
+        throw new Error(errMsg);
       }
       const result = await res.json();
-      const sites = JSON.parse(localStorage.getItem("sites") || "[]");
-      sites.push({
-        id: result.repoName, name: data.business.name,
-        url: result.siteUrl, githubUrl: result.githubUrl,
-        status: "deployed", createdAt: new Date().toISOString(),
-      });
-      localStorage.setItem("sites", JSON.stringify(sites));
       localStorage.removeItem("wizard_data");
-      router.push(`/success/${result.repoName}`);
+      // siteId is the DB uuid returned by the API
+      router.push(`/success/${result.siteId}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
       setLoading(false);
     }
   };

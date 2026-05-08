@@ -7,10 +7,10 @@ import { useParams } from "next/navigation";
 type Site = {
   id: string;
   name: string;
-  url: string;
-  githubUrl: string;
+  vercel_url: string;
+  github_url: string;
   status: string;
-  createdAt: string;
+  created_at: string;
 };
 
 function CheckCircle() {
@@ -47,16 +47,25 @@ function CopyButton({ text }: { text: string }) {
 }
 
 export default function SuccessPage() {
-  const params  = useParams();
-  const siteId  = params.siteId as string;
-  const [site,    setSite]    = useState<Site | null>(null);
+  const params = useParams();
+  const siteId = params.siteId as string;
+  const [site, setSite] = useState<Site | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const sites    = JSON.parse(localStorage.getItem("sites") || "[]");
-    const found    = sites.find((s: Site) => s.id === siteId);
-    if (found) setSite(found);
-    setLoading(false);
+    async function load() {
+      try {
+        const res = await fetch("/api/sites");
+        if (res.ok) {
+          const data = await res.json();
+          const found = (data.sites as Site[]).find((s) => s.id === siteId);
+          if (found) setSite(found);
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
   }, [siteId]);
 
   if (loading) {
@@ -81,7 +90,6 @@ export default function SuccessPage() {
 
   return (
     <div style={{ background: "#050510", minHeight: "100vh", color: "#fff" }}>
-      {/* Glow */}
       <div style={{
         position: "fixed", top: 0, left: "50%", transform: "translateX(-50%)",
         width: 600, height: 400,
@@ -96,7 +104,6 @@ export default function SuccessPage() {
       </nav>
 
       <div style={{ position: "relative", zIndex: 1, maxWidth: 560, margin: "0 auto", padding: "64px 24px 96px" }}>
-        {/* Success header */}
         <div className="fade-up text-center mb-12">
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
             <CheckCircle />
@@ -109,58 +116,37 @@ export default function SuccessPage() {
           </p>
         </div>
 
-        {/* URL card */}
         <div className="fade-up-1 glass rounded-2xl p-5 mb-4">
           <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text3)", marginBottom: 10 }}>
             Live website
           </p>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-            <a
-              href={site.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: "#a5b4fc", fontSize: 13, fontFamily: "ui-monospace, monospace", wordBreak: "break-all", textDecoration: "none", flex: 1 }}
-              onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
-              onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
-            >
-              {site.url}
+            <a href={site.vercel_url} target="_blank" rel="noopener noreferrer"
+              style={{ color: "#a5b4fc", fontSize: 13, fontFamily: "ui-monospace, monospace", wordBreak: "break-all", textDecoration: "none", flex: 1 }}>
+              {site.vercel_url}
             </a>
-            <CopyButton text={site.url} />
+            <CopyButton text={site.vercel_url} />
           </div>
         </div>
 
-        {/* GitHub card */}
         <div className="fade-up-2 glass rounded-2xl p-5 mb-8">
           <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text3)", marginBottom: 10 }}>
             Source code on GitHub
           </p>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-            <a
-              href={site.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: "var(--text2)", fontSize: 13, fontFamily: "ui-monospace, monospace", wordBreak: "break-all", textDecoration: "none", flex: 1 }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text2)")}
-            >
-              {site.githubUrl}
+            <a href={site.github_url} target="_blank" rel="noopener noreferrer"
+              style={{ color: "var(--text2)", fontSize: 13, fontFamily: "ui-monospace, monospace", wordBreak: "break-all", textDecoration: "none", flex: 1 }}>
+              {site.github_url}
             </a>
-            <CopyButton text={site.githubUrl} />
+            <CopyButton text={site.github_url} />
           </div>
-          <p style={{ fontSize: 12, color: "var(--text3)", marginTop: 8 }}>
-            Download, fork, or edit your code anytime.
-          </p>
+          <p style={{ fontSize: 12, color: "var(--text3)", marginTop: 8 }}>Download, fork, or edit your code anytime.</p>
         </div>
 
-        {/* Actions */}
         <div className="fade-up-3" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <a
-            href={site.url}
-            target="_blank"
-            rel="noopener noreferrer"
+          <a href={site.vercel_url} target="_blank" rel="noopener noreferrer"
             className="btn-primary rounded-xl py-3.5 w-full text-sm"
-            style={{ textDecoration: "none" }}
-          >
+            style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
             View your live website
             <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -174,7 +160,6 @@ export default function SuccessPage() {
           </Link>
         </div>
 
-        {/* Benefits */}
         <div className="fade-up-4 glass rounded-2xl p-6 mt-8">
           <p style={{ fontSize: 12, fontWeight: 600, marginBottom: 14, color: "var(--text2)" }}>What you now have</p>
           <ul style={{ display: "flex", flexDirection: "column", gap: 9 }}>

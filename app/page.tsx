@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const BG = "#050510";
 
@@ -94,6 +95,15 @@ function Cross() {
 }
 
 export default function Home() {
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => { if (d.user) setLoggedIn(true); })
+      .catch(() => {});
+  }, []);
+
   return (
     <div style={{ background: BG, color: "#fff", minHeight: "100vh" }}>
 
@@ -104,8 +114,14 @@ export default function Home() {
           <div className="flex items-center gap-6">
             <a href="#how-it-works" className="text-sm hidden md:block" style={{ color: "var(--text2)" }}>How it works</a>
             <a href="#pricing"      className="text-sm hidden md:block" style={{ color: "var(--text2)" }}>Pricing</a>
-            <Link href="/login"     className="text-sm"                 style={{ color: "var(--text2)" }}>Login</Link>
-            <Link href="/signup"    className="btn-primary px-5 py-2 text-sm rounded-lg">Get started</Link>
+            {loggedIn ? (
+              <Link href="/dashboard" className="btn-primary px-5 py-2 text-sm rounded-lg">Go to Dashboard</Link>
+            ) : (
+              <>
+                <Link href="/login"  className="text-sm" style={{ color: "var(--text2)" }}>Login</Link>
+                <Link href="/signup" className="btn-primary px-5 py-2 text-sm rounded-lg">Get started</Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -151,8 +167,8 @@ export default function Home() {
           </p>
 
           <div className="fade-up-3 flex items-center justify-center gap-4 flex-wrap">
-            <Link href="/signup" className="btn-primary rounded-xl px-8 py-4" style={{ fontSize: 16 }}>
-              Get Started — €49.99
+            <Link href={loggedIn ? "/dashboard" : "/signup"} className="btn-primary rounded-xl px-8 py-4" style={{ fontSize: 16 }}>
+              {loggedIn ? "Go to Dashboard" : "Get Started — €49.99"}
             </Link>
             <a href="#how-it-works" className="text-sm" style={{ color: "var(--text3)" }}>
               See how it works →
@@ -344,8 +360,8 @@ export default function Home() {
                 ))}
               </ul>
 
-              <Link href="/signup" className="btn-primary w-full rounded-xl py-3.5 text-sm">
-                Get Started — €49.99
+              <Link href={loggedIn ? "/dashboard" : "/signup"} className="btn-primary w-full rounded-xl py-3.5 text-sm">
+                {loggedIn ? "Go to Dashboard" : "Get Started — €49.99"}
               </Link>
               <p className="text-xs text-center mt-3" style={{ color: "var(--text3)" }}>
                 Save €144/year vs Wix · Save €192/year vs Squarespace
@@ -367,8 +383,8 @@ export default function Home() {
           <p className="mb-8" style={{ color: "var(--text2)", fontSize: "1.1rem" }}>
             100 seconds from now, you'll have a live website. Yours forever.
           </p>
-          <Link href="/signup" className="btn-primary rounded-xl px-10 py-4" style={{ fontSize: 16 }}>
-            Create Your Website — €49.99
+          <Link href={loggedIn ? "/dashboard" : "/signup"} className="btn-primary rounded-xl px-10 py-4" style={{ fontSize: 16 }}>
+            {loggedIn ? "Go to Dashboard" : "Create Your Website — €49.99"}
           </Link>
         </div>
       </section>
@@ -379,8 +395,14 @@ export default function Home() {
           <span className="font-semibold text-sm">WebBuilder</span>
           <p className="text-xs" style={{ color: "var(--text3)" }}>© 2026 WebBuilder. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <Link href="/login"  className="text-xs" style={{ color: "var(--text3)" }}>Login</Link>
-            <Link href="/signup" className="text-xs" style={{ color: "var(--text3)" }}>Sign up</Link>
+            {loggedIn ? (
+              <Link href="/dashboard" className="text-xs" style={{ color: "var(--text3)" }}>Dashboard</Link>
+            ) : (
+              <>
+                <Link href="/login"  className="text-xs" style={{ color: "var(--text3)" }}>Login</Link>
+                <Link href="/signup" className="text-xs" style={{ color: "var(--text3)" }}>Sign up</Link>
+              </>
+            )}
           </div>
         </div>
       </footer>
