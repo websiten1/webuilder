@@ -115,7 +115,7 @@ export default function SignupPage() {
               >
                 We sent a verification link to{" "}
                 <strong style={{ color: "#fff" }}>{email}</strong>. Click it to
-                verify your email and continue to payment.
+                verify your email and get started.
               </p>
             )}
 
@@ -175,54 +175,6 @@ export default function SignupPage() {
           />
 
           <div className="relative">
-            {/* Steps */}
-            <div className="flex items-center gap-2 mb-8">
-              {[
-                { n: 1, label: "Account", active: true },
-                { n: 2, label: "Verify email", done: false },
-                { n: 3, label: "Payment", done: false },
-              ].map((step, i) => (
-                <div key={step.n} className="flex items-center gap-2">
-                  {i > 0 && (
-                    <div
-                      style={{
-                        width: 24,
-                        height: 1,
-                        background: "rgba(255,255,255,0.1)",
-                      }}
-                    />
-                  )}
-                  <div className="flex items-center gap-1.5">
-                    <div
-                      style={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: "50%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 10,
-                        fontWeight: 700,
-                        background: step.active
-                          ? "linear-gradient(135deg,#6366f1,#a855f7)"
-                          : "rgba(255,255,255,0.05)",
-                        color: step.active ? "#fff" : "rgba(255,255,255,0.3)",
-                      }}
-                    >
-                      {step.n}
-                    </div>
-                    <span
-                      className="text-xs"
-                      style={{
-                        color: step.active ? "#fff" : "rgba(255,255,255,0.25)",
-                      }}
-                    >
-                      {step.label}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
 
             <div className="mb-8">
               <h1
@@ -315,7 +267,7 @@ export default function SignupPage() {
               className="text-xs text-center mt-3"
               style={{ color: "var(--text3)" }}
             >
-              You&apos;ll complete payment after verifying your email.
+              Free to join. Payment only when you generate your website.
             </p>
 
             <p
