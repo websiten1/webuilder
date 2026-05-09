@@ -46,10 +46,7 @@ export async function POST(request: NextRequest) {
       paymentStatus: user.payment_status,
     });
 
-    const redirectTo =
-      user.payment_status === "paid" ? "/dashboard" : "/checkout";
-
-    return NextResponse.json({ success: true, redirectTo });
+    return NextResponse.json({ success: true, redirectTo: "/dashboard" });
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(

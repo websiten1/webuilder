@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const from = searchParams.get("from") || "/dashboard";
+  void searchParams; // kept for Suspense boundary only
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,7 +36,7 @@ function LoginContent() {
         }
         return;
       }
-      router.push(data.redirectTo || from);
+      router.push("/dashboard");
     } catch {
       setError("Network error. Please try again.");
     } finally {

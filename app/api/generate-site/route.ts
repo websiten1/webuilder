@@ -2,9 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateWebsiteCode } from "@/lib/anthropic";
 import { createGitHubRepository, pushCodeToGitHub } from "@/lib/github";
 import { deployToVercel } from "@/lib/vercel";
-import { getSession } from "@/lib/session";
-import { getUserById, saveSite } from "@/lib/db";
+import { getSession, createSession } from "@/lib/session";
+import { getUserById, saveSite, markUserPaid } from "@/lib/db";
 import type { WizardData } from "@/app/components/GenerateWizard";
+import Stripe from "stripe";
+
+function getStripe() {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key || key === "sk_test_xxxxx") throw new Error("STRIPE_SECRET_KEY not configured");
+  return new Stripe(key);
+}
 
 export const maxDuration = 300;
 
@@ -171,19 +178,47 @@ TECHNICAL REQUIREMENTS
 
 export async function POST(request: NextRequest) {
   try {
-    // Authenticate and check payment
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
     }
 
     const user = await getUserById(session.userId);
-    if (!user || user.payment_status !== "paid") {
-      return NextResponse.json({ error: "Payment required." }, { status: 403 });
+    if (!user) {
+      return NextResponse.json({ error: "User not found." }, { status: 401 });
     }
 
     const body = await request.json();
-    const { formData } = body as { formData: WizardData };
+    const { formData, paymentIntentId } = body as {
+      formData: WizardData;
+      paymentIntentId?: string;
+    };
+
+    // If user hasn't paid yet, verify the PaymentIntent they just completed
+    if (user.payment_status !== "paid") {
+      if (!paymentIntentId) {
+        return NextResponse.json({ error: "Payment required." }, { status: 402 });
+      }
+      const stripe = getStripe();
+      const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
+      if (
+        pi.status !== "succeeded" ||
+        pi.metadata?.userId !== user.id
+      ) {
+        return NextResponse.json({ error: "Payment could not be verified." }, { status: 400 });
+      }
+      await markUserPaid(
+        user.id,
+        paymentIntentId,
+        typeof pi.customer === "string" ? pi.customer : null
+      );
+      // Refresh the session cookie so the client reflects paid status
+      await createSession({
+        userId: user.id,
+        emailVerified: user.email_verified,
+        paymentStatus: "paid",
+      });
+    }
 
     if (!formData) {
       return NextResponse.json({ error: "Missing form data." }, { status: 400 });

@@ -3,6 +3,17 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  Elements,
+  PaymentElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
+
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!
+);
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -844,9 +855,260 @@ function Step6({ data, onEdit, onSubmit, loading, countdown, stageMsg }: {
       )}
 
       <button type="button" onClick={onSubmit} disabled={loading} className="btn-primary rounded-xl py-4 w-full" style={{ fontSize: 16 }}>
-        {loading ? "Generating your website..." : "Generate My Website — €49.99"}
+        {loading ? "Generating your website..." : "Continue to Payment →"}
       </button>
       <p style={{ fontSize: 12, color: "var(--text3)", textAlign: "center", marginTop: 8 }}>Takes approximately 100 seconds.</p>
+    </div>
+  );
+}
+
+// ─── Payment Step ─────────────────────────────────────────────────────────────
+
+function PaymentStepInner({
+  formData,
+  onSuccess,
+  onBack,
+}: {
+  formData: WizardData;
+  onSuccess: (paymentIntentId: string) => void;
+  onBack: () => void;
+}) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [paying, setPaying] = useState(false);
+  const [error, setError] = useState("");
+
+  const handlePay = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!stripe || !elements) return;
+    setPaying(true);
+    setError("");
+
+    // Save formData in case 3DS redirects away
+    localStorage.setItem("wizard_data", JSON.stringify(formData));
+
+    const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      redirect: "if_required",
+      confirmParams: {
+        return_url: `${window.location.origin}/generate/complete`,
+      },
+    });
+
+    if (stripeError) {
+      setError(stripeError.message ?? "Payment failed.");
+      setPaying(false);
+      return;
+    }
+
+    if (paymentIntent?.status === "succeeded") {
+      onSuccess(paymentIntent.id);
+    } else {
+      setError("Payment could not be confirmed. Please try again.");
+      setPaying(false);
+    }
+  };
+
+  const pages = formData.pages.selected.length;
+  const styleName =
+    formData.design.style.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+  return (
+    <div>
+      {/* Summary card */}
+      <div
+        style={{
+          background: "rgba(99,102,241,0.06)",
+          border: "1px solid rgba(99,102,241,0.2)",
+          borderRadius: 16,
+          padding: "20px 24px",
+          marginBottom: 24,
+        }}
+      >
+        <p
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            color: "var(--text3)",
+            marginBottom: 14,
+          }}
+        >
+          Your website summary
+        </p>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "10px 24px",
+          }}
+        >
+          {[
+            ["Business", formData.business.name],
+            ["Type", formData.business.type],
+            ["Style", styleName],
+            ["Pages", `${pages} page${pages !== 1 ? "s" : ""}`],
+            ["Primary colour", formData.design.primaryColor],
+            ["Dark mode", formData.design.darkMode ? "Yes" : "No"],
+          ].map(([label, value]) => (
+            <div key={label}>
+              <p style={{ fontSize: 11, color: "var(--text3)", marginBottom: 2 }}>{label}</p>
+              <p
+                style={{
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                {label === "Primary colour" ? (
+                  <>
+                    <span
+                      style={{
+                        width: 12,
+                        height: 12,
+                        borderRadius: "50%",
+                        background: value,
+                        border: "1px solid rgba(255,255,255,0.2)",
+                        flexShrink: 0,
+                      }}
+                    />
+                    {value}
+                  </>
+                ) : (
+                  value
+                )}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Price */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "16px 20px",
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: 12,
+          marginBottom: 24,
+        }}
+      >
+        <div>
+          <p style={{ fontWeight: 600, fontSize: 14 }}>Professional Website</p>
+          <p style={{ fontSize: 12, color: "var(--text3)", marginTop: 2 }}>
+            One-time · Deployed to Vercel · Code on GitHub
+          </p>
+        </div>
+        <div style={{ textAlign: "right" }}>
+          <p
+            style={{
+              fontWeight: 700,
+              fontSize: "1.6rem",
+              letterSpacing: "-0.03em",
+            }}
+          >
+            €49.99
+          </p>
+          <p style={{ fontSize: 11, color: "var(--text3)" }}>one-time</p>
+        </div>
+      </div>
+
+      {/* Stripe form */}
+      <form onSubmit={handlePay}>
+        <div
+          style={{
+            background: "rgba(255,255,255,0.03)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 12,
+            padding: "20px",
+            marginBottom: 16,
+          }}
+        >
+          <PaymentElement
+            options={{
+              layout: "tabs",
+              fields: { billingDetails: { name: "auto" } },
+            }}
+          />
+        </div>
+
+        {error && (
+          <div
+            style={{
+              background: "rgba(239,68,68,0.1)",
+              border: "1px solid rgba(239,68,68,0.2)",
+              borderRadius: 10,
+              padding: "12px 16px",
+              color: "#fca5a5",
+              fontSize: 13,
+              marginBottom: 16,
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={paying || !stripe}
+          className="btn-primary w-full rounded-xl py-4"
+          style={{ fontSize: 15, fontWeight: 600 }}
+        >
+          {paying ? (
+            <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <span
+                style={{
+                  width: 14,
+                  height: 14,
+                  border: "2px solid rgba(255,255,255,0.3)",
+                  borderTopColor: "#fff",
+                  borderRadius: "50%",
+                  animation: "spin 0.8s linear infinite",
+                  display: "inline-block",
+                }}
+              />
+              Processing payment…
+            </span>
+          ) : (
+            "Pay €49.99 & Generate Website"
+          )}
+        </button>
+
+        <p
+          style={{
+            fontSize: 11,
+            color: "var(--text3)",
+            textAlign: "center",
+            marginTop: 10,
+          }}
+        >
+          Powered by Stripe · SSL encrypted · No monthly fees
+        </p>
+      </form>
+
+      <button
+        type="button"
+        onClick={onBack}
+        style={{
+          marginTop: 16,
+          width: "100%",
+          background: "none",
+          border: "none",
+          color: "var(--text3)",
+          fontSize: 13,
+          cursor: "pointer",
+          padding: "8px 0",
+        }}
+      >
+        ← Back to review
+      </button>
     </div>
   );
 }
@@ -880,6 +1142,8 @@ export default function GenerateWizard() {
   const [error, setError]     = useState("");
   const [countdown, setCountdown] = useState(100);
   const [stageMsg, setStageMsg]   = useState("");
+  const [clientSecret, setClientSecret] = useState("");
+  const [fetchingPayment, setFetchingPayment] = useState(false);
 
   // Restore wizard progress from localStorage
   useEffect(() => {
@@ -916,15 +1180,35 @@ export default function GenerateWizard() {
   const next = () => { if (canNext()) setStep(s => Math.min(s + 1, 6)); };
   const back = () => setStep(s => Math.max(s - 1, 1));
 
-  const handleSubmit = async () => {
+  const handleGoToPayment = async () => {
+    setFetchingPayment(true);
+    setError("");
+    try {
+      const res = await fetch("/api/checkout/create-payment-intent-site", { method: "POST" });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || "Could not start payment.");
+      if (d.alreadyPaid) {
+        // User already paid — skip payment and generate directly
+        handleSubmit();
+        return;
+      }
+      setClientSecret(d.clientSecret);
+      setStep(7);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Payment setup failed.");
+    } finally {
+      setFetchingPayment(false);
+    }
+  };
+
+  const handleSubmit = async (paymentIntentId?: string) => {
     setLoading(true);
     setError("");
     try {
-      // userId is read from the session cookie server-side — no need to send it
       const res = await fetch("/api/generate-site", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ formData: data }),
+        body: JSON.stringify({ formData: data, paymentIntentId }),
       });
       if (!res.ok) {
         let errMsg = `Server error ${res.status}`;
@@ -938,7 +1222,6 @@ export default function GenerateWizard() {
       }
       const result = await res.json();
       localStorage.removeItem("wizard_data");
-      // siteId is the DB uuid returned by the API
       router.push(`/success/${result.siteId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
@@ -946,7 +1229,8 @@ export default function GenerateWizard() {
     }
   };
 
-  const { title, sub } = STEP_TITLES[step - 1];
+  const stepEntry = step <= 6 ? STEP_TITLES[step - 1] : { title: "Complete payment", sub: "Secure checkout — then we generate your website instantly" };
+  const { title, sub } = stepEntry;
 
   return (
     <div style={{ background: "#050510", minHeight: "100vh", color: "#fff" }}>
@@ -962,14 +1246,18 @@ export default function GenerateWizard() {
         {/* Progress */}
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ fontSize: 12, color: "var(--text3)" }}>Step {step} of {STEP_TITLES.length}</span>
-            <span style={{ fontSize: 12, color: "var(--text3)" }}>{Math.round((step / STEP_TITLES.length) * 100)}%</span>
+            <span style={{ fontSize: 12, color: "var(--text3)" }}>
+              {step <= 6 ? `Step ${step} of 6` : "Payment — Final step"}
+            </span>
+            <span style={{ fontSize: 12, color: "var(--text3)" }}>
+              {step <= 6 ? `${Math.round((step / 6) * 100)}%` : "100%"}
+            </span>
           </div>
           <div style={{ display: "flex", gap: 4 }}>
             {STEP_TITLES.map((_, i) => (
               <div key={i} style={{
                 flex: 1, height: 3, borderRadius: 99, transition: "background 0.4s",
-                background: i < step ? "linear-gradient(90deg,var(--accent),var(--accent2))" : "var(--border)",
+                background: i < Math.min(step, 6) ? "linear-gradient(90deg,var(--accent),var(--accent2))" : "var(--border)",
               }} />
             ))}
           </div>
@@ -1007,11 +1295,36 @@ export default function GenerateWizard() {
             <Step6
               data={data}
               onEdit={(s) => setStep(s)}
-              onSubmit={handleSubmit}
-              loading={loading}
+              onSubmit={handleGoToPayment}
+              loading={fetchingPayment || loading}
               countdown={countdown}
               stageMsg={stageMsg}
             />
+          )}
+          {step === 7 && clientSecret && (
+            <Elements
+              stripe={stripePromise}
+              options={{
+                clientSecret,
+                appearance: {
+                  theme: "night",
+                  variables: {
+                    colorPrimary: "#6366f1",
+                    colorBackground: "#0d0d1a",
+                    colorText: "#ffffff",
+                    colorTextSecondary: "rgba(255,255,255,0.55)",
+                    borderRadius: "10px",
+                    fontFamily: "system-ui, sans-serif",
+                  },
+                },
+              }}
+            >
+              <PaymentStepInner
+                formData={data}
+                onBack={() => setStep(6)}
+                onSuccess={(piId) => handleSubmit(piId)}
+              />
+            </Elements>
           )}
         </div>
 

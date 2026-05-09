@@ -14,8 +14,6 @@ export default function GeneratePage() {
       .then((data) => {
         if (!data.user) {
           router.push("/login");
-        } else if (data.user.paymentStatus !== "paid") {
-          router.push("/checkout");
         } else {
           setReady(true);
         }
@@ -25,25 +23,8 @@ export default function GeneratePage() {
 
   if (!ready) {
     return (
-      <div
-        style={{
-          background: "#050510",
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div
-          style={{
-            width: 28,
-            height: 28,
-            border: "2px solid rgba(99,102,241,0.3)",
-            borderTopColor: "var(--accent)",
-            borderRadius: "50%",
-            animation: "spin 0.8s linear infinite",
-          }}
-        />
+      <div style={{ background: "#050510", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: 28, height: 28, border: "2px solid rgba(99,102,241,0.3)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );

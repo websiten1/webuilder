@@ -29,7 +29,7 @@ function VerifyEmailContent() {
         const data = await res.json();
         if (res.ok) {
           setState("success");
-          setTimeout(() => router.push("/checkout"), 2500);
+          setTimeout(() => router.push("/dashboard"), 2500);
         } else {
           setState("error");
           setErrorMsg(data.error || "Verification failed.");
@@ -137,7 +137,7 @@ function VerifyEmailContent() {
                 Email verified!
               </h1>
               <p style={{ color: "var(--text2)", fontSize: 14 }}>
-                Redirecting you to complete your payment…
+                Redirecting you to your dashboard…
               </p>
             </>
           )}
