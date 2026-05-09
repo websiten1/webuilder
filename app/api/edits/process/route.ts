@@ -1,0 +1,201 @@
+import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
+import { getSession } from "@/lib/session";
+import {
+  getSiteEditById,
+  getSiteById,
+  updateSiteEditStatus,
+  incrementSiteVersion,
+  getUserById,
+} from "@/lib/db";
+import { fetchFileContent, parseGitHubUrl, pushCodeToGitHub } from "@/lib/github";
+import { deployToVercel } from "@/lib/vercel";
+import { generateWebsiteCode } from "@/lib/anthropic";
+import {
+  sendEditStartedEmail,
+  sendEditCompletedEmail,
+  sendEditFailedEmail,
+} from "@/lib/email";
+
+export const maxDuration = 300;
+
+function getStripe() {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key || key === "sk_test_xxxxx") throw new Error("STRIPE_SECRET_KEY not configured");
+  return new Stripe(key);
+}
+
+async function issueRefund(stripe: Stripe, sessionId: string) {
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    if (session.payment_intent) {
+      await stripe.refunds.create({ payment_intent: session.payment_intent as string });
+      console.log("Refund issued for session:", sessionId);
+    }
+  } catch (e) {
+    console.error("Refund failed:", e);
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const stripe = getStripe();
+  let editId: string | undefined;
+
+  try {
+    const authSession = await getSession();
+    if (!authSession) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+
+    const { sessionId, editId: eid } = await request.json();
+    editId = eid;
+
+    if (!sessionId || !editId) {
+      return NextResponse.json({ error: "sessionId and editId are required." }, { status: 400 });
+    }
+
+    // Verify Stripe payment
+    const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
+    if (
+      checkoutSession.payment_status !== "paid" ||
+      checkoutSession.metadata?.editId !== editId ||
+      checkoutSession.metadata?.userId !== authSession.userId
+    ) {
+      return NextResponse.json({ error: "Payment not verified." }, { status: 400 });
+    }
+
+    // Get edit record
+    const edit = await getSiteEditById(editId);
+    if (!edit || edit.user_id !== authSession.userId) {
+      return NextResponse.json({ error: "Edit not found." }, { status: 404 });
+    }
+
+    // Idempotency: skip if already processed
+    if (edit.status === "completed") {
+      return NextResponse.json({ success: true, alreadyDone: true });
+    }
+
+    const paymentIntentId =
+      typeof checkoutSession.payment_intent === "string"
+        ? checkoutSession.payment_intent
+        : null;
+
+    // Mark as paid + processing
+    await updateSiteEditStatus(editId, "processing", {
+      stripeSessionId: sessionId,
+      stripePaymentIntentId: paymentIntentId ?? undefined,
+    });
+
+    // Get site + user
+    const site = await getSiteById(edit.site_id, authSession.userId);
+    if (!site?.github_url || !site.repo_name) {
+      await updateSiteEditStatus(editId, "failed");
+      await issueRefund(stripe, sessionId);
+      return NextResponse.json({ error: "Site data missing." }, { status: 500 });
+    }
+
+    const user = await getUserById(authSession.userId);
+    if (!user) return NextResponse.json({ error: "User not found." }, { status: 404 });
+
+    // Send "started" email
+    sendEditStartedEmail(user.email, site.name, edit.description).catch(console.error);
+
+    // 1. Fetch current code from GitHub
+    let currentCode: string;
+    try {
+      currentCode = await fetchFileContent(site.github_url, "pages/index.tsx");
+    } catch (e) {
+      console.error("GitHub fetch failed:", e);
+      await updateSiteEditStatus(editId, "failed");
+      await issueRefund(stripe, sessionId);
+      sendEditFailedEmail(user.email, site.name, edit.description, site.id).catch(console.error);
+      return NextResponse.json({ error: "Could not fetch current website code." }, { status: 500 });
+    }
+
+    // 2. Build Claude edit prompt
+    const designInfo = site.design_preferences
+      ? `\nOriginal design preferences:\n${JSON.stringify(site.design_preferences, null, 2)}`
+      : "";
+
+    const editPrompt = `You are editing an existing Next.js website for a ${site.business_type || "business"} called "${site.name}".
+
+CURRENT WEBSITE CODE:
+${currentCode}
+${designInfo}
+
+USER REQUESTED CHANGES:
+${edit.description}
+
+INSTRUCTIONS:
+1. Keep the overall design, layout, colors, and style consistent with the original.
+2. Only change what the user explicitly requested — do not rewrite unrelated parts.
+3. Maintain all existing functionality and sections unless told to remove them.
+4. Return ONLY the complete updated React component code — no markdown, no explanations, no code fences.
+5. The component must remain a default export: export default function Page() { ... }
+6. Use only inline styles or a single <style> JSX tag — no external CSS or Tailwind.
+7. Keep placeholder images from https://picsum.photos/ unless specifically asked to change them.`;
+
+    // 3. Regenerate with Claude
+    let newCode: string;
+    try {
+      newCode = await generateWebsiteCode(editPrompt);
+    } catch (e) {
+      console.error("Claude generation failed:", e);
+      await updateSiteEditStatus(editId, "failed");
+      await issueRefund(stripe, sessionId);
+      sendEditFailedEmail(user.email, site.name, edit.description, site.id).catch(console.error);
+      return NextResponse.json({ error: "Code generation failed." }, { status: 500 });
+    }
+
+    // 4. Push updated code to GitHub
+    try {
+      const { owner, repo } = parseGitHubUrl(site.github_url);
+      await pushCodeToGitHub(owner, repo, newCode);
+    } catch (e) {
+      console.error("GitHub push failed:", e);
+      await updateSiteEditStatus(editId, "failed");
+      await issueRefund(stripe, sessionId);
+      sendEditFailedEmail(user.email, site.name, edit.description, site.id).catch(console.error);
+      return NextResponse.json({ error: "Failed to update GitHub." }, { status: 500 });
+    }
+
+    // 5. Deploy new version to Vercel (same project name → same production URL)
+    let deployedUrl: string;
+    try {
+      const deployment = await deployToVercel(site.repo_name, newCode);
+      deployedUrl = `https://${deployment.url}`;
+    } catch (e) {
+      console.error("Vercel deploy failed:", e);
+      await updateSiteEditStatus(editId, "failed");
+      await issueRefund(stripe, sessionId);
+      sendEditFailedEmail(user.email, site.name, edit.description, site.id).catch(console.error);
+      return NextResponse.json({ error: "Deployment failed." }, { status: 500 });
+    }
+
+    // 6. Update DB
+    await updateSiteEditStatus(editId, "completed", {
+      previousVercelUrl: site.vercel_url ?? undefined,
+      newVercelUrl: deployedUrl,
+      completedAt: new Date(),
+    });
+    await incrementSiteVersion(site.id);
+
+    // Send "completed" email
+    const newVersion = (site.current_version ?? 1) + 1;
+    sendEditCompletedEmail(
+      user.email,
+      site.name,
+      edit.description,
+      site.vercel_url ?? deployedUrl,
+      site.github_url,
+      newVersion
+    ).catch(console.error);
+
+    return NextResponse.json({ success: true, siteUrl: site.vercel_url ?? deployedUrl });
+  } catch (error) {
+    console.error("Process edit error:", error);
+    if (editId) await updateSiteEditStatus(editId, "failed").catch(() => {});
+    return NextResponse.json(
+      { error: "An unexpected error occurred while processing your edit." },
+      { status: 500 }
+    );
+  }
+}

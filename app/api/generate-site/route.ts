@@ -216,14 +216,15 @@ export async function POST(request: NextRequest) {
 
     const siteUrl = `https://${deployment.url}`;
 
-    // Save to database
+    // Save to database — store design preferences so edits can reference them
     const site = await saveSite(
       user.id,
       siteName,
       formData.business.type,
       repo.html_url,
       siteUrl,
-      repo.name
+      repo.name,
+      formData as unknown as Record<string, unknown>
     );
 
     return NextResponse.json({

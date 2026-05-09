@@ -1,0 +1,78 @@
+import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
+import { getSession } from "@/lib/session";
+import { getSiteById, createSiteEdit, updateSiteEditStatus } from "@/lib/db";
+
+function getStripe() {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key || key === "sk_test_xxxxx") throw new Error("STRIPE_SECRET_KEY not configured");
+  return new Stripe(key);
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+
+    const { siteId, description } = await request.json();
+
+    if (!siteId || !description?.trim()) {
+      return NextResponse.json({ error: "Site ID and description are required." }, { status: 400 });
+    }
+    if (description.trim().length < 10) {
+      return NextResponse.json({ error: "Description must be at least 10 characters." }, { status: 400 });
+    }
+    if (description.trim().length > 500) {
+      return NextResponse.json({ error: "Description must be 500 characters or fewer." }, { status: 400 });
+    }
+
+    const site = await getSiteById(siteId, session.userId);
+    if (!site) {
+      return NextResponse.json({ error: "Site not found." }, { status: 404 });
+    }
+
+    // Create the edit record (pending payment)
+    const edit = await createSiteEdit(siteId, session.userId, description.trim());
+
+    const stripe = getStripe();
+    const baseUrl = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
+
+    const checkoutSession = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: [
+        {
+          price_data: {
+            currency: "eur",
+            unit_amount: 1500,
+            product_data: {
+              name: `Website Edit — ${site.name}`,
+              description: description.trim().slice(0, 120),
+            },
+          },
+          quantity: 1,
+        },
+      ],
+      metadata: {
+        type: "edit",
+        editId: edit.id,
+        siteId: site.id,
+        userId: session.userId,
+      },
+      success_url: `${baseUrl}/edit/processing?session_id={CHECKOUT_SESSION_ID}&edit_id=${edit.id}`,
+      cancel_url: `${baseUrl}/edit/${siteId}`,
+    });
+
+    // Store the Stripe session id on the edit record
+    await updateSiteEditStatus(edit.id, "pending", {
+      stripeSessionId: checkoutSession.id,
+    });
+
+    return NextResponse.json({ url: checkoutSession.url });
+  } catch (error) {
+    console.error("Create edit checkout error:", error);
+    return NextResponse.json(
+      { error: "Failed to create checkout session." },
+      { status: 500 }
+    );
+  }
+}

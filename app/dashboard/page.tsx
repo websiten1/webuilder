@@ -10,6 +10,8 @@ type Site = {
   vercel_url: string;
   github_url: string;
   status: string;
+  current_version: number;
+  edit_count: number;
   created_at: string;
 };
 
@@ -184,60 +186,56 @@ export default function DashboardPage() {
                 key={site.id}
                 className="glass glass-hover rounded-2xl p-6 flex flex-col"
               >
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start justify-between mb-3">
                   <div className="flex-1 min-w-0 mr-3">
                     <h3 className="font-semibold truncate">{site.name}</h3>
-                    <p
-                      className="text-xs mt-0.5"
-                      style={{ color: "var(--text3)" }}
-                    >
+                    <p className="text-xs mt-0.5" style={{ color: "var(--text3)" }}>
                       {new Date(site.created_at).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
+                        day: "numeric", month: "short", year: "numeric",
                       })}
                     </p>
                   </div>
                   <span
                     className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full flex-shrink-0"
-                    style={{
-                      background: "rgba(16,185,129,0.12)",
-                      border: "1px solid rgba(16,185,129,0.2)",
-                      color: "#6ee7b7",
-                    }}
+                    style={{ background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.2)", color: "#6ee7b7" }}
                   >
-                    <span
-                      className="w-1.5 h-1.5 rounded-full"
-                      style={{ background: "#10b981" }}
-                    />
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#10b981" }} />
                     {site.status}
                   </span>
                 </div>
 
-                <p
-                  className="text-xs font-mono mb-5 truncate"
-                  style={{ color: "var(--text3)" }}
-                >
+                {/* Version + edit count */}
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.2)", color: "#a5b4fc" }}>
+                    v{site.current_version ?? 1}
+                  </span>
+                  {(site.edit_count ?? 0) > 0 && (
+                    <span className="text-xs" style={{ color: "var(--text3)" }}>
+                      {site.edit_count} edit{site.edit_count !== 1 ? "s" : ""}
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-xs font-mono mb-4 truncate" style={{ color: "var(--text3)" }}>
                   {site.vercel_url?.replace("https://", "")}
                 </p>
 
-                <div className="flex gap-2 mt-auto">
-                  <a
-                    href={site.vercel_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-primary flex-1 rounded-lg py-2.5 text-xs"
+                <div className="flex gap-2 mt-auto flex-col">
+                  <div className="flex gap-2">
+                    <a href={site.vercel_url} target="_blank" rel="noopener noreferrer" className="btn-primary flex-1 rounded-lg py-2.5 text-xs">
+                      View site
+                    </a>
+                    <a href={site.github_url} target="_blank" rel="noopener noreferrer" className="btn-ghost flex-1 rounded-lg py-2.5 text-xs">
+                      View code
+                    </a>
+                  </div>
+                  <Link
+                    href={`/edit/${site.id}`}
+                    className="btn-ghost w-full rounded-lg py-2.5 text-xs text-center"
+                    style={{ textDecoration: "none", border: "1px solid rgba(99,102,241,0.25)", color: "var(--accent)" }}
                   >
-                    View site
-                  </a>
-                  <a
-                    href={site.github_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-ghost flex-1 rounded-lg py-2.5 text-xs"
-                  >
-                    View code
-                  </a>
+                    Request Changes — €15
+                  </Link>
                 </div>
               </div>
             ))}

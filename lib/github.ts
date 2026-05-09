@@ -161,3 +161,23 @@ module.exports = { typescript: { ignoreBuildErrors: true }, eslint: { ignoreDuri
     }
   );
 }
+
+export function parseGitHubUrl(githubUrl: string): { owner: string; repo: string } {
+  const match = githubUrl.match(/github\.com\/([^/]+)\/([^/\s]+)/);
+  if (!match) throw new Error(`Cannot parse GitHub URL: ${githubUrl}`);
+  return { owner: match[1], repo: match[2].replace(/\.git$/, "") };
+}
+
+export async function fetchFileContent(githubUrl: string, filePath: string): Promise<string> {
+  const { owner, repo } = parseGitHubUrl(githubUrl);
+  const token = process.env.GITHUB_BOT_TOKEN;
+  if (!token) throw new Error("GITHUB_BOT_TOKEN not set");
+  const res = await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`,
+    { headers: GH_HEADERS(token) }
+  );
+  if (!res.ok) throw new Error(`GitHub fetch ${filePath} failed: ${res.status}`);
+  const data = await res.json();
+  return Buffer.from(data.content as string, "base64").toString("utf-8");
+}
+

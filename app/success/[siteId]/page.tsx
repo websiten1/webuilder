@@ -179,6 +179,17 @@ export default function SuccessPage() {
             ))}
           </ul>
         </div>
+
+        {/* Edit CTA */}
+        <div className="fade-up-4 glass rounded-2xl p-6 mt-4" style={{ border: "1px solid rgba(99,102,241,0.15)" }}>
+          <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: "var(--text2)" }}>Want to make changes later?</p>
+          <p style={{ fontSize: 12, color: "var(--text3)", marginBottom: 14, lineHeight: 1.6 }}>
+            Come back to your dashboard anytime. Click &quot;Request Changes&quot; for €15 per edit — Claude regenerates and redeploys in ~2 minutes.
+          </p>
+          <Link href={`/edit/${siteId}`} style={{ fontSize: 12, color: "var(--accent)", textDecoration: "none" }}>
+            Request changes →
+          </Link>
+        </div>
       </div>
     </div>
   );

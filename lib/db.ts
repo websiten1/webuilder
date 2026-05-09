@@ -34,7 +34,24 @@ export type Site = {
   vercel_url: string | null;
   repo_name: string | null;
   status: string;
+  current_version: number;
+  edit_count: number;
+  design_preferences: Record<string, unknown> | null;
   created_at: Date;
+};
+
+export type SiteEdit = {
+  id: string;
+  site_id: string;
+  user_id: string;
+  description: string;
+  status: "pending" | "paid" | "processing" | "completed" | "failed";
+  stripe_session_id: string | null;
+  stripe_payment_intent_id: string | null;
+  previous_vercel_url: string | null;
+  new_vercel_url: string | null;
+  created_at: Date;
+  completed_at: Date | null;
 };
 
 export async function getUserByEmail(email: string): Promise<User | null> {
@@ -131,15 +148,92 @@ export async function saveSite(
   businessType: string,
   githubUrl: string,
   vercelUrl: string,
-  repoName: string
+  repoName: string,
+  designPreferences?: Record<string, unknown>
 ): Promise<Site> {
   const sql = getDb();
+  const prefs = designPreferences ? JSON.stringify(designPreferences) : null;
   const rows = await sql`
-    INSERT INTO sites (user_id, name, business_type, github_url, vercel_url, repo_name)
-    VALUES (${userId}, ${name}, ${businessType}, ${githubUrl}, ${vercelUrl}, ${repoName})
+    INSERT INTO sites (user_id, name, business_type, github_url, vercel_url, repo_name, design_preferences)
+    VALUES (${userId}, ${name}, ${businessType}, ${githubUrl}, ${vercelUrl}, ${repoName}, ${prefs}::jsonb)
     RETURNING *
   `;
   return rows[0] as Site;
+}
+
+export async function getSiteById(id: string, userId: string): Promise<Site | null> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT * FROM sites WHERE id = ${id} AND user_id = ${userId} LIMIT 1
+  `;
+  return (rows[0] as Site) || null;
+}
+
+export async function createSiteEdit(
+  siteId: string,
+  userId: string,
+  description: string
+): Promise<SiteEdit> {
+  const sql = getDb();
+  const rows = await sql`
+    INSERT INTO site_edits (site_id, user_id, description)
+    VALUES (${siteId}, ${userId}, ${description})
+    RETURNING *
+  `;
+  return rows[0] as SiteEdit;
+}
+
+export async function updateSiteEditStatus(
+  editId: string,
+  status: SiteEdit["status"],
+  fields?: {
+    stripeSessionId?: string;
+    stripePaymentIntentId?: string;
+    newVercelUrl?: string;
+    previousVercelUrl?: string;
+    completedAt?: Date;
+  }
+): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE site_edits
+    SET status = ${status},
+        stripe_session_id = COALESCE(${fields?.stripeSessionId ?? null}, stripe_session_id),
+        stripe_payment_intent_id = COALESCE(${fields?.stripePaymentIntentId ?? null}, stripe_payment_intent_id),
+        new_vercel_url = COALESCE(${fields?.newVercelUrl ?? null}, new_vercel_url),
+        previous_vercel_url = COALESCE(${fields?.previousVercelUrl ?? null}, previous_vercel_url),
+        completed_at = COALESCE(${fields?.completedAt ?? null}, completed_at)
+    WHERE id = ${editId}
+  `;
+}
+
+export async function getSiteEditById(id: string): Promise<SiteEdit | null> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT * FROM site_edits WHERE id = ${id} LIMIT 1
+  `;
+  return (rows[0] as SiteEdit) || null;
+}
+
+export async function getSiteEditsBysite(siteId: string, userId: string): Promise<SiteEdit[]> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT se.* FROM site_edits se
+    JOIN sites s ON s.id = se.site_id
+    WHERE se.site_id = ${siteId} AND s.user_id = ${userId}
+    ORDER BY se.created_at DESC
+  `;
+  return rows as SiteEdit[];
+}
+
+export async function incrementSiteVersion(siteId: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE sites
+    SET current_version = current_version + 1,
+        edit_count = edit_count + 1
+    WHERE id = ${siteId}
+  `;
 }
 
 export async function getSitesByUserId(userId: string): Promise<Site[]> {

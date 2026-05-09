@@ -12,11 +12,13 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+  const [emailWarning, setEmailWarning] = useState("");
 
   const handleSignup = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setEmailWarning("");
     try {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
@@ -28,6 +30,7 @@ export default function SignupPage() {
         setError(data.error || "Signup failed. Please try again.");
         return;
       }
+      if (data.emailWarning) setEmailWarning(data.emailWarning);
       setDone(true);
     } catch {
       setError("Network error. Please try again.");
@@ -84,16 +87,38 @@ export default function SignupPage() {
               className="font-bold tracking-tight mb-2"
               style={{ fontSize: "1.6rem" }}
             >
-              Check your inbox
+              {emailWarning ? "Account created" : "Check your inbox"}
             </h1>
-            <p
-              className="mb-6"
-              style={{ color: "var(--text2)", fontSize: 14, lineHeight: 1.7 }}
-            >
-              We sent a verification link to{" "}
-              <strong style={{ color: "#fff" }}>{email}</strong>. Click it to
-              verify your email and continue to payment.
-            </p>
+
+            {emailWarning ? (
+              <div
+                className="text-sm px-4 py-3 rounded-xl mb-4 text-left"
+                style={{
+                  background: "rgba(234,179,8,0.08)",
+                  border: "1px solid rgba(234,179,8,0.2)",
+                  color: "#fde047",
+                  lineHeight: 1.6,
+                }}
+              >
+                <p className="font-semibold mb-1">Email could not be sent</p>
+                <p style={{ color: "rgba(253,224,71,0.75)", fontSize: 12 }}>
+                  Your account was created. To verify your email, use the
+                  &quot;Resend verification email&quot; option below — or check
+                  the <strong>server console</strong> for the verification link
+                  (development only).
+                </p>
+              </div>
+            ) : (
+              <p
+                className="mb-6"
+                style={{ color: "var(--text2)", fontSize: 14, lineHeight: 1.7 }}
+              >
+                We sent a verification link to{" "}
+                <strong style={{ color: "#fff" }}>{email}</strong>. Click it to
+                verify your email and continue to payment.
+              </p>
+            )}
+
             <p style={{ color: "var(--text3)", fontSize: 12 }}>
               Didn&apos;t get it? Check your spam folder or{" "}
               <button

@@ -56,11 +56,23 @@ export async function POST(request: NextRequest) {
       tokenExpires
     );
 
-    await sendVerificationEmail(email.toLowerCase(), verificationToken);
+    // Try to send the email — if it fails, the account still exists and the
+    // user can request a new link from /verify-email. Log the link for dev use.
+    let emailWarning: string | null = null;
+    try {
+      await sendVerificationEmail(email.toLowerCase(), verificationToken);
+    } catch (emailError) {
+      console.error("Email send failed:", emailError);
+      emailWarning =
+        "Account created but we could not send the verification email. " +
+        "Check the server console for the verification link (development), " +
+        "or use 'Resend verification email' on the next page.";
+    }
 
     return NextResponse.json({
       success: true,
-      message: "Account created. Check your email for the verification link.",
+      message: emailWarning ?? "Account created! Check your email for the verification link.",
+      emailWarning: emailWarning ?? null,
     });
   } catch (error) {
     console.error("Signup error:", error);
