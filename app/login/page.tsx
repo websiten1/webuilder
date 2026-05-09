@@ -128,13 +128,16 @@ function LoginContent() {
             <form onSubmit={handleLogin} className="space-y-4">
               {error && (
                 <div
-                  className="text-sm px-4 py-3 rounded-xl"
+                  className="text-sm px-4 py-3 rounded-xl flex items-start gap-2"
                   style={{
-                    background: "rgba(239,68,68,0.1)",
-                    border: "1px solid rgba(239,68,68,0.2)",
+                    background: "rgba(239,68,68,0.12)",
+                    border: "1px solid rgba(239,68,68,0.35)",
                     color: "#fca5a5",
                   }}
                 >
+                  <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} style={{ flexShrink: 0, marginTop: 1 }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                  </svg>
                   {error}
                 </div>
               )}
