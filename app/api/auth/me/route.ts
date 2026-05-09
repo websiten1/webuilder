@@ -20,6 +20,7 @@ export async function GET() {
         email: user.email,
         emailVerified: user.email_verified,
         paymentStatus: user.payment_status,
+        vercelAuthorized: user.vercel_authorized ?? false,
       },
     });
   } catch (error) {

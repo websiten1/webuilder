@@ -862,6 +862,116 @@ function Step6({ data, onEdit, onSubmit, loading, countdown, stageMsg }: {
   );
 }
 
+// ─── Vercel Auth Step ─────────────────────────────────────────────────────────
+
+function VercelAuthStep({
+  onConnect,
+  onBack,
+}: {
+  onConnect: () => void;
+  onBack: () => void;
+}) {
+  const features = [
+    "Your website lives on YOUR Vercel account — not ours",
+    "You get a free .vercel.app domain instantly",
+    "Add a custom domain anytime from your Vercel dashboard",
+    "Full access to deployment logs, analytics, and settings",
+    "Zero lock-in — you own everything forever",
+  ];
+  return (
+    <div>
+      {/* Explanation card */}
+      <div
+        style={{
+          background: "rgba(99,102,241,0.06)",
+          border: "1px solid rgba(99,102,241,0.2)",
+          borderRadius: 16,
+          padding: "20px 24px",
+          marginBottom: 24,
+        }}
+      >
+        <p
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            color: "var(--text3)",
+            marginBottom: 14,
+          }}
+        >
+          One-time setup
+        </p>
+        <p
+          style={{
+            fontSize: 14,
+            color: "var(--text2)",
+            lineHeight: 1.7,
+            marginBottom: 16,
+          }}
+        >
+          We need permission to deploy your website to <strong style={{ color: "#fff" }}>your Vercel account</strong>. This is a one-click process — Vercel will ask you to approve the connection. You never have to do this again.
+        </p>
+        <ul style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {features.map((f) => (
+            <li key={f} style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 13, color: "var(--text2)" }}>
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#10b981" strokeWidth={2.5} style={{ flexShrink: 0, marginTop: 1 }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              {f}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Security note */}
+      <div
+        style={{
+          background: "rgba(255,255,255,0.02)",
+          border: "1px solid rgba(255,255,255,0.07)",
+          borderRadius: 10,
+          padding: "12px 16px",
+          marginBottom: 24,
+          fontSize: 12,
+          color: "var(--text3)",
+          lineHeight: 1.6,
+        }}
+      >
+        🔒 We only use your Vercel token to deploy websites you create here. Your credentials are stored securely and never shared.
+      </div>
+
+      <button
+        type="button"
+        onClick={onConnect}
+        className="btn-primary w-full rounded-xl py-4"
+        style={{ fontSize: 15, fontWeight: 600 }}
+      >
+        Connect Vercel Account →
+      </button>
+      <p style={{ fontSize: 11, color: "var(--text3)", textAlign: "center", marginTop: 8 }}>
+        You&apos;ll be redirected to Vercel to approve the connection, then brought straight back.
+      </p>
+
+      <button
+        type="button"
+        onClick={onBack}
+        style={{
+          marginTop: 16,
+          width: "100%",
+          background: "none",
+          border: "none",
+          color: "var(--text3)",
+          fontSize: 13,
+          cursor: "pointer",
+          padding: "8px 0",
+        }}
+      >
+        ← Back to review
+      </button>
+    </div>
+  );
+}
+
 // ─── Payment Step ─────────────────────────────────────────────────────────────
 
 function PaymentStepInner({
@@ -1144,12 +1254,46 @@ export default function GenerateWizard() {
   const [stageMsg, setStageMsg]   = useState("");
   const [clientSecret, setClientSecret] = useState("");
   const [fetchingPayment, setFetchingPayment] = useState(false);
+  const [vercelAuthorized, setVercelAuthorized] = useState<boolean | null>(null);
 
-  // Restore wizard progress from localStorage
+  // Restore wizard progress + check Vercel auth + handle OAuth return
   useEffect(() => {
     const saved = localStorage.getItem("wizard_data");
     if (saved) { try { setData(JSON.parse(saved)); } catch {} }
-  }, []);
+
+    // Handle return from Vercel OAuth
+    const params = new URLSearchParams(window.location.search);
+    const justAuthorized = params.get("vercel_authorized") === "true";
+    const oauthError = params.get("error");
+
+    if (justAuthorized) {
+      setVercelAuthorized(true);
+      // Clean URL and jump straight to payment
+      window.history.replaceState({}, "", "/generate");
+      setFetchingPayment(true);
+      fetch("/api/checkout/create-payment-intent-site", { method: "POST" })
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.alreadyPaid) { handleSubmit(); return; }
+          if (d.clientSecret) { setClientSecret(d.clientSecret); setStep(8); }
+          else setError(d.error ?? "Could not start payment.");
+        })
+        .catch(() => setError("Payment setup failed. Please try again."))
+        .finally(() => setFetchingPayment(false));
+      return;
+    }
+
+    if (oauthError) {
+      window.history.replaceState({}, "", "/generate");
+      setError("Vercel connection failed. Please try again.");
+    }
+
+    // Load Vercel auth status for current user
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => setVercelAuthorized(d.user?.vercelAuthorized ?? false))
+      .catch(() => setVercelAuthorized(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     localStorage.setItem("wizard_data", JSON.stringify(data));
@@ -1181,19 +1325,26 @@ export default function GenerateWizard() {
   const back = () => setStep(s => Math.max(s - 1, 1));
 
   const handleGoToPayment = async () => {
-    setFetchingPayment(true);
     setError("");
+    // Step 1: check Vercel auth (first time only)
+    if (!vercelAuthorized) {
+      // Save wizard data so it survives the OAuth redirect
+      localStorage.setItem("wizard_data", JSON.stringify(data));
+      setStep(7); // show Vercel auth step
+      return;
+    }
+    // Step 2: already authorized — go straight to payment
+    setFetchingPayment(true);
     try {
       const res = await fetch("/api/checkout/create-payment-intent-site", { method: "POST" });
       const d = await res.json();
       if (!res.ok) throw new Error(d.error || "Could not start payment.");
       if (d.alreadyPaid) {
-        // User already paid — skip payment and generate directly
         handleSubmit();
         return;
       }
       setClientSecret(d.clientSecret);
-      setStep(7);
+      setStep(8);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Payment setup failed.");
     } finally {
@@ -1229,7 +1380,12 @@ export default function GenerateWizard() {
     }
   };
 
-  const stepEntry = step <= 6 ? STEP_TITLES[step - 1] : { title: "Complete payment", sub: "Secure checkout — then we generate your website instantly" };
+  const stepEntry =
+    step <= 6
+      ? STEP_TITLES[step - 1]
+      : step === 7
+      ? { title: "Connect to Vercel", sub: "One-time setup — your website will live on your own Vercel account" }
+      : { title: "Complete payment", sub: "Secure checkout — then we generate and deploy your website instantly" };
   const { title, sub } = stepEntry;
 
   return (
@@ -1247,7 +1403,7 @@ export default function GenerateWizard() {
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
             <span style={{ fontSize: 12, color: "var(--text3)" }}>
-              {step <= 6 ? `Step ${step} of 6` : "Payment — Final step"}
+              {step <= 6 ? `Step ${step} of 6` : step === 7 ? "Connect Vercel — one time only" : "Payment — Final step"}
             </span>
             <span style={{ fontSize: 12, color: "var(--text3)" }}>
               {step <= 6 ? `${Math.round((step / 6) * 100)}%` : "100%"}
@@ -1301,7 +1457,16 @@ export default function GenerateWizard() {
               stageMsg={stageMsg}
             />
           )}
-          {step === 7 && clientSecret && (
+          {/* Step 7 — Vercel OAuth (first time only) */}
+          {step === 7 && (
+            <VercelAuthStep
+              onConnect={() => { window.location.href = "/api/auth/vercel/authorize"; }}
+              onBack={() => setStep(6)}
+            />
+          )}
+
+          {/* Step 8 — Payment */}
+          {step === 8 && clientSecret && (
             <Elements
               stripe={stripePromise}
               options={{
@@ -1321,7 +1486,7 @@ export default function GenerateWizard() {
             >
               <PaymentStepInner
                 formData={data}
-                onBack={() => setStep(6)}
+                onBack={() => { setStep(7); setClientSecret(""); }}
                 onSuccess={(piId) => handleSubmit(piId)}
               />
             </Elements>

@@ -2,12 +2,15 @@
 
 export async function deployToVercel(
   projectName: string,
-  code: string
+  code: string,
+  options?: { userToken?: string; teamId?: string | null }
 ): Promise<{ id: string; url: string }> {
-  const token = process.env.VERCEL_API_TOKEN;
+  // Prefer user's own Vercel token; fall back to app token (used by edit feature)
+  const token = options?.userToken ?? process.env.VERCEL_API_TOKEN;
+  const teamId = options?.teamId;
 
   if (!token) {
-    throw new Error("VERCEL_API_TOKEN not set");
+    throw new Error("No Vercel token available. VERCEL_API_TOKEN not set.");
   }
 
   const packageJson = JSON.stringify(
@@ -56,7 +59,10 @@ export async function deployToVercel(
   );
 
   try {
-    const response = await fetch("https://api.vercel.com/v13/deployments", {
+    const deployUrl = teamId
+      ? `https://api.vercel.com/v13/deployments?teamId=${teamId}`
+      : "https://api.vercel.com/v13/deployments";
+    const response = await fetch(deployUrl, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,

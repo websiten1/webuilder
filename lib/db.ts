@@ -21,6 +21,11 @@ export type User = {
   payment_date: Date | null;
   stripe_customer_id: string | null;
   stripe_session_id: string | null;
+  vercel_access_token: string | null;
+  vercel_user_id: string | null;
+  vercel_team_id: string | null;
+  vercel_authorized: boolean;
+  vercel_authorized_at: Date | null;
   created_at: Date;
   updated_at: Date;
 };
@@ -33,6 +38,9 @@ export type Site = {
   github_url: string | null;
   vercel_url: string | null;
   repo_name: string | null;
+  vercel_project_id: string | null;
+  vercel_deployment_id: string | null;
+  deployment_status: string;
   status: string;
   current_version: number;
   edit_count: number;
@@ -242,4 +250,50 @@ export async function getSitesByUserId(userId: string): Promise<Site[]> {
     SELECT * FROM sites WHERE user_id = ${userId} ORDER BY created_at DESC
   `;
   return rows as Site[];
+}
+
+export async function saveVercelAuth(
+  userId: string,
+  accessToken: string,
+  vercelUserId: string | null,
+  teamId: string | null
+): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE users
+    SET vercel_access_token = ${accessToken},
+        vercel_user_id = ${vercelUserId},
+        vercel_team_id = ${teamId},
+        vercel_authorized = TRUE,
+        vercel_authorized_at = NOW(),
+        updated_at = NOW()
+    WHERE id = ${userId}
+  `;
+}
+
+export async function saveSiteWithVercel(
+  userId: string,
+  name: string,
+  businessType: string,
+  vercelUrl: string,
+  vercelProjectId: string,
+  vercelDeploymentId: string,
+  designPreferences?: Record<string, unknown>
+): Promise<Site> {
+  const sql = getDb();
+  const prefs = designPreferences ? JSON.stringify(designPreferences) : null;
+  const rows = await sql`
+    INSERT INTO sites (
+      user_id, name, business_type, vercel_url,
+      vercel_project_id, vercel_deployment_id, deployment_status,
+      design_preferences
+    )
+    VALUES (
+      ${userId}, ${name}, ${businessType}, ${vercelUrl},
+      ${vercelProjectId}, ${vercelDeploymentId}, 'deployed',
+      ${prefs}::jsonb
+    )
+    RETURNING *
+  `;
+  return rows[0] as Site;
 }

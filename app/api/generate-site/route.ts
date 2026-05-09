@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateWebsiteCode } from "@/lib/anthropic";
-import { createGitHubRepository, pushCodeToGitHub } from "@/lib/github";
 import { deployToVercel } from "@/lib/vercel";
 import { getSession, createSession } from "@/lib/session";
-import { getUserById, saveSite, markUserPaid } from "@/lib/db";
+import { getUserById, saveSiteWithVercel, markUserPaid } from "@/lib/db";
 import type { WizardData } from "@/app/components/GenerateWizard";
 import Stripe from "stripe";
 
@@ -229,6 +228,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Business name and description are required." }, { status: 400 });
     }
 
+    // Require user's own Vercel token
+    if (!user.vercel_access_token) {
+      return NextResponse.json({ error: "Vercel account not connected. Please connect your Vercel account first.", code: "VERCEL_NOT_AUTHORIZED" }, { status: 403 });
+    }
+
     const prompt = buildPrompt(formData);
     console.log("Starting site generation for:", siteName);
 
@@ -236,29 +240,24 @@ export async function POST(request: NextRequest) {
     const websiteCode = await generateWebsiteCode(prompt);
     console.log("✅ Code generated");
 
-    const repoName = `website-${user.id.slice(0, 8)}-${Date.now()}`;
-    console.log("Creating GitHub repo:", repoName);
-    const repo = await createGitHubRepository(repoName, `AI-generated website: ${siteName}`);
-    console.log("✅ GitHub repo created:", repo.html_url);
-
-    console.log("Pushing code to GitHub...");
-    await pushCodeToGitHub(repo.owner, repo.name, websiteCode);
-    console.log("✅ Code pushed to GitHub");
-
-    console.log("Deploying to Vercel...");
-    const deployment = await deployToVercel(repoName, websiteCode);
-    console.log("✅ Deployment started:", deployment.url);
+    // Deploy directly to user's Vercel account — no GitHub needed
+    const projectName = `${siteName.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").slice(0, 40)}-${Date.now()}`;
+    console.log("Deploying to user's Vercel...");
+    const deployment = await deployToVercel(projectName, websiteCode, {
+      userToken: user.vercel_access_token,
+      teamId: user.vercel_team_id,
+    });
+    console.log("✅ Deployed:", deployment.url);
 
     const siteUrl = `https://${deployment.url}`;
 
-    // Save to database — store design preferences so edits can reference them
-    const site = await saveSite(
+    const site = await saveSiteWithVercel(
       user.id,
       siteName,
       formData.business.type,
-      repo.html_url,
       siteUrl,
-      repo.name,
+      projectName,
+      deployment.id,
       formData as unknown as Record<string, unknown>
     );
 
@@ -266,8 +265,6 @@ export async function POST(request: NextRequest) {
       success: true,
       siteId: site.id,
       siteUrl,
-      githubUrl: repo.html_url,
-      repoName: repo.name,
       message: "Your website is ready!",
     });
   } catch (error) {
