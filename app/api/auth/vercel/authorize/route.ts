@@ -9,16 +9,19 @@ export async function GET(request: NextRequest) {
   }
 
   const clientId = process.env.VERCEL_OAUTH_CLIENT_ID;
-  const redirectUri = process.env.VERCEL_OAUTH_REDIRECT_URI;
-
-  if (!clientId || !redirectUri) {
-    console.error("Vercel OAuth credentials not configured");
+  if (!clientId) {
+    console.error("VERCEL_OAUTH_CLIENT_ID not set");
     return NextResponse.redirect(
       new URL("/generate?error=vercel_not_configured", request.url)
     );
   }
 
-  // CSRF state — stored in a short-lived cookie
+  // Build redirect URI dynamically from the actual request origin
+  // This works on any domain (localhost, webuilder-rnpp.vercel.app, insixlive.com)
+  const origin = new URL(request.url).origin;
+  const redirectUri = `${origin}/api/auth/vercel/callback`;
+
+  // State stored in the URL itself (avoids cross-domain cookie loss)
   const state = crypto.randomBytes(16).toString("hex");
 
   const url = new URL("https://vercel.com/oauth/authorize");
@@ -27,12 +30,13 @@ export async function GET(request: NextRequest) {
   url.searchParams.set("response_type", "code");
   url.searchParams.set("state", state);
 
+  // Store state in a short-lived cookie on the same origin
   const response = NextResponse.redirect(url);
   response.cookies.set("vercel_oauth_state", state, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 600, // 10 minutes
+    maxAge: 600,
     path: "/",
   });
   return response;
