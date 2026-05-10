@@ -855,9 +855,9 @@ function Step6({ data, onEdit, onSubmit, loading, countdown, stageMsg }: {
       )}
 
       <button type="button" onClick={onSubmit} disabled={loading} className="btn-primary rounded-xl py-4 w-full" style={{ fontSize: 16 }}>
-        {loading ? "Generating your website..." : "Continue to Payment →"}
+        {loading ? "Generating your website..." : "Generate My Website →"}
       </button>
-      <p style={{ fontSize: 12, color: "var(--text3)", textAlign: "center", marginTop: 8 }}>Takes approximately 100 seconds.</p>
+      <p style={{ fontSize: 12, color: "var(--text3)", textAlign: "center", marginTop: 8 }}>Takes approximately 100 seconds. Free while in beta.</p>
     </div>
   );
 }
@@ -1314,30 +1314,9 @@ export default function GenerateWizard() {
   const next = () => { if (canNext()) setStep(s => Math.min(s + 1, 6)); };
   const back = () => setStep(s => Math.max(s - 1, 1));
 
-  const handleGoToPayment = async () => {
-    setError("");
-    // Step 1: check Vercel auth (first time only)
-    if (!vercelAuthorized) {
-      setStep(7); // show Vercel token-paste step
-      return;
-    }
-    // Step 2: already authorized — go straight to payment
-    setFetchingPayment(true);
-    try {
-      const res = await fetch("/api/checkout/create-payment-intent-site", { method: "POST" });
-      const d = await res.json();
-      if (!res.ok) throw new Error(d.error || "Could not start payment.");
-      if (d.alreadyPaid) {
-        handleSubmit();
-        return;
-      }
-      setClientSecret(d.clientSecret);
-      setStep(8);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Payment setup failed.");
-    } finally {
-      setFetchingPayment(false);
-    }
+  // Payment suspended — generate directly from step 6
+  const handleGoToPayment = () => {
+    handleSubmit();
   };
 
   const handleSubmit = async (paymentIntentId?: string) => {

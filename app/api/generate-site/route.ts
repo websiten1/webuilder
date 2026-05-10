@@ -1,16 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateWebsiteCode } from "@/lib/anthropic";
 import { deployToVercel } from "@/lib/vercel";
-import { getSession, createSession } from "@/lib/session";
-import { getUserById, saveSiteWithVercel, markUserPaid } from "@/lib/db";
+import { getSession } from "@/lib/session";
+import { getUserById, saveSiteWithVercel } from "@/lib/db";
 import type { WizardData } from "@/app/components/GenerateWizard";
-import Stripe from "stripe";
-
-function getStripe() {
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key || key === "sk_test_xxxxx") throw new Error("STRIPE_SECRET_KEY not configured");
-  return new Stripe(key);
-}
 
 export const maxDuration = 300;
 
@@ -188,36 +181,9 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { formData, paymentIntentId } = body as {
-      formData: WizardData;
-      paymentIntentId?: string;
-    };
+    const { formData } = body as { formData: WizardData };
 
-    // If user hasn't paid yet, verify the PaymentIntent they just completed
-    if (user.payment_status !== "paid") {
-      if (!paymentIntentId) {
-        return NextResponse.json({ error: "Payment required." }, { status: 402 });
-      }
-      const stripe = getStripe();
-      const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
-      if (
-        pi.status !== "succeeded" ||
-        pi.metadata?.userId !== user.id
-      ) {
-        return NextResponse.json({ error: "Payment could not be verified." }, { status: 400 });
-      }
-      await markUserPaid(
-        user.id,
-        paymentIntentId,
-        typeof pi.customer === "string" ? pi.customer : null
-      );
-      // Refresh the session cookie so the client reflects paid status
-      await createSession({
-        userId: user.id,
-        emailVerified: user.email_verified,
-        paymentStatus: "paid",
-      });
-    }
+    // Payment suspended during beta — no payment check
 
     if (!formData) {
       return NextResponse.json({ error: "Missing form data." }, { status: 400 });
@@ -228,10 +194,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Business name and description are required." }, { status: 400 });
     }
 
-    // Require user's own Vercel token
-    if (!user.vercel_access_token) {
-      return NextResponse.json({ error: "Vercel account not connected. Please connect your Vercel account first.", code: "VERCEL_NOT_AUTHORIZED" }, { status: 403 });
-    }
+    // Use user's Vercel token if connected, otherwise fall back to app token
+    const vercelToken = user.vercel_access_token ?? undefined;
+    const vercelTeam = user.vercel_team_id ?? undefined;
+    void vercelToken; void vercelTeam; // used below
 
     const prompt = buildPrompt(formData);
     console.log("Starting site generation for:", siteName);
@@ -244,8 +210,8 @@ export async function POST(request: NextRequest) {
     const projectName = `${siteName.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").slice(0, 40)}-${Date.now()}`;
     console.log("Deploying to user's Vercel...");
     const deployment = await deployToVercel(projectName, websiteCode, {
-      userToken: user.vercel_access_token,
-      teamId: user.vercel_team_id,
+      userToken: user.vercel_access_token ?? undefined,
+      teamId: user.vercel_team_id ?? undefined,
     });
     console.log("✅ Deployed:", deployment.url);
 
