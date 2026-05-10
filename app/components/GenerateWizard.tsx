@@ -1389,12 +1389,17 @@ export default function GenerateWizard() {
   const { title, sub } = stepEntry;
 
   return (
-    <div style={{ background: "#050510", minHeight: "100vh", color: "#fff" }}>
+    <div style={{ background: "#FAFAFA", minHeight: "100vh", color: "#0A0E14" }}>
       {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass" style={{ borderTop: "none", borderLeft: "none", borderRight: "none" }}>
-        <div style={{ maxWidth: 680, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Link href="/" style={{ fontWeight: 700, fontSize: 15, color: "#fff", textDecoration: "none" }}>WebBuilder</Link>
-          <Link href="/dashboard" style={{ fontSize: 13, color: "var(--text2)", textDecoration: "none" }}>Dashboard</Link>
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 50, background: "rgba(250,250,248,.94)", backdropFilter: "blur(14px)", borderBottom: "1px solid #E2E2DE", height: 58 }}>
+        <div style={{ maxWidth: 680, margin: "0 auto", padding: "0 24px", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
+            <div style={{ width: 24, height: 24, borderRadius: 7, background: "#0A0E14", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 800, color: "#FF5A1F", lineHeight: 1 }}>6</span>
+            </div>
+            <span style={{ fontWeight: 700, fontSize: 15, color: "#0A0E14", letterSpacing: -0.4 }}>insixlive</span>
+          </Link>
+          <Link href="/dashboard" style={{ fontSize: 13, color: "#6B7180", textDecoration: "none" }}>Dashboard</Link>
         </div>
       </nav>
 
@@ -1427,8 +1432,13 @@ export default function GenerateWizard() {
 
         {/* Error */}
         {error && (
-          <div style={{ marginBottom: 20, fontSize: 13, padding: "12px 16px", borderRadius: 10,
-            background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#fca5a5" }}>
+          <div style={{ marginBottom: 20, fontSize: 13, padding: "12px 16px", borderRadius: 12,
+            background: "#FFF0EE", border: "1px solid rgba(255,90,31,0.2)", color: "#C43600",
+            display: "flex", gap: 10, alignItems: "flex-start" }}>
+            <svg width="14" height="14" viewBox="0 0 15 15" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+              <circle cx="7.5" cy="7.5" r="6.5" stroke="#C43600" strokeWidth="1.5"/>
+              <path d="M7.5 4.5v4M7.5 10v.5" stroke="#C43600" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
             {error}
           </div>
         )}

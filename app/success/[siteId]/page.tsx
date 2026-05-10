@@ -79,7 +79,7 @@ export default function SuccessPage() {
 
   if (!site) {
     return (
-      <div style={{ background: "#050510", minHeight: "100vh", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ background: "#FAFAFA", minHeight: "100vh", color: "#0A0E14", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div className="text-center">
           <p className="mb-4" style={{ color: "rgba(255,255,255,0.5)" }}>Website not found.</p>
           <Link href="/dashboard" style={{ color: "var(--accent)", fontSize: 14 }}>Back to dashboard</Link>
@@ -89,7 +89,7 @@ export default function SuccessPage() {
   }
 
   return (
-    <div style={{ background: "#050510", minHeight: "100vh", color: "#fff" }}>
+    <div style={{ background: "#FAFAFA", minHeight: "100vh", color: "#0A0E14" }}>
       <div style={{
         position: "fixed", top: 0, left: "50%", transform: "translateX(-50%)",
         width: 600, height: 400,

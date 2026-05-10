@@ -77,7 +77,7 @@ function EditFormContent() {
 
   if (!site) {
     return (
-      <div style={{ background: "#050510", minHeight: "100vh", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ background: "#FAFAFA", minHeight: "100vh", color: "#0A0E14", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div className="text-center">
           <p className="mb-4" style={{ color: "rgba(255,255,255,0.5)" }}>Website not found.</p>
           <Link href="/dashboard" style={{ color: "var(--accent)", fontSize: 14 }}>Back to dashboard</Link>
@@ -90,7 +90,7 @@ function EditFormContent() {
   const charOk = charCount >= 10 && charCount <= 500;
 
   return (
-    <div style={{ background: "#050510", minHeight: "100vh", color: "#fff" }} className="flex flex-col">
+    <div style={{ background: "#FAFAFA", minHeight: "100vh", color: "#0A0E14" }} className="flex flex-col">
       {/* Glow */}
       <div style={{ position: "fixed", top: 0, left: "50%", transform: "translateX(-50%)", width: 600, height: 400, background: "radial-gradient(ellipse, rgba(99,102,241,0.14) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
 

@@ -60,7 +60,7 @@ function VerifyEmailContent() {
 
   return (
     <div
-      style={{ background: "#050510", minHeight: "100vh", color: "#fff" }}
+      style={{ background: "#FAFAFA", minHeight: "100vh", color: "#0A0E14" }}
       className="flex flex-col"
     >
       <nav
