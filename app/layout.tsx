@@ -5,8 +5,8 @@ import "./globals.css";
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 
 export const metadata: Metadata = {
-  title: "WebBuilder — Professional websites in 100 seconds",
-  description: "AI-generated, production-ready websites. You own the code. €49.99 one-time, no monthly fees.",
+  title: "Insixlive — Your website live in six minutes",
+  description: "AI-generated, production-ready websites deployed to your own Vercel account. You own the code. €49.99 one-time, no monthly fees.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
