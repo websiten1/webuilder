@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { createUser, getUserByEmail } from "@/lib/db";
-import { sendVerificationEmail } from "@/lib/email";
-import crypto from "crypto";
+import { createUser, getUserByEmail, saveVerificationCode } from "@/lib/db";
+import { sendVerificationCode } from "@/lib/email";
+
+function generateCode(): string {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,32 +49,31 @@ export async function POST(request: NextRequest) {
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
-    const verificationToken = crypto.randomBytes(32).toString("hex");
-    const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    await createUser(
+    // Create user — verification_token unused in new flow, but column required
+    const user = await createUser(
       email.toLowerCase(),
       passwordHash,
-      verificationToken,
-      tokenExpires
+      "unused",
+      new Date(0) // far-past expiry so the old link flow never works
     );
 
-    // Try to send the email — if it fails, the account still exists and the
-    // user can request a new link from /verify-email. Log the link for dev use.
+    // Generate + store 6-digit code (15 min expiry)
+    const code = generateCode();
+    const codeExpires = new Date(Date.now() + 15 * 60 * 1000);
+    await saveVerificationCode(user.id, code, codeExpires);
+
+    // Send code email — if it fails, account still exists, user can resend
     let emailWarning: string | null = null;
     try {
-      await sendVerificationEmail(email.toLowerCase(), verificationToken);
+      await sendVerificationCode(email.toLowerCase(), code);
     } catch (emailError) {
-      console.error("Email send failed:", emailError);
-      emailWarning =
-        "Account created but we could not send the verification email. " +
-        "Check the server console for the verification link (development), " +
-        "or use 'Resend verification email' on the next page.";
+      console.error("Code email failed:", emailError);
+      emailWarning = "Account created but we could not send the code. Check server console or use Resend below.";
     }
 
     return NextResponse.json({
       success: true,
-      message: emailWarning ?? "Account created! Check your email for the verification link.",
       emailWarning: emailWarning ?? null,
     });
   } catch (error) {

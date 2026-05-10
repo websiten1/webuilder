@@ -17,6 +17,8 @@ export type User = {
   email_verified: boolean;
   verification_token: string | null;
   verification_token_expires: Date | null;
+  verification_code: string | null;
+  verification_code_expires: Date | null;
   payment_status: "pending" | "paid" | "failed";
   payment_date: Date | null;
   stripe_customer_id: string | null;
@@ -250,6 +252,50 @@ export async function getSitesByUserId(userId: string): Promise<Site[]> {
     SELECT * FROM sites WHERE user_id = ${userId} ORDER BY created_at DESC
   `;
   return rows as Site[];
+}
+
+export async function saveVerificationCode(
+  userId: string,
+  code: string,
+  expires: Date
+): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE users
+    SET verification_code = ${code},
+        verification_code_expires = ${expires},
+        updated_at = NOW()
+    WHERE id = ${userId}
+  `;
+}
+
+export async function getUserByVerificationCode(
+  email: string,
+  code: string
+): Promise<User | null> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT * FROM users
+    WHERE email = ${email}
+      AND verification_code = ${code}
+      AND verification_code_expires > NOW()
+    LIMIT 1
+  `;
+  return (rows[0] as User) || null;
+}
+
+export async function clearVerificationCode(userId: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE users
+    SET verification_code = NULL,
+        verification_code_expires = NULL,
+        email_verified = TRUE,
+        verification_token = NULL,
+        verification_token_expires = NULL,
+        updated_at = NOW()
+    WHERE id = ${userId}
+  `;
 }
 
 export async function saveVercelAuth(

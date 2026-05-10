@@ -8,18 +8,58 @@ function getResend() {
   return new Resend(key);
 }
 
+export async function sendVerificationCode(
+  email: string,
+  code: string
+): Promise<void> {
+  console.log(`\n[OTP] Verification code for ${email}: ${code}\n`);
+
+  const resend = getResend();
+  const from =
+    process.env.RESEND_FROM_EMAIL || "WebBuilder <onboarding@resend.dev>";
+
+  const { data, error } = await resend.emails.send({
+    from,
+    to: email,
+    subject: `${code} is your WebBuilder verification code`,
+    html: `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#050510;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#ffffff;">
+  <div style="max-width:480px;margin:48px auto;padding:0 24px;">
+    <p style="font-size:18px;font-weight:700;letter-spacing:-0.02em;margin:0 0 4px;">WebBuilder</p>
+    <div style="margin:32px 0;padding:32px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;">
+      <h1 style="font-size:20px;font-weight:700;margin:0 0 8px;letter-spacing:-0.02em;">Your verification code</h1>
+      <p style="color:rgba(255,255,255,0.55);margin:0 0 24px;font-size:14px;line-height:1.6;">
+        Enter this code on the WebBuilder signup page to verify your email.
+      </p>
+      <div style="background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;">
+        <p style="font-size:42px;font-weight:800;letter-spacing:0.18em;margin:0;color:#fff;font-family:ui-monospace,monospace;">${code}</p>
+      </div>
+      <p style="margin:0;color:rgba(255,255,255,0.3);font-size:12px;text-align:center;">
+        Expires in 15 minutes. If you didn't sign up, ignore this email.
+      </p>
+    </div>
+  </div>
+</body>
+</html>`,
+  });
+
+  if (error) {
+    console.error("Resend error (code):", error);
+    throw new Error(`Email delivery failed: ${error.message}`);
+  }
+  console.log("Code email sent, id:", data?.id);
+}
+
 export async function sendVerificationEmail(
   email: string,
   token: string
 ): Promise<void> {
   const baseUrl = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
   const verifyLink = `${baseUrl}/verify-email?token=${token}`;
-
-  // Always log to console so you can test in development without needing email
-  console.log("\n========================================");
-  console.log("VERIFICATION LINK (copy this to test):");
-  console.log(verifyLink);
-  console.log("========================================\n");
+  console.log("\n[Legacy link] Verification link:", verifyLink, "\n");
 
   const resend = getResend();
   const from =

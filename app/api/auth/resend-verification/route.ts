@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserByEmail, updateVerificationToken } from "@/lib/db";
-import { sendVerificationEmail } from "@/lib/email";
-import crypto from "crypto";
+import { getUserByEmail, saveVerificationCode } from "@/lib/db";
+import { sendVerificationCode } from "@/lib/email";
+
+function generateCode(): string {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,17 +21,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    const token = crypto.randomBytes(32).toString("hex");
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const code = generateCode();
+    const expires = new Date(Date.now() + 15 * 60 * 1000);
 
-    await updateVerificationToken(user.id, token, expires);
-    await sendVerificationEmail(email.toLowerCase(), token);
+    await saveVerificationCode(user.id, code, expires);
+    await sendVerificationCode(email.toLowerCase(), code);
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Resend verification error:", error);
+    console.error("Resend code error:", error);
     return NextResponse.json(
-      { error: "Failed to send email. Please try again." },
+      { error: "Failed to send code. Please try again." },
       { status: 500 }
     );
   }
