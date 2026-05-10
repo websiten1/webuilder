@@ -54,7 +54,9 @@ export async function GET(request: NextRequest) {
 
     if (!tokenRes.ok) {
       console.error("Vercel token exchange failed:", tokenRes.status, tokenBody);
-      return NextResponse.redirect(`${baseUrl}/generate?error=vercel_callback_failed`);
+      // Pass sanitised error detail so we can debug
+      const detail = encodeURIComponent(tokenRes.status + ":" + tokenBody.slice(0, 120));
+      return NextResponse.redirect(`${baseUrl}/generate?error=vercel_callback_failed&detail=${detail}`);
     }
 
     let tokenData: Record<string, string>;
