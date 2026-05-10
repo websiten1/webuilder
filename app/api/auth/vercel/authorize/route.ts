@@ -16,12 +16,11 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Build redirect URI dynamically from the actual request origin
-  // This works on any domain (localhost, webuilder-rnpp.vercel.app, insixlive.com)
-  const origin = new URL(request.url).origin;
-  const redirectUri = `${origin}/api/auth/vercel/callback`;
+  // Always use the canonical production URL — must match exactly what is
+  // registered in the Vercel OAuth app settings.
+  const baseUrl = process.env.NEXT_PUBLIC_URL || new URL(request.url).origin;
+  const redirectUri = `${baseUrl}/api/auth/vercel/callback`;
 
-  // State stored in the URL itself (avoids cross-domain cookie loss)
   const state = crypto.randomBytes(16).toString("hex");
 
   const url = new URL("https://vercel.com/oauth/authorize");
@@ -30,7 +29,6 @@ export async function GET(request: NextRequest) {
   url.searchParams.set("response_type", "code");
   url.searchParams.set("state", state);
 
-  // Store state in a short-lived cookie on the same origin
   const response = NextResponse.redirect(url);
   response.cookies.set("vercel_oauth_state", state, {
     httpOnly: true,
