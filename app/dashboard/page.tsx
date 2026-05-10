@@ -21,7 +21,7 @@ function Mark({ size = 26 }: { size?: number }) {
   );
 }
 
-type Site = { id: string; name: string; vercel_url: string; github_url: string; status: string; current_version: number; edit_count: number; created_at: string; };
+type Site = { id: string; name: string; vercel_url: string; github_url: string; status: string; current_version: number; edit_count: number; custom_domain: string | null; created_at: string; };
 type User = { id: string; email: string; paymentStatus: string; };
 
 export default function DashboardPage() {
@@ -179,9 +179,14 @@ export default function DashboardPage() {
                       <a href={site.vercel_url} target="_blank" rel="noopener noreferrer" style={{ flex: 1, background: T.ink, color: "#fff", padding: "9px 0", borderRadius: 9, fontFamily: T.font, fontSize: 13, fontWeight: 600, textDecoration: "none", textAlign: "center" as const }}>View site</a>
                       <a href={site.github_url} target="_blank" rel="noopener noreferrer" style={{ flex: 1, border: `1px solid ${T.line}`, color: T.ink, padding: "9px 0", borderRadius: 9, fontFamily: T.font, fontSize: 13, textDecoration: "none", textAlign: "center" as const }}>View code</a>
                     </div>
-                    <Link href={`/edit/${site.id}`} style={{ width: "100%", border: `1px solid ${T.six}`, color: T.six, padding: "9px 0", borderRadius: 9, fontFamily: T.font, fontSize: 13, fontWeight: 500, textDecoration: "none", textAlign: "center" as const, display: "block" }}>
-                      Request Changes — €15
-                    </Link>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <Link href={`/domains/${site.id}`} style={{ flex: 1, border: `1px solid ${T.line}`, color: T.muted, padding: "9px 0", borderRadius: 9, fontFamily: T.font, fontSize: 12, textDecoration: "none", textAlign: "center" as const, display: "block" }}>
+                        {site.custom_domain ? `🌐 ${site.custom_domain}` : "+ Domain"}
+                      </Link>
+                      <Link href={`/edit/${site.id}`} style={{ flex: 1, border: `1px solid ${T.six}`, color: T.six, padding: "9px 0", borderRadius: 9, fontFamily: T.font, fontSize: 12, fontWeight: 500, textDecoration: "none", textAlign: "center" as const, display: "block" }}>
+                        Edit — €15
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ))}

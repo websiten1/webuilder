@@ -152,6 +152,10 @@ export default function SuccessPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
           </a>
+          <Link href={`/domains/${siteId}`} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, border: "1px solid #0A0E14", color: "#0A0E14", padding: "12px 0", borderRadius: 12, textDecoration: "none", fontFamily: "system-ui,sans-serif", fontSize: 14, fontWeight: 600 }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+            Add Custom Domain
+          </Link>
           <Link href="/dashboard" className="btn-ghost rounded-xl py-3.5 w-full text-sm text-center" style={{ textDecoration: "none" }}>
             Back to dashboard
           </Link>

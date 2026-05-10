@@ -47,6 +47,8 @@ export type Site = {
   current_version: number;
   edit_count: number;
   design_preferences: Record<string, unknown> | null;
+  custom_domain: string | null;
+  custom_domain_connected_at: Date | null;
   created_at: Date;
 };
 
@@ -295,6 +297,16 @@ export async function clearVerificationCode(userId: string): Promise<void> {
         verification_token_expires = NULL,
         updated_at = NOW()
     WHERE id = ${userId}
+  `;
+}
+
+export async function saveDomainToSite(siteId: string, domain: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE sites
+    SET custom_domain = ${domain},
+        custom_domain_connected_at = NOW()
+    WHERE id = ${siteId}
   `;
 }
 
