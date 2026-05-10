@@ -4,10 +4,63 @@ import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
+// ─── Design tokens ────────────────────────────────────────────────────────────
+const T = {
+  ink:      "#0A0E14",
+  bg:       "#FFFFFF",
+  bg2:      "#F7F7F8",
+  line:     "#ECECEC",
+  muted:    "#6B7180",
+  emerald2: "#009062",
+  emeraldSoft: "#E5F7EE",
+  six:      "#FF5A1F",
+  font:     '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif',
+  mono:     'ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace',
+};
+
+function Mark({ size = 28 }: { size?: number }) {
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: size * 0.28,
+      background: T.ink, display: "flex", alignItems: "center",
+      justifyContent: "center", flexShrink: 0,
+    }}>
+      <span style={{ fontFamily: T.font, fontSize: size * 0.62, fontWeight: 800, color: T.six, letterSpacing: -0.5, lineHeight: 1 }}>6</span>
+    </div>
+  );
+}
+
+function FormField({ label, value, placeholder, type = "text", onChange }: {
+  label: string; value: string; placeholder: string;
+  type?: string; onChange: (v: string) => void;
+}) {
+  const active = value.length > 0;
+  return (
+    <div style={{
+      border: active ? `1.5px solid ${T.ink}` : `1px solid ${T.line}`,
+      borderRadius: 14, padding: "10px 16px", background: T.bg,
+      boxShadow: active ? "0 0 0 4px rgba(10,14,20,0.05)" : "none",
+      transition: "border .15s, box-shadow .15s",
+    }}>
+      <div style={{ fontFamily: T.font, fontSize: 11, fontWeight: 600, color: active ? T.ink : T.muted, letterSpacing: 0.4, textTransform: "uppercase" as const }}>{label}</div>
+      <input
+        type={type} value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        style={{
+          width: "100%", border: "none", outline: "none", background: "transparent",
+          fontFamily: T.font, fontSize: 16, fontWeight: 500,
+          color: active ? T.ink : "#B0AC9F", marginTop: 2, padding: 0,
+        }}
+      />
+    </div>
+  );
+}
+
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  void searchParams; // kept for Suspense boundary only
+  void searchParams;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,195 +68,173 @@ function LoginContent() {
   const [error, setError] = useState("");
   const [unverified, setUnverified] = useState(false);
   const [resendSent, setResendSent] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
 
   const handleLogin = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-    setUnverified(false);
+    setLoading(true); setError(""); setUnverified(false);
     try {
       const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
       if (!res.ok) {
-        if (data.code === "EMAIL_NOT_VERIFIED") {
-          setUnverified(true);
-        } else {
-          setError(data.error || "Login failed. Please try again.");
-        }
+        if (data.code === "EMAIL_NOT_VERIFIED") setUnverified(true);
+        else setError(data.error || "Invalid email or password.");
         return;
       }
       router.push("/dashboard");
-    } catch {
-      setError("Network error. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    } catch { setError("Network error. Please try again."); }
+    finally { setLoading(false); }
   };
 
   const handleResend = async () => {
-    await fetch("/api/auth/resend-verification", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-    setResendSent(true);
+    setResendLoading(true);
+    try {
+      await fetch("/api/auth/resend-verification", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      setResendSent(true);
+    } finally { setResendLoading(false); }
   };
 
   return (
-    <div
-      style={{ background: "#050510", minHeight: "100vh", color: "#fff" }}
-      className="flex flex-col"
-    >
-      <nav
-        className="px-6 h-16 flex items-center"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-      >
-        <Link href="/" className="font-bold tracking-tight text-sm">
-          WebBuilder
-        </Link>
-      </nav>
+    <>
+      <style>{`
+        @keyframes ispin { to { transform: rotate(360deg); } }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: ${T.bg2}; }
+      `}</style>
 
-      <div className="flex-1 flex items-center justify-center px-6 py-16">
-        <div className="w-full" style={{ maxWidth: 400 }}>
-          <div
-            style={{
-              position: "absolute",
-              left: "50%",
-              top: "30%",
-              transform: "translate(-50%,-50%)",
-              width: 400,
-              height: 400,
-              background:
-                "radial-gradient(circle, rgba(99,102,241,0.15), transparent 70%)",
-              pointerEvents: "none",
-            }}
-          />
+      <div style={{ minHeight: "100vh", background: T.bg2, display: "flex", alignItems: "stretch" }}>
 
-          <div className="relative">
-            <div className="mb-8">
-              <h1
-                className="font-bold tracking-tight mb-1"
-                style={{ fontSize: "1.8rem" }}
-              >
-                Welcome back
-              </h1>
-              <p className="text-sm" style={{ color: "var(--text2)" }}>
-                Sign in to your account.
-              </p>
+        {/* ── Left: branding panel ─────────────────────────────── */}
+        <div style={{
+          width: "42%", minWidth: 340, background: T.ink, position: "relative",
+          overflow: "hidden", display: "flex", flexDirection: "column", padding: "36px 44px",
+        }}>
+          {/* Grid */}
+          <svg style={{ position: "absolute", inset: 0, opacity: 0.05, width: "100%", height: "100%" }}>
+            <defs>
+              <pattern id="lg" width="24" height="24" patternUnits="userSpaceOnUse">
+                <path d="M24 0H0v24" stroke="#fff" strokeWidth="0.5" fill="none"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#lg)"/>
+          </svg>
+          <div style={{ position: "absolute", top: -100, right: -60, width: 360, height: 360, borderRadius: 180, background: "radial-gradient(circle, rgba(255,90,31,0.4), rgba(255,90,31,0) 65%)", pointerEvents: "none" }}/>
+          <div style={{ position: "absolute", bottom: -80, left: -40, width: 280, height: 280, borderRadius: 140, background: "radial-gradient(circle, rgba(255,90,31,0.15), rgba(255,90,31,0) 65%)", pointerEvents: "none" }}/>
+
+          {/* Logo */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, position: "relative", zIndex: 2 }}>
+            <Mark size={28} />
+            <span style={{ fontFamily: T.font, fontSize: 17, fontWeight: 700, color: "#fff", letterSpacing: -0.5 }}>insixlive</span>
+          </div>
+
+          {/* Quote */}
+          <div style={{ position: "relative", zIndex: 2, marginTop: "auto" }}>
+            <div style={{ width: 40, height: 3, background: T.six, borderRadius: 2, marginBottom: 24 }}/>
+            <p style={{ fontFamily: T.font, fontSize: "clamp(1.6rem, 2.5vw, 2.1rem)", fontWeight: 700, letterSpacing: -0.8, color: "#fff", lineHeight: 1.15, margin: "0 0 20px" }}>
+              Your website.<br/>Live in 6 minutes.
+            </p>
+            <p style={{ fontFamily: T.font, fontSize: 15, lineHeight: 1.6, color: "rgba(255,255,255,0.5)", margin: 0, maxWidth: 300 }}>
+              Describe your business, choose your design, pay once. Code on GitHub, deployed to your Vercel. No subscriptions.
+            </p>
+
+            {/* Stats */}
+            <div style={{ marginTop: 36, display: "flex", gap: 28 }}>
+              {[["€49.99", "one-time"], ["6 min", "to go live"], ["100%", "yours forever"]].map(([v, l]) => (
+                <div key={l}>
+                  <p style={{ fontFamily: T.font, fontSize: 22, fontWeight: 700, letterSpacing: -0.8, color: "#fff", margin: 0 }}>{v}</p>
+                  <p style={{ fontFamily: T.mono, fontSize: 10, color: "rgba(255,255,255,0.4)", margin: "3px 0 0", letterSpacing: 0.4, textTransform: "uppercase" as const }}>{l}</p>
+                </div>
+              ))}
             </div>
+          </div>
+        </div>
 
+        {/* ── Right: login form ─────────────────────────────────── */}
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 48px" }}>
+          <div style={{ width: "100%", maxWidth: 400 }}>
+
+            <h2 style={{ fontFamily: T.font, fontSize: 28, fontWeight: 700, letterSpacing: -0.7, color: T.ink, margin: "0 0 6px" }}>
+              Welcome back
+            </h2>
+            <p style={{ fontFamily: T.font, fontSize: 15, color: T.muted, margin: "0 0 28px", lineHeight: 1.45 }}>
+              Sign in to manage and generate websites.
+            </p>
+
+            {/* Email not verified warning */}
             {unverified && (
-              <div
-                className="text-sm px-4 py-3 rounded-xl mb-4"
-                style={{
-                  background: "rgba(234,179,8,0.08)",
-                  border: "1px solid rgba(234,179,8,0.2)",
-                  color: "#fde047",
-                }}
-              >
-                <p className="font-medium mb-1">Email not verified</p>
-                <p style={{ color: "rgba(253,224,71,0.7)", fontSize: 12 }}>
-                  Check your inbox for the verification link.
-                </p>
+              <div style={{ marginBottom: 18, padding: "14px 16px", borderRadius: 12, background: "#FFFBEB", border: "1px solid rgba(234,179,8,0.25)", fontFamily: T.font, fontSize: 14 }}>
+                <p style={{ margin: "0 0 6px", fontWeight: 600, color: "#92400e" }}>Email not verified</p>
+                <p style={{ margin: "0 0 10px", color: "#92400e", fontSize: 13, opacity: 0.8 }}>Check your inbox for the 6-digit code.</p>
                 {!resendSent ? (
-                  <button
-                    onClick={handleResend}
-                    className="mt-2 text-xs font-medium"
-                    style={{ color: "#fde047", textDecoration: "underline" }}
-                  >
-                    Resend verification email
+                  <button onClick={handleResend} disabled={resendLoading} style={{ background: "none", border: "none", cursor: "pointer", color: "#92400e", fontWeight: 600, fontSize: 13, fontFamily: T.font, padding: 0, textDecoration: "underline" }}>
+                    {resendLoading ? "Sending…" : "Resend verification code"}
                   </button>
                 ) : (
-                  <p className="mt-2 text-xs" style={{ color: "#a3e635" }}>
-                    Email sent — check your inbox.
-                  </p>
+                  <span style={{ color: T.emerald2, fontSize: 13, fontWeight: 600 }}>✓ Code sent — check your inbox</span>
                 )}
               </div>
             )}
 
-            <form onSubmit={handleLogin} className="space-y-4">
-              {error && (
-                <div
-                  className="text-sm px-4 py-3 rounded-xl flex items-start gap-2"
-                  style={{
-                    background: "rgba(239,68,68,0.12)",
-                    border: "1px solid rgba(239,68,68,0.35)",
-                    color: "#fca5a5",
-                  }}
-                >
-                  <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} style={{ flexShrink: 0, marginTop: 1 }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-                  </svg>
-                  {error}
-                </div>
-              )}
-
-              <div>
-                <label
-                  className="block text-xs font-medium mb-1.5"
-                  style={{ color: "var(--text2)" }}
-                >
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="inp"
-                  required
-                />
+            {/* Error */}
+            {error && (
+              <div style={{ marginBottom: 18, padding: "12px 16px", borderRadius: 12, background: "#FFF0EE", border: "1px solid rgba(255,90,31,0.25)", fontFamily: T.font, fontSize: 14, color: "#C43600", display: "flex", gap: 10, alignItems: "flex-start" }}>
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                  <circle cx="7.5" cy="7.5" r="6.5" stroke="#C43600" strokeWidth="1.5"/>
+                  <path d="M7.5 4.5v4M7.5 10v.5" stroke="#C43600" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+                {error}
               </div>
+            )}
 
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label
-                    className="text-xs font-medium"
-                    style={{ color: "var(--text2)" }}
-                  >
-                    Password
-                  </label>
-                </div>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="inp"
-                  required
-                />
+            <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <FormField label="Email" value={email} placeholder="you@yourbusiness.com" onChange={setEmail} />
+              <FormField label="Password" value={password} placeholder="••••••••" type="password" onChange={setPassword} />
+
+              <div style={{ marginTop: 4 }}>
+                <button type="submit" disabled={loading || !email || !password} style={{
+                  width: "100%", height: 56, borderRadius: 14, border: "none",
+                  background: loading || !email || !password ? "#E2E2E5" : T.ink,
+                  color: loading || !email || !password ? "#A0A0A8" : "#fff",
+                  fontFamily: T.font, fontSize: 16, fontWeight: 600, letterSpacing: -0.2,
+                  cursor: loading || !email || !password ? "default" : "pointer",
+                  boxShadow: loading || !email || !password ? "none" : "0 1px 0 rgba(255,255,255,0.08) inset, 0 6px 16px rgba(10,14,20,0.16)",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  transition: "background .15s",
+                }}>
+                  {loading
+                    ? <><span style={{ width: 16, height: 16, borderRadius: 8, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", animation: "ispin .8s linear infinite", display: "inline-block" }} />Signing in…</>
+                    : <>Sign in <svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg></>
+                  }
+                </button>
               </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary w-full rounded-xl py-3.5 text-sm mt-2"
-              >
-                {loading ? "Signing in…" : "Sign in"}
-              </button>
             </form>
 
-            <p
-              className="text-sm text-center mt-6"
-              style={{ color: "var(--text2)" }}
-            >
+            {/* Benefits row */}
+            <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 8 }}>
+              {["Your site lives on your Vercel account", "Code always on your GitHub", "No lock-in — download anytime"].map((s) => (
+                <div key={s} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ width: 18, height: 18, borderRadius: 9, background: T.emeraldSoft, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2 2 4-4" stroke={T.emerald2} strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </div>
+                  <span style={{ fontFamily: T.font, fontSize: 13, color: T.muted }}>{s}</span>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ marginTop: 22, textAlign: "center", fontFamily: T.font, fontSize: 14, color: T.muted }}>
               No account?{" "}
-              <Link
-                href="/signup"
-                className="font-medium"
-                style={{ color: "var(--accent)" }}
-              >
-                Sign up
-              </Link>
-            </p>
+              <Link href="/signup" style={{ color: T.ink, fontWeight: 600, textDecoration: "none" }}>Create one free</Link>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
