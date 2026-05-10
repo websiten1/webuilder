@@ -49,18 +49,23 @@ export async function GET(request: NextRequest) {
       }),
     });
 
+    const tokenBody = await tokenRes.text();
+    console.log("Vercel token response:", tokenRes.status, tokenBody);
+
     if (!tokenRes.ok) {
-      const body = await tokenRes.text();
-      console.error("Vercel token exchange failed:", tokenRes.status, body);
-      throw new Error(`Token exchange failed: ${tokenRes.status}`);
+      console.error("Vercel token exchange failed:", tokenRes.status, tokenBody);
+      return NextResponse.redirect(`${baseUrl}/generate?error=vercel_callback_failed`);
     }
 
-    const tokenData = await tokenRes.json();
+    let tokenData: Record<string, string>;
+    try { tokenData = JSON.parse(tokenBody); }
+    catch { tokenData = Object.fromEntries(new URLSearchParams(tokenBody)); }
+
     const { access_token, team_id, user_id } = tokenData;
 
     if (!access_token) {
-      console.error("No access_token in Vercel response:", JSON.stringify(tokenData));
-      throw new Error("No access token returned");
+      console.error("No access_token in Vercel response:", tokenBody);
+      return NextResponse.redirect(`${baseUrl}/generate?error=vercel_callback_failed`);
     }
 
     await saveVercelAuth(session.userId, access_token, user_id ?? null, team_id ?? null);

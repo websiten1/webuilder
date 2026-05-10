@@ -1285,7 +1285,14 @@ export default function GenerateWizard() {
 
     if (oauthError) {
       window.history.replaceState({}, "", "/generate");
-      setError("Vercel connection failed. Please try again.");
+      const msgs: Record<string, string> = {
+        vercel_denied:          "You cancelled the Vercel connection. Please try again.",
+        vercel_state_mismatch:  "Security check failed (state mismatch). Please try again.",
+        vercel_no_code:         "No authorization code received from Vercel. Please try again.",
+        vercel_not_configured:  "OAuth credentials not configured — contact support.",
+        vercel_callback_failed: "Token exchange with Vercel failed. Check that VERCEL_OAUTH_CLIENT_ID and VERCEL_OAUTH_CLIENT_SECRET are correct in Vercel env vars.",
+      };
+      setError(msgs[oauthError] ?? `Vercel error: ${oauthError}. Please try again.`);
     }
 
     // Load Vercel auth status for current user
