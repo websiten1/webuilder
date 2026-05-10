@@ -865,92 +865,109 @@ function Step6({ data, onEdit, onSubmit, loading, countdown, stageMsg }: {
 // ─── Vercel Auth Step ─────────────────────────────────────────────────────────
 
 function VercelAuthStep({
-  onConnect,
+  onSaved,
   onBack,
 }: {
-  onConnect: () => void;
+  onSaved: () => void;
   onBack: () => void;
 }) {
-  const features = [
-    "Your website lives on YOUR Vercel account — not ours",
-    "You get a free .vercel.app domain instantly",
-    "Add a custom domain anytime from your Vercel dashboard",
-    "Full access to deployment logs, analytics, and settings",
-    "Zero lock-in — you own everything forever",
-  ];
+  const [token, setToken] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState("");
+
+  const handleSave = async () => {
+    const t = token.trim();
+    if (!t) { setErr("Please paste your Vercel token."); return; }
+    setSaving(true); setErr("");
+    try {
+      const res = await fetch("/api/auth/vercel/save-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: t }),
+      });
+      const d = await res.json();
+      if (!res.ok) { setErr(d.error || "Failed to save token."); return; }
+      onSaved();
+    } catch { setErr("Network error. Please try again."); }
+    finally { setSaving(false); }
+  };
+
+  const T = { ink: "#0A0E14", six: "#FF5A1F", em: "#00B377", emSoft: "#E5F7EE", em2: "#009062", line: "#E2E2DE", muted: "#6B7180", bg2: "#F2F2EF" };
+
   return (
     <div>
-      {/* Explanation card */}
-      <div
-        style={{
-          background: "rgba(99,102,241,0.06)",
-          border: "1px solid rgba(99,102,241,0.2)",
-          borderRadius: 16,
-          padding: "20px 24px",
-          marginBottom: 24,
-        }}
-      >
-        <p
-          style={{
-            fontSize: 11,
-            fontWeight: 600,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            color: "var(--text3)",
-            marginBottom: 14,
-          }}
-        >
-          One-time setup
+      {/* Steps card */}
+      <div style={{ background: T.bg2, border: `1px solid ${T.line}`, borderRadius: 14, padding: "20px 22px", marginBottom: 20 }}>
+        <p style={{ fontFamily: "ui-monospace,monospace", fontSize: 10, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: T.muted, marginBottom: 14 }}>
+          One-time setup · 30 seconds
         </p>
-        <p
-          style={{
-            fontSize: 14,
-            color: "var(--text2)",
-            lineHeight: 1.7,
-            marginBottom: 16,
-          }}
-        >
-          We need permission to deploy your website to <strong style={{ color: "#fff" }}>your Vercel account</strong>. This is a one-click process — Vercel will ask you to approve the connection. You never have to do this again.
-        </p>
-        <ul style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {features.map((f) => (
-            <li key={f} style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 13, color: "var(--text2)" }}>
-              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#10b981" strokeWidth={2.5} style={{ flexShrink: 0, marginTop: 1 }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              {f}
-            </li>
-          ))}
-        </ul>
+        {[
+          ["01", "Open", <a key="l" href="https://vercel.com/account/tokens" target="_blank" rel="noopener noreferrer" style={{ color: T.six, textDecoration: "none", fontWeight: 600 }}>vercel.com/account/tokens ↗</a>],
+          ["02", "Click", <span key="b"><strong>Create</strong> → name it &quot;insixlive&quot; → set <strong>No expiration</strong></span>],
+          ["03", "Copy", <span key="c">the token that appears (starts with <code style={{ fontFamily: "ui-monospace,monospace", background: T.line, padding: "1px 5px", borderRadius: 4 }}>vercel_</code>)</span>],
+          ["04", "Paste", "it in the field below"],
+        ].map(([n, label, detail]) => (
+          <div key={n as string} style={{ display: "flex", gap: 12, marginBottom: 10 }}>
+            <span style={{ fontFamily: "ui-monospace,monospace", fontSize: 10, color: T.muted, minWidth: 20, paddingTop: 2, flexShrink: 0 }}>{n}</span>
+            <div style={{ fontSize: 13, color: T.ink, lineHeight: 1.55 }}>
+              <strong>{label}</strong> {detail}
+            </div>
+          </div>
+        ))}
       </div>
 
+      {/* Token input */}
+      <div style={{ marginBottom: 16 }}>
+        <label style={{ fontFamily: "ui-monospace,monospace", fontSize: 10, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: T.muted, display: "block", marginBottom: 8 }}>
+          Vercel Token
+        </label>
+        <input
+          type="password"
+          value={token}
+          onChange={(e) => setToken(e.target.value)}
+          placeholder="vercel_xxxxxxxxxxxxxxxxxxxx"
+          style={{
+            width: "100%", border: token ? `1.5px solid ${T.ink}` : `1px solid ${T.line}`,
+            borderRadius: 12, padding: "12px 16px", background: "#fff",
+            fontFamily: "ui-monospace,monospace", fontSize: 14, color: T.ink,
+            outline: "none", boxShadow: token ? `0 0 0 4px rgba(10,14,20,0.05)` : "none",
+          }}
+          onKeyDown={(e) => { if (e.key === "Enter") handleSave(); }}
+        />
+      </div>
+
+      {err && (
+        <div style={{ marginBottom: 14, padding: "10px 14px", borderRadius: 10, background: "#FFF0EE", border: "1px solid rgba(255,90,31,0.2)", fontSize: 13, color: "#C43600" }}>
+          {err}
+        </div>
+      )}
+
       {/* Security note */}
-      <div
-        style={{
-          background: "rgba(255,255,255,0.02)",
-          border: "1px solid rgba(255,255,255,0.07)",
-          borderRadius: 10,
-          padding: "12px 16px",
-          marginBottom: 24,
-          fontSize: 12,
-          color: "var(--text3)",
-          lineHeight: 1.6,
-        }}
-      >
-        🔒 We only use your Vercel token to deploy websites you create here. Your credentials are stored securely and never shared.
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 18, padding: "10px 14px", background: T.emSoft, border: `1px solid rgba(0,179,119,0.2)`, borderRadius: 10 }}>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0, marginTop: 1 }}><path d="M2 6V4a5 5 0 0110 0v2M2 6h10v6H2V6z" stroke={T.em2} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        <p style={{ fontSize: 12, color: T.em2, margin: 0, lineHeight: 1.6 }}>
+          We only use this token to deploy websites you create here. It is encrypted at rest and never shared.
+        </p>
       </div>
 
       <button
         type="button"
-        onClick={onConnect}
-        className="btn-primary w-full rounded-xl py-4"
-        style={{ fontSize: 15, fontWeight: 600 }}
+        onClick={handleSave}
+        disabled={saving || !token.trim()}
+        style={{
+          width: "100%", height: 52, borderRadius: 12, border: "none",
+          background: saving || !token.trim() ? "#E2E2E5" : T.ink,
+          color: saving || !token.trim() ? "#A0A0A8" : "#fff",
+          fontFamily: "var(--font)", fontSize: 15, fontWeight: 600, cursor: saving || !token.trim() ? "default" : "pointer",
+          boxShadow: saving || !token.trim() ? "none" : "0 4px 14px rgba(10,14,20,0.14)",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+        }}
       >
-        Connect Vercel Account →
+        {saving
+          ? <><span style={{ width: 14, height: 14, borderRadius: 7, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", animation: "spin 0.8s linear infinite", display: "inline-block" }}/> Saving…</>
+          : "Save & Continue →"
+        }
       </button>
-      <p style={{ fontSize: 11, color: "var(--text3)", textAlign: "center", marginTop: 8 }}>
-        You&apos;ll be redirected to Vercel to approve the connection, then brought straight back.
-      </p>
 
       <button
         type="button"
@@ -1261,41 +1278,6 @@ export default function GenerateWizard() {
     const saved = localStorage.getItem("wizard_data");
     if (saved) { try { setData(JSON.parse(saved)); } catch {} }
 
-    // Handle return from Vercel OAuth
-    const params = new URLSearchParams(window.location.search);
-    const justAuthorized = params.get("vercel_authorized") === "true";
-    const oauthError = params.get("error");
-
-    if (justAuthorized) {
-      setVercelAuthorized(true);
-      // Clean URL and jump straight to payment
-      window.history.replaceState({}, "", "/generate");
-      setFetchingPayment(true);
-      fetch("/api/checkout/create-payment-intent-site", { method: "POST" })
-        .then((r) => r.json())
-        .then((d) => {
-          if (d.alreadyPaid) { handleSubmit(); return; }
-          if (d.clientSecret) { setClientSecret(d.clientSecret); setStep(8); }
-          else setError(d.error ?? "Could not start payment.");
-        })
-        .catch(() => setError("Payment setup failed. Please try again."))
-        .finally(() => setFetchingPayment(false));
-      return;
-    }
-
-    if (oauthError) {
-      window.history.replaceState({}, "", "/generate");
-      const detail = params.get("detail") ? ` — ${decodeURIComponent(params.get("detail")!)}` : "";
-      const msgs: Record<string, string> = {
-        vercel_denied:          "You cancelled the Vercel connection. Please try again.",
-        vercel_state_mismatch:  "Security check failed (state mismatch). Please try again.",
-        vercel_no_code:         "No authorization code received from Vercel. Please try again.",
-        vercel_not_configured:  "OAuth credentials not configured — contact support.",
-        vercel_callback_failed: `Token exchange failed${detail}. Please try again.`,
-      };
-      setError(msgs[oauthError] ?? `Vercel error: ${oauthError}${detail}. Please try again.`);
-    }
-
     // Load Vercel auth status for current user
     fetch("/api/auth/me")
       .then((r) => r.json())
@@ -1336,9 +1318,7 @@ export default function GenerateWizard() {
     setError("");
     // Step 1: check Vercel auth (first time only)
     if (!vercelAuthorized) {
-      // Save wizard data so it survives the OAuth redirect
-      localStorage.setItem("wizard_data", JSON.stringify(data));
-      setStep(7); // show Vercel auth step
+      setStep(7); // show Vercel token-paste step
       return;
     }
     // Step 2: already authorized — go straight to payment
@@ -1392,7 +1372,7 @@ export default function GenerateWizard() {
     step <= 6
       ? STEP_TITLES[step - 1]
       : step === 7
-      ? { title: "Connect to Vercel", sub: "One-time setup — your website will live on your own Vercel account" }
+      ? { title: "Connect your Vercel account", sub: "Paste a token so we can deploy to your account — takes 30 seconds" }
       : { title: "Complete payment", sub: "Secure checkout — then we generate and deploy your website instantly" };
   const { title, sub } = stepEntry;
 
@@ -1475,10 +1455,23 @@ export default function GenerateWizard() {
               stageMsg={stageMsg}
             />
           )}
-          {/* Step 7 — Vercel OAuth (first time only) */}
+          {/* Step 7 — Vercel token paste (first time only) */}
           {step === 7 && (
             <VercelAuthStep
-              onConnect={() => { window.location.href = "/api/auth/vercel/authorize"; }}
+              onSaved={() => {
+                setVercelAuthorized(true);
+                // Proceed to payment
+                setFetchingPayment(true);
+                fetch("/api/checkout/create-payment-intent-site", { method: "POST" })
+                  .then((r) => r.json())
+                  .then((d) => {
+                    if (d.alreadyPaid) { handleSubmit(); return; }
+                    if (d.clientSecret) { setClientSecret(d.clientSecret); setStep(8); }
+                    else setError(d.error ?? "Could not start payment.");
+                  })
+                  .catch(() => setError("Payment setup failed."))
+                  .finally(() => setFetchingPayment(false));
+              }}
               onBack={() => setStep(6)}
             />
           )}
