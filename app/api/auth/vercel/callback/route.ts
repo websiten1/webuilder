@@ -37,15 +37,15 @@ export async function GET(request: NextRequest) {
   const redirectUri = `${baseUrl}/api/auth/vercel/callback`;
 
   try {
+    // Vercel token endpoint requires JSON (not form-encoded)
     const tokenRes = await fetch("https://api.vercel.com/v2/oauth/token", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        client_id: process.env.VERCEL_OAUTH_CLIENT_ID!,
-        client_secret: process.env.VERCEL_OAUTH_CLIENT_SECRET!,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        client_id: process.env.VERCEL_OAUTH_CLIENT_ID,
+        client_secret: process.env.VERCEL_OAUTH_CLIENT_SECRET,
         code,
         redirect_uri: redirectUri,
-        grant_type: "authorization_code",
       }),
     });
 
