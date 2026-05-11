@@ -47,7 +47,9 @@ export default function DashboardPage() {
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/");
+    // Full page reload — ensures cookie deletion is committed and React
+    // state on the landing page is reset from scratch
+    window.location.href = "/";
   };
 
   if (loading) return (

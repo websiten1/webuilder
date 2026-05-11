@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { decrypt } from "@/lib/session";
 
 // Routes that require a valid, email-verified session
-const protectedRoutes = ["/dashboard", "/generate", "/success", "/edit"];
+const protectedRoutes = ["/dashboard", "/generate", "/success", "/edit", "/domains"];
 // Routes that logged-in users should skip
 const authRoutes = ["/login", "/signup"];
 

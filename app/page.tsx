@@ -38,7 +38,7 @@ function LiveChip({ text = "Live in 6 minutes" }: { text?: string }) {
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
   useEffect(() => {
-    fetch("/api/auth/me").then(r => r.json()).then(d => { if (d.user) setLoggedIn(true); }).catch(() => {});
+    fetch("/api/auth/me").then(r => r.json()).then(d => { setLoggedIn(!!d.user); }).catch(() => { setLoggedIn(false); });
   }, []);
 
   const ctaHref = loggedIn ? "/dashboard" : "/signup";

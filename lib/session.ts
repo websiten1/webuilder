@@ -52,7 +52,15 @@ export async function createSession(payload: SessionPayload): Promise<void> {
 
 export async function deleteSession(): Promise<void> {
   const cookieStore = await cookies();
-  cookieStore.delete("session");
+  // Overwrite with expired cookie matching same attributes as createSession
+  // Simple .delete() can fail in some browsers if path/secure don't match
+  cookieStore.set("session", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
 }
 
 export async function getSession(): Promise<SessionPayload | null> {

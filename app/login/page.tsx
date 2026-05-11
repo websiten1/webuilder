@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const T = {
@@ -58,7 +58,6 @@ function FormField({ label, value, placeholder, type = "text", onChange }: {
 }
 
 function LoginContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   void searchParams;
 
@@ -84,7 +83,8 @@ function LoginContent() {
         else setError(data.error || "Invalid email or password.");
         return;
       }
-      router.push("/dashboard");
+      // Full reload so proxy picks up the new session cookie immediately
+      window.location.href = "/dashboard";
     } catch { setError("Network error. Please try again."); }
     finally { setLoading(false); }
   };
