@@ -862,6 +862,142 @@ function Step6({ data, onEdit, onSubmit, loading, countdown, stageMsg }: {
   );
 }
 
+// ─── Pricing Step ─────────────────────────────────────────────────────────────
+
+const PLANS = [
+  {
+    id: "basic" as const,
+    name: "Basic",
+    price: 49.99,
+    edits: 0,
+    editNote: "€15 per edit",
+    savings: null,
+    badge: null,
+    features: ["Complete custom website", "Deployed to Vercel", "Full code ownership"],
+  },
+  {
+    id: "pro" as const,
+    name: "Pro",
+    price: 59.99,
+    edits: 5,
+    editNote: "€15/edit after 5",
+    savings: "Save €75",
+    badge: "Most popular",
+    features: ["Everything in Basic", "5 free edits included", "Priority generation"],
+  },
+  {
+    id: "premium" as const,
+    name: "Premium",
+    price: 79.99,
+    edits: 15,
+    editNote: "€15/edit after 15",
+    savings: "Save €225",
+    badge: "Best value",
+    features: ["Everything in Pro", "15 free edits included", "Dedicated support"],
+  },
+] as const;
+
+function PricingStep({
+  selected, onSelect, onGenerate, onBack, loading, stageMsg, countdown,
+}: {
+  selected: "basic" | "pro" | "premium";
+  onSelect: (t: "basic" | "pro" | "premium") => void;
+  onGenerate: () => void;
+  onBack: () => void;
+  loading: boolean;
+  stageMsg: string;
+  countdown: number;
+}) {
+  const T = { ink: "#0A0E14", six: "#FF5A1F", em: "#00B377", emSoft: "#E5F7EE", em2: "#009062", line: "#E2E2DE", muted: "#6B7180", bg2: "#F2F2EF" };
+  const plan = PLANS.find(p => p.id === selected)!;
+
+  return (
+    <div>
+      {/* Beta banner */}
+      <div style={{ background: T.emSoft, border: `1px solid rgba(0,179,119,0.2)`, borderRadius: 10, padding: "10px 14px", marginBottom: 22, display: "flex", gap: 8, alignItems: "center" }}>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6.5" stroke={T.em2} strokeWidth="1.5"/><path d="M7 4v4M7 9.5v.5" stroke={T.em2} strokeWidth="1.5" strokeLinecap="round"/></svg>
+        <p style={{ fontFamily: "system-ui,sans-serif", fontSize: 13, color: T.em2, margin: 0 }}>
+          <strong>Beta:</strong> All plans are free during our launch period. Select your plan for when billing activates.
+        </p>
+      </div>
+
+      {/* Plan cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 20 }}>
+        {PLANS.map(p => {
+          const isSel = selected === p.id;
+          return (
+            <button key={p.id} onClick={() => onSelect(p.id)} style={{
+              border: isSel ? `2px solid ${T.ink}` : `1px solid ${T.line}`,
+              borderRadius: 14, padding: "16px 14px", background: isSel ? T.ink : "#fff",
+              cursor: "pointer", textAlign: "left" as const, position: "relative",
+              boxShadow: isSel ? "0 4px 18px rgba(10,14,20,0.16)" : "none",
+              transition: "all .15s",
+            }}>
+              {p.badge && (
+                <div style={{ position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)", background: T.six, color: "#fff", fontFamily: "ui-monospace,monospace", fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, padding: "3px 9px", borderRadius: 99, whiteSpace: "nowrap" as const }}>
+                  {p.badge}
+                </div>
+              )}
+              <p style={{ fontFamily: "system-ui,sans-serif", fontSize: 13, fontWeight: 700, color: isSel ? "#fff" : T.ink, margin: "0 0 4px" }}>{p.name}</p>
+              <p style={{ fontFamily: "system-ui,sans-serif", fontSize: 22, fontWeight: 800, color: isSel ? T.six : T.ink, margin: "0 0 8px", letterSpacing: -0.8 }}>€{p.price}</p>
+              {p.savings && <p style={{ fontFamily: "ui-monospace,monospace", fontSize: 10, color: isSel ? "rgba(255,255,255,.6)" : T.em2, margin: "0 0 8px", fontWeight: 600 }}>{p.savings}</p>}
+              <p style={{ fontFamily: "system-ui,sans-serif", fontSize: 11, color: isSel ? "rgba(255,255,255,.65)" : T.muted, margin: 0, lineHeight: 1.5 }}>
+                {p.edits > 0 ? <><strong style={{ color: isSel ? "#fff" : T.ink }}>{p.edits} free edits</strong><br/></> : "No free edits\n"}
+                {p.editNote}
+              </p>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Features of selected plan */}
+      <div style={{ background: T.bg2, border: `1px solid ${T.line}`, borderRadius: 12, padding: "14px 16px", marginBottom: 20 }}>
+        <p style={{ fontFamily: "ui-monospace,monospace", fontSize: 10, color: T.muted, letterSpacing: "0.12em", textTransform: "uppercase" as const, margin: "0 0 10px" }}>
+          {plan.name} plan includes
+        </p>
+        {plan.features.map(f => (
+          <div key={f} style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}>
+            <svg width="12" height="12" viewBox="0 0 10 10"><path d="M2 5l2 2 4-4" stroke={T.em2} strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <span style={{ fontFamily: "system-ui,sans-serif", fontSize: 13, color: T.ink }}>{f}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Generate button */}
+      {loading && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <p style={{ fontSize: 13, color: T.muted, margin: 0 }}>{stageMsg}</p>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 3 }}>
+              <span style={{ fontSize: "1.8rem", fontWeight: 700, color: T.six }}>{countdown}</span>
+              <span style={{ fontSize: 12, color: T.muted }}>s</span>
+            </div>
+          </div>
+          <div style={{ height: 4, background: T.line, borderRadius: 99, overflow: "hidden" }}>
+            <div style={{ height: "100%", borderRadius: 99, background: `linear-gradient(90deg,${T.six},#FF8A4C)`, width: `${100 - countdown}%`, transition: "width 1s linear" }}/>
+          </div>
+        </div>
+      )}
+
+      <button
+        onClick={onGenerate}
+        disabled={loading}
+        style={{ width: "100%", height: 54, borderRadius: 12, border: "none", background: loading ? "#E2E2E5" : T.ink, color: loading ? "#A0A0A8" : "#fff", fontFamily: "system-ui,sans-serif", fontSize: 15, fontWeight: 700, cursor: loading ? "default" : "pointer", letterSpacing: -0.2, boxShadow: loading ? "none" : "0 4px 16px rgba(10,14,20,0.16)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+      >
+        {loading
+          ? <><span style={{ width: 16, height: 16, borderRadius: 8, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", animation: "spin 0.8s linear infinite", display: "inline-block" }}/> Generating your website…</>
+          : `Generate with ${plan.name} Plan →`
+        }
+      </button>
+      <p style={{ fontSize: 11, color: T.muted, textAlign: "center", marginTop: 8 }}>Free during beta · €{plan.price} when billing activates</p>
+
+      <button onClick={onBack} style={{ display: "block", margin: "14px auto 0", background: "none", border: "none", cursor: "pointer", fontFamily: "system-ui,sans-serif", fontSize: 13, color: T.muted }}>
+        ← Back to review
+      </button>
+    </div>
+  );
+}
+
 // ─── Vercel Auth Step ─────────────────────────────────────────────────────────
 
 function VercelAuthStep({
@@ -1272,6 +1408,7 @@ export default function GenerateWizard() {
   const [clientSecret, setClientSecret] = useState("");
   const [fetchingPayment, setFetchingPayment] = useState(false);
   const [vercelAuthorized, setVercelAuthorized] = useState<boolean | null>(null);
+  const [selectedTier, setSelectedTier] = useState<"basic" | "pro" | "premium">("pro");
 
   // Restore wizard progress + check Vercel auth + handle OAuth return
   useEffect(() => {
@@ -1314,19 +1451,19 @@ export default function GenerateWizard() {
   const next = () => { if (canNext()) setStep(s => Math.min(s + 1, 6)); };
   const back = () => setStep(s => Math.max(s - 1, 1));
 
-  // Payment suspended — generate directly from step 6
+  // Go to pricing step (step 7) before generating
   const handleGoToPayment = () => {
-    handleSubmit();
+    setStep(7);
   };
 
-  const handleSubmit = async (paymentIntentId?: string) => {
+  const handleSubmit = async (paymentIntentId?: string, tier?: string) => {
     setLoading(true);
     setError("");
     try {
       const res = await fetch("/api/generate-site", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ formData: data, paymentIntentId }),
+        body: JSON.stringify({ formData: data, paymentIntentId, tier: tier ?? selectedTier }),
       });
       if (!res.ok) {
         let errMsg = `Server error ${res.status}`;
@@ -1351,7 +1488,7 @@ export default function GenerateWizard() {
     step <= 6
       ? STEP_TITLES[step - 1]
       : step === 7
-      ? { title: "Connect your Vercel account", sub: "Paste a token so we can deploy to your account — takes 30 seconds" }
+      ? { title: "Choose your plan", sub: "Select the plan that fits your business — all plans free during beta" }
       : { title: "Complete payment", sub: "Secure checkout — then we generate and deploy your website instantly" };
   const { title, sub } = stepEntry;
 
@@ -1375,7 +1512,7 @@ export default function GenerateWizard() {
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
             <span style={{ fontSize: 12, color: "var(--text3)" }}>
-              {step <= 6 ? `Step ${step} of 6` : step === 7 ? "Connect Vercel — one time only" : "Payment — Final step"}
+              {step <= 6 ? `Step ${step} of 6` : step === 7 ? "Choose plan" : "Payment"}
             </span>
             <span style={{ fontSize: 12, color: "var(--text3)" }}>
               {step <= 6 ? `${Math.round((step / 6) * 100)}%` : "100%"}
@@ -1434,24 +1571,16 @@ export default function GenerateWizard() {
               stageMsg={stageMsg}
             />
           )}
-          {/* Step 7 — Vercel token paste (first time only) */}
+          {/* Step 7 — Pricing plan selection */}
           {step === 7 && (
-            <VercelAuthStep
-              onSaved={() => {
-                setVercelAuthorized(true);
-                // Proceed to payment
-                setFetchingPayment(true);
-                fetch("/api/checkout/create-payment-intent-site", { method: "POST" })
-                  .then((r) => r.json())
-                  .then((d) => {
-                    if (d.alreadyPaid) { handleSubmit(); return; }
-                    if (d.clientSecret) { setClientSecret(d.clientSecret); setStep(8); }
-                    else setError(d.error ?? "Could not start payment.");
-                  })
-                  .catch(() => setError("Payment setup failed."))
-                  .finally(() => setFetchingPayment(false));
-              }}
+            <PricingStep
+              selected={selectedTier}
+              onSelect={setSelectedTier}
+              onGenerate={() => handleSubmit(undefined, selectedTier)}
               onBack={() => setStep(6)}
+              loading={loading}
+              stageMsg={stageMsg}
+              countdown={countdown}
             />
           )}
 

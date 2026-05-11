@@ -21,7 +21,7 @@ function Mark({ size = 26 }: { size?: number }) {
   );
 }
 
-type Site = { id: string; name: string; vercel_url: string; github_url: string; status: string; current_version: number; edit_count: number; custom_domain: string | null; created_at: string; };
+type Site = { id: string; name: string; vercel_url: string; github_url: string | null; status: string; current_version: number; edit_count: number; custom_domain: string | null; pricing_tier: string | null; free_edits_remaining: number; total_edits_included: number; created_at: string; };
 type User = { id: string; email: string; paymentStatus: string; };
 
 export default function DashboardPage() {
@@ -150,41 +150,60 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Card info */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                     <div>
-                      <h3 style={{ fontFamily: T.font, fontSize: 15, fontWeight: 700, color: T.ink, margin: "0 0 4px", letterSpacing: -0.3 }}>{site.name}</h3>
-                      <p style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, margin: 0, letterSpacing: 0.2 }}>
+                      <h3 style={{ fontFamily: T.font, fontSize: 15, fontWeight: 700, color: T.ink, margin: "0 0 3px", letterSpacing: -0.3 }}>{site.name}</h3>
+                      <p style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, margin: 0 }}>
                         {new Date(site.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                       </p>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: T.emSoft, borderRadius: 99, padding: "3px 9px" }}>
-                        <div style={{ width: 5, height: 5, borderRadius: 3, background: T.em }}/>
-                        <span style={{ fontFamily: T.mono, fontSize: 9, color: T.em2, letterSpacing: 0.5 }}>Live</span>
-                      </div>
-                      {(site.current_version ?? 1) > 1 && (
-                        <div style={{ background: T.bg2, border: `1px solid ${T.line}`, borderRadius: 99, padding: "3px 8px" }}>
-                          <span style={{ fontFamily: T.mono, fontSize: 9, color: T.muted }}>v{site.current_version}</span>
-                        </div>
-                      )}
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: T.emSoft, borderRadius: 99, padding: "3px 9px" }}>
+                      <div style={{ width: 5, height: 5, borderRadius: 3, background: T.em }}/>
+                      <span style={{ fontFamily: T.mono, fontSize: 9, color: T.em2, letterSpacing: 0.5 }}>Live</span>
                     </div>
                   </div>
 
-                  <p style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, marginBottom: 14, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {site.vercel_url?.replace("https://","")}
+                  <p style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, marginBottom: 8, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {site.custom_domain ?? site.vercel_url?.replace("https://","")}
                   </p>
+
+                  {/* Plan + free edits row */}
+                  {(() => {
+                    const tier = site.pricing_tier ?? "basic";
+                    const remaining = site.free_edits_remaining ?? 0;
+                    const total = site.total_edits_included ?? 0;
+                    const tierLabel = tier === "premium" ? "Premium" : tier === "pro" ? "Pro" : "Basic";
+                    const tierColor = tier === "premium" ? T.six : tier === "pro" ? T.ink : T.muted;
+                    const nextCost = remaining > 0 ? "FREE" : "€15";
+                    return (
+                      <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+                        <span style={{ fontFamily: T.mono, fontSize: 10, color: tierColor, background: tier === "basic" ? T.bg2 : tier === "pro" ? "rgba(10,14,20,0.06)" : "rgba(255,90,31,0.08)", border: `1px solid ${tier === "basic" ? T.line : tier === "pro" ? "rgba(10,14,20,0.12)" : "rgba(255,90,31,0.18)"}`, borderRadius: 6, padding: "2px 7px" }}>
+                          {tierLabel}
+                        </span>
+                        {total > 0 && (
+                          <span style={{ fontFamily: T.mono, fontSize: 10, color: remaining > 0 ? T.em2 : T.muted, background: remaining > 0 ? T.emSoft : T.bg2, border: `1px solid ${remaining > 0 ? "rgba(0,179,119,0.2)" : T.line}`, borderRadius: 6, padding: "2px 7px" }}>
+                            {remaining}/{total} free edits · next: {nextCost}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })()}
 
                   <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: "auto" }}>
                     <div style={{ display: "flex", gap: 6 }}>
                       <a href={site.vercel_url} target="_blank" rel="noopener noreferrer" style={{ flex: 1, background: T.ink, color: "#fff", padding: "9px 0", borderRadius: 9, fontFamily: T.font, fontSize: 13, fontWeight: 600, textDecoration: "none", textAlign: "center" as const }}>View site</a>
-                      <a href={site.github_url} target="_blank" rel="noopener noreferrer" style={{ flex: 1, border: `1px solid ${T.line}`, color: T.ink, padding: "9px 0", borderRadius: 9, fontFamily: T.font, fontSize: 13, textDecoration: "none", textAlign: "center" as const }}>View code</a>
+                      {site.github_url ? (
+                        <a href={site.github_url} target="_blank" rel="noopener noreferrer" style={{ flex: 1, border: `1px solid ${T.line}`, color: T.ink, padding: "9px 0", borderRadius: 9, fontFamily: T.font, fontSize: 13, textDecoration: "none", textAlign: "center" as const }}>View code</a>
+                      ) : (
+                        <a href={`https://vercel.com/dashboard`} target="_blank" rel="noopener noreferrer" style={{ flex: 1, border: `1px solid ${T.line}`, color: T.muted, padding: "9px 0", borderRadius: 9, fontFamily: T.font, fontSize: 13, textDecoration: "none", textAlign: "center" as const }}>Vercel ↗</a>
+                      )}
                     </div>
                     <div style={{ display: "flex", gap: 6 }}>
                       <Link href={`/domains/${site.id}`} style={{ flex: 1, border: `1px solid ${T.line}`, color: T.muted, padding: "9px 0", borderRadius: 9, fontFamily: T.font, fontSize: 12, textDecoration: "none", textAlign: "center" as const, display: "block" }}>
-                        {site.custom_domain ? `🌐 ${site.custom_domain}` : "+ Domain"}
+                        {site.custom_domain ? `🌐 Domain` : "+ Domain"}
                       </Link>
                       <Link href={`/edit/${site.id}`} style={{ flex: 1, border: `1px solid ${T.six}`, color: T.six, padding: "9px 0", borderRadius: 9, fontFamily: T.font, fontSize: 12, fontWeight: 500, textDecoration: "none", textAlign: "center" as const, display: "block" }}>
-                        Edit — €15
+                        {(site.free_edits_remaining ?? 0) > 0 ? "Edit (Free)" : "Edit — €15"}
                       </Link>
                     </div>
                   </div>

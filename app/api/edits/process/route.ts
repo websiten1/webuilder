@@ -45,24 +45,14 @@ export async function POST(request: NextRequest) {
     const authSession = await getSession();
     if (!authSession) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
 
-    const { sessionId, editId: eid } = await request.json();
+    const { sessionId, editId: eid, free } = await request.json();
     editId = eid;
 
-    if (!sessionId || !editId) {
-      return NextResponse.json({ error: "sessionId and editId are required." }, { status: 400 });
+    if (!editId) {
+      return NextResponse.json({ error: "editId is required." }, { status: 400 });
     }
 
-    // Verify Stripe payment
-    const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
-    if (
-      checkoutSession.payment_status !== "paid" ||
-      checkoutSession.metadata?.editId !== editId ||
-      checkoutSession.metadata?.userId !== authSession.userId
-    ) {
-      return NextResponse.json({ error: "Payment not verified." }, { status: 400 });
-    }
-
-    // Get edit record
+    // Get edit record first
     const edit = await getSiteEditById(editId);
     if (!edit || edit.user_id !== authSession.userId) {
       return NextResponse.json({ error: "Edit not found." }, { status: 404 });
@@ -73,10 +63,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, alreadyDone: true });
     }
 
-    const paymentIntentId =
-      typeof checkoutSession.payment_intent === "string"
-        ? checkoutSession.payment_intent
-        : null;
+    let paymentIntentId: string | null = null;
+
+    if (free || edit.stripe_session_id === "free") {
+      // Free edit — already marked as paid, no Stripe verification needed
+      paymentIntentId = null;
+    } else {
+      if (!sessionId) {
+        return NextResponse.json({ error: "sessionId required for paid edits." }, { status: 400 });
+      }
+      // Verify Stripe payment
+      const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
+      if (
+        checkoutSession.payment_status !== "paid" ||
+        checkoutSession.metadata?.editId !== editId ||
+        checkoutSession.metadata?.userId !== authSession.userId
+      ) {
+        return NextResponse.json({ error: "Payment not verified." }, { status: 400 });
+      }
+      paymentIntentId =
+        typeof checkoutSession.payment_intent === "string"
+          ? checkoutSession.payment_intent
+          : null;
+    }
 
     // Mark as paid + processing
     await updateSiteEditStatus(editId, "processing", {

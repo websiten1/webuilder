@@ -49,6 +49,9 @@ export type Site = {
   design_preferences: Record<string, unknown> | null;
   custom_domain: string | null;
   custom_domain_connected_at: Date | null;
+  pricing_tier: "basic" | "pro" | "premium";
+  free_edits_remaining: number;
+  total_edits_included: number;
   created_at: Date;
 };
 
@@ -336,22 +339,33 @@ export async function saveSiteWithVercel(
   vercelUrl: string,
   vercelProjectId: string,
   vercelDeploymentId: string,
-  designPreferences?: Record<string, unknown>
+  designPreferences?: Record<string, unknown>,
+  pricingTier: "basic" | "pro" | "premium" = "basic"
 ): Promise<Site> {
   const sql = getDb();
   const prefs = designPreferences ? JSON.stringify(designPreferences) : null;
+  const freeEdits = pricingTier === "premium" ? 15 : pricingTier === "pro" ? 5 : 0;
   const rows = await sql`
     INSERT INTO sites (
       user_id, name, business_type, vercel_url,
       vercel_project_id, vercel_deployment_id, deployment_status,
-      design_preferences
+      design_preferences, pricing_tier, free_edits_remaining, total_edits_included
     )
     VALUES (
       ${userId}, ${name}, ${businessType}, ${vercelUrl},
       ${vercelProjectId}, ${vercelDeploymentId}, 'deployed',
-      ${prefs}::jsonb
+      ${prefs}::jsonb, ${pricingTier}, ${freeEdits}, ${freeEdits}
     )
     RETURNING *
   `;
   return rows[0] as Site;
+}
+
+export async function decrementFreeEdits(siteId: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE sites
+    SET free_edits_remaining = GREATEST(0, free_edits_remaining - 1)
+    WHERE id = ${siteId}
+  `;
 }

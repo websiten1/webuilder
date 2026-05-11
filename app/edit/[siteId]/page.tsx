@@ -58,6 +58,11 @@ function EditFormContent() {
         setError(data.error || "Failed to start checkout.");
         return;
       }
+      // Free edit (no Stripe) — go straight to processing
+      if (data.free) {
+        window.location.href = data.redirectTo;
+        return;
+      }
       window.location.href = data.url;
     } catch {
       setError("Network error. Please try again.");

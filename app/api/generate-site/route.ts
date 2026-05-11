@@ -181,7 +181,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { formData } = body as { formData: WizardData };
+    const { formData, tier = "pro" } = body as {
+      formData: WizardData;
+      tier?: "basic" | "pro" | "premium";
+    };
 
     // Payment suspended during beta — no payment check
 
@@ -224,7 +227,8 @@ export async function POST(request: NextRequest) {
       siteUrl,
       projectName,
       deployment.id,
-      formData as unknown as Record<string, unknown>
+      formData as unknown as Record<string, unknown>,
+      tier
     );
 
     return NextResponse.json({

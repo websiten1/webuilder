@@ -24,6 +24,7 @@ function ProcessingContent() {
   const router = useRouter();
   const sessionId = searchParams.get("session_id");
   const editId = searchParams.get("edit_id");
+  const isFree = searchParams.get("free") === "true";
 
   const [stageIndex, setStageIndex] = useState(0);
   const [done, setDone] = useState(false);
@@ -55,7 +56,7 @@ function ProcessingContent() {
         const res = await fetch("/api/edits/process", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionId, editId }),
+          body: JSON.stringify({ sessionId, editId, free: isFree }),
         });
         const data = await res.json();
         if (!res.ok) {
