@@ -104,14 +104,23 @@ function LoginContent() {
     <>
       <style>{`
         @keyframes ispin { to { transform: rotate(360deg); } }
-        * { box-sizing: border-box; }
-        body { margin: 0; background: ${T.bg2}; }
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { margin: 0; background: ${T.bg2}; overflow-x: hidden; }
+        .auth-panel { display: flex; }
+        .auth-left  { width: 42%; min-width: 340px; }
+        .auth-right { flex: 1; }
+        @media (max-width: 700px) {
+          .auth-panel { display: block; }
+          .auth-left  { display: none !important; }
+          .auth-right { min-height: 100vh; padding: 48px 24px 40px !important; display: flex; align-items: flex-start !important; justify-content: center; }
+          .auth-right > div { max-width: 100% !important; width: 100% !important; }
+        }
       `}</style>
 
-      <div style={{ minHeight: "100vh", background: T.bg2, display: "flex", alignItems: "stretch" }}>
+      <div className="auth-panel" style={{ minHeight: "100vh", background: T.bg2, display: "flex", alignItems: "stretch" }}>
 
         {/* ── Left: branding panel ─────────────────────────────── */}
-        <div style={{
+        <div className="auth-left" style={{
           width: "42%", minWidth: 340, background: T.ink, position: "relative",
           overflow: "hidden", display: "flex", flexDirection: "column", padding: "36px 44px",
         }}>
@@ -156,7 +165,7 @@ function LoginContent() {
         </div>
 
         {/* ── Right: login form ─────────────────────────────────── */}
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 48px" }}>
+        <div className="auth-right" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 48px" }}>
           <div style={{ width: "100%", maxWidth: 400 }}>
 
             <h2 style={{ fontFamily: T.font, fontSize: 28, fontWeight: 700, letterSpacing: -0.7, color: T.ink, margin: "0 0 6px" }}>
