@@ -48,7 +48,10 @@ export type Site = {
   edit_count: number;
   design_preferences: Record<string, unknown> | null;
   custom_domain: string | null;
+  custom_domain_connected: boolean;
   custom_domain_connected_at: Date | null;
+  vercel_domain_id: string | null;
+  total_edits: number;
   pricing_tier: "basic" | "pro" | "premium";
   free_edits_remaining: number;
   total_edits_included: number;
@@ -303,12 +306,18 @@ export async function clearVerificationCode(userId: string): Promise<void> {
   `;
 }
 
-export async function saveDomainToSite(siteId: string, domain: string): Promise<void> {
+export async function saveDomainToSite(
+  siteId: string,
+  domain: string,
+  vercelDomainId?: string | null
+): Promise<void> {
   const sql = getDb();
   await sql`
     UPDATE sites
     SET custom_domain = ${domain},
-        custom_domain_connected_at = NOW()
+        custom_domain_connected = TRUE,
+        custom_domain_connected_at = NOW(),
+        vercel_domain_id = ${vercelDomainId ?? null}
     WHERE id = ${siteId}
   `;
 }
