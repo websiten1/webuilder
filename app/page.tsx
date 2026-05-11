@@ -48,18 +48,33 @@ export default function Home() {
     <>
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: ${T.bg}; color: ${T.ink}; font-family: ${T.font}; }
+        html { overflow-x: hidden; }
+        body { background: ${T.bg}; color: ${T.ink}; font-family: ${T.font}; overflow-x: hidden; }
         @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
         .tk { animation: ticker 32s linear infinite; }
         .tk:hover { animation-play-state: paused; }
+
         @media (max-width: 900px) {
-          .hero-grid { grid-template-columns: 1fr !important; }
-          .own-grid  { grid-template-columns: 1fr !important; }
-          .demo-grid { grid-template-columns: 1fr 1fr !important; }
+          .hero-grid  { grid-template-columns: 1fr !important; }
+          .own-grid   { grid-template-columns: 1fr !important; }
+          .demo-grid  { grid-template-columns: 1fr 1fr !important; }
           .nav-links  { display: none !important; }
+          .split      { flex-direction: column !important; align-items: flex-start !important; }
+          .stack-grid { grid-template-columns: 1fr 1fr !important; }
+          .hero-demo  { display: none !important; }
+          .page-pad   { padding-left: 20px !important; padding-right: 20px !important; }
+          .stats-row  { gap: 20px !important; flex-wrap: wrap !important; }
         }
+
         @media (max-width: 600px) {
-          .demo-grid { grid-template-columns: 1fr !important; }
+          .demo-grid  { grid-template-columns: 1fr 1fr !important; }
+          .nav-cta-pair { gap: 6px !important; }
+          .nav-cta-pair a:first-child { display: none !important; }
+          .page-pad   { padding-left: 16px !important; padding-right: 16px !important; }
+          .stats-row  { gap: 16px !important; }
+          .comparison-wrap { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+          .comparison-wrap table { min-width: 480px; }
+          .pricing-inner { padding: 28px 20px !important; }
         }
       `}</style>
 
@@ -80,7 +95,7 @@ export default function Home() {
             {loggedIn ? (
               <Link href="/dashboard" style={{ background: T.ink, color: "#fff", padding: "9px 20px", borderRadius: 10, fontFamily: T.font, fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Dashboard</Link>
             ) : (
-              <div style={{ display: "flex", gap: 8 }}>
+              <div className="nav-cta-pair" style={{ display: "flex", gap: 8 }}>
                 <Link href="/login" style={{ color: T.muted, padding: "9px 18px", borderRadius: 10, fontFamily: T.font, fontSize: 14, fontWeight: 500, textDecoration: "none", border: `1px solid ${T.line}` }}>Log in</Link>
                 <Link href="/signup" style={{ background: T.ink, color: "#fff", padding: "9px 20px", borderRadius: 10, fontFamily: T.font, fontSize: 14, fontWeight: 600, textDecoration: "none", boxShadow: "0 4px 12px rgba(10,14,20,0.14)" }}>Get started</Link>
               </div>
@@ -89,7 +104,7 @@ export default function Home() {
         </nav>
 
         {/* ── HERO ────────────────────────────────────────────── */}
-        <section style={{ paddingTop: 80, maxWidth: 1200, margin: "0 auto", padding: "80px 28px 60px" }}>
+        <section className="page-pad" style={{ maxWidth: 1200, margin: "0 auto", padding: "80px 28px 60px" }}>
           <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: 56, alignItems: "center" }}>
             <div>
               <LiveChip />
@@ -108,7 +123,7 @@ export default function Home() {
                 <span style={{ fontFamily: T.mono, fontSize: 11, color: T.muted, letterSpacing: "0.06em", textTransform: "uppercase" as const }}>One-time · No subscriptions</span>
               </div>
               {/* Stats */}
-              <div style={{ marginTop: 36, display: "flex", gap: 28 }}>
+              <div className="stats-row" style={{ marginTop: 36, display: "flex", gap: 28 }}>
                 {[["€49.99", "one-time"], ["6 min", "to live"], ["100%", "yours forever"]].map(([v, l]) => (
                   <div key={l}>
                     <div style={{ fontFamily: T.font, fontSize: 22, fontWeight: 800, color: T.ink, letterSpacing: -0.8 }}>{v}</div>
@@ -117,8 +132,8 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            {/* Hero demo */}
-            <div><DemoHero /></div>
+            {/* Hero demo — hidden on mobile */}
+            <div className="hero-demo"><DemoHero /></div>
           </div>
         </section>
 
@@ -134,7 +149,7 @@ export default function Home() {
         </div>
 
         {/* ── HOW IT WORKS ────────────────────────────────────── */}
-        <section id="how" style={{ padding: "96px 28px", maxWidth: 1200, margin: "0 auto" }}>
+        <section id="how" className="page-pad" style={{ padding: "96px 28px", maxWidth: 1200, margin: "0 auto" }}>
           <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 72, alignItems: "start" }}>
             <div>
               <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Process</span>
@@ -167,7 +182,7 @@ export default function Home() {
         </section>
 
         {/* ── DEMOS ───────────────────────────────────────────── */}
-        <section id="demos" style={{ padding: "96px 28px", background: T.bg2, borderTop: `1px solid ${T.line}`, borderBottom: `1px solid ${T.line}` }}>
+        <section id="demos" className="page-pad" style={{ padding: "96px 28px", background: T.bg2, borderTop: `1px solid ${T.line}`, borderBottom: `1px solid ${T.line}` }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 44, flexWrap: "wrap", gap: 20 }}>
               <div>
@@ -228,10 +243,10 @@ export default function Home() {
         </section>
 
         {/* ── COMPARISON ──────────────────────────────────────── */}
-        <section style={{ padding: "96px 28px", maxWidth: 960, margin: "0 auto" }}>
+        <section className="page-pad" style={{ padding: "96px 28px", maxWidth: 960, margin: "0 auto" }}>
           <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Comparison</span>
           <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14, marginBottom: 44 }}>The math is simple.</h2>
-          <div style={{ border: `1px solid ${T.line}`, overflow: "hidden", borderRadius: 2 }}>
+          <div className="comparison-wrap" style={{ border: `1px solid ${T.line}`, overflow: "hidden", borderRadius: 2 }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: T.font, fontSize: 13 }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${T.line}`, background: T.bg2 }}>
@@ -264,11 +279,11 @@ export default function Home() {
         </section>
 
         {/* ── PRICING ─────────────────────────────────────────── */}
-        <section id="pricing" style={{ background: T.bg2, borderTop: `1px solid ${T.line}`, padding: "96px 28px" }}>
+        <section id="pricing" className="page-pad" style={{ background: T.bg2, borderTop: `1px solid ${T.line}`, padding: "96px 28px" }}>
           <div style={{ maxWidth: 640, margin: "0 auto" }}>
             <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Pricing</span>
             <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14, marginBottom: 44 }}>One price. No surprises.</h2>
-            <div style={{ border: `1px solid ${T.ink}`, background: T.bg, padding: "44px" }}>
+            <div className="pricing-inner" style={{ border: `1px solid ${T.ink}`, background: T.bg, padding: "44px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32, flexWrap: "wrap", gap: 20 }}>
                 <div>
                   <p style={{ fontFamily: T.font, fontSize: "clamp(3rem, 5vw, 4.5rem)", fontWeight: 800, letterSpacing: "-0.05em", lineHeight: 1, color: T.ink, margin: 0 }}>€49.99</p>
@@ -299,7 +314,7 @@ export default function Home() {
         </section>
 
         {/* ── FAQ ─────────────────────────────────────────────── */}
-        <section style={{ padding: "96px 28px", maxWidth: 800, margin: "0 auto" }}>
+        <section className="page-pad" style={{ padding: "96px 28px", maxWidth: 800, margin: "0 auto" }}>
           <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Questions</span>
           <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14, marginBottom: 48 }}>Common questions.</h2>
           {[

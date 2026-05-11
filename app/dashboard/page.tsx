@@ -59,7 +59,26 @@ export default function DashboardPage() {
 
   return (
     <>
-      <style>{`*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; } @keyframes dspin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { overflow-x: hidden; }
+        @keyframes dspin { to { transform: rotate(360deg); } }
+        .db-email { display: inline; }
+        .db-links { display: flex; gap: 20px; align-items: center; }
+        .db-demo-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
+        .db-site-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+        .db-pad { padding: 80px 28px 60px; }
+        @media (max-width: 700px) {
+          .db-email { display: none !important; }
+          .db-links a { display: none !important; }
+          .db-demo-grid { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+          .db-site-grid { grid-template-columns: 1fr !important; }
+          .db-pad { padding: 72px 16px 40px !important; }
+        }
+        @media (max-width: 480px) {
+          .db-demo-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
       <div style={{ background: T.bg, minHeight: "100vh", fontFamily: T.font }}>
 
         {/* ── NAV ─────────────────────────────────────────────── */}
@@ -69,16 +88,16 @@ export default function DashboardPage() {
               <Mark size={24} />
               <span style={{ fontFamily: T.font, fontSize: 16, fontWeight: 700, color: T.ink, letterSpacing: -0.5 }}>insixlive</span>
             </Link>
-            <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-              <span style={{ fontFamily: T.mono, fontSize: 11, color: T.muted, letterSpacing: 0.2 }}>{user?.email}</span>
-              <Link href="/help/setup-custom-domain" style={{ fontFamily: T.font, fontSize: 13, color: T.muted, textDecoration: "none" }}>Domain setup</Link>
+            <div className="db-links" style={{ display: "flex", alignItems: "center", gap: 20 }}>
+              <span className="db-email" style={{ fontFamily: T.mono, fontSize: 11, color: T.muted, letterSpacing: 0.2 }}>{user?.email}</span>
+              <Link href="/help/setup-custom-domain" style={{ fontFamily: T.font, fontSize: 13, color: T.muted, textDecoration: "none" }}>Domains</Link>
               <button onClick={handleLogout} style={{ fontFamily: T.font, fontSize: 13, color: T.muted, background: "none", border: "none", cursor: "pointer" }}>Log out</button>
             </div>
           </div>
         </nav>
 
         {/* ── CONTENT ─────────────────────────────────────────── */}
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "80px 28px 60px" }}>
+        <div className="db-pad" style={{ maxWidth: 1200, margin: "0 auto", padding: "80px 28px 60px" }}>
 
           {/* Header */}
           <div style={{ paddingTop: 32, marginBottom: 40, display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
@@ -100,7 +119,7 @@ export default function DashboardPage() {
               <div style={{ marginBottom: 14 }}>
                 <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.12em", textTransform: "uppercase" as const }}>Example sites made with insixlive</span>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 18, marginBottom: 48 }}>
+              <div className="db-demo-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 18, marginBottom: 48 }}>
                 <DemoBistro compact />
                 <DemoPhoto compact />
                 <DemoPlumbing compact />
@@ -125,7 +144,7 @@ export default function DashboardPage() {
 
           {/* Site cards */}
           {sites.length > 0 && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
+            <div className="db-site-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
               {sites.map(site => (
                 <div key={site.id} style={{ background: "#fff", border: `1px solid ${T.line}`, borderRadius: 14, padding: 20, display: "flex", flexDirection: "column" }}>
                   {/* Mini browser preview */}
