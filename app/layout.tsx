@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import CookieBanner from "@/app/components/CookieBanner";
+import ChatBot from "@/app/components/ChatBot";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 
@@ -16,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <CookieBanner />
+        <ChatBot />
       </body>
     </html>
   );
