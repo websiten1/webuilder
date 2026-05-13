@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { DemoHero, DemoBistro, DemoPhoto, DemoPlumbing, DemoDental, DemoConsult, DemoSalon } from "@/app/components/SiteDemos";
+import { DemoBistro, DemoPhoto, DemoPlumbing, DemoDental, DemoConsult, DemoSalon } from "@/app/components/SiteDemos";
 
 // ─── Animated counter ─────────────────────────────────────────────────────────
 function useCountUp(target: number, duration = 1600, started = false) {
@@ -183,8 +183,19 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            {/* Hero demo — hidden on mobile */}
-            <div className="hero-demo"><DemoHero /></div>
+            {/* Hero image — hidden on mobile */}
+            <div className="hero-demo" style={{ position: "relative" }}>
+              <img
+                src="/hero.png"
+                alt="insixlive — AI website generation"
+                style={{
+                  width: "100%",
+                  borderRadius: 18,
+                  boxShadow: "0 32px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06)",
+                  display: "block",
+                }}
+              />
+            </div>
           </div>
         </section>
 
