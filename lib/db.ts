@@ -52,7 +52,7 @@ export type Site = {
   custom_domain_connected_at: Date | null;
   vercel_domain_id: string | null;
   total_edits: number;
-  pricing_tier: "basic" | "pro" | "premium";
+  pricing_tier: "website" | "website_5";
   free_edits_remaining: number;
   total_edits_included: number;
   created_at: Date;
@@ -349,11 +349,11 @@ export async function saveSiteWithVercel(
   vercelProjectId: string,
   vercelDeploymentId: string,
   designPreferences?: Record<string, unknown>,
-  pricingTier: "basic" | "pro" | "premium" = "basic"
+  pricingTier: "website" | "website_5" = "website"
 ): Promise<Site> {
   const sql = getDb();
   const prefs = designPreferences ? JSON.stringify(designPreferences) : null;
-  const freeEdits = pricingTier === "premium" ? 15 : pricingTier === "pro" ? 5 : 0;
+  const freeEdits = pricingTier === "website_5" ? 5 : 0;
   const rows = await sql`
     INSERT INTO sites (
       user_id, name, business_type, vercel_url,

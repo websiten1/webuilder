@@ -190,20 +190,20 @@ export default function DashboardPage() {
 
                   {/* Plan + free edits row */}
                   {(() => {
-                    const tier = site.pricing_tier ?? "basic";
+                    const tier = site.pricing_tier ?? "website";
                     const remaining = site.free_edits_remaining ?? 0;
                     const total = site.total_edits_included ?? 0;
-                    const tierLabel = tier === "premium" ? "Premium" : tier === "pro" ? "Pro" : "Basic";
-                    const tierColor = tier === "premium" ? T.six : tier === "pro" ? T.ink : T.muted;
-                    const nextCost = remaining > 0 ? "FREE" : "€15";
+                    const tierLabel = tier === "website_5" ? "Website + 5 Changes" : "Website";
+                    const tierColor = tier === "website_5" ? T.ink : T.muted;
+                    const nextCost = remaining > 0 ? "FREE" : "€10";
                     return (
-                      <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-                        <span style={{ fontFamily: T.mono, fontSize: 10, color: tierColor, background: tier === "basic" ? T.bg2 : tier === "pro" ? "rgba(10,14,20,0.06)" : "rgba(255,90,31,0.08)", border: `1px solid ${tier === "basic" ? T.line : tier === "pro" ? "rgba(10,14,20,0.12)" : "rgba(255,90,31,0.18)"}`, borderRadius: 6, padding: "2px 7px" }}>
+                      <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" as const }}>
+                        <span style={{ fontFamily: T.mono, fontSize: 10, color: tierColor, background: tier === "website_5" ? "rgba(10,14,20,0.06)" : T.bg2, border: `1px solid ${tier === "website_5" ? "rgba(10,14,20,0.12)" : T.line}`, borderRadius: 6, padding: "2px 7px" }}>
                           {tierLabel}
                         </span>
                         {total > 0 && (
                           <span style={{ fontFamily: T.mono, fontSize: 10, color: remaining > 0 ? T.em2 : T.muted, background: remaining > 0 ? T.emSoft : T.bg2, border: `1px solid ${remaining > 0 ? "rgba(0,179,119,0.2)" : T.line}`, borderRadius: 6, padding: "2px 7px" }}>
-                            {remaining}/{total} free edits · next: {nextCost}
+                            {remaining}/{total} free · next: {nextCost}
                           </span>
                         )}
                       </div>
@@ -224,7 +224,7 @@ export default function DashboardPage() {
                         {site.custom_domain ? `🌐 Domain` : "+ Domain"}
                       </Link>
                       <Link href={`/edit/${site.id}`} style={{ flex: 1, border: `1px solid ${T.six}`, color: T.six, padding: "9px 0", borderRadius: 9, fontFamily: T.font, fontSize: 12, fontWeight: 500, textDecoration: "none", textAlign: "center" as const, display: "block" }}>
-                        {(site.free_edits_remaining ?? 0) > 0 ? "Edit (Free)" : "Edit — €15"}
+                        {(site.free_edits_remaining ?? 0) > 0 ? "Change (Free)" : "Change — €10"}
                       </Link>
                     </div>
                   </div>

@@ -85,7 +85,7 @@ export default function Home() {
   }, []);
 
   const ctaHref = loggedIn ? "/dashboard" : "/signup";
-  const ctaLabel = loggedIn ? "Go to Dashboard" : "Build my site — €49.99";
+  const ctaLabel = loggedIn ? "Go to Dashboard" : "Build my site — from €49";
 
   return (
     <>
@@ -158,7 +158,7 @@ export default function Home() {
               <span style={{ fontFamily: T.font, fontSize: 16, fontWeight: 700, color: T.ink, letterSpacing: -0.5 }}>insixlive</span>
             </Link>
             <div className="nav-links" style={{ display: "flex", alignItems: "center", gap: 28 }}>
-              {[["#how", "How it works"], ["#demos", "Examples"], ["#pricing", "Pricing"]].map(([h, l]) => (
+              {[["#how", "How it works"], ["#demos", "Examples"], ["/pricing", "Pricing"]].map(([h, l]) => (
                 <a key={h} href={h} style={{ fontFamily: T.font, fontSize: 14, color: T.muted, textDecoration: "none" }}>{l}</a>
               ))}
             </div>
@@ -194,7 +194,7 @@ export default function Home() {
               </div>
               {/* Stats */}
               <div className="stats-row" style={{ marginTop: 36, display: "flex", gap: 28 }}>
-                {[["€49.99", "one-time"], ["6 min", "to live"], ["100%", "yours forever"]].map(([v, l]) => (
+                {[["from €49", "one-time"], ["6 min", "to live"], ["100%", "yours forever"]].map(([v, l]) => (
                   <div key={l}>
                     <div style={{ fontFamily: T.font, fontSize: 22, fontWeight: 800, color: T.ink, letterSpacing: -0.8 }}>{v}</div>
                     <div style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, marginTop: 2, letterSpacing: "0.08em", textTransform: "uppercase" as const }}>{l}</div>
@@ -222,7 +222,7 @@ export default function Home() {
         <div style={{ borderTop: `1px solid ${T.line}`, borderBottom: `1px solid ${T.line}`, overflow: "hidden", height: 40, display: "flex", alignItems: "center" }}>
           <div className="tk" style={{ display: "flex", whiteSpace: "nowrap" }}>
             {[...Array(2)].flatMap((_, p) =>
-              ["Next.js", "Vercel", "GitHub", "Claude AI", "€49.99 once", "6 minutes", "Zero lock-in", "100% yours", "No subscriptions", "Production-ready"].map(item => (
+              ["Next.js", "Vercel", "GitHub", "Claude AI", "€49 one-time", "6 minutes", "Zero lock-in", "100% yours", "No subscriptions", "Production-ready"].map(item => (
                 <span key={`${p}-${item}`} style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.12em", textTransform: "uppercase" as const, padding: "0 24px" }}>{item} ·</span>
               ))
             )}
@@ -262,7 +262,7 @@ export default function Home() {
                 ["02", "Choose your aesthetic", "Design style, colour palette, typography."],
                 ["03", "Select your pages", "Home, services, about, contact and more."],
                 ["04", "Review your choices", "Full summary before anything is generated."],
-                ["05", "Complete payment", "€49.99 once via Stripe. Non-recurring."],
+                ["05", "Complete payment", "€49 one-time via Stripe. Non-recurring."],
                 ["06", "Website live", "Code on GitHub, deployed to your Vercel."],
               ].map(([n, t, s], i, arr) => (
                 <div key={n} style={{ display: "flex", gap: 18, padding: "18px 0", borderBottom: i < arr.length - 1 ? `1px solid ${T.line}` : "none" }}>
@@ -385,7 +385,7 @@ export default function Home() {
                   ["Full source code", "Every file, every line — pushed to your GitHub immediately."],
                   ["Your Vercel deployment", "Live on your account. You manage it. We can't touch it."],
                   ["Custom domain ready", "Connect any domain in minutes. Full guide included."],
-                  ["No recurring fees", "€49.99 once. We make nothing from you after that."],
+                  ["No recurring fees", "€49 one-time. We make nothing from you after that."],
                   ["Zero lock-in", "Take the code anywhere. Dependency on us: zero."],
                 ].map(([title, desc], i, arr) => (
                   <div key={title} style={{ paddingBottom: i < arr.length - 1 ? 20 : 0, marginBottom: i < arr.length - 1 ? 20 : 0, borderBottom: i < arr.length - 1 ? "1px solid rgba(255,255,255,.08)" : "none" }}>
@@ -418,7 +418,7 @@ export default function Home() {
               </thead>
               <tbody>
                 {[
-                  { name: "insixlive", y1: "€49.99", y5: "€49.99", owns: true, ai: true, hi: true },
+                  { name: "insixlive", y1: "from €49", y5: "from €49", owns: true, ai: true, hi: true },
                   { name: "Wix", y1: "€204", y5: "€1,020", owns: false, ai: false, hi: false },
                   { name: "Squarespace", y1: "€192", y5: "€960", owns: false, ai: false, hi: false },
                   { name: "Agency", y1: "€3–10k", y5: "€15k+", owns: true, ai: false, hi: false },
@@ -456,7 +456,7 @@ export default function Home() {
                 </div>
               </div>
               <div style={{ borderTop: `1px solid ${T.line}`, paddingTop: 28, marginBottom: 32 }}>
-                {["Complete custom website generated by AI", "Deployed to your own Vercel account", "Full source code on your GitHub", "Fully responsive — mobile, tablet, desktop", "Custom domain setup guide included", "Request edits for €15 per change", "No monthly fees, ever"].map((item, i) => (
+                {["Complete custom website generated by AI", "Deployed to your own Vercel account", "Full source code on your GitHub", "Fully responsive — mobile, tablet, desktop", "Custom domain setup guide included", "Request changes for €10 each", "No monthly fees, ever"].map((item, i) => (
                   <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: i < 6 ? 12 : 0 }}>
                     <span style={{ fontFamily: T.mono, fontSize: 11, color: T.muted, paddingTop: 1, flexShrink: 0 }}>—</span>
                     <span style={{ fontFamily: T.font, fontSize: 14, color: T.muted, lineHeight: 1.55 }}>{item}</span>
@@ -481,7 +481,7 @@ export default function Home() {
           {[
             ["Do I need to know how to code?", "No. Describe your business, choose preferences, pay once — your website is live. Zero technical knowledge required."],
             ["Who owns the website after it's generated?", "You do. Completely. Code is on your GitHub, deployment is on your Vercel. We have no access after generation."],
-            ["What if I need changes later?", "Request changes via your dashboard for €15 each. We regenerate and redeploy automatically."],
+            ["What if I need changes later?", "Request changes from your dashboard for €10 each. We regenerate and redeploy automatically."],
             ["How long does it actually take?", "Filling out the questionnaire takes 5–10 minutes. Generation and deployment happen in under 2 minutes."],
             ["What if I need to move away from Vercel?", "Download the code and deploy anywhere — Netlify, AWS, a VPS, anything. You're not tied to Vercel."],
           ].map(([q, a], i, arr) => (

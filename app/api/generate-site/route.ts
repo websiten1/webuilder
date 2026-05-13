@@ -181,9 +181,9 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { formData, tier = "pro" } = body as {
+    const { formData, tier = "website_5" } = body as {
       formData: WizardData;
-      tier?: "basic" | "pro" | "premium";
+      tier?: "website" | "website_5";
     };
 
     // Payment suspended during beta — no payment check

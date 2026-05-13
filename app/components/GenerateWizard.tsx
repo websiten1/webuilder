@@ -866,42 +866,32 @@ function Step6({ data, onEdit, onSubmit, loading, countdown, stageMsg }: {
 
 const PLANS = [
   {
-    id: "basic" as const,
-    name: "Basic",
-    price: 49.99,
+    id: "website" as const,
+    name: "Website",
+    price: 49,
     edits: 0,
-    editNote: "€15 per edit",
+    editNote: "€10 per change",
     savings: null,
     badge: null,
-    features: ["Complete custom website", "Deployed to Vercel", "Full code ownership"],
+    features: ["AI-generated website", "Deployed to your Vercel", "Full code ownership"],
   },
   {
-    id: "pro" as const,
-    name: "Pro",
-    price: 59.99,
+    id: "website_5" as const,
+    name: "Website + 5 Changes",
+    price: 69,
     edits: 5,
-    editNote: "€15/edit after 5",
-    savings: "Save €75",
+    editNote: "€10/change after 5",
+    savings: "Save €50",
     badge: "Most popular",
-    features: ["Everything in Basic", "5 free edits included", "Priority generation"],
-  },
-  {
-    id: "premium" as const,
-    name: "Premium",
-    price: 79.99,
-    edits: 15,
-    editNote: "€15/edit after 15",
-    savings: "Save €225",
-    badge: "Best value",
-    features: ["Everything in Pro", "15 free edits included", "Dedicated support"],
+    features: ["Everything in Website", "5 FREE changes included", "Custom domain ready"],
   },
 ] as const;
 
 function PricingStep({
   selected, onSelect, onGenerate, onBack, loading, stageMsg, countdown,
 }: {
-  selected: "basic" | "pro" | "premium";
-  onSelect: (t: "basic" | "pro" | "premium") => void;
+  selected: "website" | "website_5";
+  onSelect: (t: "website" | "website_5") => void;
   onGenerate: () => void;
   onBack: () => void;
   loading: boolean;
@@ -989,7 +979,7 @@ function PricingStep({
           : `Generate with ${plan.name} Plan →`
         }
       </button>
-      <p style={{ fontSize: 11, color: T.muted, textAlign: "center", marginTop: 8 }}>Free during beta · €{plan.price} when billing activates</p>
+      <p style={{ fontSize: 11, color: T.muted, textAlign: "center", marginTop: 8 }}>Free during beta · €{plan.price} one-time when billing activates · Custom domain separate</p>
 
       <button onClick={onBack} style={{ display: "block", margin: "14px auto 0", background: "none", border: "none", cursor: "pointer", fontFamily: "system-ui,sans-serif", fontSize: 13, color: T.muted }}>
         ← Back to review
@@ -1408,7 +1398,7 @@ export default function GenerateWizard() {
   const [clientSecret, setClientSecret] = useState("");
   const [fetchingPayment, setFetchingPayment] = useState(false);
   const [vercelAuthorized, setVercelAuthorized] = useState<boolean | null>(null);
-  const [selectedTier, setSelectedTier] = useState<"basic" | "pro" | "premium">("pro");
+  const [selectedTier, setSelectedTier] = useState<"website" | "website_5">("website_5");
 
   // Restore wizard progress + check Vercel auth + handle OAuth return
   useEffect(() => {

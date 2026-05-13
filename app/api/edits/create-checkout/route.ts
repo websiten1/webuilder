@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       line_items: [{
         price_data: {
           currency: "eur",
-          unit_amount: 1500,
+          unit_amount: 1000,
           product_data: {
             name: `Website Edit — ${site.name}`,
             description: description.trim().slice(0, 120),
