@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { DemoBistro, DemoPhoto, DemoPlumbing, DemoDental, DemoConsult, DemoSalon } from "@/app/components/SiteDemos";
+import { DemoBistro, DemoConsult } from "@/app/components/SiteDemos";
 
 // ─── Animated counter ─────────────────────────────────────────────────────────
 function useCountUp(target: number, duration = 1600, started = false) {
@@ -127,6 +127,25 @@ export default function Home() {
         }
         .scroll-in { opacity: 0; }
         .scroll-in.visible { animation: scrollIn .55s ease both; }
+
+        @keyframes carouselLtr {
+          from { transform: translateX(0); }
+          to   { transform: translateX(-50%); }
+        }
+        @keyframes carouselRtl {
+          from { transform: translateX(-50%); }
+          to   { transform: translateX(0); }
+        }
+        .carousel-ltr {
+          animation: carouselLtr 40s linear infinite;
+        }
+        .carousel-rtl {
+          animation: carouselRtl 36s linear infinite;
+        }
+        .carousel-ltr:hover,
+        .carousel-rtl:hover {
+          animation-play-state: paused;
+        }
       `}</style>
 
       <div style={{ background: T.bg, minHeight: "100vh" }}>
@@ -258,27 +277,46 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── DEMOS ───────────────────────────────────────────── */}
-        <section id="demos" className="page-pad scroll-in" style={{ padding: "96px 28px", background: T.bg2, borderTop: `1px solid ${T.line}`, borderBottom: `1px solid ${T.line}` }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 44, flexWrap: "wrap", gap: 20 }}>
-              <div>
-                <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Results</span>
-                <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14 }}>
-                  Websites built<br/>with insixlive.
-                </h2>
-              </div>
-              <Link href={ctaHref} style={{ border: `1px solid ${T.line}`, color: T.ink, padding: "10px 22px", borderRadius: 10, fontFamily: T.font, fontSize: 14, fontWeight: 500, textDecoration: "none", flexShrink: 0 }}>
-                Build yours →
-              </Link>
+        {/* ── DEMOS (carousel) ────────────────────────────────── */}
+        <section id="demos" style={{ background: T.bg2, borderTop: `1px solid ${T.line}`, borderBottom: `1px solid ${T.line}`, padding: "80px 0 72px", overflow: "hidden" }}>
+          {/* Header */}
+          <div className="page-pad" style={{ maxWidth: 1200, margin: "0 auto 44px", padding: "0 28px", display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 20 }}>
+            <div>
+              <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Results</span>
+              <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14 }}>
+                Websites built<br/>with insixlive.
+              </h2>
             </div>
-            <div className="demo-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 18 }}>
-              <DemoBistro compact />
-              <DemoPhoto compact />
-              <DemoPlumbing compact />
-              <DemoDental compact />
-              <DemoConsult compact />
-              <DemoSalon compact />
+            <Link href={ctaHref} style={{ border: `1px solid ${T.line}`, color: T.ink, padding: "10px 22px", borderRadius: 10, fontFamily: T.font, fontSize: 14, fontWeight: 500, textDecoration: "none", flexShrink: 0 }}>
+              Build yours →
+            </Link>
+          </div>
+
+          {/* Infinite scroll row 1 — left to right */}
+          <div style={{ overflow: "hidden", marginBottom: 16 }}>
+            <div className="carousel-ltr" style={{ display: "flex", gap: 16, width: "max-content" }}>
+              {[...Array(2)].flatMap(() =>
+                [1,2,3,4,5,6,7,8].map(n => (
+                  <div key={`r1-${n}`} style={{ width: 360, height: 225, borderRadius: 12, overflow: "hidden", flexShrink: 0, boxShadow: "0 4px 20px rgba(0,0,0,0.10)", border: `1px solid ${T.line}` }}>
+                    <img src={`/demos/site-${String(n).padStart(2,"0")}.png`} alt={`Website ${n}`}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} />
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Infinite scroll row 2 — right to left (offset) */}
+          <div style={{ overflow: "hidden" }}>
+            <div className="carousel-rtl" style={{ display: "flex", gap: 16, width: "max-content" }}>
+              {[...Array(2)].flatMap(() =>
+                [9,10,11,12,13,14,15,8].map(n => (
+                  <div key={`r2-${n}`} style={{ width: 360, height: 225, borderRadius: 12, overflow: "hidden", flexShrink: 0, boxShadow: "0 4px 20px rgba(0,0,0,0.10)", border: `1px solid ${T.line}` }}>
+                    <img src={`/demos/site-${String(n).padStart(2,"0")}.png`} alt={`Website ${n}`}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} />
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </section>
