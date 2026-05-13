@@ -203,15 +203,15 @@ export default function Home() {
               </div>
             </div>
             {/* Hero image — hidden on mobile */}
-            <div className="hero-demo" style={{ position: "relative" }}>
+            <div className="hero-demo">
               <img
                 src="/hero.png"
                 alt="insixlive — AI website generation"
                 style={{
-                  width: "100%",
-                  borderRadius: 18,
-                  boxShadow: "0 32px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06)",
+                  width: "110%",
+                  marginLeft: "-5%",
                   display: "block",
+                  mixBlendMode: "multiply" as const,
                 }}
               />
             </div>
