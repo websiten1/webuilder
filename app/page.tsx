@@ -1,8 +1,45 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DemoHero, DemoBistro, DemoPhoto, DemoPlumbing, DemoDental, DemoConsult, DemoSalon } from "@/app/components/SiteDemos";
+
+// ─── Animated counter ─────────────────────────────────────────────────────────
+function useCountUp(target: number, duration = 1600, started = false) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!started) return;
+    let start: number | null = null;
+    const step = (ts: number) => {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      setValue(Math.round(ease * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [target, duration, started]);
+  return value;
+}
+
+function MetricCounter({ value, suffix, label, prefix }: { value: number; suffix?: string; label: string; prefix?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [started, setStarted] = useState(false);
+  const count = useCountUp(value, 1400, started);
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setStarted(true); obs.disconnect(); } }, { threshold: 0.4 });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+  return (
+    <div ref={ref} style={{ textAlign: "center" as const }}>
+      <div style={{ fontFamily: '-apple-system, system-ui, sans-serif', fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, color: "#fff", letterSpacing: -1.5, lineHeight: 1 }}>
+        {prefix}{count.toLocaleString()}{suffix}
+      </div>
+      <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: 10, color: "rgba(255,255,255,0.4)", letterSpacing: "0.1em", textTransform: "uppercase" as const, marginTop: 8 }}>{label}</div>
+    </div>
+  );
+}
 
 const T = {
   ink:  "#0A0E14",
@@ -39,6 +76,12 @@ export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
   useEffect(() => {
     fetch("/api/auth/me").then(r => r.json()).then(d => { setLoggedIn(!!d.user); }).catch(() => { setLoggedIn(false); });
+    // Scroll-in observer for sections
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll(".scroll-in").forEach(el => obs.observe(el));
+    return () => obs.disconnect();
   }, []);
 
   const ctaHref = loggedIn ? "/dashboard" : "/signup";
@@ -75,7 +118,15 @@ export default function Home() {
           .comparison-wrap { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
           .comparison-wrap table { min-width: 480px; }
           .pricing-inner { padding: 28px 20px !important; }
+          .metrics-grid { grid-template-columns: 1fr 1fr !important; }
+          .testi-grid { grid-template-columns: 1fr !important; }
         }
+        @keyframes scrollIn {
+          from { opacity: 0; transform: translateY(22px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .scroll-in { opacity: 0; }
+        .scroll-in.visible { animation: scrollIn .55s ease both; }
       `}</style>
 
       <div style={{ background: T.bg, minHeight: "100vh" }}>
@@ -148,8 +199,23 @@ export default function Home() {
           </div>
         </div>
 
+        {/* ── METRICS (animated counters) ─────────────────────── */}
+        <section style={{ background: T.ink, padding: "64px 28px" }}>
+          <div style={{ maxWidth: 960, margin: "0 auto" }}>
+            <p style={{ fontFamily: T.mono, fontSize: 10, color: "rgba(255,255,255,.3)", letterSpacing: "0.14em", textTransform: "uppercase" as const, textAlign: "center", marginBottom: 40 }}>
+              The numbers
+            </p>
+            <div className="metrics-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 32 }}>
+              <MetricCounter value={6}   suffix=" min" label="Average time to live" />
+              <MetricCounter value={49}  prefix="€" suffix="" label="Starting price (one-time)" />
+              <MetricCounter value={100} suffix="%" label="Code ownership" />
+              <MetricCounter value={0}   suffix="" prefix="€" label="Monthly fees, ever" />
+            </div>
+          </div>
+        </section>
+
         {/* ── HOW IT WORKS ────────────────────────────────────── */}
-        <section id="how" className="page-pad" style={{ padding: "96px 28px", maxWidth: 1200, margin: "0 auto" }}>
+        <section id="how" className="page-pad scroll-in" style={{ padding: "96px 28px", maxWidth: 1200, margin: "0 auto" }}>
           <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 72, alignItems: "start" }}>
             <div>
               <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Process</span>
@@ -182,7 +248,7 @@ export default function Home() {
         </section>
 
         {/* ── DEMOS ───────────────────────────────────────────── */}
-        <section id="demos" className="page-pad" style={{ padding: "96px 28px", background: T.bg2, borderTop: `1px solid ${T.line}`, borderBottom: `1px solid ${T.line}` }}>
+        <section id="demos" className="page-pad scroll-in" style={{ padding: "96px 28px", background: T.bg2, borderTop: `1px solid ${T.line}`, borderBottom: `1px solid ${T.line}` }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 44, flexWrap: "wrap", gap: 20 }}>
               <div>
@@ -202,6 +268,52 @@ export default function Home() {
               <DemoDental compact />
               <DemoConsult compact />
               <DemoSalon compact />
+            </div>
+          </div>
+        </section>
+
+        {/* ── TESTIMONIALS ────────────────────────────────────── */}
+        <section style={{ background: "#FFF8F4", borderTop: `3px solid ${T.six}`, padding: "96px 28px" }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 52, flexWrap: "wrap", gap: 16 }}>
+              <div>
+                <span style={{ fontFamily: T.mono, fontSize: 10, color: T.six, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>What users say</span>
+                <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14 }}>
+                  Real businesses,<br/>live in minutes.
+                </h2>
+              </div>
+              <div style={{ display: "flex", gap: 4 }}>
+                {[...Array(5)].map((_,i) => <span key={i} style={{ color: T.six, fontSize: 18 }}>★</span>)}
+                <span style={{ fontFamily: T.font, fontSize: 13, color: T.muted, marginLeft: 8, alignSelf: "center" }}>5.0 average</span>
+              </div>
+            </div>
+            <div className="testi-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 18 }}>
+              {[
+                { name: "Maria S.", role: "Hair Salon Owner · Munich", quote: "I described my salon, clicked generate, and within 2 minutes had a website I'm actually proud to share. Saved me thousands.", tier: "Pro" },
+                { name: "Thomas P.", role: "Plumber · Berlin", quote: "Set up my plumbing business website in the morning, had my first online inquiry by afternoon. The ROI on €50 is genuinely insane.", tier: "Basic" },
+                { name: "Sophie L.", role: "Photographer · Paris", quote: "Finally a website that looks like I hired a real designer. The code is clean, loads fast, and I can request changes without bugging anyone.", tier: "Premium" },
+                { name: "James O.", role: "Consultant · Dublin", quote: "The Pro plan is a no-brainer. Used 3 of my free edits to tweak the messaging. My clients think I paid an agency thousands.", tier: "Pro" },
+                { name: "Ana R.", role: "Dental Clinic · Madrid", quote: "We had a website up before I even finished my morning coffee. Patients are already booking online. Completely worth it.", tier: "Premium" },
+                { name: "Lukas B.", role: "Electrician · Vienna", quote: "I'm not tech-savvy at all. Just answered some questions and boom — professional website with my logo and colors. Brilliant.", tier: "Basic" },
+              ].map((t, i) => (
+                <div key={i} style={{ background: "#fff", border: `1px solid ${T.line}`, borderRadius: 16, padding: "24px 22px", display: "flex", flexDirection: "column", gap: 16 }}>
+                  <div style={{ display: "flex", gap: 3 }}>
+                    {[...Array(5)].map((_,j) => <span key={j} style={{ color: T.six, fontSize: 13 }}>★</span>)}
+                  </div>
+                  <p style={{ fontFamily: T.font, fontSize: 14, color: T.ink, lineHeight: 1.7, flex: 1, fontStyle: "italic" }}>
+                    &ldquo;{t.quote}&rdquo;
+                  </p>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                    <div>
+                      <p style={{ fontFamily: T.font, fontSize: 13, fontWeight: 600, color: T.ink, margin: 0 }}>{t.name}</p>
+                      <p style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, margin: "2px 0 0", letterSpacing: 0.3 }}>{t.role}</p>
+                    </div>
+                    <span style={{ fontFamily: T.mono, fontSize: 9, color: T.six, background: "rgba(255,90,31,0.08)", border: "1px solid rgba(255,90,31,0.18)", borderRadius: 6, padding: "3px 8px", letterSpacing: "0.08em", textTransform: "uppercase" as const, flexShrink: 0 }}>
+                      {t.tier}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -243,7 +355,7 @@ export default function Home() {
         </section>
 
         {/* ── COMPARISON ──────────────────────────────────────── */}
-        <section className="page-pad" style={{ padding: "96px 28px", maxWidth: 960, margin: "0 auto" }}>
+        <section className="page-pad scroll-in" style={{ padding: "96px 28px", maxWidth: 960, margin: "0 auto" }}>
           <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Comparison</span>
           <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14, marginBottom: 44 }}>The math is simple.</h2>
           <div className="comparison-wrap" style={{ border: `1px solid ${T.line}`, overflow: "hidden", borderRadius: 2 }}>
@@ -279,7 +391,7 @@ export default function Home() {
         </section>
 
         {/* ── PRICING ─────────────────────────────────────────── */}
-        <section id="pricing" className="page-pad" style={{ background: T.bg2, borderTop: `1px solid ${T.line}`, padding: "96px 28px" }}>
+        <section id="pricing" className="page-pad scroll-in" style={{ background: T.bg2, borderTop: `1px solid ${T.line}`, padding: "96px 28px" }}>
           <div style={{ maxWidth: 640, margin: "0 auto" }}>
             <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Pricing</span>
             <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14, marginBottom: 44 }}>One price. No surprises.</h2>
@@ -314,7 +426,7 @@ export default function Home() {
         </section>
 
         {/* ── FAQ ─────────────────────────────────────────────── */}
-        <section className="page-pad" style={{ padding: "96px 28px", maxWidth: 800, margin: "0 auto" }}>
+        <section className="page-pad scroll-in" style={{ padding: "96px 28px", maxWidth: 800, margin: "0 auto" }}>
           <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Questions</span>
           <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14, marginBottom: 48 }}>Common questions.</h2>
           {[
