@@ -25,6 +25,8 @@ export const T = {
   plum:  "#C792EA",
   sky:   "#7DD3FC",
   amber: "#FBBF24",
+  red:   "#F87171",
+  blue:  "#82AAFF",
   six:   "#FF5A1F",
 };
 
