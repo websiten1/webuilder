@@ -27,7 +27,7 @@ export default function SiteFooter() {
                   <span style={{ fontFamily: P.font, fontSize: 17, fontWeight: 800, color: P.six, lineHeight: 1 }}>6</span>
                 </div>
                 <span style={{ fontFamily: P.font, fontSize: 22, fontWeight: 700, color: "#fff", letterSpacing: -0.6 }}>
-                  insix<span style={{ color: P.six }}>live</span>
+                  in<span style={{ color: P.six }}>six</span>live
                 </span>
               </div>
               <div style={{ fontFamily: P.font, fontSize: 14, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, maxWidth: 280 }}>

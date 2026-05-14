@@ -81,7 +81,7 @@ function SuccessContent() {
         <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(250,250,248,.94)", backdropFilter: "blur(14px)", borderBottom: `1px solid ${T.line}`, height: 58 }}>
           <div style={{ maxWidth: 680, margin: "0 auto", padding: "0 20px", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
-              <Mark size={24} /><span style={{ fontSize: 16, fontWeight: 700, color: T.ink, letterSpacing: -0.5 }}>insixlive</span>
+              <Mark size={24} /><span style={{ fontSize: 16, fontWeight: 700, color: T.ink, letterSpacing: -0.5 }}>in<span style={{ color: T.six }}>six</span>live</span>
             </Link>
             <Link href="/dashboard" style={{ fontSize: 13, color: T.muted, textDecoration: "none" }}>Dashboard</Link>
           </div>

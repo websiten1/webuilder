@@ -1491,7 +1491,7 @@ export default function GenerateWizard() {
             <div style={{ width: 24, height: 24, borderRadius: 7, background: "#0A0E14", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 800, color: "#FF5A1F", lineHeight: 1 }}>6</span>
             </div>
-            <span style={{ fontWeight: 700, fontSize: 15, color: "#0A0E14", letterSpacing: -0.4 }}>insixlive</span>
+            <span style={{ fontWeight: 700, fontSize: 15, color: "#0A0E14", letterSpacing: -0.4 }}>in<span style={{ color: "#FF5A1F" }}>six</span>live</span>
           </Link>
           <Link href="/dashboard" style={{ fontSize: 13, color: "#6B7180", textDecoration: "none" }}>Dashboard</Link>
         </div>

@@ -88,7 +88,7 @@ export default function DashboardPage() {
           <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 28px", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <Link href="/" style={{ display: "flex", alignItems: "center", gap: 9, textDecoration: "none" }}>
               <Mark size={24} />
-              <span style={{ fontFamily: T.font, fontSize: 16, fontWeight: 700, color: T.ink, letterSpacing: -0.5 }}>insixlive</span>
+              <span style={{ fontFamily: T.font, fontSize: 16, fontWeight: 700, color: T.ink, letterSpacing: -0.5 }}>in<span style={{ color: T.six }}>six</span>live</span>
             </Link>
             <div className="db-links" style={{ display: "flex", alignItems: "center", gap: 20 }}>
               <span className="db-email" style={{ fontFamily: T.mono, fontSize: 11, color: T.muted, letterSpacing: 0.2 }}>{user?.email}</span>

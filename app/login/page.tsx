@@ -139,7 +139,7 @@ function LoginContent() {
           {/* Logo */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, position: "relative", zIndex: 2 }}>
             <Mark size={28} />
-            <span style={{ fontFamily: T.font, fontSize: 17, fontWeight: 700, color: "#fff", letterSpacing: -0.5 }}>insixlive</span>
+            <span style={{ fontFamily: T.font, fontSize: 17, fontWeight: 700, color: "#fff", letterSpacing: -0.5 }}>in<span style={{ color: T.six }}>six</span>live</span>
           </div>
 
           {/* Quote */}

@@ -36,13 +36,6 @@ function Mark({ size = 28 }: { size?: number }) {
   );
 }
 
-function Wordmark({ size = 20 }: { size?: number }) {
-  return (
-    <span style={{ fontFamily: T.font, fontSize: size, fontWeight: 700, color: T.ink, letterSpacing: -0.5, lineHeight: 1 }}>
-      insixlive
-    </span>
-  );
-}
 
 function LiveChip() {
   return (
@@ -292,7 +285,7 @@ export default function SignupPage() {
           {/* Logo */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, position: "relative", zIndex: 2 }}>
             <Mark size={28} />
-            <span style={{ fontFamily: T.font, fontSize: 17, fontWeight: 700, color: "#fff", letterSpacing: -0.5 }}>insixlive</span>
+            <span style={{ fontFamily: T.font, fontSize: 17, fontWeight: 700, color: "#fff", letterSpacing: -0.5 }}>in<span style={{ color: T.six }}>six</span>live</span>
           </div>
 
           {/* Stacked site previews */}
