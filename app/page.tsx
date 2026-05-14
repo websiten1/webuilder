@@ -203,15 +203,17 @@ export default function Home() {
               </div>
             </div>
             {/* Hero image — hidden on mobile */}
-            <div className="hero-demo">
+            <div className="hero-demo" style={{ overflow: "visible" }}>
               <img
                 src="/hero.png"
                 alt="insixlive — AI website generation"
                 style={{
-                  width: "110%",
-                  marginLeft: "-5%",
+                  width: "120%",
+                  marginLeft: "-10%",
+                  marginTop: "-4%",
                   display: "block",
                   mixBlendMode: "multiply" as const,
+                  pointerEvents: "none",
                 }}
               />
             </div>
