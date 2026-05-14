@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { DemoBistro, DemoConsult } from "@/app/components/SiteDemos";
+import { DemoConsult } from "@/app/components/SiteDemos";
 
 // ─── Animated counter ─────────────────────────────────────────────────────────
 function useCountUp(target: number, duration = 1600, started = false) {
@@ -69,6 +69,47 @@ function LiveChip({ text = "Live in 6 minutes" }: { text?: string }) {
       <span style={{ width: 6, height: 6, borderRadius: 3, background: T.em }} />
       {text}
     </div>
+  );
+}
+
+const FAQ_ITEMS: [string, string][] = [
+  ["Do I need to know how to code?",     "No. You describe your business in plain English. We generate the site, deploy it, and you can edit later through your dashboard or in the code directly."],
+  ["Who owns the website?",              "You do. The code is yours, the Vercel project is in your account, and the domain (if you connect one) belongs to you."],
+  ["Is there a subscription?",           "No subscription on the generated website. You pay once. Vercel hosting is free for most small sites. Custom domains are paid separately to a registrar."],
+  ["What happens after I pay?",          "We generate the site, push it to your Vercel, and send you the deploy URL. The whole flow takes around six minutes."],
+  ["Can I connect my own domain?",       "Yes. You can connect a domain from any registrar (GoDaddy, Namecheap, Porkbun, Cloudflare, etc.) or buy a new one separately."],
+  ["What counts as a change?",           "Updating copy, swapping a section, adjusting colors, adding a service, changing contact info. Custom backends and complex integrations are out of scope."],
+  ["Can I move away from Vercel?",       "Yes. The code is a standard Next.js project — host it anywhere that runs Node or static sites."],
+  ["Do you include hosting?",            "We deploy to your Vercel account. Their Hobby plan is free and works for most small sites. Hosting cost on Vercel is separate from us."],
+];
+
+function FAQ() {
+  const [open, setOpen] = useState<number>(0);
+  return (
+    <section className="page-pad scroll-in" style={{ padding: "96px 28px", maxWidth: 920, margin: "0 auto" }}>
+      <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>// FAQ</span>
+      <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14, marginBottom: 40 }}>Common questions.</h2>
+      <div style={{ borderTop: `1px solid ${T.line}` }}>
+        {FAQ_ITEMS.map(([q, a], i) => (
+          <div key={q} style={{ borderBottom: `1px solid ${T.line}` }}>
+            <button
+              onClick={() => setOpen(open === i ? -1 : i)}
+              style={{ width: "100%", padding: "20px 0", display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", cursor: "pointer", textAlign: "left", fontFamily: T.font, fontSize: 16, fontWeight: 600, color: T.ink, letterSpacing: -0.2 }}
+            >
+              {q}
+              <span style={{ width: 30, height: 30, borderRadius: 15, background: open === i ? T.ink : T.bg2, color: open === i ? "#fff" : T.ink, display: "flex", alignItems: "center", justifyContent: "center", transition: "all .2s", flexShrink: 0, marginLeft: 16 }}>
+                <svg width="12" height="12" viewBox="0 0 12 12">
+                  <path d={open === i ? "M2 6h8" : "M2 6h8M6 2v8"} stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </span>
+            </button>
+            {open === i && (
+              <div style={{ paddingBottom: 22, fontFamily: T.font, fontSize: 15, color: T.muted, lineHeight: 1.65, maxWidth: 720 }}>{a}</div>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -246,6 +287,46 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ── PAIN: Traditional vs insixlive ─────────────────── */}
+        <section className="page-pad scroll-in" style={{ padding: "96px 28px", maxWidth: 1200, margin: "0 auto" }}>
+          <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>// the rental trap</span>
+          <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14, marginBottom: 16 }}>
+            Your business needs a website.<br/><span style={{ color: T.muted }}>Agencies know that.</span>
+          </h2>
+          <p style={{ fontFamily: T.font, fontSize: 16, color: T.muted, lineHeight: 1.7, maxWidth: 680, marginBottom: 48 }}>
+            A small business website should not cost €1,000 upfront and another monthly fee just to stay online. Most local businesses need a clean, professional website that works — and belongs to them.
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }} className="hero-grid">
+            {/* Traditional */}
+            <div style={{ padding: 32, borderRadius: 18, background: "#fff", border: `1px solid ${T.line}` }}>
+              <div style={{ fontFamily: T.mono, fontSize: 11, fontWeight: 700, color: T.muted, textTransform: "uppercase" as const, letterSpacing: "0.08em", marginBottom: 14 }}>Traditional website</div>
+              <div style={{ fontFamily: T.font, fontSize: 32, fontWeight: 800, letterSpacing: -1, marginBottom: 4, color: T.ink }}>€1,000+</div>
+              <div style={{ fontFamily: T.font, fontSize: 13, color: T.muted, marginBottom: 24 }}>upfront, plus monthly fees</div>
+              {["Weeks of back-and-forth", "Locked inside a closed platform", "Small changes = extra invoices", "You don't fully own the result"].map(s => (
+                <div key={s} style={{ display: "flex", gap: 10, padding: "8px 0", fontFamily: T.font, fontSize: 14, color: "#4A5568", borderBottom: `1px solid ${T.line}` }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke={T.six} strokeWidth="1.8" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 1 }}><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                  {s}
+                </div>
+              ))}
+            </div>
+            {/* insixlive */}
+            <div style={{ padding: 32, borderRadius: 18, background: T.ink, position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", top: -80, right: -60, width: 240, height: 240, borderRadius: 120, background: "radial-gradient(circle, rgba(0,179,119,0.30), rgba(0,179,119,0) 65%)", filter: "blur(15px)", pointerEvents: "none" }}/>
+              <div style={{ position: "relative" }}>
+                <div style={{ fontFamily: T.mono, fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.35)", textTransform: "uppercase" as const, letterSpacing: "0.08em", marginBottom: 14 }}>insixlive</div>
+                <div style={{ fontFamily: T.mono, fontSize: 32, fontWeight: 700, letterSpacing: -1, marginTop: 0, marginBottom: 4, color: "#fff" }}>from €49</div>
+                <div style={{ fontFamily: T.font, fontSize: 13, color: "rgba(255,255,255,.45)", marginBottom: 24 }}>one-time, then free</div>
+                {["Live in around 6 minutes", "Deployed to your own Vercel", "Full source code is yours", "No subscription, ever"].map(s => (
+                  <div key={s} style={{ display: "flex", gap: 10, padding: "8px 0", fontFamily: T.font, fontSize: 14, color: "rgba(255,255,255,.85)", borderBottom: "1px solid rgba(255,255,255,.07)" }}>
+                    <svg width="14" height="14" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0, marginTop: 2 }}><path d="M2 5l2 2 4-4" stroke="#4ADE80" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    {s}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ── HOW IT WORKS ────────────────────────────────────── */}
         <section id="how" className="page-pad scroll-in" style={{ padding: "96px 28px", maxWidth: 1200, margin: "0 auto" }}>
           <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 72, alignItems: "start" }}>
@@ -340,28 +421,25 @@ export default function Home() {
             </div>
             <div className="testi-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 18 }}>
               {[
-                { name: "Maria S.", role: "Hair Salon Owner · Munich", quote: "I described my salon, clicked generate, and within 2 minutes had a website I'm actually proud to share. Saved me thousands.", tier: "Pro" },
-                { name: "Thomas P.", role: "Plumber · Berlin", quote: "Set up my plumbing business website in the morning, had my first online inquiry by afternoon. The ROI on €50 is genuinely insane.", tier: "Basic" },
-                { name: "Sophie L.", role: "Photographer · Paris", quote: "Finally a website that looks like I hired a real designer. The code is clean, loads fast, and I can request changes without bugging anyone.", tier: "Premium" },
-                { name: "James O.", role: "Consultant · Dublin", quote: "The Pro plan is a no-brainer. Used 3 of my free edits to tweak the messaging. My clients think I paid an agency thousands.", tier: "Pro" },
-                { name: "Ana R.", role: "Dental Clinic · Madrid", quote: "We had a website up before I even finished my morning coffee. Patients are already booking online. Completely worth it.", tier: "Premium" },
-                { name: "Lukas B.", role: "Electrician · Vienna", quote: "I'm not tech-savvy at all. Just answered some questions and boom — professional website with my logo and colors. Brilliant.", tier: "Basic" },
+                { name: "Markus Lehmann", biz: "Acme Plumbing · Munich", quote: "I described the business in two sentences. Six minutes later I had a website I could send to the printer. No subscription, no monthly bill.", plan: "Pro", accent: T.six },
+                { name: "Maria Coelho",   biz: "Maria's Hair · Lisbon",  quote: "My old site was on a builder I was paying €18/month for. I rebuilt with insixlive and now I just own the code. The math is brutal in their favor.", plan: "Basic", accent: "#4ADE80" },
+                { name: "Dr. Anna Kohl", biz: "Kohl Dental · Berlin",   quote: "I wanted a clean, calm, trustworthy site. The first draft was 80% of the way there — three small edits and we shipped it.", plan: "Premium", accent: "#7DD3FC" },
               ].map((t, i) => (
-                <div key={i} style={{ background: "#fff", border: `1px solid ${T.line}`, borderRadius: 16, padding: "24px 22px", display: "flex", flexDirection: "column", gap: 16 }}>
-                  <div style={{ display: "flex", gap: 3 }}>
-                    {[...Array(5)].map((_,j) => <span key={j} style={{ color: T.six, fontSize: 13 }}>★</span>)}
-                  </div>
-                  <p style={{ fontFamily: T.font, fontSize: 14, color: T.ink, lineHeight: 1.7, flex: 1, fontStyle: "italic" }}>
-                    &ldquo;{t.quote}&rdquo;
+                <div key={i} style={{ background: "#fff", border: `1px solid ${T.line}`, borderRadius: 16, padding: "28px", display: "flex", flexDirection: "column" }}>
+                  <svg width="22" height="22" viewBox="0 0 22 22" style={{ marginBottom: 18, color: t.accent, flexShrink: 0 }}>
+                    <path d="M4 14c0-4 3-7 6-7v3c-1 0-3 1-3 4h3v6H4v-6zM13 14c0-4 3-7 6-7v3c-1 0-3 1-3 4h3v6h-6v-6z" fill="currentColor" opacity="0.85"/>
+                  </svg>
+                  <p style={{ fontFamily: T.font, fontSize: 15, color: T.ink, lineHeight: 1.6, flex: 1, marginBottom: 22 }}>
+                    {t.quote}
                   </p>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-                    <div>
-                      <p style={{ fontFamily: T.font, fontSize: 13, fontWeight: 600, color: T.ink, margin: 0 }}>{t.name}</p>
-                      <p style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, margin: "2px 0 0", letterSpacing: 0.3 }}>{t.role}</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 18, background: T.bg2, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: T.font, fontSize: 13, fontWeight: 700, color: T.ink, flexShrink: 0 }}>
+                      {t.name.split(" ").map((p: string) => p[0]).slice(0, 2).join("")}
                     </div>
-                    <span style={{ fontFamily: T.mono, fontSize: 9, color: T.six, background: "rgba(255,90,31,0.08)", border: "1px solid rgba(255,90,31,0.18)", borderRadius: 6, padding: "3px 8px", letterSpacing: "0.08em", textTransform: "uppercase" as const, flexShrink: 0 }}>
-                      {t.tier}
-                    </span>
+                    <div>
+                      <p style={{ fontFamily: T.font, fontSize: 14, fontWeight: 600, color: T.ink, margin: 0 }}>{t.name}</p>
+                      <p style={{ fontFamily: T.mono, fontSize: 11, color: T.muted, margin: "2px 0 0" }}>{t.biz} · {t.plan}</p>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -370,34 +448,60 @@ export default function Home() {
         </section>
 
         {/* ── OWNERSHIP (dark) ─────────────────────────────────── */}
-        <section style={{ background: T.ink, padding: "96px 28px" }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-            <span style={{ fontFamily: T.mono, fontSize: 10, color: "rgba(255,255,255,.35)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Ownership</span>
-            <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.05, color: "#F9F9F7", marginTop: 14, marginBottom: 52, maxWidth: 540 }}>
-              You don&apos;t rent a website.<br/>You own one.
-            </h2>
-            <div className="own-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
-              {/* Screenshot demo */}
-              <div style={{ background: T.bg, borderRadius: 0, overflow: "hidden" }}>
-                <DemoBistro />
-              </div>
-              {/* Ownership list */}
-              <div style={{ background: "rgba(255,255,255,.04)", padding: "40px 38px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                {[
-                  ["Full source code", "Every file, every line — pushed to your GitHub immediately."],
-                  ["Your Vercel deployment", "Live on your account. You manage it. We can't touch it."],
-                  ["Custom domain ready", "Connect any domain in minutes. Full guide included."],
-                  ["No recurring fees", "€49 one-time. We make nothing from you after that."],
-                  ["Zero lock-in", "Take the code anywhere. Dependency on us: zero."],
-                ].map(([title, desc], i, arr) => (
-                  <div key={title} style={{ paddingBottom: i < arr.length - 1 ? 20 : 0, marginBottom: i < arr.length - 1 ? 20 : 0, borderBottom: i < arr.length - 1 ? "1px solid rgba(255,255,255,.08)" : "none" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
-                      <div style={{ width: 18, height: 18, borderRadius: 9, background: "rgba(0,179,119,0.2)", border: "1px solid rgba(0,179,119,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        <svg width="9" height="9" viewBox="0 0 10 10"><path d="M2 5l2 2 4-4" stroke="#00B377" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        <section style={{ background: T.ink, padding: "96px 28px", position: "relative", overflow: "hidden" }}>
+          {/* Glow */}
+          <div style={{ position: "absolute", top: 0, right: -200, width: 600, height: 600, borderRadius: 300, background: "radial-gradient(circle, rgba(255,90,31,0.18), rgba(255,90,31,0) 65%)", filter: "blur(20px)", pointerEvents: "none" }}/>
+          <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative" }}>
+            <div className="own-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56, alignItems: "center" }}>
+              {/* Left: text + ownership list */}
+              <div>
+                <span style={{ fontFamily: T.mono, fontSize: 10, color: "rgba(255,255,255,.35)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>// ownership</span>
+                <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.05, color: "#F9F9F7", marginTop: 14, marginBottom: 24, maxWidth: 500 }}>
+                  You don&apos;t rent your website.<br/><span style={{ color: "#4ADE80" }}>You own it.</span>
+                </h2>
+                <p style={{ fontFamily: T.font, fontSize: 16, color: "rgba(255,255,255,.55)", lineHeight: 1.7, maxWidth: 480, marginBottom: 28 }}>
+                  Most website builders keep your business inside their platform. insixlive gives you a real website deployed to your own Vercel account, with code you can keep forever.
+                </p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  {[
+                    ["Full source code", "Every file in your repo."],
+                    ["Your Vercel account", "The site is deployed under your control."],
+                    ["Your custom domain", "Use one you own or buy one separately."],
+                    ["No lock-in", "Move the code anywhere later."],
+                    ["No subscription", "Pay once for the generated website."],
+                  ].map(([t, s]) => (
+                    <div key={t} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                      <div style={{ width: 22, height: 22, borderRadius: 11, background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.35)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                        <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2 2 4-4" stroke="#4ADE80" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       </div>
-                      <p style={{ fontFamily: T.font, fontSize: 14, fontWeight: 600, color: "#F9F9F7", margin: 0 }}>{title}</p>
+                      <div>
+                        <div style={{ fontFamily: T.font, fontSize: 15, fontWeight: 600, color: "#fff" }}>{t}</div>
+                        <div style={{ fontFamily: T.font, fontSize: 13, color: "rgba(255,255,255,.45)" }}>{s}</div>
+                      </div>
                     </div>
-                    <p style={{ fontFamily: T.font, fontSize: 13, color: "rgba(255,255,255,.45)", lineHeight: 1.65, margin: 0, paddingLeft: 26 }}>{desc}</p>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right: flow diagram */}
+              <div>
+                {[
+                  { label: "Your business info",        sub: "name · services · vibe",           color: "#D4D8E0", glow: "rgba(212,216,224,0.15)", bg: "rgba(255,255,255,0.05)" },
+                  { label: "insixlive · AI generation", sub: "claude-sonnet · Next.js · ~6 min",  color: "#C792EA", glow: "rgba(199,146,234,0.15)", bg: "rgba(199,146,234,0.08)" },
+                  { label: "Your Vercel account",       sub: "deploy under your name",            color: "#7DD3FC", glow: "rgba(125,211,252,0.15)", bg: "rgba(125,211,252,0.08)" },
+                  { label: "Your live website + code",  sub: "yourbusiness.com · forever",        color: "#4ADE80", glow: "rgba(74,222,128,0.15)", bg: "rgba(74,222,128,0.08)" },
+                ].map((row, i, arr) => (
+                  <div key={row.label}>
+                    <div style={{ padding: "18px 22px", borderRadius: 12, background: row.bg, border: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: 16 }}>
+                      <div style={{ width: 10, height: 10, borderRadius: 5, background: row.color, boxShadow: `0 0 10px ${row.color}`, flexShrink: 0 }}/>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontFamily: T.mono, fontSize: 14, color: "#fff", fontWeight: 600 }}>{row.label}</div>
+                        <div style={{ fontFamily: T.mono, fontSize: 11, color: "rgba(255,255,255,.35)", marginTop: 2 }}>{row.sub}</div>
+                      </div>
+                    </div>
+                    {i < arr.length - 1 && (
+                      <div style={{ textAlign: "center", color: "rgba(255,255,255,.2)", fontFamily: T.mono, fontSize: 18, lineHeight: "28px" }}>↓</div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -477,22 +581,7 @@ export default function Home() {
         </section>
 
         {/* ── FAQ ─────────────────────────────────────────────── */}
-        <section className="page-pad scroll-in" style={{ padding: "96px 28px", maxWidth: 800, margin: "0 auto" }}>
-          <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Questions</span>
-          <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14, marginBottom: 48 }}>Common questions.</h2>
-          {[
-            ["Do I need to know how to code?", "No. Describe your business, choose preferences, pay once — your website is live. Zero technical knowledge required."],
-            ["Who owns the website after it's generated?", "You do. Completely. Code is on your GitHub, deployment is on your Vercel. We have no access after generation."],
-            ["What if I need changes later?", "Request changes from your dashboard for €10 each. We regenerate and redeploy automatically."],
-            ["How long does it actually take?", "Filling out the questionnaire takes 5–10 minutes. Generation and deployment happen in under 2 minutes."],
-            ["What if I need to move away from Vercel?", "Download the code and deploy anywhere — Netlify, AWS, a VPS, anything. You're not tied to Vercel."],
-          ].map(([q, a], i, arr) => (
-            <div key={q} style={{ borderBottom: i < arr.length - 1 ? `1px solid ${T.line}` : "none", paddingBottom: 24, marginBottom: 24 }}>
-              <p style={{ fontFamily: T.font, fontSize: 15, fontWeight: 600, color: T.ink, marginBottom: 8 }}>{q}</p>
-              <p style={{ fontFamily: T.font, fontSize: 14, color: T.muted, lineHeight: 1.75, maxWidth: 580, margin: 0 }}>{a}</p>
-            </div>
-          ))}
-        </section>
+        <FAQ />
 
         {/* ── CTA ─────────────────────────────────────────────── */}
         <section style={{ background: T.ink, padding: "96px 28px" }}>
