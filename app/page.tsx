@@ -322,7 +322,7 @@ export default function Home() {
             <span style={{ fontFamily: P.font, fontSize: 22, fontWeight: 700, color: P.ink, letterSpacing: -0.6 }}>insix<span style={{ color: P.six }}>live</span></span>
           </Link>
           <nav className="nav-links" style={{ display: "flex", gap: 26, flex: 1 }}>
-            {[["#how","How it works"],["#examples","Examples"],["/pricing","Pricing"],["#domains","Domains"],["#faq","FAQ"]].map(([h,l]) => (
+            {[["/how-it-works","How it works"],["/examples","Examples"],["/pricing","Pricing"],["/domains","Domains"],["/faq","FAQ"]].map(([h,l]) => (
               <a key={h} href={h} style={{ fontFamily: P.font, fontSize: 14, fontWeight: 500, color: P.muted }}>{l}</a>
             ))}
           </nav>
@@ -793,7 +793,7 @@ export default function Home() {
               </div>
             </div>
             {([
-              ["Product",  [["How it works","#how"],["Examples","#examples"],["Pricing","/pricing"],["Domains","#domains"],["FAQ","#faq"]]],
+              ["Product",  [["How it works","/how-it-works"],["Examples","/examples"],["Pricing","/pricing"],["Domains","/domains"],["FAQ","/faq"]]],
               ["Account",  [["Log in","/login"],["Sign up","/signup"],["Dashboard","/dashboard"]]],
               ["Support",  [["Domain setup","/help/setup-custom-domain"],["Help center","/help/setup-custom-domain"]]],
               ["Legal",    [["Terms","#"],["Privacy","#"],["Cookies","#"]]],
