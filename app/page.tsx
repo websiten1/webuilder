@@ -1,77 +1,222 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
-import { DemoConsult } from "@/app/components/SiteDemos";
+import { useState, useEffect } from "react";
 
-// ─── Animated counter ─────────────────────────────────────────────────────────
-function useCountUp(target: number, duration = 1600, started = false) {
-  const [value, setValue] = useState(0);
-  useEffect(() => {
-    if (!started) return;
-    let start: number | null = null;
-    const step = (ts: number) => {
-      if (!start) start = ts;
-      const progress = Math.min((ts - start) / duration, 1);
-      const ease = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-      setValue(Math.round(ease * target));
-      if (progress < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [target, duration, started]);
-  return value;
-}
-
-function MetricCounter({ value, suffix, label, prefix }: { value: number; suffix?: string; label: string; prefix?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [started, setStarted] = useState(false);
-  const count = useCountUp(value, 1400, started);
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setStarted(true); obs.disconnect(); } }, { threshold: 0.4 });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
-  return (
-    <div ref={ref} style={{ textAlign: "center" as const }}>
-      <div style={{ fontFamily: '-apple-system, system-ui, sans-serif', fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, color: "#fff", letterSpacing: -1.5, lineHeight: 1 }}>
-        {prefix}{count.toLocaleString()}{suffix}
-      </div>
-      <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: 10, color: "rgba(255,255,255,0.4)", letterSpacing: "0.1em", textTransform: "uppercase" as const, marginTop: 8 }}>{label}</div>
-    </div>
-  );
-}
-
-const T = {
-  ink:  "#0A0E14",
-  six:  "#FF5A1F",
-  em:   "#00B377",
-  em2:  "#009062",
-  emSoft: "#E5F7EE",
-  bg:   "#FAFAFA",
-  bg2:  "#F2F2EF",
-  line: "#E2E2DE",
-  muted:"#6B7180",
-  font: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
-  mono: 'ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace',
+// ─── Light theme tokens ────────────────────────────────────────────────────
+const P = {
+  ink:     "#0A0E14",
+  ink2:    "#1B2230",
+  inkSoft: "#2A3242",
+  muted:   "#6B7180",
+  bg:      "#FAFAF7",
+  bg2:     "#F3F0E9",
+  line:    "#E8E3D6",
+  six:     "#FF5A1F",
+  sixSoft: "#FFEDE4",
+  em:      "#00B377",
+  em2:     "#009062",
+  emSoft:  "#E5F7EE",
+  font:    '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif',
+  mono:    'ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace',
 };
 
+// ─── Dark / tech theme tokens ─────────────────────────────────────────────
+const T = {
+  bg:    "#0A0D14",
+  bg2:   "#11151E",
+  line:  "rgba(255,255,255,0.07)",
+  text:  "#D4D8E0",
+  muted: "#6B7383",
+  green: "#4ADE80",
+  plum:  "#C792EA",
+  sky:   "#7DD3FC",
+  amber: "#FBBF24",
+  six:   "#FF5A1F",
+};
+
+// ─── Primitives ────────────────────────────────────────────────────────────
 function Mark({ size = 28 }: { size?: number }) {
   return (
-    <div style={{ width: size, height: size, borderRadius: size * 0.28, background: T.ink, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-      <span style={{ fontFamily: T.font, fontSize: size * 0.62, fontWeight: 800, color: T.six, letterSpacing: -0.5, lineHeight: 1 }}>6</span>
+    <div style={{ width: size, height: size, borderRadius: size * 0.28, background: P.ink, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+      <span style={{ fontFamily: P.font, fontSize: size * 0.62, fontWeight: 800, color: P.six, letterSpacing: -0.5, lineHeight: 1 }}>6</span>
     </div>
   );
 }
 
-function LiveChip({ text = "Live in 6 minutes" }: { text?: string }) {
+function Eyebrow({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
+  const c = dark ? T.green : P.six;
   return (
-    <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 11px", borderRadius: 999, background: T.emSoft, color: T.em2, fontFamily: T.font, fontSize: 12, fontWeight: 600 }}>
-      <span style={{ width: 6, height: 6, borderRadius: 3, background: T.em }} />
-      {text}
+    <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontFamily: P.mono, fontSize: 12, fontWeight: 600, letterSpacing: 0.4, textTransform: "uppercase" as const, color: c, marginBottom: 18 }}>
+      <span style={{ width: 6, height: 6, borderRadius: 3, background: c, boxShadow: dark ? `0 0 8px ${c}` : "none" }}/>
+      {children}
     </div>
   );
 }
 
+function DotGrid({ opacity = 0.06 }: { opacity?: number }) {
+  return (
+    <div style={{ position: "absolute", inset: 0, pointerEvents: "none", backgroundImage: `radial-gradient(rgba(255,255,255,${opacity}) 1px, transparent 1px)`, backgroundSize: "18px 18px" }}/>
+  );
+}
+
+function TechBadge({ children, color = T.green }: { children: React.ReactNode; color?: string }) {
+  const bg     = color === T.green ? "rgba(74,222,128,0.08)"  : color === T.six ? "rgba(255,90,31,0.10)"  : "rgba(255,255,255,0.04)";
+  const border = color === T.green ? "rgba(74,222,128,0.30)"  : color === T.six ? "rgba(255,90,31,0.35)"  : "rgba(255,255,255,0.10)";
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontFamily: P.mono, fontSize: 10.5, fontWeight: 700, color, letterSpacing: 0.5, textTransform: "uppercase" as const, padding: "5px 9px", borderRadius: 999, background: bg, border: `1px solid ${border}` }}>
+      <span style={{ width: 5, height: 5, borderRadius: 3, background: color, boxShadow: `0 0 8px ${color}` }}/>
+      {children}
+    </span>
+  );
+}
+
+function TechWindow({ title, sub, status, children, style = {} }: { title: string; sub?: string; status?: React.ReactNode; children: React.ReactNode; style?: React.CSSProperties }) {
+  return (
+    <div style={{ background: T.bg, border: `1px solid ${T.line}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 28px 80px rgba(0,0,0,0.40), 0 1px 0 rgba(255,255,255,0.04) inset", display: "flex", flexDirection: "column", position: "relative", ...style }}>
+      <div style={{ height: 32, background: T.bg2, borderBottom: `1px solid ${T.line}`, display: "flex", alignItems: "center", padding: "0 12px", gap: 10, flexShrink: 0 }}>
+        <div style={{ display: "flex", gap: 6 }}>
+          {["#FF5F57","#FEBC2E","#28C840"].map(c => <div key={c} style={{ width: 11, height: 11, borderRadius: 6, background: c }}/>)}
+        </div>
+        <div style={{ flex: 1, textAlign: "center" as const, fontFamily: P.mono, fontSize: 11, color: "rgba(255,255,255,0.45)", letterSpacing: 0.3, whiteSpace: "nowrap" as const, overflow: "hidden", textOverflow: "ellipsis" }}>
+          {title}{sub && <span style={{ marginLeft: 8, color: "rgba(255,255,255,0.25)" }}>· {sub}</span>}
+        </div>
+        {status ?? <div style={{ width: 45, flexShrink: 0 }}/>}
+      </div>
+      <div style={{ flex: 1, overflow: "hidden", background: T.bg }}>{children}</div>
+    </div>
+  );
+}
+
+function Tok({ c = T.text, b = false, children }: { c?: string; b?: boolean; children: React.ReactNode }) {
+  return <span style={{ color: c, fontWeight: b ? 600 : 400 }}>{children}</span>;
+}
+
+function CL({ n, indent = 0, hi = false, children }: { n: number; indent?: number; hi?: boolean; children: React.ReactNode }) {
+  return (
+    <div style={{ display: "flex", minHeight: 20, background: hi ? "rgba(255,90,31,0.07)" : "transparent", borderLeft: hi ? `2px solid ${T.six}` : "2px solid transparent" }}>
+      <span style={{ color: T.muted, opacity: 0.45, fontFamily: P.mono, fontSize: 11, width: 30, textAlign: "right" as const, paddingRight: 12, userSelect: "none" as const, flexShrink: 0 }}>{n}</span>
+      <span style={{ fontFamily: P.mono, fontSize: 12.5, lineHeight: "20px", paddingLeft: indent * 12, whiteSpace: "pre" as const, color: T.text }}>{children}</span>
+    </div>
+  );
+}
+
+function CodeStream() {
+  return (
+    <div style={{ padding: "10px 0" }}>
+      <CL n={1}><Tok c={T.muted}>{"// app/page.tsx · generated"}</Tok></CL>
+      <CL n={2}><Tok c={T.plum} b>{"export default"}</Tok>{" "}<Tok c={T.plum} b>{"function"}</Tok>{" "}<Tok c={"#82AAFF"}>{"Page"}</Tok>{"() {"}</CL>
+      <CL n={3} indent={1}><Tok c={T.plum} b>{"return"}</Tok>{" ("}</CL>
+      <CL n={4} indent={2}>{"<"}<Tok c={"#F87171"}>{"main"}</Tok>{" "}<Tok c={T.amber}>{"className"}</Tok>{"="}<Tok c={T.green}>{'"bg-ink text-white"'}</Tok>{">"}</CL>
+      <CL n={5} indent={3}>{"<"}<Tok c={"#F87171"}>{"Hero"}</Tok></CL>
+      <CL n={6} indent={4} hi><Tok c={T.amber}>{"eyebrow"}</Tok>{"="}<Tok c={T.green}>{'"24/7 Emergency"'}</Tok></CL>
+      <CL n={7} indent={4}><Tok c={T.amber}>{"title"}</Tok>{"="}<Tok c={T.green}>{'"Burst pipe?"'}</Tok></CL>
+      <CL n={8} indent={4}><Tok c={T.amber}>{"cta"}</Tok>{"="}<Tok c={T.green}>{'"Call now"'}</Tok>{" />"}</CL>
+      <CL n={9} indent={3}>{"<"}<Tok c={"#F87171"}>{"Services"}</Tok>{" "}<Tok c={T.amber}>{"items"}</Tok>{"={services} />"}</CL>
+      <CL n={10} indent={3}>{"<"}<Tok c={"#F87171"}>{"Contact"}</Tok>{" "}<Tok c={T.amber}>{"phone"}</Tok>{"={phone} />"}</CL>
+      <CL n={11} indent={2}>{"</"}<Tok c={"#F87171"}>{"main"}</Tok>{">"}</CL>
+      <CL n={12} indent={1}>{");"}<span style={{ display: "inline-block", width: 6, height: 13, background: T.green, marginLeft: 4, verticalAlign: "middle", animation: "caret 1s infinite", boxShadow: `0 0 6px ${T.green}` }}/></CL>
+    </div>
+  );
+}
+
+function CheckIcon({ size = 10, color = P.em2 }: { size?: number; color?: string }) {
+  return <svg width={size} height={size} viewBox="0 0 10 10"><path d="M2 5l2 2 4-4" stroke={color} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+}
+
+function SiteMock({ name, kind, tint = "dark", accent = P.six, pages = [], slug }: { name: string; kind: string; tint?: string; accent?: string; pages?: string[]; slug?: string }) {
+  const dark = tint === "dark";
+  const bg = dark ? "#0F1A2A" : tint === "warm" ? "#FFEDE4" : "#FFFFFF";
+  const fg = dark ? "#FFFFFF" : "#0A0E14";
+  const headline: Record<string, React.ReactNode> = {
+    "Acme Plumbing":  <>Burst pipe?<br/>18 min away.</>,
+    "Maria's Hair":   <>Cuts &amp; color,<br/>by Maria.</>,
+    "Lia · Photo":    <>Weddings,<br/>told softly.</>,
+    "Bistro Marin":   <>The Med,<br/>plated nightly.</>,
+    "Dr. Kohl Dental":<>Calm dental<br/>care, Munich.</>,
+    "Forge Fitness":  <>Train hard.<br/>Eat well.</>,
+    "Sole Café":      <>Coffee,<br/>slow &amp; dark.</>,
+    "Stein & Co.":    <>Counsel, on<br/>tap.</>,
+    "Bloom Studio":   <>Florals for<br/>the moment.</>,
+  };
+  return (
+    <div style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${P.line}`, background: "#fff", boxShadow: "0 12px 30px rgba(10,14,20,0.06)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 12px", background: P.bg2, borderBottom: `1px solid ${P.line}` }}>
+        <div style={{ display: "flex", gap: 4 }}>
+          {["#FF5F57","#FEBC2E","#28C840"].map(c => <div key={c} style={{ width: 8, height: 8, borderRadius: 4, background: c }}/>)}
+        </div>
+        <div style={{ flex: 1, fontFamily: P.mono, fontSize: 10.5, color: P.muted }}>{slug || "example.com"}</div>
+      </div>
+      <div style={{ height: 180, background: bg, position: "relative", overflow: "hidden", padding: "16px 18px" }}>
+        <div style={{ position: "absolute", top: -40, right: -30, width: 200, height: 200, borderRadius: 100, background: `radial-gradient(circle, ${accent}66, transparent 70%)`, filter: "blur(8px)" }}/>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative" }}>
+          <span style={{ fontFamily: P.font, fontSize: 11, fontWeight: 700, color: fg }}>{name}</span>
+          <div style={{ display: "flex", gap: 8 }}>
+            {pages.slice(0,3).map(pg => <span key={pg} style={{ fontFamily: P.font, fontSize: 9, color: dark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.55)" }}>{pg}</span>)}
+          </div>
+        </div>
+        <div style={{ position: "relative", marginTop: 26 }}>
+          <div style={{ fontFamily: P.mono, fontSize: 7, fontWeight: 700, color: accent, textTransform: "uppercase" as const, letterSpacing: 1.4, marginBottom: 4 }}>{kind}</div>
+          <div style={{ fontFamily: P.font, fontSize: 18, fontWeight: 700, color: fg, letterSpacing: -0.5, lineHeight: 1.0 }}>
+            {headline[name] ?? <>Crafted for<br/>{name}.</>}
+          </div>
+          <div style={{ marginTop: 8, display: "flex", gap: 4 }}>
+            <div style={{ background: accent, color: "#fff", padding: "4px 8px", borderRadius: 4, fontFamily: P.font, fontSize: 9, fontWeight: 600 }}>
+              {name === "Acme Plumbing" ? "Call now" : name === "Bistro Marin" ? "Reserve" : "Get in touch"}
+            </div>
+            <div style={{ border: `1px solid ${dark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.15)"}`, color: fg, padding: "4px 8px", borderRadius: 4, fontFamily: P.font, fontSize: 9, fontWeight: 600 }}>Menu</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Plan card ─────────────────────────────────────────────────────────────
+const PLANS = [
+  { id: "basic",   name: "Basic",   price: 49.99, tag: "I just need a website.",      cta: "Get Basic",   after: "€15 per edit after launch",            badge: null as string|null,
+    items: [["AI-generated professional website",true],["Deployed to your Vercel account",true],["Full source code ownership",true],["Mobile-responsive · SSL · Custom domain ready",true],["0 free edits",false]] as [string,boolean][] },
+  { id: "pro",     name: "Pro",     price: 59.99, tag: "I want to refine my site.",    cta: "Get Pro",     after: "€15 per edit after the first 5",       badge: "Most popular" as string|null,
+    items: [["Everything in Basic",true],["5 free edits included",true],["Edit tracking in your dashboard",true],["Best value for most businesses",true],["Priority email support",true]] as [string,boolean][] },
+  { id: "premium", name: "Premium", price: 79.99, tag: "I want room to adjust.",       cta: "Get Premium", after: "€15 per edit after the first 15",      badge: null as string|null,
+    items: [["Everything in Pro",true],["15 free edits included",true],["Priority generation queue",true],["Best for evolving businesses",true],["1:1 onboarding call (optional)",true]] as [string,boolean][] },
+];
+
+function PlanCard({ plan, ctaHref }: { plan: typeof PLANS[0]; ctaHref: string }) {
+  const f = plan.badge != null;
+  return (
+    <div style={{ position: "relative", padding: "32px 28px", borderRadius: 18, background: f ? T.bg : "#fff", color: f ? "#fff" : P.ink, border: f ? "none" : `1px solid ${P.line}`, boxShadow: f ? "0 24px 60px rgba(10,14,20,0.28)" : "0 1px 0 rgba(0,0,0,0.02)", overflow: "hidden" }}>
+      {f && <><DotGrid opacity={0.05}/><div style={{ position: "absolute", top: -60, right: -60, width: 220, height: 220, borderRadius: 110, background: "radial-gradient(circle, rgba(255,90,31,0.45), rgba(255,90,31,0) 65%)" }}/></>}
+      <div style={{ position: "relative" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+          <span style={{ fontFamily: P.mono, fontSize: 12, fontWeight: 700, color: f ? T.muted : P.muted, letterSpacing: 0.8, textTransform: "uppercase" as const }}>{plan.name}</span>
+          {plan.badge && <TechBadge color={T.six}>{plan.badge}</TechBadge>}
+        </div>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 4 }}>
+          <span style={{ fontFamily: P.mono, fontSize: 52, fontWeight: 700, letterSpacing: -2, color: f ? "#fff" : P.ink }}>€{plan.price.toFixed(2)}</span>
+          <span style={{ fontFamily: P.font, fontSize: 14, color: f ? T.muted : P.muted }}>one-time</span>
+        </div>
+        <div style={{ fontFamily: P.font, fontSize: 14, color: f ? "rgba(255,255,255,0.65)" : P.muted, marginBottom: 24 }}>{plan.tag}</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
+          {plan.items.map(([text, ok], i) => (
+            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, fontFamily: P.font, fontSize: 14, color: f ? "rgba(255,255,255,0.85)" : P.inkSoft }}>
+              <div style={{ width: 18, height: 18, borderRadius: 9, background: ok ? (f ? "rgba(74,222,128,0.15)" : P.emSoft) : (f ? "rgba(255,255,255,0.06)" : P.bg2), display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                {ok ? <CheckIcon size={10} color={f ? T.green : P.em2}/> : <svg width="9" height="9" viewBox="0 0 9 9"><path d="M2 4.5h5" stroke={f ? T.muted : P.muted} strokeWidth="1.5" strokeLinecap="round"/></svg>}
+              </div>
+              {text}
+            </div>
+          ))}
+        </div>
+        <Link href={ctaHref} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: f ? "linear-gradient(180deg,#FF6A33 0%,#E54B14 100%)" : P.ink, color: "#fff", padding: "14px 22px", borderRadius: 10, fontFamily: P.font, fontSize: 15, fontWeight: 600, textDecoration: "none", boxShadow: f ? "0 1px 0 rgba(255,255,255,0.20) inset,0 14px 30px rgba(255,90,31,0.32)" : "0 8px 22px rgba(10,14,20,0.18)" }}>
+          {plan.cta}
+        </Link>
+        <div style={{ marginTop: 14, fontFamily: P.mono, fontSize: 11, color: f ? T.muted : P.muted, textAlign: "center" as const }}>{plan.after}</div>
+      </div>
+    </div>
+  );
+}
+
+// ─── FAQ ───────────────────────────────────────────────────────────────────
 const FAQ_ITEMS: [string, string][] = [
   ["Do I need to know how to code?",     "No. You describe your business in plain English. We generate the site, deploy it, and you can edit later through your dashboard or in the code directly."],
   ["Who owns the website?",              "You do. The code is yours, the Vercel project is in your account, and the domain (if you connect one) belongs to you."],
@@ -83,29 +228,22 @@ const FAQ_ITEMS: [string, string][] = [
   ["Do you include hosting?",            "We deploy to your Vercel account. Their Hobby plan is free and works for most small sites. Hosting cost on Vercel is separate from us."],
 ];
 
-function FAQ() {
+function FAQSection() {
   const [open, setOpen] = useState<number>(0);
   return (
-    <section className="page-pad scroll-in" style={{ padding: "96px 28px", maxWidth: 920, margin: "0 auto" }}>
-      <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>// FAQ</span>
-      <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14, marginBottom: 40 }}>Common questions.</h2>
-      <div style={{ borderTop: `1px solid ${T.line}` }}>
+    <section id="faq" style={{ padding: "104px 32px", maxWidth: 920, margin: "0 auto" }}>
+      <Eyebrow>// FAQ</Eyebrow>
+      <h2 style={{ fontFamily: P.font, fontSize: "clamp(1.8rem,3vw,48px)", fontWeight: 700, letterSpacing: -1.4, lineHeight: 1.02, color: P.ink, margin: "0 0 40px" }}>Common questions.</h2>
+      <div style={{ borderTop: `1px solid ${P.line}` }}>
         {FAQ_ITEMS.map(([q, a], i) => (
-          <div key={q} style={{ borderBottom: `1px solid ${T.line}` }}>
-            <button
-              onClick={() => setOpen(open === i ? -1 : i)}
-              style={{ width: "100%", padding: "20px 0", display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", cursor: "pointer", textAlign: "left", fontFamily: T.font, fontSize: 16, fontWeight: 600, color: T.ink, letterSpacing: -0.2 }}
-            >
+          <div key={q} style={{ borderBottom: `1px solid ${P.line}` }}>
+            <button onClick={() => setOpen(open === i ? -1 : i)} style={{ width: "100%", padding: "20px 0", display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", cursor: "pointer", textAlign: "left" as const, fontFamily: P.font, fontSize: 17, fontWeight: 600, color: P.ink, letterSpacing: -0.2 }}>
               {q}
-              <span style={{ width: 30, height: 30, borderRadius: 15, background: open === i ? T.ink : T.bg2, color: open === i ? "#fff" : T.ink, display: "flex", alignItems: "center", justifyContent: "center", transition: "all .2s", flexShrink: 0, marginLeft: 16 }}>
-                <svg width="12" height="12" viewBox="0 0 12 12">
-                  <path d={open === i ? "M2 6h8" : "M2 6h8M6 2v8"} stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
+              <span style={{ width: 30, height: 30, borderRadius: 15, background: open === i ? P.ink : P.bg2, color: open === i ? "#fff" : P.ink, display: "flex", alignItems: "center", justifyContent: "center", transition: "all .2s", flexShrink: 0, marginLeft: 16 }}>
+                <svg width="12" height="12" viewBox="0 0 12 12"><path d={open === i ? "M2 6h8" : "M2 6h8M6 2v8"} stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
               </span>
             </button>
-            {open === i && (
-              <div style={{ paddingBottom: 22, fontFamily: T.font, fontSize: 15, color: T.muted, lineHeight: 1.65, maxWidth: 720 }}>{a}</div>
-            )}
+            {open === i && <div style={{ paddingBottom: 22, fontFamily: P.font, fontSize: 15, color: P.inkSoft, lineHeight: 1.65, maxWidth: 720 }}>{a}</div>}
           </div>
         ))}
       </div>
@@ -113,514 +251,573 @@ function FAQ() {
   );
 }
 
+// ─── Examples data ─────────────────────────────────────────────────────────
+const EXAMPLES = [
+  { name: "Acme Plumbing",   kind: "24/7 Emergency",    tint: "dark",  accent: T.six,   pages: ["Home","Services","Contact"], slug: "acme-plumbing.vercel.app" },
+  { name: "Maria's Hair",    kind: "Salon · Munich",    tint: "white", accent: P.six,   pages: ["Home","Menu","Book"],        slug: "marias-hair.com" },
+  { name: "Lia · Photo",     kind: "Wedding portfolio", tint: "warm",  accent: P.ink,   pages: ["Work","About","Contact"],    slug: "liaphoto.de" },
+  { name: "Bistro Marin",    kind: "Restaurant",        tint: "dark",  accent: T.amber, pages: ["Menu","Reservations"],       slug: "bistromarin.fr" },
+  { name: "Dr. Kohl Dental", kind: "Clinic",            tint: "white", accent: T.sky,   pages: ["Care","Book","Insurance"],   slug: "kohl-dental.de" },
+  { name: "Forge Fitness",   kind: "Coach",             tint: "dark",  accent: T.green, pages: ["Programs","Coach","Reviews"],slug: "forgefit.io" },
+];
+
+// ─── Comparison data ───────────────────────────────────────────────────────
+const COMP_ROWS = [
+  { name: "insixlive",              upfront: "from €49.99", monthly: "€0",      yr1: "from €49.99", yr5: "from €49.99", own: "Yes",     lock: "No",      active: true  },
+  { name: "Wix / Squarespace",      upfront: "low",         monthly: "monthly", yr1: "€200+",       yr5: "€1,000+",     own: "No",      lock: "Yes",     active: false },
+  { name: "Webflow",                upfront: "medium",      monthly: "monthly", yr1: "€200+",       yr5: "€1,000+",     own: "Partial", lock: "Partial", active: false },
+  { name: "Durable / Hostinger AI", upfront: "low",         monthly: "monthly", yr1: "€300+",       yr5: "€1,500+",     own: "No",      lock: "Yes",     active: false },
+  { name: "Freelancer",             upfront: "€500–3,000",  monthly: "varies",  yr1: "high",        yr5: "varies",      own: "Maybe",   lock: "Maybe",   active: false },
+  { name: "Agency",                 upfront: "€3,000+",     monthly: "often",   yr1: "very high",   yr5: "very high",   own: "Maybe",   lock: "Maybe",   active: false },
+];
+
+// ─── Arrow icon ────────────────────────────────────────────────────────────
+function ArrowR({ color = "#fff" }: { color?: string }) {
+  return <svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 7h8M8 4l3 3-3 3" stroke={color} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+}
+
+// ─── Page ──────────────────────────────────────────────────────────────────
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
   useEffect(() => {
-    fetch("/api/auth/me").then(r => r.json()).then(d => { setLoggedIn(!!d.user); }).catch(() => { setLoggedIn(false); });
-    // Scroll-in observer for sections
-    const obs = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); } });
-    }, { threshold: 0.12 });
+    fetch("/api/auth/me").then(r => r.json()).then(d => setLoggedIn(!!d.user)).catch(() => setLoggedIn(false));
+    const obs = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("visible"); }), { threshold: 0.1 });
     document.querySelectorAll(".scroll-in").forEach(el => obs.observe(el));
     return () => obs.disconnect();
   }, []);
 
   const ctaHref = loggedIn ? "/dashboard" : "/signup";
-  const ctaLabel = loggedIn ? "Go to Dashboard" : "Build my site — from €49";
 
   return (
     <>
       <style>{`
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { overflow-x: hidden; }
-        body { background: ${T.bg}; color: ${T.ink}; font-family: ${T.font}; overflow-x: hidden; }
-        @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-        .tk { animation: ticker 32s linear infinite; }
-        .tk:hover { animation-play-state: paused; }
-
-        @media (max-width: 900px) {
-          .hero-grid  { grid-template-columns: 1fr !important; }
-          .own-grid   { grid-template-columns: 1fr !important; }
-          .demo-grid  { grid-template-columns: 1fr 1fr !important; }
-          .nav-links  { display: none !important; }
-          .split      { flex-direction: column !important; align-items: flex-start !important; }
-          .stack-grid { grid-template-columns: 1fr 1fr !important; }
-          .hero-demo  { display: none !important; }
-          .page-pad   { padding-left: 20px !important; padding-right: 20px !important; }
-          .stats-row  { gap: 20px !important; flex-wrap: wrap !important; }
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        html{overflow-x:hidden;scroll-behavior:smooth}
+        body{background:${P.bg};color:${P.ink};font-family:${P.font};overflow-x:hidden}
+        a{text-decoration:none;color:inherit}
+        @keyframes caret{0%,50%{opacity:1}50.01%,100%{opacity:0}}
+        @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+        .tk{animation:ticker 32s linear infinite}.tk:hover{animation-play-state:paused}
+        @keyframes scrollIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+        .scroll-in{opacity:0}.scroll-in.visible{animation:scrollIn .55s ease both}
+        .hero-demo{display:block}
+        @media(max-width:900px){
+          .g2,.g3{grid-template-columns:1fr!important}
+          .nav-links{display:none!important}
+          .pp{padding-left:20px!important;padding-right:20px!important}
+          .hero-demo{display:none!important}
+          .comp-table{overflow-x:auto}
+          .comp-table>div{min-width:700px}
         }
-
-        @media (max-width: 600px) {
-          .demo-grid  { grid-template-columns: 1fr 1fr !important; }
-          .nav-cta-pair { gap: 6px !important; }
-          .nav-cta-pair a:first-child { display: none !important; }
-          .page-pad   { padding-left: 16px !important; padding-right: 16px !important; }
-          .stats-row  { gap: 16px !important; }
-          .comparison-wrap { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
-          .comparison-wrap table { min-width: 480px; }
-          .pricing-inner { padding: 28px 20px !important; }
-          .metrics-grid { grid-template-columns: 1fr 1fr !important; }
-          .testi-grid { grid-template-columns: 1fr !important; }
-        }
-        @keyframes scrollIn {
-          from { opacity: 0; transform: translateY(22px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .scroll-in { opacity: 0; }
-        .scroll-in.visible { animation: scrollIn .55s ease both; }
-
-        @keyframes carouselLtr {
-          from { transform: translateX(0); }
-          to   { transform: translateX(-50%); }
-        }
-        @keyframes carouselRtl {
-          from { transform: translateX(-50%); }
-          to   { transform: translateX(0); }
-        }
-        .carousel-ltr {
-          animation: carouselLtr 40s linear infinite;
-        }
-        .carousel-rtl {
-          animation: carouselRtl 36s linear infinite;
-        }
-        .carousel-ltr:hover,
-        .carousel-rtl:hover {
-          animation-play-state: paused;
+        @media(max-width:600px){
+          .pp{padding-left:16px!important;padding-right:16px!important}
         }
       `}</style>
 
-      <div style={{ background: T.bg, minHeight: "100vh" }}>
-
-        {/* ── NAV ─────────────────────────────────────────────── */}
-        <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(250,250,248,.92)", backdropFilter: "blur(14px)", borderBottom: `1px solid ${T.line}`, height: 58 }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 28px", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24 }}>
-            <Link href="/" style={{ display: "flex", alignItems: "center", gap: 9, textDecoration: "none" }}>
-              <Mark size={26} />
-              <span style={{ fontFamily: T.font, fontSize: 16, fontWeight: 700, color: T.ink, letterSpacing: -0.5 }}>insixlive</span>
+      {/* ── NAV ────────────────────────────────────────────────── */}
+      <header style={{ position: "sticky", top: 0, zIndex: 100, background: "rgba(250,250,247,0.88)", backdropFilter: "blur(14px) saturate(180%)", borderBottom: `1px solid ${P.line}` }}>
+        <div className="pp" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", display: "flex", alignItems: "center", gap: 32, height: 68 }}>
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <Mark size={28}/>
+            <span style={{ fontFamily: P.font, fontSize: 22, fontWeight: 700, color: P.ink, letterSpacing: -0.6 }}>insix<span style={{ color: P.six }}>live</span></span>
+          </Link>
+          <nav className="nav-links" style={{ display: "flex", gap: 26, flex: 1 }}>
+            {[["#how","How it works"],["#examples","Examples"],["/pricing","Pricing"],["#domains","Domains"],["#faq","FAQ"]].map(([h,l]) => (
+              <a key={h} href={h} style={{ fontFamily: P.font, fontSize: 14, fontWeight: 500, color: P.muted }}>{l}</a>
+            ))}
+          </nav>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {loggedIn
+              ? <Link href="/dashboard" style={{ fontFamily: P.font, fontSize: 14, fontWeight: 500, color: P.inkSoft }}>Dashboard</Link>
+              : <Link href="/login" style={{ fontFamily: P.font, fontSize: 14, fontWeight: 500, color: P.inkSoft }}>Log in</Link>}
+            <Link href={ctaHref} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(180deg,#FF6A33 0%,#E54B14 100%)", color: "#fff", padding: "9px 18px", borderRadius: 8, fontFamily: P.font, fontSize: 14, fontWeight: 600, boxShadow: "0 1px 0 rgba(255,255,255,0.20) inset,0 8px 20px rgba(255,90,31,0.28)" }}>
+              Build my site <ArrowR/>
             </Link>
-            <div className="nav-links" style={{ display: "flex", alignItems: "center", gap: 28 }}>
-              {[["#how", "How it works"], ["#demos", "Examples"], ["/pricing", "Pricing"]].map(([h, l]) => (
-                <a key={h} href={h} style={{ fontFamily: T.font, fontSize: 14, color: T.muted, textDecoration: "none" }}>{l}</a>
-              ))}
-            </div>
-            {loggedIn ? (
-              <Link href="/dashboard" style={{ background: T.ink, color: "#fff", padding: "9px 20px", borderRadius: 10, fontFamily: T.font, fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Dashboard</Link>
-            ) : (
-              <div className="nav-cta-pair" style={{ display: "flex", gap: 8 }}>
-                <Link href="/login" style={{ color: T.muted, padding: "9px 18px", borderRadius: 10, fontFamily: T.font, fontSize: 14, fontWeight: 500, textDecoration: "none", border: `1px solid ${T.line}` }}>Log in</Link>
-                <Link href="/signup" style={{ background: T.ink, color: "#fff", padding: "9px 20px", borderRadius: 10, fontFamily: T.font, fontSize: 14, fontWeight: 600, textDecoration: "none", boxShadow: "0 4px 12px rgba(10,14,20,0.14)" }}>Get started</Link>
-              </div>
-            )}
           </div>
-        </nav>
+        </div>
+      </header>
 
-        {/* ── HERO ────────────────────────────────────────────── */}
-        <section className="page-pad" style={{ maxWidth: 1200, margin: "0 auto", padding: "80px 28px 60px" }}>
-          <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: 56, alignItems: "center" }}>
+      {/* ── HERO (dark) ─────────────────────────────────────────── */}
+      <section style={{ background: T.bg, color: "#fff", padding: "120px 0 64px", position: "relative", overflow: "hidden" }}>
+        <DotGrid opacity={0.05}/>
+        <div style={{ position: "absolute", top: -160, right: -120, width: 520, height: 520, borderRadius: 260, background: "radial-gradient(circle, rgba(255,90,31,0.35), rgba(255,90,31,0) 65%)", filter: "blur(20px)", pointerEvents: "none" }}/>
+        <div style={{ position: "absolute", bottom: -260, left: -160, width: 600, height: 600, borderRadius: 300, background: "radial-gradient(circle, rgba(74,222,128,0.10), rgba(74,222,128,0) 65%)", filter: "blur(20px)", pointerEvents: "none" }}/>
+        <div className="pp" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", position: "relative" }}>
+          <div className="g2" style={{ display: "grid", gridTemplateColumns: "1.05fr 1.05fr", gap: 48, alignItems: "center" }}>
             <div>
-              <LiveChip />
-              <h1 style={{ fontFamily: T.font, fontSize: "clamp(2.6rem, 5vw, 4.2rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.04, color: T.ink, margin: "18px 0 18px" }}>
-                Your website.<br/>
-                <span style={{ color: T.six }}>Live in six minutes.</span>
-              </h1>
-              <p style={{ fontFamily: T.font, fontSize: "clamp(1rem, 1.5vw, 1.1rem)", color: T.muted, lineHeight: 1.75, maxWidth: 460, marginBottom: 32 }}>
-                Describe your business. Our AI generates a complete, production-ready website and deploys it to your own Vercel account. The code is yours, forever.
-              </p>
-              <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-                <Link href={ctaHref} style={{ background: T.ink, color: "#fff", padding: "15px 30px", borderRadius: 12, fontFamily: T.font, fontSize: 15, fontWeight: 700, textDecoration: "none", letterSpacing: -0.3, boxShadow: "0 6px 20px rgba(10,14,20,0.18)", display: "inline-flex", alignItems: "center", gap: 8 }}>
-                  {ctaLabel}
-                  <svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                </Link>
-                <span style={{ fontFamily: T.mono, fontSize: 11, color: T.muted, letterSpacing: "0.06em", textTransform: "uppercase" as const }}>One-time · No subscriptions</span>
+              <div style={{ marginBottom: 22, display: "flex", alignItems: "center", gap: 10, fontFamily: P.mono, fontSize: 13 }}>
+                <span style={{ color: T.green }}>$</span>
+                <span style={{ color: "rgba(255,255,255,0.75)" }}>insixlive create</span>
+                <span style={{ color: T.amber }}>--name=my-site</span>
+                <span style={{ display: "inline-block", width: 7, height: 14, background: T.green, animation: "caret 1s infinite", verticalAlign: "middle" }}/>
               </div>
-              {/* Stats */}
-              <div className="stats-row" style={{ marginTop: 36, display: "flex", gap: 28 }}>
-                {[["from €49", "one-time"], ["6 min", "to live"], ["100%", "yours forever"]].map(([v, l]) => (
-                  <div key={l}>
-                    <div style={{ fontFamily: T.font, fontSize: 22, fontWeight: 800, color: T.ink, letterSpacing: -0.8 }}>{v}</div>
-                    <div style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, marginTop: 2, letterSpacing: "0.08em", textTransform: "uppercase" as const }}>{l}</div>
+              <h1 style={{ fontFamily: P.font, fontSize: "clamp(2.8rem,5.5vw,76px)", lineHeight: 0.98, fontWeight: 700, letterSpacing: -3, color: "#fff", margin: "0 0 18px" }}>
+                Stop renting<br/><span style={{ color: T.six }}>your website.</span>
+              </h1>
+              <p style={{ fontFamily: P.font, fontSize: "clamp(1rem,1.5vw,20px)", lineHeight: 1.5, color: "rgba(255,255,255,0.62)", margin: "0 0 28px", maxWidth: 520 }}>
+                Generate a professional website, deploy it under your own account, and keep the code forever. From €49.99. One-time. No monthly fees.
+              </p>
+              <div style={{ display: "flex", gap: 10, marginBottom: 22, flexWrap: "wrap" }}>
+                <Link href={ctaHref} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(180deg,#FF6A33 0%,#E54B14 100%)", color: "#fff", padding: "16px 22px", borderRadius: 12, fontFamily: P.font, fontSize: 16, fontWeight: 600, boxShadow: "0 1px 0 rgba(255,255,255,0.20) inset,0 14px 30px rgba(255,90,31,0.32)" }}>
+                  Build my website — from €49 <ArrowR/>
+                </Link>
+                <a href="#examples" style={{ display: "inline-flex", alignItems: "center", padding: "16px 22px", borderRadius: 12, fontFamily: P.font, fontSize: 16, fontWeight: 600, background: "rgba(255,255,255,0.05)", color: "#fff", border: "1px solid rgba(255,255,255,0.10)" }}>
+                  See examples
+                </a>
+              </div>
+              <div style={{ fontFamily: P.mono, fontSize: 12, color: "rgba(255,255,255,0.45)", marginBottom: 32 }}>One-time payment · No subscriptions · Full ownership</div>
+              <div className="g3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, maxWidth: 540 }}>
+                {[["from €49.99","One-time"],["~6 min","Live"],["100%","Code ownership"]].map(([v,l]) => (
+                  <div key={l} style={{ padding: "12px 16px", borderRadius: 10, background: "rgba(255,255,255,0.04)", border: `1px solid ${T.line}` }}>
+                    <div style={{ fontFamily: P.mono, fontSize: 20, fontWeight: 700, color: "#fff", letterSpacing: -0.4 }}>{v}</div>
+                    <div style={{ fontFamily: P.mono, fontSize: 10.5, color: T.muted, textTransform: "uppercase" as const, letterSpacing: 0.6, marginTop: 3 }}>{l}</div>
                   </div>
                 ))}
               </div>
             </div>
-            {/* Hero image — hidden on mobile */}
-            <div className="hero-demo" style={{ overflow: "visible" }}>
-              <img
-                src="/hero.png"
-                alt="insixlive — AI website generation"
-                style={{
-                  width: "120%",
-                  marginLeft: "-10%",
-                  marginTop: "-4%",
-                  display: "block",
-                  mixBlendMode: "multiply" as const,
-                  pointerEvents: "none",
-                }}
-              />
-            </div>
-          </div>
-        </section>
 
-        {/* ── TICKER ──────────────────────────────────────────── */}
-        <div style={{ borderTop: `1px solid ${T.line}`, borderBottom: `1px solid ${T.line}`, overflow: "hidden", height: 40, display: "flex", alignItems: "center" }}>
-          <div className="tk" style={{ display: "flex", whiteSpace: "nowrap" }}>
-            {[...Array(2)].flatMap((_, p) =>
-              ["Next.js", "Vercel", "GitHub", "Claude AI", "€49 one-time", "6 minutes", "Zero lock-in", "100% yours", "No subscriptions", "Production-ready"].map(item => (
-                <span key={`${p}-${item}`} style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.12em", textTransform: "uppercase" as const, padding: "0 24px" }}>{item} ·</span>
-              ))
-            )}
+            {/* Code windows */}
+            <div className="hero-demo" style={{ position: "relative", height: 540 }}>
+              <div style={{ position: "absolute", top: 0, right: 0, width: "92%", transform: "rotate(-2deg)" }}>
+                <TechWindow title="acme-plumbing — app/page.tsx" sub="claude-sonnet" status={<TechBadge>WRITING</TechBadge>} style={{ height: 360 }}>
+                  <CodeStream/>
+                </TechWindow>
+              </div>
+              <div style={{ position: "absolute", bottom: 0, left: 0, width: "78%", transform: "rotate(3deg)" }}>
+                <TechWindow title="vercel · deploy" sub="acme-plumbing.vercel.app" status={<TechBadge>READY</TechBadge>} style={{ height: 180 }}>
+                  <div style={{ padding: "12px 14px", fontFamily: P.mono, fontSize: 11.5, lineHeight: "20px" }}>
+                    {[["00:12",T.amber,"pkg","archive · 4.1 MB"],["00:16",T.sky,"cdn","142 assets"],["00:18",T.green,"ssl","cert issued"]].map(([t,c,k,v]) => (
+                      <div key={k as string} style={{ display: "flex", gap: 10 }}>
+                        <span style={{ color: T.muted, width: 44 }}>{t}</span>
+                        <span style={{ color: c as string, fontWeight: 700, width: 36 }}>{k}</span>
+                        <span style={{ color: T.text }}>{v}</span>
+                      </div>
+                    ))}
+                    <div style={{ display: "flex", gap: 10 }}>
+                      <span style={{ color: T.muted, width: 44 }}>00:18</span>
+                      <span style={{ color: T.green, fontWeight: 700, width: 36 }}>live</span>
+                      <span style={{ color: T.green }}>https://acme-plumbing.vercel.app</span>
+                      <span style={{ display: "inline-block", width: 6, height: 13, background: T.green, animation: "caret 0.9s infinite", boxShadow: `0 0 6px ${T.green}`, alignSelf: "center" }}/>
+                    </div>
+                  </div>
+                </TechWindow>
+              </div>
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* ── METRICS (animated counters) ─────────────────────── */}
-        <section style={{ background: T.ink, padding: "64px 28px" }}>
-          <div style={{ maxWidth: 960, margin: "0 auto" }}>
-            <p style={{ fontFamily: T.mono, fontSize: 10, color: "rgba(255,255,255,.3)", letterSpacing: "0.14em", textTransform: "uppercase" as const, textAlign: "center", marginBottom: 40 }}>
-              The numbers
-            </p>
-            <div className="metrics-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 32 }}>
-              <MetricCounter value={6}   suffix=" min" label="Average time to live" />
-              <MetricCounter value={49}  prefix="€" suffix="" label="Starting price (one-time)" />
-              <MetricCounter value={100} suffix="%" label="Code ownership" />
-              <MetricCounter value={0}   suffix="" prefix="€" label="Monthly fees, ever" />
-            </div>
+      {/* ── TICKER ──────────────────────────────────────────────── */}
+      <div style={{ borderTop: `1px solid ${P.line}`, borderBottom: `1px solid ${P.line}`, overflow: "hidden", height: 40, display: "flex", alignItems: "center" }}>
+        <div className="tk" style={{ display: "flex", whiteSpace: "nowrap" }}>
+          {[...Array(2)].flatMap((_,p) =>
+            ["Next.js","Vercel","Stripe","Claude AI","€49.99 one-time","~6 minutes","Zero lock-in","100% yours","No subscriptions","Production-ready"].map(item => (
+              <span key={`${p}-${item}`} style={{ fontFamily: P.mono, fontSize: 10, color: P.muted, letterSpacing: "0.12em", textTransform: "uppercase" as const, padding: "0 24px" }}>{item} ·</span>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* ── PAIN ────────────────────────────────────────────────── */}
+      <section className="pp scroll-in" style={{ padding: "104px 32px", maxWidth: 1200, margin: "0 auto" }}>
+        <Eyebrow>// the rental trap</Eyebrow>
+        <h2 style={{ fontFamily: P.font, fontSize: "clamp(1.8rem,3vw,48px)", fontWeight: 700, letterSpacing: -1.4, lineHeight: 1.02, color: P.ink, margin: "0 0 12px" }}>
+          Your business needs a website.<br/><span style={{ color: P.muted }}>Agencies know that.</span>
+        </h2>
+        <p style={{ fontFamily: P.font, fontSize: 18, lineHeight: 1.5, color: P.muted, margin: "0 0 48px", maxWidth: 720 }}>
+          A small business website should not cost €1,000 upfront and another monthly fee just to stay online. Most local businesses need a clean, professional website that works — and belongs to them.
+        </p>
+        <div className="g2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+          <div style={{ padding: 32, borderRadius: 18, background: "#fff", border: `1px solid ${P.line}` }}>
+            <div style={{ fontFamily: P.mono, fontSize: 11, fontWeight: 700, color: P.muted, textTransform: "uppercase" as const, letterSpacing: 0.8, marginBottom: 14 }}>Traditional website</div>
+            <div style={{ fontFamily: P.font, fontSize: 32, fontWeight: 700, letterSpacing: -1, marginBottom: 4, color: P.ink }}>€1,000+</div>
+            <div style={{ fontFamily: P.font, fontSize: 13, color: P.muted, marginBottom: 22 }}>upfront, plus monthly fees</div>
+            {["Weeks of back-and-forth","Locked inside a closed platform","Small changes = extra invoices","You don't fully own the result"].map(s => (
+              <div key={s} style={{ display: "flex", gap: 10, padding: "8px 0", fontFamily: P.font, fontSize: 14, color: P.inkSoft, borderBottom: `1px solid ${P.line}` }}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke={P.six} strokeWidth="1.6" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 1 }}><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                {s}
+              </div>
+            ))}
           </div>
-        </section>
-
-        {/* ── PAIN: Traditional vs insixlive ─────────────────── */}
-        <section className="page-pad scroll-in" style={{ padding: "96px 28px", maxWidth: 1200, margin: "0 auto" }}>
-          <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>// the rental trap</span>
-          <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14, marginBottom: 16 }}>
-            Your business needs a website.<br/><span style={{ color: T.muted }}>Agencies know that.</span>
-          </h2>
-          <p style={{ fontFamily: T.font, fontSize: 16, color: T.muted, lineHeight: 1.7, maxWidth: 680, marginBottom: 48 }}>
-            A small business website should not cost €1,000 upfront and another monthly fee just to stay online. Most local businesses need a clean, professional website that works — and belongs to them.
-          </p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }} className="hero-grid">
-            {/* Traditional */}
-            <div style={{ padding: 32, borderRadius: 18, background: "#fff", border: `1px solid ${T.line}` }}>
-              <div style={{ fontFamily: T.mono, fontSize: 11, fontWeight: 700, color: T.muted, textTransform: "uppercase" as const, letterSpacing: "0.08em", marginBottom: 14 }}>Traditional website</div>
-              <div style={{ fontFamily: T.font, fontSize: 32, fontWeight: 800, letterSpacing: -1, marginBottom: 4, color: T.ink }}>€1,000+</div>
-              <div style={{ fontFamily: T.font, fontSize: 13, color: T.muted, marginBottom: 24 }}>upfront, plus monthly fees</div>
-              {["Weeks of back-and-forth", "Locked inside a closed platform", "Small changes = extra invoices", "You don't fully own the result"].map(s => (
-                <div key={s} style={{ display: "flex", gap: 10, padding: "8px 0", fontFamily: T.font, fontSize: 14, color: "#4A5568", borderBottom: `1px solid ${T.line}` }}>
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke={T.six} strokeWidth="1.8" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 1 }}><path d="M4 4l8 8M12 4l-8 8"/></svg>
+          <div style={{ padding: 32, borderRadius: 18, background: T.bg, position: "relative", overflow: "hidden" }}>
+            <DotGrid opacity={0.05}/>
+            <div style={{ position: "absolute", top: -80, right: -60, width: 240, height: 240, borderRadius: 120, background: "radial-gradient(circle,rgba(74,222,128,0.30),rgba(74,222,128,0) 65%)", filter: "blur(15px)", pointerEvents: "none" }}/>
+            <div style={{ position: "relative" }}>
+              <TechBadge>insixlive</TechBadge>
+              <div style={{ fontFamily: P.mono, fontSize: 36, fontWeight: 700, letterSpacing: -1, marginTop: 14, marginBottom: 4, color: "#fff" }}>from €49.99</div>
+              <div style={{ fontFamily: P.font, fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 22 }}>one-time, then free</div>
+              {["Live in around 6 minutes","Deployed to your own Vercel","Full source code in your inbox","No subscription, ever"].map(s => (
+                <div key={s} style={{ display: "flex", gap: 10, padding: "8px 0", fontFamily: P.font, fontSize: 14, color: "rgba(255,255,255,0.85)", borderBottom: `1px solid ${T.line}` }}>
+                  <CheckIcon size={14} color={T.green}/>
                   {s}
                 </div>
               ))}
             </div>
-            {/* insixlive */}
-            <div style={{ padding: 32, borderRadius: 18, background: T.ink, position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", top: -80, right: -60, width: 240, height: 240, borderRadius: 120, background: "radial-gradient(circle, rgba(0,179,119,0.30), rgba(0,179,119,0) 65%)", filter: "blur(15px)", pointerEvents: "none" }}/>
-              <div style={{ position: "relative" }}>
-                <div style={{ fontFamily: T.mono, fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,.35)", textTransform: "uppercase" as const, letterSpacing: "0.08em", marginBottom: 14 }}>insixlive</div>
-                <div style={{ fontFamily: T.mono, fontSize: 32, fontWeight: 700, letterSpacing: -1, marginTop: 0, marginBottom: 4, color: "#fff" }}>from €49</div>
-                <div style={{ fontFamily: T.font, fontSize: 13, color: "rgba(255,255,255,.45)", marginBottom: 24 }}>one-time, then free</div>
-                {["Live in around 6 minutes", "Deployed to your own Vercel", "Full source code is yours", "No subscription, ever"].map(s => (
-                  <div key={s} style={{ display: "flex", gap: 10, padding: "8px 0", fontFamily: T.font, fontSize: 14, color: "rgba(255,255,255,.85)", borderBottom: "1px solid rgba(255,255,255,.07)" }}>
-                    <svg width="14" height="14" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0, marginTop: 2 }}><path d="M2 5l2 2 4-4" stroke="#4ADE80" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    {s}
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* ── HOW IT WORKS ────────────────────────────────────── */}
-        <section id="how" className="page-pad scroll-in" style={{ padding: "96px 28px", maxWidth: 1200, margin: "0 auto" }}>
-          <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 72, alignItems: "start" }}>
-            <div>
-              <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Process</span>
-              <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14, marginBottom: 18 }}>
-                Six steps.<br/>Six minutes.<br/>One live website.
-              </h2>
-              <p style={{ fontFamily: T.font, fontSize: 15, color: T.muted, lineHeight: 1.75, maxWidth: 360 }}>
-                Every decision is handled — architecture, design, deployment. You fill in a brief. We build the rest.
-              </p>
-            </div>
-            <div>
-              {[
-                ["01", "Describe your business", "Name, type, services, target audience."],
-                ["02", "Choose your aesthetic", "Design style, colour palette, typography."],
-                ["03", "Select your pages", "Home, services, about, contact and more."],
-                ["04", "Review your choices", "Full summary before anything is generated."],
-                ["05", "Complete payment", "€49 one-time via Stripe. Non-recurring."],
-                ["06", "Website live", "Code on GitHub, deployed to your Vercel."],
-              ].map(([n, t, s], i, arr) => (
-                <div key={n} style={{ display: "flex", gap: 18, padding: "18px 0", borderBottom: i < arr.length - 1 ? `1px solid ${T.line}` : "none" }}>
-                  <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, minWidth: 20, paddingTop: 2, flexShrink: 0 }}>{n}</span>
-                  <div>
-                    <p style={{ fontFamily: T.font, fontSize: 14, fontWeight: 600, color: T.ink, marginBottom: 4 }}>{t}</p>
-                    <p style={{ fontFamily: T.font, fontSize: 13, color: T.muted, lineHeight: 1.55 }}>{s}</p>
-                  </div>
+      {/* ── SOLUTION ────────────────────────────────────────────── */}
+      <section className="pp scroll-in" style={{ padding: "104px 32px", background: P.bg2, borderTop: `1px solid ${P.line}` }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <Eyebrow>// the solution</Eyebrow>
+          <h2 style={{ fontFamily: P.font, fontSize: "clamp(1.8rem,3vw,48px)", fontWeight: 700, letterSpacing: -1.4, lineHeight: 1.02, color: P.ink, margin: "0 0 12px" }}>
+            A real website, generated by AI,<br/><span style={{ color: P.six }}>deployed to your account.</span>
+          </h2>
+          <p style={{ fontFamily: P.font, fontSize: 18, lineHeight: 1.5, color: P.muted, margin: "0 0 56px", maxWidth: 720 }}>
+            insixlive turns your business description into a complete professional website. Answer a few questions, choose your style, pay once — deployed to your own Vercel account.
+          </p>
+          <div className="g3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
+            {[
+              { d:"M12 3v18M3 12h18",            t:"AI-generated website",          b:"Professional copy, layout, sections, responsive design — all written for your business." },
+              { d:"M3 16l9-13 9 13H3z",           t:"Deployed to your Vercel",       b:"Your website lives in your own account. Not inside a closed builder." },
+              { d:"M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16", t:"Full source code ownership", b:"Keep it, edit it, move it, or hand it to a developer. Every file is yours." },
+              { d:"M12 22c5.5 0 10-4.5 10-10S17.5 2 12 2 2 6.5 2 12s4.5 10 10 10zM12 8v4l3 2", t:"No monthly fees", b:"Pay once for the website. Vercel hosting stays free for most small sites." },
+              { d:"M12 22c5.5 0 10-4.5 10-10S17.5 2 12 2 2 6.5 2 12s4.5 10 10 10zM3 12h18M12 3a13 13 0 010 18", t:"Custom domain ready", b:"Connect a domain you already own, or buy one separately — your call." },
+              { d:"M3 12L12 3l9 9-9 9z",          t:"Built in real Next.js",         b:"No proprietary builder. Standard React, Tailwind, and a Vercel deploy." },
+            ].map(f => (
+              <div key={f.t} style={{ padding: 24, borderRadius: 14, background: "#fff", border: `1px solid ${P.line}` }}>
+                <div style={{ width: 38, height: 38, borderRadius: 10, background: P.bg2, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={P.ink} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={f.d}/></svg>
                 </div>
-              ))}
-            </div>
+                <div style={{ fontFamily: P.font, fontSize: 17, fontWeight: 700, color: P.ink, marginBottom: 6, letterSpacing: -0.3 }}>{f.t}</div>
+                <div style={{ fontFamily: P.font, fontSize: 14, lineHeight: 1.5, color: P.muted }}>{f.b}</div>
+              </div>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* ── DEMOS (carousel) ────────────────────────────────── */}
-        <section id="demos" style={{ background: T.bg2, borderTop: `1px solid ${T.line}`, borderBottom: `1px solid ${T.line}`, padding: "80px 0 72px", overflow: "hidden" }}>
-          {/* Header */}
-          <div className="page-pad" style={{ maxWidth: 1200, margin: "0 auto 44px", padding: "0 28px", display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 20 }}>
+      {/* ── HOW IT WORKS ─────────────────────────────────────────── */}
+      <section id="how" className="pp scroll-in" style={{ padding: "104px 32px", maxWidth: 1200, margin: "0 auto" }}>
+        <Eyebrow>// from prompt to live</Eyebrow>
+        <h2 style={{ fontFamily: P.font, fontSize: "clamp(1.8rem,3vw,48px)", fontWeight: 700, letterSpacing: -1.4, lineHeight: 1.02, color: P.ink, margin: "0 0 12px" }}>
+          Six steps.<br/><span style={{ color: P.muted }}>One live website.</span>
+        </h2>
+        <p style={{ fontFamily: P.font, fontSize: 18, lineHeight: 1.5, color: P.muted, margin: "0 0 48px", maxWidth: 640 }}>
+          Most builders take days. Most freelancers take weeks. We take about six minutes.
+        </p>
+        <div className="g3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
+          {[
+            ["01","Describe your business",  "Name, services, audience, location, tone."],
+            ["02","Choose the look",         "Style, colors, typography, layout."],
+            ["03","Pick your pages",         "Home, About, Services, Contact, Booking…"],
+            ["04","Review the brief",        "Check the plan before generation starts."],
+            ["05","Pay once",                "Stripe checkout, no recurring charge."],
+            ["06","Go live",                 "Generated, deployed to your Vercel, in ~6 min."],
+          ].map(([n,t,s],i,arr) => (
+            <div key={n} style={{ padding: "24px 22px", borderRadius: 14, background: "#fff", border: `1px solid ${P.line}`, position: "relative", overflow: "hidden" }}>
+              <div style={{ fontFamily: P.mono, fontSize: 11, fontWeight: 700, color: i === arr.length-1 ? P.six : P.muted, letterSpacing: 1, marginBottom: 12 }}>{n}</div>
+              <div style={{ fontFamily: P.font, fontSize: 17, fontWeight: 700, color: P.ink, letterSpacing: -0.3, marginBottom: 4 }}>{t}</div>
+              <div style={{ fontFamily: P.font, fontSize: 13.5, color: P.muted, lineHeight: 1.5 }}>{s}</div>
+              {i === arr.length-1 && <div style={{ position: "absolute", top: 12, right: 12 }}><TechBadge color={T.six}>Live</TechBadge></div>}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── EXAMPLES ────────────────────────────────────────────── */}
+      <section id="examples" className="pp scroll-in" style={{ padding: "104px 32px", background: P.bg2, borderTop: `1px solid ${P.line}` }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 18, marginBottom: 40 }}>
             <div>
-              <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Results</span>
-              <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14 }}>
+              <Eyebrow>// shipped sites</Eyebrow>
+              <h2 style={{ fontFamily: P.font, fontSize: "clamp(1.8rem,3vw,48px)", fontWeight: 700, letterSpacing: -1.4, lineHeight: 1.02, color: P.ink, margin: 0 }}>
                 Websites built<br/>with insixlive.
               </h2>
             </div>
-            <Link href={ctaHref} style={{ border: `1px solid ${T.line}`, color: T.ink, padding: "10px 22px", borderRadius: 10, fontFamily: T.font, fontSize: 14, fontWeight: 500, textDecoration: "none", flexShrink: 0 }}>
-              Build yours →
+            <Link href={ctaHref} style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `1px solid ${P.line}`, color: P.ink, padding: "12px 18px", borderRadius: 10, fontFamily: P.font, fontSize: 14, fontWeight: 500, flexShrink: 0 }}>
+              Build yours <ArrowR color={P.ink}/>
             </Link>
           </div>
-
-          {/* Infinite scroll row 1 — left to right */}
-          <div style={{ overflow: "hidden", marginBottom: 16 }}>
-            <div className="carousel-ltr" style={{ display: "flex", gap: 16, width: "max-content" }}>
-              {[...Array(2)].flatMap(() =>
-                [1,2,3,4,5,6,7,8].map(n => (
-                  <div key={`r1-${n}`} style={{ width: 360, height: 225, borderRadius: 12, overflow: "hidden", flexShrink: 0, boxShadow: "0 4px 20px rgba(0,0,0,0.10)", border: `1px solid ${T.line}` }}>
-                    <img src={`/demos/site-${String(n).padStart(2,"0")}.png`} alt={`Website ${n}`}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} />
+          <div className="g3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 18 }}>
+            {EXAMPLES.map(e => (
+              <div key={e.name}>
+                <SiteMock {...e}/>
+                <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div>
+                    <div style={{ fontFamily: P.font, fontSize: 14, fontWeight: 700, color: P.ink }}>{e.name}</div>
+                    <div style={{ fontFamily: P.mono, fontSize: 11, color: P.muted, marginTop: 1 }}>{e.kind}</div>
                   </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* Infinite scroll row 2 — right to left (offset) */}
-          <div style={{ overflow: "hidden" }}>
-            <div className="carousel-rtl" style={{ display: "flex", gap: 16, width: "max-content" }}>
-              {[...Array(2)].flatMap(() =>
-                [9,10,11,12,13,14,15,8].map(n => (
-                  <div key={`r2-${n}`} style={{ width: 360, height: 225, borderRadius: 12, overflow: "hidden", flexShrink: 0, boxShadow: "0 4px 20px rgba(0,0,0,0.10)", border: `1px solid ${T.line}` }}>
-                    <img src={`/demos/site-${String(n).padStart(2,"0")}.png`} alt={`Website ${n}`}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }} />
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* ── TESTIMONIALS ────────────────────────────────────── */}
-        <section style={{ background: "#FFF8F4", borderTop: `3px solid ${T.six}`, padding: "96px 28px" }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 52, flexWrap: "wrap", gap: 16 }}>
-              <div>
-                <span style={{ fontFamily: T.mono, fontSize: 10, color: T.six, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>What users say</span>
-                <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14 }}>
-                  Real businesses,<br/>live in minutes.
-                </h2>
+                  <span style={{ fontFamily: P.mono, fontSize: 11, fontWeight: 600, color: P.ink }}>View ↗</span>
+                </div>
               </div>
-              <div style={{ display: "flex", gap: 4 }}>
-                {[...Array(5)].map((_,i) => <span key={i} style={{ color: T.six, fontSize: 18 }}>★</span>)}
-                <span style={{ fontFamily: T.font, fontSize: 13, color: T.muted, marginLeft: 8, alignSelf: "center" }}>5.0 average</span>
-              </div>
-            </div>
-            <div className="testi-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 18 }}>
-              {[
-                { name: "Markus Lehmann", biz: "Acme Plumbing · Munich", quote: "I described the business in two sentences. Six minutes later I had a website I could send to the printer. No subscription, no monthly bill.", plan: "Pro", accent: T.six },
-                { name: "Maria Coelho",   biz: "Maria's Hair · Lisbon",  quote: "My old site was on a builder I was paying €18/month for. I rebuilt with insixlive and now I just own the code. The math is brutal in their favor.", plan: "Basic", accent: "#4ADE80" },
-                { name: "Dr. Anna Kohl", biz: "Kohl Dental · Berlin",   quote: "I wanted a clean, calm, trustworthy site. The first draft was 80% of the way there — three small edits and we shipped it.", plan: "Premium", accent: "#7DD3FC" },
-              ].map((t, i) => (
-                <div key={i} style={{ background: "#fff", border: `1px solid ${T.line}`, borderRadius: 16, padding: "28px", display: "flex", flexDirection: "column" }}>
-                  <svg width="22" height="22" viewBox="0 0 22 22" style={{ marginBottom: 18, color: t.accent, flexShrink: 0 }}>
-                    <path d="M4 14c0-4 3-7 6-7v3c-1 0-3 1-3 4h3v6H4v-6zM13 14c0-4 3-7 6-7v3c-1 0-3 1-3 4h3v6h-6v-6z" fill="currentColor" opacity="0.85"/>
-                  </svg>
-                  <p style={{ fontFamily: T.font, fontSize: 15, color: T.ink, lineHeight: 1.6, flex: 1, marginBottom: 22 }}>
-                    {t.quote}
-                  </p>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 18, background: T.bg2, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: T.font, fontSize: 13, fontWeight: 700, color: T.ink, flexShrink: 0 }}>
-                      {t.name.split(" ").map((p: string) => p[0]).slice(0, 2).join("")}
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── OWNERSHIP (dark) ─────────────────────────────────────── */}
+      <section style={{ background: T.bg, padding: "104px 0", position: "relative", overflow: "hidden" }}>
+        <DotGrid opacity={0.04}/>
+        <div style={{ position: "absolute", top: 0, right: -200, width: 600, height: 600, borderRadius: 300, background: "radial-gradient(circle,rgba(255,90,31,0.18),rgba(255,90,31,0) 65%)", filter: "blur(20px)", pointerEvents: "none" }}/>
+        <div className="pp" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", position: "relative" }}>
+          <div className="g2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56, alignItems: "center" }}>
+            <div>
+              <Eyebrow dark>// ownership</Eyebrow>
+              <h2 style={{ fontFamily: P.font, fontSize: "clamp(1.8rem,3.5vw,52px)", fontWeight: 700, letterSpacing: -1.4, lineHeight: 1.02, color: "#fff", margin: "0 0 12px" }}>
+                You don&apos;t rent your website.<br/><span style={{ color: T.green }}>You own it.</span>
+              </h2>
+              <p style={{ fontFamily: P.font, fontSize: 18, lineHeight: 1.5, color: "rgba(255,255,255,0.62)", margin: "0 0 28px", maxWidth: 500 }}>
+                Most website builders keep your business inside their platform. insixlive gives you a real website deployed to your own Vercel account, with code you can keep forever.
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {[["Full source code","Every file in your repo."],["Your Vercel account","The site is deployed under your control."],["Your custom domain","Use one you own or buy one separately."],["No lock-in","Move the code anywhere later."],["No subscription","Pay once for the generated website."]].map(([t,s]) => (
+                  <div key={t} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                    <div style={{ width: 22, height: 22, borderRadius: 11, background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.35)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                      <CheckIcon size={11} color={T.green}/>
                     </div>
                     <div>
-                      <p style={{ fontFamily: T.font, fontSize: 14, fontWeight: 600, color: T.ink, margin: 0 }}>{t.name}</p>
-                      <p style={{ fontFamily: T.mono, fontSize: 11, color: T.muted, margin: "2px 0 0" }}>{t.biz} · {t.plan}</p>
+                      <div style={{ fontFamily: P.font, fontSize: 15, fontWeight: 600, color: "#fff" }}>{t}</div>
+                      <div style={{ fontFamily: P.font, fontSize: 13.5, color: "rgba(255,255,255,0.5)" }}>{s}</div>
                     </div>
                   </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {[
+                { label: "Your business info",        sub: "name · services · vibe",          color: T.text,  bg: "rgba(255,255,255,0.05)" },
+                { label: "insixlive · AI generation", sub: "claude-sonnet · Next.js · 6 min", color: T.plum,  bg: "rgba(199,146,234,0.10)" },
+                { label: "Your Vercel account",       sub: "deploy under your name",          color: T.sky,   bg: "rgba(125,211,252,0.10)" },
+                { label: "Your live website + code",  sub: "yourbusiness.com · forever",      color: T.green, bg: "rgba(74,222,128,0.10)" },
+              ].map((row,i,arr) => (
+                <div key={row.label}>
+                  <div style={{ padding: "18px 22px", borderRadius: 12, background: row.bg, border: `1px solid ${T.line}`, display: "flex", alignItems: "center", gap: 16 }}>
+                    <div style={{ width: 10, height: 10, borderRadius: 5, background: row.color, boxShadow: `0 0 10px ${row.color}`, flexShrink: 0 }}/>
+                    <div>
+                      <div style={{ fontFamily: P.mono, fontSize: 14, color: "#fff", fontWeight: 600 }}>{row.label}</div>
+                      <div style={{ fontFamily: P.mono, fontSize: 11, color: T.muted, marginTop: 2 }}>{row.sub}</div>
+                    </div>
+                  </div>
+                  {i < arr.length-1 && <div style={{ textAlign: "center" as const, color: T.muted, fontFamily: P.mono, fontSize: 16, lineHeight: "28px" }}>↓</div>}
                 </div>
               ))}
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* ── OWNERSHIP (dark) ─────────────────────────────────── */}
-        <section style={{ background: T.ink, padding: "96px 28px", position: "relative", overflow: "hidden" }}>
-          {/* Glow */}
-          <div style={{ position: "absolute", top: 0, right: -200, width: 600, height: 600, borderRadius: 300, background: "radial-gradient(circle, rgba(255,90,31,0.18), rgba(255,90,31,0) 65%)", filter: "blur(20px)", pointerEvents: "none" }}/>
-          <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative" }}>
-            <div className="own-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56, alignItems: "center" }}>
-              {/* Left: text + ownership list */}
-              <div>
-                <span style={{ fontFamily: T.mono, fontSize: 10, color: "rgba(255,255,255,.35)", letterSpacing: "0.14em", textTransform: "uppercase" as const }}>// ownership</span>
-                <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3.5vw, 3rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.05, color: "#F9F9F7", marginTop: 14, marginBottom: 24, maxWidth: 500 }}>
-                  You don&apos;t rent your website.<br/><span style={{ color: "#4ADE80" }}>You own it.</span>
-                </h2>
-                <p style={{ fontFamily: T.font, fontSize: 16, color: "rgba(255,255,255,.55)", lineHeight: 1.7, maxWidth: 480, marginBottom: 28 }}>
-                  Most website builders keep your business inside their platform. insixlive gives you a real website deployed to your own Vercel account, with code you can keep forever.
-                </p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                  {[
-                    ["Full source code", "Every file in your repo."],
-                    ["Your Vercel account", "The site is deployed under your control."],
-                    ["Your custom domain", "Use one you own or buy one separately."],
-                    ["No lock-in", "Move the code anywhere later."],
-                    ["No subscription", "Pay once for the generated website."],
-                  ].map(([t, s]) => (
-                    <div key={t} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-                      <div style={{ width: 22, height: 22, borderRadius: 11, background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.35)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
-                        <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2 2 4-4" stroke="#4ADE80" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      </div>
-                      <div>
-                        <div style={{ fontFamily: T.font, fontSize: 15, fontWeight: 600, color: "#fff" }}>{t}</div>
-                        <div style={{ fontFamily: T.font, fontSize: 13, color: "rgba(255,255,255,.45)" }}>{s}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Right: flow diagram */}
-              <div>
-                {[
-                  { label: "Your business info",        sub: "name · services · vibe",           color: "#D4D8E0", glow: "rgba(212,216,224,0.15)", bg: "rgba(255,255,255,0.05)" },
-                  { label: "insixlive · AI generation", sub: "claude-sonnet · Next.js · ~6 min",  color: "#C792EA", glow: "rgba(199,146,234,0.15)", bg: "rgba(199,146,234,0.08)" },
-                  { label: "Your Vercel account",       sub: "deploy under your name",            color: "#7DD3FC", glow: "rgba(125,211,252,0.15)", bg: "rgba(125,211,252,0.08)" },
-                  { label: "Your live website + code",  sub: "yourbusiness.com · forever",        color: "#4ADE80", glow: "rgba(74,222,128,0.15)", bg: "rgba(74,222,128,0.08)" },
-                ].map((row, i, arr) => (
-                  <div key={row.label}>
-                    <div style={{ padding: "18px 22px", borderRadius: 12, background: row.bg, border: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: 16 }}>
-                      <div style={{ width: 10, height: 10, borderRadius: 5, background: row.color, boxShadow: `0 0 10px ${row.color}`, flexShrink: 0 }}/>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontFamily: T.mono, fontSize: 14, color: "#fff", fontWeight: 600 }}>{row.label}</div>
-                        <div style={{ fontFamily: T.mono, fontSize: 11, color: "rgba(255,255,255,.35)", marginTop: 2 }}>{row.sub}</div>
-                      </div>
-                    </div>
-                    {i < arr.length - 1 && (
-                      <div style={{ textAlign: "center", color: "rgba(255,255,255,.2)", fontFamily: T.mono, fontSize: 18, lineHeight: "28px" }}>↓</div>
-                    )}
-                  </div>
-                ))}
-              </div>
+      {/* ── COMPARISON ──────────────────────────────────────────── */}
+      <section className="pp scroll-in" style={{ padding: "104px 32px", maxWidth: 1200, margin: "0 auto" }}>
+        <Eyebrow>// the math</Eyebrow>
+        <h2 style={{ fontFamily: P.font, fontSize: "clamp(1.8rem,3vw,48px)", fontWeight: 700, letterSpacing: -1.4, lineHeight: 1.02, color: P.ink, margin: "0 0 12px" }}>The math is simple.</h2>
+        <p style={{ fontFamily: P.font, fontSize: 18, lineHeight: 1.5, color: P.muted, margin: "0 0 36px", maxWidth: 640 }}>insixlive vs. the usual suspects. Pricing is illustrative — competitor plans change.</p>
+        <div className="comp-table">
+          <div style={{ borderRadius: 16, overflow: "hidden", border: `1px solid ${P.line}`, background: "#fff" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1.5fr repeat(6,1fr)", background: P.bg2, borderBottom: `1px solid ${P.line}` }}>
+              {["Option","Upfront","Monthly","Year 1","Year 5","Own code","Lock-in"].map(h => (
+                <div key={h} style={{ padding: "14px 16px", fontFamily: P.mono, fontSize: 11, fontWeight: 700, color: P.muted, textTransform: "uppercase" as const, letterSpacing: 0.6 }}>{h}</div>
+              ))}
             </div>
-          </div>
-        </section>
-
-        {/* ── COMPARISON ──────────────────────────────────────── */}
-        <section className="page-pad scroll-in" style={{ padding: "96px 28px", maxWidth: 960, margin: "0 auto" }}>
-          <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Comparison</span>
-          <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14, marginBottom: 44 }}>The math is simple.</h2>
-          <div className="comparison-wrap" style={{ border: `1px solid ${T.line}`, overflow: "hidden", borderRadius: 2 }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: T.font, fontSize: 13 }}>
-              <thead>
-                <tr style={{ borderBottom: `1px solid ${T.line}`, background: T.bg2 }}>
-                  {["Platform", "Year 1", "Year 5", "Code ownership", "AI-generated"].map(h => (
-                    <th key={h} style={{ padding: "12px 20px", textAlign: "left", fontFamily: T.mono, fontSize: 10, fontWeight: 400, color: T.muted, letterSpacing: "0.1em", textTransform: "uppercase" as const }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { name: "insixlive", y1: "from €49", y5: "from €49", owns: true, ai: true, hi: true },
-                  { name: "Wix", y1: "€204", y5: "€1,020", owns: false, ai: false, hi: false },
-                  { name: "Squarespace", y1: "€192", y5: "€960", owns: false, ai: false, hi: false },
-                  { name: "Agency", y1: "€3–10k", y5: "€15k+", owns: true, ai: false, hi: false },
-                ].map((row, i, arr) => (
-                  <tr key={row.name} style={{ borderBottom: i < arr.length - 1 ? `1px solid ${T.line}` : "none", background: row.hi ? T.bg : "transparent" }}>
-                    <td style={{ padding: "14px 20px", fontWeight: row.hi ? 700 : 400 }}>
-                      {row.name}
-                      {row.hi && <span style={{ marginLeft: 8, fontFamily: T.mono, fontSize: 9, color: T.six, letterSpacing: "0.1em", textTransform: "uppercase" as const }}>← You</span>}
-                    </td>
-                    <td style={{ padding: "14px 20px", fontWeight: row.hi ? 700 : 400 }}>{row.y1}</td>
-                    <td style={{ padding: "14px 20px", fontWeight: row.hi ? 700 : 400 }}>{row.y5}</td>
-                    <td style={{ padding: "14px 20px", color: row.owns ? T.em2 : T.muted }}>{row.owns ? "✓" : "—"}</td>
-                    <td style={{ padding: "14px 20px", color: row.ai ? T.em2 : T.muted }}>{row.ai ? "✓" : "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        {/* ── PRICING ─────────────────────────────────────────── */}
-        <section id="pricing" className="page-pad scroll-in" style={{ background: T.bg2, borderTop: `1px solid ${T.line}`, padding: "96px 28px" }}>
-          <div style={{ maxWidth: 640, margin: "0 auto" }}>
-            <span style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.14em", textTransform: "uppercase" as const }}>Pricing</span>
-            <h2 style={{ fontFamily: T.font, fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginTop: 14, marginBottom: 44 }}>One price. No surprises.</h2>
-            <div className="pricing-inner" style={{ border: `1px solid ${T.ink}`, background: T.bg, padding: "44px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32, flexWrap: "wrap", gap: 20 }}>
-                <div>
-                  <p style={{ fontFamily: T.font, fontSize: "clamp(3rem, 5vw, 4.5rem)", fontWeight: 800, letterSpacing: "-0.05em", lineHeight: 1, color: T.ink, margin: 0 }}>€49.99</p>
-                  <p style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.1em", textTransform: "uppercase" as const, marginTop: 6 }}>One-time · No subscription</p>
+            {COMP_ROWS.map((r,i) => (
+              <div key={r.name} style={{ display: "grid", gridTemplateColumns: "1.5fr repeat(6,1fr)", borderBottom: i < COMP_ROWS.length-1 ? `1px solid ${P.line}` : "none", background: r.active ? "rgba(255,90,31,0.04)" : "transparent" }}>
+                <div style={{ padding: "16px 16px", fontFamily: P.font, fontSize: 13.5, display: "flex", alignItems: "center", gap: 8, fontWeight: r.active ? 700 : 500 }}>
+                  {r.active && <span style={{ width: 6, height: 6, borderRadius: 3, background: P.six, boxShadow: `0 0 6px ${P.six}` }}/>}
+                  {r.name}
                 </div>
-                <div style={{ background: T.emSoft, border: `1px solid ${T.line}`, padding: "12px 18px", alignSelf: "center" }}>
-                  <p style={{ fontFamily: T.mono, fontSize: 9, color: T.muted, letterSpacing: "0.1em", textTransform: "uppercase" as const }}>vs Wix (5 years)</p>
-                  <p style={{ fontFamily: T.font, fontSize: 20, fontWeight: 800, color: T.em2, margin: "4px 0 0", letterSpacing: -0.5 }}>Save €970</p>
-                </div>
-              </div>
-              <div style={{ borderTop: `1px solid ${T.line}`, paddingTop: 28, marginBottom: 32 }}>
-                {["Complete custom website generated by AI", "Deployed to your own Vercel account", "Full source code on your GitHub", "Fully responsive — mobile, tablet, desktop", "Custom domain setup guide included", "Request changes for €10 each", "No monthly fees, ever"].map((item, i) => (
-                  <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: i < 6 ? 12 : 0 }}>
-                    <span style={{ fontFamily: T.mono, fontSize: 11, color: T.muted, paddingTop: 1, flexShrink: 0 }}>—</span>
-                    <span style={{ fontFamily: T.font, fontSize: 14, color: T.muted, lineHeight: 1.55 }}>{item}</span>
-                  </div>
+                {[r.upfront,r.monthly,r.yr1,r.yr5].map((v,j) => (
+                  <div key={j} style={{ padding: "16px 16px", fontFamily: P.mono, fontSize: 13.5, color: r.active ? P.ink : P.inkSoft }}>{v}</div>
                 ))}
+                <div style={{ padding: "16px 16px", fontFamily: P.mono, fontSize: 13.5, color: r.own==="Yes" ? P.em2 : r.own==="No" ? P.six : P.muted, fontWeight: 600 }}>{r.own}</div>
+                <div style={{ padding: "16px 16px", fontFamily: P.mono, fontSize: 13.5, color: r.lock==="No" ? P.em2 : r.lock==="Yes" ? P.six : P.muted, fontWeight: 600 }}>{r.lock}</div>
               </div>
-              <Link href={ctaHref} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", background: T.ink, color: "#fff", padding: "16px 24px", borderRadius: 12, fontFamily: T.font, fontSize: 15, fontWeight: 700, textDecoration: "none", letterSpacing: -0.2, boxShadow: "0 6px 20px rgba(10,14,20,0.16)" }}>
-                {ctaLabel}
-                <svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              </Link>
-              <p style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.08em", textTransform: "uppercase" as const, textAlign: "center", marginTop: 14 }}>
-                Stripe-secured · No commitment until generation starts
-              </p>
+            ))}
+          </div>
+        </div>
+        <div style={{ marginTop: 14, fontFamily: P.mono, fontSize: 11.5, color: P.muted }}>* Competitor pricing varies. We use &ldquo;typical&rdquo; or &ldquo;from&rdquo; numbers based on public plans as of 2026.</div>
+      </section>
+
+      {/* ── PRICING ─────────────────────────────────────────────── */}
+      <section id="pricing" className="pp scroll-in" style={{ padding: "104px 32px", background: P.bg2, borderTop: `1px solid ${P.line}` }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 18, marginBottom: 40 }}>
+            <div>
+              <Eyebrow>// one-time pricing</Eyebrow>
+              <h2 style={{ fontFamily: P.font, fontSize: "clamp(1.8rem,3vw,48px)", fontWeight: 700, letterSpacing: -1.4, lineHeight: 1.02, color: P.ink, margin: 0 }}>
+                One-time pricing.<br/><span style={{ color: P.muted }}>No monthly website rent.</span>
+              </h2>
             </div>
-          </div>
-        </section>
-
-        {/* ── FAQ ─────────────────────────────────────────────── */}
-        <FAQ />
-
-        {/* ── CTA ─────────────────────────────────────────────── */}
-        <section style={{ background: T.ink, padding: "96px 28px" }}>
-          <div style={{ maxWidth: 680, margin: "0 auto" }}>
-            {/* Demo in CTA */}
-            <div style={{ marginBottom: 56, opacity: 0.85 }}><DemoConsult /></div>
-            <p style={{ fontFamily: T.mono, fontSize: 10, color: "rgba(255,255,255,.3)", letterSpacing: "0.14em", textTransform: "uppercase" as const, marginBottom: 20 }}>Ready when you are</p>
-            <h2 style={{ fontFamily: T.font, fontSize: "clamp(2.4rem, 5vw, 4rem)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.04, color: "#F9F9F7", marginBottom: 32 }}>
-              Six minutes from now,<br/>you&apos;re live.
-            </h2>
-            <Link href={ctaHref} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#F9F9F7", color: T.ink, padding: "16px 32px", borderRadius: 12, fontFamily: T.font, fontSize: 15, fontWeight: 700, textDecoration: "none", letterSpacing: -0.2 }}>
-              {ctaLabel}
-              <svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke={T.ink} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <Link href="/pricing" style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `1px solid ${P.line}`, color: P.ink, padding: "12px 18px", borderRadius: 10, fontFamily: P.font, fontSize: 14, fontWeight: 500 }}>
+              See all plan details <ArrowR color={P.ink}/>
             </Link>
-            <p style={{ fontFamily: T.mono, fontSize: 10, color: "rgba(255,255,255,.2)", letterSpacing: "0.08em", textTransform: "uppercase" as const, marginTop: 18 }}>One-time · Stripe-secured · Yours forever</p>
           </div>
-        </section>
+          <div className="g3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 18, alignItems: "stretch" }}>
+            {PLANS.map(p => <PlanCard key={p.id} plan={p} ctaHref={ctaHref}/>)}
+          </div>
+          <div style={{ marginTop: 22, padding: "14px 18px", borderRadius: 12, background: "#fff", border: `1px solid ${P.line}`, display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+            <span style={{ fontFamily: P.mono, fontSize: 11, fontWeight: 700, color: P.muted, textTransform: "uppercase" as const, letterSpacing: 0.6 }}>Note</span>
+            <span style={{ fontFamily: P.font, fontSize: 14, color: P.inkSoft }}>
+              Need a single change later? Request edits from your dashboard for <b style={{ color: P.ink }}>€15 per change</b>. Custom domains are <b style={{ color: P.ink }}>not included</b> and usually cost €12–30/year.
+            </span>
+          </div>
+        </div>
+      </section>
 
-        {/* ── FOOTER ──────────────────────────────────────────── */}
-        <footer style={{ borderTop: `1px solid ${T.line}`, background: T.bg, padding: "26px 28px" }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-              <Mark size={22} />
-              <span style={{ fontFamily: T.font, fontSize: 15, fontWeight: 700, color: T.ink, letterSpacing: -0.5 }}>insixlive</span>
+      {/* ── DOMAINS ─────────────────────────────────────────────── */}
+      <section id="domains" className="pp scroll-in" style={{ padding: "104px 32px", maxWidth: 1200, margin: "0 auto" }}>
+        <div className="g2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}>
+          <div>
+            <Eyebrow>// domains</Eyebrow>
+            <h2 style={{ fontFamily: P.font, fontSize: "clamp(1.8rem,3vw,48px)", fontWeight: 700, letterSpacing: -1.4, lineHeight: 1.02, color: P.ink, margin: "0 0 12px" }}>
+              Use your own domain.<br/><span style={{ color: P.muted }}>Or buy one separately.</span>
+            </h2>
+            <p style={{ fontFamily: P.font, fontSize: 18, lineHeight: 1.5, color: P.muted, margin: "0 0 28px", maxWidth: 500 }}>
+              Your generated website goes live first on a Vercel URL. Then you can connect a custom domain like <b style={{ color: P.ink }}>yourbusiness.com</b> — one you already own, or one you buy from any registrar.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {[
+                ["Connect a domain you already own","Copy-paste DNS records · GoDaddy, Namecheap, Porkbun, Cloudflare"],
+                ["Buy a new domain separately","Typically €12–30/yr · paid to the domain provider"],
+                ["Automatic SSL after connection","Vercel handles HTTPS — no certificates to install"],
+              ].map(([t,s]) => (
+                <div key={t} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                  <div style={{ width: 22, height: 22, borderRadius: 11, background: P.sixSoft, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                    <CheckIcon size={11} color={P.six}/>
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: P.font, fontSize: 15, fontWeight: 600, color: P.ink }}>{t}</div>
+                    <div style={{ fontFamily: P.font, fontSize: 13.5, color: P.muted }}>{s}</div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <p style={{ fontFamily: T.mono, fontSize: 10, color: T.muted, letterSpacing: "0.06em", textTransform: "uppercase" as const }}>© 2026 INSIXLIVE · AI-POWERED WEBSITE GENERATION</p>
-            <div style={{ display: "flex", gap: 22 }}>
-              {loggedIn
-                ? <Link href="/dashboard" style={{ fontFamily: T.font, fontSize: 13, color: T.muted, textDecoration: "none" }}>Dashboard</Link>
-                : <>
-                    <Link href="/login" style={{ fontFamily: T.font, fontSize: 13, color: T.muted, textDecoration: "none" }}>Log in</Link>
-                    <Link href="/signup" style={{ fontFamily: T.font, fontSize: 13, color: T.muted, textDecoration: "none" }}>Sign up</Link>
-                  </>
-              }
-              <Link href="/help/setup-custom-domain" style={{ fontFamily: T.font, fontSize: 13, color: T.muted, textDecoration: "none" }}>Domain setup</Link>
+            <div style={{ marginTop: 22 }}>
+              <Link href="/help/setup-custom-domain" style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `1px solid ${P.line}`, color: P.ink, padding: "12px 18px", borderRadius: 10, fontFamily: P.font, fontSize: 14, fontWeight: 500 }}>
+                How domain setup works <ArrowR color={P.ink}/>
+              </Link>
             </div>
           </div>
-        </footer>
-      </div>
+
+          {/* DNS card */}
+          <div style={{ background: T.bg, borderRadius: 18, padding: 28, position: "relative", overflow: "hidden" }}>
+            <DotGrid opacity={0.04}/>
+            <div style={{ position: "absolute", top: -100, right: -80, width: 320, height: 320, borderRadius: 160, background: "radial-gradient(circle,rgba(255,90,31,0.30),rgba(255,90,31,0) 65%)", filter: "blur(15px)", pointerEvents: "none" }}/>
+            <div style={{ position: "relative" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+                <span style={{ fontFamily: P.mono, fontSize: 11, fontWeight: 700, color: T.muted, textTransform: "uppercase" as const, letterSpacing: 0.6 }}>DNS · A record</span>
+                <TechBadge color={T.green}>connected</TechBadge>
+              </div>
+              <div style={{ fontFamily: P.mono, fontSize: 16, color: "#fff", marginBottom: 6 }}>acme-plumbing<span style={{ color: T.muted }}>.vercel.app</span></div>
+              <div style={{ fontFamily: P.mono, fontSize: 13, color: T.muted, marginBottom: 16 }}>↓</div>
+              <div style={{ fontFamily: P.mono, fontSize: 16, color: T.green, marginBottom: 24 }}>acme-plumbing.de</div>
+              <div style={{ padding: "14px 16px", borderRadius: 10, background: "rgba(255,255,255,0.04)", border: `1px solid ${T.line}`, fontFamily: P.mono, fontSize: 12, lineHeight: 1.7 }}>
+                {[["type",T.amber,"A"],["name","#fff","@"],["value",T.sky,"76.76.21.21"],["ttl","#fff","3600"]].map(([k,vc,v]) => (
+                  <div key={k as string} style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ color: T.muted }}>{k}</span><span style={{ color: vc as string }}>{v}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop: 12, padding: "14px 16px", borderRadius: 10, background: "rgba(74,222,128,0.06)", border: "1px solid rgba(74,222,128,0.25)", display: "flex", alignItems: "center", gap: 8, fontFamily: P.mono, fontSize: 12, color: T.green }}>
+                <CheckIcon size={12} color={T.green}/> SSL issued · HTTPS active
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── PROOF ───────────────────────────────────────────────── */}
+      <section className="pp scroll-in" style={{ padding: "104px 32px", background: P.bg2, borderTop: `1px solid ${P.line}` }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <Eyebrow>// real businesses</Eyebrow>
+          <h2 style={{ fontFamily: P.font, fontSize: "clamp(1.8rem,3vw,48px)", fontWeight: 700, letterSpacing: -1.4, lineHeight: 1.02, color: P.ink, margin: "0 0 12px" }}>
+            Built for small business owners<br/><span style={{ color: P.muted }}>who need a real website without agency prices.</span>
+          </h2>
+          <p style={{ fontFamily: P.font, fontSize: 18, lineHeight: 1.5, color: P.muted, margin: "0 0 56px", maxWidth: 640 }}>Tested with salons, trades, clinics, and freelancers across the EU during private beta.</p>
+          <div className="g3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
+            {[
+              { name:"Markus Lehmann", biz:"Acme Plumbing · Munich", quote:"I described the business in two sentences. Six minutes later I had a website I could send to the printer. No subscription, no monthly bill.", plan:"Pro",     accent: P.six  },
+              { name:"Maria Coelho",   biz:"Maria's Hair · Lisbon",  quote:"My old site was on a builder I was paying €18/month for. I rebuilt with insixlive and now I just own the code. The math is brutal in their favor.", plan:"Basic",   accent: T.green },
+              { name:"Dr. Anna Kohl", biz:"Kohl Dental · Berlin",   quote:"I wanted a clean, calm, trustworthy site. The first draft was 80% of the way there — three small edits and we shipped it.", plan:"Premium", accent: T.sky   },
+            ].map(t => (
+              <div key={t.name} style={{ padding: 28, borderRadius: 16, background: "#fff", border: `1px solid ${P.line}` }}>
+                <svg width="22" height="22" viewBox="0 0 22 22" style={{ marginBottom: 18, color: t.accent, flexShrink: 0 }}>
+                  <path d="M4 14c0-4 3-7 6-7v3c-1 0-3 1-3 4h3v6H4v-6zM13 14c0-4 3-7 6-7v3c-1 0-3 1-3 4h3v6h-6v-6z" fill="currentColor" opacity="0.85"/>
+                </svg>
+                <p style={{ fontFamily: P.font, fontSize: 16, lineHeight: 1.55, color: P.ink, marginBottom: 22 }}>{t.quote}</p>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 18, background: P.bg2, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: P.font, fontSize: 13, fontWeight: 700, color: P.ink, flexShrink: 0 }}>
+                    {t.name.split(" ").map((p: string) => p[0]).slice(0,2).join("")}
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: P.font, fontSize: 14, fontWeight: 600, color: P.ink }}>{t.name}</div>
+                    <div style={{ fontFamily: P.mono, fontSize: 11, color: P.muted }}>{t.biz} · {t.plan}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ─────────────────────────────────────────────────── */}
+      <FAQSection/>
+
+      {/* ── FINAL CTA ───────────────────────────────────────────── */}
+      <section style={{ background: T.bg, padding: "120px 32px", position: "relative", overflow: "hidden", textAlign: "center" as const }}>
+        <DotGrid opacity={0.05}/>
+        <div style={{ position: "absolute", top: -200, left: "50%", transform: "translateX(-50%)", width: 900, height: 900, borderRadius: 450, background: "radial-gradient(circle,rgba(255,90,31,0.25),rgba(255,90,31,0) 60%)", filter: "blur(20px)", pointerEvents: "none" }}/>
+        <div style={{ maxWidth: 800, margin: "0 auto", position: "relative" }}>
+          <Eyebrow dark>// six minutes</Eyebrow>
+          <h2 style={{ fontFamily: P.font, fontSize: "clamp(2.4rem,5vw,72px)", fontWeight: 700, letterSpacing: -3, lineHeight: 0.98, color: "#fff", margin: "0 0 22px" }}>
+            Six minutes from now,<br/><span style={{ color: T.six }}>you&apos;re live.</span>
+          </h2>
+          <p style={{ fontFamily: P.font, fontSize: 20, lineHeight: 1.5, color: "rgba(255,255,255,0.62)", margin: "0 auto 36px", maxWidth: 560 }}>
+            Stop renting a website that doesn&apos;t belong to you. Build something you own.
+          </p>
+          <Link href={ctaHref} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(180deg,#FF6A33 0%,#E54B14 100%)", color: "#fff", padding: "18px 32px", borderRadius: 14, fontFamily: P.font, fontSize: 16, fontWeight: 700, boxShadow: "0 1px 0 rgba(255,255,255,0.20) inset,0 16px 36px rgba(255,90,31,0.36)" }}>
+            Build my website — from €49 <ArrowR/>
+          </Link>
+          <p style={{ fontFamily: P.mono, fontSize: 12, color: "rgba(255,255,255,0.35)", letterSpacing: "0.08em", textTransform: "uppercase" as const, marginTop: 18 }}>
+            One-time · Stripe-secured · Yours forever
+          </p>
+        </div>
+      </section>
+
+      {/* ── FOOTER ──────────────────────────────────────────────── */}
+      <footer style={{ background: T.bg, color: T.text, padding: "72px 0 32px", position: "relative", overflow: "hidden", borderTop: `1px solid ${T.line}` }}>
+        <DotGrid opacity={0.04}/>
+        <div className="pp" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", position: "relative" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1.4fr repeat(4,1fr)", gap: 40 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+                <Mark size={28}/>
+                <span style={{ fontFamily: P.font, fontSize: 22, fontWeight: 700, color: "#fff", letterSpacing: -0.6 }}>insix<span style={{ color: P.six }}>live</span></span>
+              </div>
+              <div style={{ fontFamily: P.font, fontSize: 14, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, maxWidth: 280 }}>
+                Own your website. Don&apos;t rent it.<br/>AI builds it. Vercel hosts it. You own every line.
+              </div>
+              <div style={{ marginTop: 18, display: "flex", gap: 8, alignItems: "center", fontFamily: P.mono, fontSize: 11, color: T.muted }}>
+                <span style={{ width: 6, height: 6, borderRadius: 3, background: T.green, boxShadow: `0 0 6px ${T.green}` }}/>
+                <span>status · all systems live</span>
+              </div>
+            </div>
+            {([
+              ["Product",  [["How it works","#how"],["Examples","#examples"],["Pricing","/pricing"],["Domains","#domains"],["FAQ","#faq"]]],
+              ["Account",  [["Log in","/login"],["Sign up","/signup"],["Dashboard","/dashboard"]]],
+              ["Support",  [["Domain setup","/help/setup-custom-domain"],["Help center","/help/setup-custom-domain"]]],
+              ["Legal",    [["Terms","#"],["Privacy","#"],["Cookies","#"]]],
+            ] as [string, [string,string][]][]).map(([title, items]) => (
+              <div key={title}>
+                <div style={{ fontFamily: P.mono, fontSize: 10.5, fontWeight: 700, color: T.muted, textTransform: "uppercase" as const, letterSpacing: 0.8, marginBottom: 14 }}>{title}</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {items.map(([label, href]) => (
+                    <Link key={label} href={href} style={{ fontFamily: P.font, fontSize: 13.5, color: "rgba(255,255,255,0.7)" }}>{label}</Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 56, paddingTop: 24, borderTop: `1px solid ${T.line}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, fontFamily: P.mono, fontSize: 11.5, color: T.muted }}>
+            <div>© 2026 insixlive · AI-powered website generation</div>
+            <div style={{ display: "flex", gap: 18 }}>
+              <span>Next.js</span><span style={{ opacity: 0.3 }}>·</span>
+              <span>Vercel Edge</span><span style={{ opacity: 0.3 }}>·</span>
+              <span>Stripe</span>
+            </div>
+          </div>
+        </div>
+      </footer>
     </>
   );
 }
