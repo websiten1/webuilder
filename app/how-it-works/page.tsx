@@ -142,7 +142,7 @@ export default function HowItWorksPage() {
               }}>
                 <div style={{ order: i % 2 === 0 ? 0 : 1 }}>
                   <div style={{ fontFamily: P.mono, fontSize: 11, fontWeight: 700, color: P.six, letterSpacing: 1, marginBottom: 12 }}>STEP {s.n}</div>
-                  <div style={{ fontFamily: P.font, fontSize: 30, fontWeight: 700, color: P.ink, letterSpacing: -0.8, marginBottom: 10 }}>{s.t}</div>
+                  <div style={{ fontFamily: P.font, fontSize: "clamp(1.2rem, 2.5vw, 30px)", fontWeight: 700, color: P.ink, letterSpacing: -0.8, marginBottom: 10 }}>{s.t}</div>
                   <div style={{ fontFamily: P.font, fontSize: 15.5, color: P.muted, lineHeight: 1.5 }}>{s.d}</div>
                 </div>
                 <div style={{ order: i % 2 === 0 ? 1 : 0 }}>

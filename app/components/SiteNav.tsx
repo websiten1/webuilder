@@ -29,6 +29,7 @@ export default function SiteNav() {
   return (
     <>
       <style>{`
+        html,body{overflow-x:hidden}
         .snav-links { display: flex; gap: 26px; flex: 1; }
         .snav-hamburger { display: none !important; }
         .snav-float { display: none !important; }

@@ -231,7 +231,7 @@ const FAQ_ITEMS: [string, string][] = [
 function FAQSection() {
   const [open, setOpen] = useState<number>(0);
   return (
-    <section id="faq" style={{ padding: "104px 32px", maxWidth: 920, margin: "0 auto" }}>
+    <section id="faq" style={{ padding: "clamp(52px, 8.7vw, 104px) 32px", maxWidth: 920, margin: "0 auto" }}>
       <Eyebrow>// FAQ</Eyebrow>
       <h2 style={{ fontFamily: P.font, fontSize: "clamp(1.8rem,3vw,48px)", fontWeight: 700, letterSpacing: -1.4, lineHeight: 1.02, color: P.ink, margin: "0 0 40px" }}>Common questions.</h2>
       <div style={{ borderTop: `1px solid ${P.line}` }}>
@@ -393,7 +393,7 @@ export default function Home() {
       </div>
 
       {/* ── HERO (dark) ─────────────────────────────────────────── */}
-      <section style={{ background: T.bg, color: "#fff", padding: "120px 0 64px", position: "relative", overflow: "hidden" }}>
+      <section style={{ background: T.bg, color: "#fff", padding: "clamp(72px, 10vw, 120px) 0 clamp(40px, 5.3vw, 64px)", position: "relative", overflow: "hidden" }}>
         <DotGrid opacity={0.05}/>
         <div style={{ position: "absolute", top: -160, right: -120, width: 520, height: 520, borderRadius: 260, background: "radial-gradient(circle, rgba(255,90,31,0.35), rgba(255,90,31,0) 65%)", filter: "blur(20px)", pointerEvents: "none" }}/>
         <div style={{ position: "absolute", bottom: -260, left: -160, width: 600, height: 600, borderRadius: 300, background: "radial-gradient(circle, rgba(74,222,128,0.10), rgba(74,222,128,0) 65%)", filter: "blur(20px)", pointerEvents: "none" }}/>
@@ -474,7 +474,7 @@ export default function Home() {
       </div>
 
       {/* ── PAIN ────────────────────────────────────────────────── */}
-      <section className="pp scroll-in" style={{ padding: "104px 32px", maxWidth: 1200, margin: "0 auto" }}>
+      <section className="pp scroll-in" style={{ padding: "clamp(52px, 8.7vw, 104px) 32px", maxWidth: 1200, margin: "0 auto" }}>
         <Eyebrow>// the rental trap</Eyebrow>
         <h2 style={{ fontFamily: P.font, fontSize: "clamp(1.8rem,3vw,48px)", fontWeight: 700, letterSpacing: -1.4, lineHeight: 1.02, color: P.ink, margin: "0 0 12px" }}>
           Your business needs a website.<br/><span style={{ color: P.muted }}>Agencies know that.</span>
@@ -513,7 +513,7 @@ export default function Home() {
       </section>
 
       {/* ── SOLUTION ────────────────────────────────────────────── */}
-      <section className="pp scroll-in" style={{ padding: "104px 32px", background: P.bg2, borderTop: `1px solid ${P.line}` }}>
+      <section className="pp scroll-in" style={{ padding: "clamp(52px, 8.7vw, 104px) 32px", background: P.bg2, borderTop: `1px solid ${P.line}` }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <Eyebrow>// the solution</Eyebrow>
           <h2 style={{ fontFamily: P.font, fontSize: "clamp(1.8rem,3vw,48px)", fontWeight: 700, letterSpacing: -1.4, lineHeight: 1.02, color: P.ink, margin: "0 0 12px" }}>
@@ -544,7 +544,7 @@ export default function Home() {
       </section>
 
       {/* ── HOW IT WORKS ─────────────────────────────────────────── */}
-      <section id="how" className="pp scroll-in" style={{ padding: "104px 32px", maxWidth: 1200, margin: "0 auto" }}>
+      <section id="how" className="pp scroll-in" style={{ padding: "clamp(52px, 8.7vw, 104px) 32px", maxWidth: 1200, margin: "0 auto" }}>
         <Eyebrow>// from prompt to live</Eyebrow>
         <h2 style={{ fontFamily: P.font, fontSize: "clamp(1.8rem,3vw,48px)", fontWeight: 700, letterSpacing: -1.4, lineHeight: 1.02, color: P.ink, margin: "0 0 12px" }}>
           Six steps.<br/><span style={{ color: P.muted }}>One live website.</span>
@@ -572,7 +572,7 @@ export default function Home() {
       </section>
 
       {/* ── EXAMPLES ────────────────────────────────────────────── */}
-      <section id="examples" className="pp scroll-in" style={{ padding: "104px 32px", background: P.bg2, borderTop: `1px solid ${P.line}` }}>
+      <section id="examples" className="pp scroll-in" style={{ padding: "clamp(52px, 8.7vw, 104px) 32px", background: P.bg2, borderTop: `1px solid ${P.line}` }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 18, marginBottom: 40 }}>
             <div>
@@ -603,7 +603,7 @@ export default function Home() {
       </section>
 
       {/* ── OWNERSHIP (dark) ─────────────────────────────────────── */}
-      <section style={{ background: T.bg, padding: "104px 0", position: "relative", overflow: "hidden" }}>
+      <section style={{ background: T.bg, padding: "clamp(52px, 8.7vw, 104px) 0", position: "relative", overflow: "hidden" }}>
         <DotGrid opacity={0.04}/>
         <div style={{ position: "absolute", top: 0, right: -200, width: 600, height: 600, borderRadius: 300, background: "radial-gradient(circle,rgba(255,90,31,0.18),rgba(255,90,31,0) 65%)", filter: "blur(20px)", pointerEvents: "none" }}/>
         <div className="pp" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", position: "relative" }}>
@@ -654,7 +654,7 @@ export default function Home() {
       </section>
 
       {/* ── COMPARISON ──────────────────────────────────────────── */}
-      <section className="pp scroll-in" style={{ padding: "104px 32px", maxWidth: 1200, margin: "0 auto" }}>
+      <section className="pp scroll-in" style={{ padding: "clamp(52px, 8.7vw, 104px) 32px", maxWidth: 1200, margin: "0 auto" }}>
         <Eyebrow>// the math</Eyebrow>
         <h2 style={{ fontFamily: P.font, fontSize: "clamp(1.8rem,3vw,48px)", fontWeight: 700, letterSpacing: -1.4, lineHeight: 1.02, color: P.ink, margin: "0 0 12px" }}>The math is simple.</h2>
         <p style={{ fontFamily: P.font, fontSize: 18, lineHeight: 1.5, color: P.muted, margin: "0 0 36px", maxWidth: 640 }}>insixlive vs. the usual suspects. Pricing is illustrative — competitor plans change.</p>
@@ -684,7 +684,7 @@ export default function Home() {
       </section>
 
       {/* ── PRICING ─────────────────────────────────────────────── */}
-      <section id="pricing" className="pp scroll-in" style={{ padding: "104px 32px", background: P.bg2, borderTop: `1px solid ${P.line}` }}>
+      <section id="pricing" className="pp scroll-in" style={{ padding: "clamp(52px, 8.7vw, 104px) 32px", background: P.bg2, borderTop: `1px solid ${P.line}` }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 18, marginBottom: 40 }}>
             <div>
@@ -710,7 +710,7 @@ export default function Home() {
       </section>
 
       {/* ── DOMAINS ─────────────────────────────────────────────── */}
-      <section id="domains" className="pp scroll-in" style={{ padding: "104px 32px", maxWidth: 1200, margin: "0 auto" }}>
+      <section id="domains" className="pp scroll-in" style={{ padding: "clamp(52px, 8.7vw, 104px) 32px", maxWidth: 1200, margin: "0 auto" }}>
         <div className="g2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}>
           <div>
             <Eyebrow>// domains</Eyebrow>
@@ -772,7 +772,7 @@ export default function Home() {
       </section>
 
       {/* ── PROOF ───────────────────────────────────────────────── */}
-      <section className="pp scroll-in" style={{ padding: "104px 32px", background: P.bg2, borderTop: `1px solid ${P.line}` }}>
+      <section className="pp scroll-in" style={{ padding: "clamp(52px, 8.7vw, 104px) 32px", background: P.bg2, borderTop: `1px solid ${P.line}` }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <Eyebrow>// real businesses</Eyebrow>
           <h2 style={{ fontFamily: P.font, fontSize: "clamp(1.8rem,3vw,48px)", fontWeight: 700, letterSpacing: -1.4, lineHeight: 1.02, color: P.ink, margin: "0 0 12px" }}>
@@ -809,7 +809,7 @@ export default function Home() {
       <FAQSection/>
 
       {/* ── FINAL CTA ───────────────────────────────────────────── */}
-      <section style={{ background: T.bg, padding: "120px 32px", position: "relative", overflow: "hidden", textAlign: "center" as const }}>
+      <section style={{ background: T.bg, padding: "clamp(60px, 10vw, 120px) 32px", position: "relative", overflow: "hidden", textAlign: "center" as const }}>
         <DotGrid opacity={0.05}/>
         <div style={{ position: "absolute", top: -200, left: "50%", transform: "translateX(-50%)", width: 900, height: 900, borderRadius: 450, background: "radial-gradient(circle,rgba(255,90,31,0.25),rgba(255,90,31,0) 60%)", filter: "blur(20px)", pointerEvents: "none" }}/>
         <div style={{ maxWidth: 800, margin: "0 auto", position: "relative" }}>
@@ -833,7 +833,7 @@ export default function Home() {
       <footer style={{ background: T.bg, color: T.text, padding: "72px 0 32px", position: "relative", overflow: "hidden", borderTop: `1px solid ${T.line}` }}>
         <DotGrid opacity={0.04}/>
         <div className="pp" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", position: "relative" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1.4fr repeat(4,1fr)", gap: 40 }}>
+          <div className="hp-footer-grid">
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
                 <Mark size={28}/>

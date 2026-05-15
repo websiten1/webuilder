@@ -29,7 +29,24 @@
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
 }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
+body { overflow-x: hidden; }
+
+
+/* ── Homepage footer grid ─────────────────────────────────────── */
+.hp-footer-grid {
+  display: grid !important;
+  grid-template-columns: 1.4fr repeat(4, 1fr);
+  gap: 40px;
+}
+@media (max-width: 900px) {
+  .hp-footer-grid { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
+}
+
+/* ── How it Works step grid ───────────────────────────────────── */
+@media (max-width: 700px) {
+  .step-grid { grid-template-columns: 1fr !important; }
+}
 
 body {
   background: var(--bg);

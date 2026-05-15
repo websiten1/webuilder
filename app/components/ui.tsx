@@ -7,15 +7,22 @@ import { P, T } from "@/lib/design";
 
 export const H1 = ({ children, dark = false, size = 72, style = {} }: {
   children: React.ReactNode; dark?: boolean; size?: number; style?: React.CSSProperties;
-}) => (
-  <h1 style={{ fontFamily: P.font, fontSize: size, lineHeight: 0.98, fontWeight: 700, letterSpacing: size > 50 ? -3 : -1.4, color: dark ? "#fff" : P.ink, margin: "0 0 18px", ...style }}>{children}</h1>
-);
+}) => {
+  const fs = `clamp(${Math.round(size * 0.5)}px, ${(size / 1200 * 100).toFixed(1)}vw, ${size}px)`;
+  return (
+    <h1 style={{ fontFamily: P.font, fontSize: fs, lineHeight: 0.98, fontWeight: 700, letterSpacing: size > 50 ? -3 : -1.4, color: dark ? "#fff" : P.ink, margin: "0 0 18px", ...style }}>{children}</h1>
+  );
+};
 
 export const H2 = ({ children, dark = false, size = 48, style = {} }: {
   children: React.ReactNode; dark?: boolean; size?: number; style?: React.CSSProperties;
-}) => (
-  <h2 style={{ fontFamily: P.font, fontSize: size, lineHeight: 1.02, fontWeight: 700, letterSpacing: -1.4, color: dark ? "#fff" : P.ink, margin: "0 0 12px", ...style }}>{children}</h2>
-);
+}) => {
+  const min = Math.max(Math.round(size * 0.58), 18);
+  const fs = `clamp(${min}px, ${(size / 1200 * 100).toFixed(1)}vw, ${size}px)`;
+  return (
+    <h2 style={{ fontFamily: P.font, fontSize: fs, lineHeight: 1.02, fontWeight: 700, letterSpacing: -1.4, color: dark ? "#fff" : P.ink, margin: "0 0 12px", ...style }}>{children}</h2>
+  );
+};
 
 export const Lead = ({ children, dark = false, size = 18, style = {} }: {
   children: React.ReactNode; dark?: boolean; size?: number; style?: React.CSSProperties;
@@ -216,16 +223,21 @@ export const SiteMock = ({ name, kind, tint = "dark", accent = P.six, pages = []
 // ─── Layout ────────────────────────────────────────────────────────────────────
 
 export const Container = ({ children, max = 1200, style = {} }: { children: React.ReactNode; max?: number; style?: React.CSSProperties }) => (
-  <div style={{ maxWidth: max, margin: "0 auto", padding: "0 32px", ...style }}>{children}</div>
+  <div style={{ maxWidth: max, margin: "0 auto", padding: "0 clamp(16px, 4vw, 32px)", ...style }}>{children}</div>
 );
 
 export const Section = ({ children, dark = false, paddingY = 96, style = {} }: {
   children: React.ReactNode; dark?: boolean; paddingY?: number; style?: React.CSSProperties;
-}) => (
-  <section style={{ padding: `${paddingY}px 0`, background: dark ? T.bg : "transparent", color: dark ? "#fff" : P.ink, position: "relative", overflow: "hidden", ...style }}>
-    {children}
-  </section>
-);
+}) => {
+  const half = Math.round(paddingY / 2);
+  const vw = (paddingY / 900 * 100).toFixed(1);
+  const pad = `clamp(${half}px, ${vw}vw, ${paddingY}px)`;
+  return (
+    <section style={{ padding: `${pad} 0`, background: dark ? T.bg : "transparent", color: dark ? "#fff" : P.ink, position: "relative", overflow: "hidden", ...style }}>
+      {children}
+    </section>
+  );
+};
 
 // ─── PageHero ──────────────────────────────────────────────────────────────────
 
@@ -290,7 +302,7 @@ export const PlanCard = ({ plan, compact = false }: { plan: typeof PLANS[0]; com
           {plan.badge && <TechBadge color={T.six}>{plan.badge}</TechBadge>}
         </div>
         <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 4 }}>
-          <span style={{ fontFamily: P.mono, fontSize: compact ? 42 : 52, fontWeight: 700, letterSpacing: -2, color: featured ? "#fff" : P.ink }}>€{plan.price.toFixed(2)}</span>
+          <span style={{ fontFamily: P.mono, fontSize: `clamp(28px, ${compact ? 3.5 : 4.3}vw, ${compact ? 42 : 52}px)`, fontWeight: 700, letterSpacing: -2, color: featured ? "#fff" : P.ink }}>€{plan.price.toFixed(2)}</span>
           <span style={{ fontFamily: P.font, fontSize: 14, color: featured ? T.muted : P.muted }}>one-time</span>
         </div>
         <div style={{ fontFamily: P.font, fontSize: 14, color: featured ? "rgba(255,255,255,0.65)" : P.muted, marginBottom: 24 }}>{plan.tag}</div>
