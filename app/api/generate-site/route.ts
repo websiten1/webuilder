@@ -72,18 +72,16 @@ function buildPrompt(f: WizardData): string {
     return labels[id] || id;
   });
 
-  const features = f.features.specialFeatures.map(id => {
-    const labels: Record<string, string> = {
-      testimonials:  "customer testimonials section",
-      social:        "social media icon links",
-      newsletter:    "email newsletter signup",
-      search:        "search bar",
-      multilang:     "language switcher (English + one other)",
-      accessibility: "ARIA labels, alt text, and WCAG 2.1 AA compliance",
-      analytics:     "Google Analytics script placeholder",
-    };
-    return labels[id] || id;
-  });
+  const featureLabels: Record<string, string> = {
+    testimonials:  "customer testimonials section",
+    social:        "social media icon links",
+    newsletter:    "email newsletter signup",
+    search:        "search bar",
+    multilang:     "language switcher (English + one other)",
+    accessibility: "ARIA labels, alt text, and WCAG 2.1 AA compliance",
+    analytics:     "Google Analytics script placeholder",
+  };
+  const features = f.pages.specialFeatures.map((id: string) => featureLabels[id] || id);
 
   const animMap: Record<string, string> = {
     "minimal":   "no animations — static, instant-load",
@@ -92,40 +90,42 @@ function buildPrompt(f: WizardData): string {
     "ai-decide": "appropriate animations for the chosen style",
   };
 
-  const layoutMap: Record<string, string> = {
-    "traditional": "sidebar navigation on larger screens, classic layout",
-    "modern":      "full-width sections, horizontal top nav, large heroes",
-    "minimal-l":   "ultra-minimal layout, centered content, max 720px content width",
-    "ai-decide":   "the layout that best suits the style and business type",
-  };
-
-  const mobileMap: Record<string, string> = {
-    "mobile-first": "design mobile-first; desktop is an enhancement",
-    "equal":        "equal priority for desktop and mobile — balanced breakpoints",
-    "desktop":      "desktop-optimized, with a clean mobile fallback",
-    "ai-decide":    "appropriate mobile strategy for the business type",
-  };
-
-  const speedMap: Record<string, string> = {
-    "fast":      "minimal images and animations to maximize performance",
-    "balanced":  "good balance of visuals and performance",
-    "rich":      "rich visuals; performance is secondary to appearance",
-    "ai-decide": "appropriate speed/visual balance",
+  const templateNames: Record<string, string> = {
+    "dentist": "Dental Practice", "gym-coach": "Gym / Fitness Coach",
+    "kindergarten": "Kindergarten", "coffee-shop": "Coffee Shop",
+    "fine-dining": "Fine Dining Restaurant", "bakery": "Bakery",
+    "law-firm": "Law Firm", "real-estate": "Real Estate Agency",
+    "hair-salon": "Hair Salon", "auto-repair": "Auto Repair Shop",
+    "vet-clinic": "Vet Clinic", "yoga-studio": "Yoga Studio",
+    "tattoo-studio": "Tattoo Studio", "florist": "Florist",
+    "bookstore": "Bookstore", "saas-startup": "SaaS / Tech Startup",
   };
 
   return `Create a complete, professional, production-ready Next.js website for a ${f.business.type.toLowerCase()} business.
-
+${f.templateId && templateNames[f.templateId] ? `\nStarting template: "${templateNames[f.templateId]}" — use this as the primary visual reference for industry conventions, layout patterns, and aesthetic direction. Adapt it to the specific design settings and business details below.\n` : ""}
 ════════════════════════════════════════════════
 BUSINESS DETAILS
 ════════════════════════════════════════════════
 Business name: ${f.business.name}
 Business type: ${f.business.type}
-Description: ${f.business.description}${f.business.targetAudience ? `\nTarget audience: ${f.business.targetAudience}` : ""}${f.business.location ? `\nLocation: ${f.business.location}` : ""}${f.business.ownerName ? `\nOwner/contact name: ${f.business.ownerName}` : ""}
+Description: ${f.business.description}${f.business.location ? `\nLocation: ${f.business.location}` : ""}${f.business.serviceArea ? `\nService area: ${f.business.serviceArea}` : ""}${f.business.openingHours ? `\nOpening hours: ${f.business.openingHours}` : ""}${f.business.email ? `\nEmail: ${f.business.email}` : ""}${f.business.phone ? `\nPhone: ${f.business.phone}` : ""}${f.business.ownerName ? `\nOwner/contact name: ${f.business.ownerName}` : ""}
+
+════════════════════════════════════════════════
+GOALS & AUDIENCE
+════════════════════════════════════════════════
+${f.goals.mainGoal ? `Primary website goal: ${f.goals.mainGoal}` : ""}${f.goals.visitorFeel ? `\nDesired visitor emotion: ${f.goals.visitorFeel}` : ""}${f.goals.idealCustomer ? `\nIdeal customer: ${f.goals.idealCustomer}` : ""}${f.goals.problemSolved ? `\nProblem solved: ${f.goals.problemSolved}` : ""}${f.goals.whyChoose ? `\nKey differentiator / why choose them: ${f.goals.whyChoose}` : ""}
+
+════════════════════════════════════════════════
+SERVICES & PRICING
+════════════════════════════════════════════════
+${f.services.offersType ? `Offers: ${f.services.offersType}` : ""}${f.services.list.filter(Boolean).length > 0 ? `\nMain services / products:\n${f.services.list.filter(Boolean).map(s => `• ${s}`).join("\n")}` : ""}${f.services.priceVisibility ? `\nPricing display: ${f.services.priceVisibility}` : ""}
 
 ════════════════════════════════════════════════
 DESIGN & VISUAL IDENTITY
 ════════════════════════════════════════════════
 Design style: ${styleMap[f.design.style] || f.design.style}
+Personality level: ${f.design.personalityLevel || "balanced"}
+Background style: ${f.design.backgroundStyle || "AI decides"}
 Primary color: ${f.design.primaryColor}
 Secondary/accent color: ${f.design.secondaryColor}
 Dark mode: ${f.design.darkMode ? "Yes — include a dark mode toggle and CSS variables for both themes" : "No — single light/warm theme only"}
@@ -148,11 +148,8 @@ Content tone: ${toneMap[f.pages.contentTone] || f.pages.contentTone}
 FEATURES & BEHAVIOUR
 ════════════════════════════════════════════════
 ${features.length > 0 ? `Special features:\n${features.map(feat => `• ${feat}`).join("\n")}` : "No additional special features."}
-Animations: ${animMap[f.features.animations] || f.features.animations}
-Layout preference: ${layoutMap[f.features.layout] || f.features.layout}
-Mobile strategy: ${mobileMap[f.features.mobileOptimization] || f.features.mobileOptimization}
-Speed priority: ${speedMap[f.features.speedPriority] || f.features.speedPriority}
-${f.features.additionalNotes ? `\nAdditional notes from client:\n${f.features.additionalNotes}` : ""}
+Animations: ${animMap[f.design.animations] || f.design.animations}
+${f.pages.additionalNotes ? `\nAdditional notes from client:\n${f.pages.additionalNotes}` : ""}
 
 ════════════════════════════════════════════════
 TECHNICAL REQUIREMENTS

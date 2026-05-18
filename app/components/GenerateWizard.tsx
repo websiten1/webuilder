@@ -18,32 +18,41 @@ const stripePromise = loadStripe(
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type WizardData = {
+  templateId: string;
   business: {
     name: string; type: string; description: string;
-    targetAudience: string; location: string; ownerName: string;
+    serviceArea: string; openingHours: string; email: string; phone: string;
+    location: string; ownerName: string;
+  };
+  goals: {
+    mainGoal: string; visitorFeel: string;
+    problemSolved: string; whyChoose: string; idealCustomer: string;
+  };
+  services: {
+    offersType: string; list: string[]; priceVisibility: string;
   };
   design: {
-    style: string; primaryColor: string; secondaryColor: string; darkMode: boolean;
+    style: string; primaryColor: string; secondaryColor: string;
+    darkMode: boolean; personalityLevel: string; backgroundStyle: string; animations: string;
   };
   typography: {
     fontFamily: string; imageryStyle: string; heroPreference: string;
   };
   pages: {
     selected: string[]; primaryCTA: string; contentTone: string;
-  };
-  features: {
-    specialFeatures: string[]; animations: string; layout: string;
-    mobileOptimization: string; speedPriority: string; additionalNotes: string;
+    specialFeatures: string[]; additionalNotes: string;
   };
   logo: { uploaded: boolean; dataUrl: string; fileName: string };
 };
 
 const DEFAULT: WizardData = {
-  business: { name: "", type: "Restaurant", description: "", targetAudience: "", location: "", ownerName: "" },
-  design: { style: "minimalist", primaryColor: "#6366f1", secondaryColor: "#a855f7", darkMode: false },
+  templateId: "",
+  business: { name: "", type: "Restaurant", description: "", serviceArea: "", openingHours: "", email: "", phone: "", location: "", ownerName: "" },
+  goals: { mainGoal: "", visitorFeel: "", problemSolved: "", whyChoose: "", idealCustomer: "" },
+  services: { offersType: "", list: [], priceVisibility: "" },
+  design: { style: "minimalist", primaryColor: "#6366f1", secondaryColor: "#a855f7", darkMode: false, personalityLevel: "balanced", backgroundStyle: "ai-decide", animations: "moderate" },
   typography: { fontFamily: "modern-sans", imageryStyle: "stock-photos", heroPreference: "ai-decide" },
-  pages: { selected: ["home", "services", "about", "contact"], primaryCTA: "contact-form", contentTone: "professional-approachable" },
-  features: { specialFeatures: [], animations: "moderate", layout: "modern", mobileOptimization: "ai-decide", speedPriority: "balanced", additionalNotes: "" },
+  pages: { selected: ["home", "services", "about", "contact"], primaryCTA: "contact-form", contentTone: "professional-approachable", specialFeatures: [], additionalNotes: "" },
   logo: { uploaded: false, dataUrl: "", fileName: "" },
 };
 
@@ -183,26 +192,6 @@ const ANIMATION_OPTS = [
   { id: "ai-decide",label: "AI decides",desc: "Best for your style" },
 ];
 
-const LAYOUT_OPTS = [
-  { id: "traditional",label: "Traditional",  desc: "Sidebar navigation" },
-  { id: "modern",     label: "Modern",       desc: "Full-width sections" },
-  { id: "minimal-l",  label: "Minimal",      desc: "Ultra-clean layout" },
-  { id: "ai-decide",  label: "AI decides",   desc: "Best for your style" },
-];
-
-const MOBILE_OPTS = [
-  { id: "mobile-first",label: "Mobile-first",       desc: "Optimized for phones" },
-  { id: "equal",       label: "Desktop & Mobile",   desc: "Equal priority" },
-  { id: "desktop",     label: "Desktop-focused",    desc: "Optimized for desktop" },
-  { id: "ai-decide",   label: "AI decides",         desc: "Best for your style" },
-];
-
-const SPEED_OPTS = [
-  { id: "fast",     label: "Lightweight & fast",  desc: "Minimal images, fast load" },
-  { id: "balanced", label: "Balanced",            desc: "Good performance + visuals" },
-  { id: "rich",     label: "Feature-rich",        desc: "More visuals, may be slower" },
-  { id: "ai-decide",label: "AI decides",          desc: "Best for your style" },
-];
 
 const COLOR_GROUPS: { label: string; colors: { hex: string; name: string }[] }[] = [
   { label: "Neutrals", colors: [
@@ -286,6 +275,217 @@ const COLOR_GROUPS: { label: string; colors: { hex: string; name: string }[] }[]
     { hex: "#78350f", name: "Dark Brown" },
     { hex: "#3d2b1f", name: "Chocolate" },
   ]},
+];
+
+// ─── Industry Templates ───────────────────────────────────────────────────────
+
+type TemplateMapTo = {
+  businessType: string; style: string;
+  primaryColor: string; secondaryColor: string;
+  darkMode: boolean; fontFamily: string;
+};
+
+const TEMPLATES: {
+  id: string; name: string; category: string; desc: string;
+  preview: React.ReactNode; mapTo: TemplateMapTo;
+}[] = [
+  {
+    id: "dentist", name: "Dental Practice", category: "Healthcare",
+    desc: "Clean & trustworthy",
+    preview: <div style={{ height: 64, background: "#f6faf8", padding: 8, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><div style={{ height: 4, width: 24, background: "#3a8a78", borderRadius: 99 }} /><div style={{ display: "flex", gap: 3 }}><div style={{ height: 2, width: 10, background: "#9fd9c8", borderRadius: 99 }}/><div style={{ height: 2, width: 10, background: "#9fd9c8", borderRadius: 99 }}/></div></div>
+      <div><div style={{ height: 5, width: 40, background: "#0e2a26", borderRadius: 99, marginBottom: 3 }}/><div style={{ height: 2, width: 28, background: "#5a7570", borderRadius: 99, marginBottom: 5 }}/><div style={{ height: 11, width: 26, background: "#3a8a78", borderRadius: 4 }}/></div>
+    </div>,
+    mapTo: { businessType: "Dental Clinic", style: "minimalist", primaryColor: "#3a8a78", secondaryColor: "#9fd9c8", darkMode: false, fontFamily: "classic-serif" },
+  },
+  {
+    id: "gym-coach", name: "Gym / Fitness Coach", category: "Fitness",
+    desc: "Bold, high-energy, dark",
+    preview: <div style={{ height: 64, background: "#0d0d0d", padding: 8, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><div style={{ height: 4, width: 24, background: "#ff4d1a", borderRadius: 99 }} /><div style={{ display: "flex", gap: 3 }}><div style={{ height: 2, width: 10, background: "#333", borderRadius: 99 }}/><div style={{ height: 2, width: 10, background: "#333", borderRadius: 99 }}/></div></div>
+      <div><div style={{ height: 6, width: 40, background: "#f5f1ea", borderRadius: 99, marginBottom: 3 }}/><div style={{ height: 2, width: 28, background: "#555", borderRadius: 99, marginBottom: 5 }}/><div style={{ height: 11, width: 26, background: "#ff4d1a", borderRadius: 3 }}/></div>
+    </div>,
+    mapTo: { businessType: "Fitness", style: "bold-dark", primaryColor: "#ff4d1a", secondaryColor: "#f5c542", darkMode: true, fontFamily: "geo-bold" },
+  },
+  {
+    id: "kindergarten", name: "Kindergarten", category: "Education",
+    desc: "Playful, colorful, friendly",
+    preview: <div style={{ height: 64, background: "#fff8ec", padding: 8, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><div style={{ height: 4, width: 24, background: "#ff8b66", borderRadius: 99 }} /><div style={{ display: "flex", gap: 3 }}><div style={{ height: 2, width: 10, background: "#ffd166", borderRadius: 99 }}/><div style={{ height: 2, width: 10, background: "#7ec8a7", borderRadius: 99 }}/></div></div>
+      <div><div style={{ height: 6, width: 40, background: "#2a2046", borderRadius: 99, marginBottom: 3 }}/><div style={{ height: 2, width: 28, background: "#6f6488", borderRadius: 99, marginBottom: 5 }}/><div style={{ height: 11, width: 26, background: "#ff8b66", borderRadius: 99 }}/></div>
+    </div>,
+    mapTo: { businessType: "Other", style: "playful", primaryColor: "#ff8b66", secondaryColor: "#ffd166", darkMode: false, fontFamily: "playful" },
+  },
+  {
+    id: "coffee-shop", name: "Coffee Shop", category: "Food & Drink",
+    desc: "Warm, cozy, inviting",
+    preview: <div style={{ height: 64, background: "#f3ece1", padding: 8, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><div style={{ height: 4, width: 24, background: "#b85c2c", borderRadius: 99 }} /><div style={{ display: "flex", gap: 3 }}><div style={{ height: 2, width: 10, background: "#e3d6c1", borderRadius: 99 }}/><div style={{ height: 2, width: 10, background: "#e3d6c1", borderRadius: 99 }}/></div></div>
+      <div><div style={{ height: 5, width: 40, background: "#2a1d12", borderRadius: 99, marginBottom: 3 }}/><div style={{ height: 2, width: 28, background: "#7a6a58", borderRadius: 99, marginBottom: 5 }}/><div style={{ height: 11, width: 26, background: "#b85c2c", borderRadius: 4 }}/></div>
+    </div>,
+    mapTo: { businessType: "Restaurant", style: "warm", primaryColor: "#b85c2c", secondaryColor: "#f8f2e6", darkMode: false, fontFamily: "classic-serif" },
+  },
+  {
+    id: "fine-dining", name: "Fine Dining", category: "Restaurant",
+    desc: "Elegant, dark, luxurious",
+    preview: <div style={{ height: 64, background: "#0a0a0a", padding: 8, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><div style={{ height: 4, width: 24, background: "#c9a96e", borderRadius: 99 }} /><div style={{ display: "flex", gap: 3 }}><div style={{ height: 2, width: 10, background: "#1f1d1a", borderRadius: 99 }}/><div style={{ height: 2, width: 10, background: "#1f1d1a", borderRadius: 99 }}/></div></div>
+      <div><div style={{ height: 5, width: 40, background: "#f1ece2", borderRadius: 99, marginBottom: 3 }}/><div style={{ height: 2, width: 28, background: "#8a8378", borderRadius: 99, marginBottom: 5 }}/><div style={{ height: 11, width: 26, border: "1px solid #c9a96e", borderRadius: 3 }}/></div>
+    </div>,
+    mapTo: { businessType: "Restaurant", style: "elegant", primaryColor: "#c9a96e", secondaryColor: "#f1ece2", darkMode: true, fontFamily: "classic-serif" },
+  },
+  {
+    id: "bakery", name: "Bakery", category: "Food & Drink",
+    desc: "Warm, artisan, charming",
+    preview: <div style={{ height: 64, background: "#fbf3ea", padding: 8, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><div style={{ height: 4, width: 24, background: "#d4a056", borderRadius: 99 }} /><div style={{ display: "flex", gap: 3 }}><div style={{ height: 2, width: 10, background: "#e9a1a1", borderRadius: 99 }}/><div style={{ height: 2, width: 10, background: "#a8b89a", borderRadius: 99 }}/></div></div>
+      <div><div style={{ height: 5, width: 40, background: "#3c2820", borderRadius: 99, marginBottom: 3 }}/><div style={{ height: 2, width: 28, background: "#8d7363", borderRadius: 99, marginBottom: 5 }}/><div style={{ height: 11, width: 26, background: "#d4a056", borderRadius: 4 }}/></div>
+    </div>,
+    mapTo: { businessType: "Other", style: "warm", primaryColor: "#d4a056", secondaryColor: "#e9a1a1", darkMode: false, fontFamily: "playful" },
+  },
+  {
+    id: "law-firm", name: "Law Firm", category: "Legal",
+    desc: "Authoritative, corporate, formal",
+    preview: <div style={{ height: 64, background: "#f5f3ee", padding: 0, display: "flex", flexDirection: "column" }}>
+      <div style={{ background: "#15294a", padding: "4px 8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}><div style={{ height: 4, width: 20, background: "#fff", borderRadius: 99 }}/><div style={{ display: "flex", gap: 3 }}><div style={{ height: 2, width: 8, background: "#4a7da8", borderRadius: 99 }}/><div style={{ height: 2, width: 8, background: "#4a7da8", borderRadius: 99 }}/><div style={{ height: 2, width: 8, background: "#a98531", borderRadius: 99 }}/></div></div>
+      <div style={{ flex: 1, padding: "6px 8px" }}><div style={{ height: 5, width: 40, background: "#0e1a2b", borderRadius: 99, marginBottom: 3 }}/><div style={{ height: 2, width: 28, background: "#5a6478", borderRadius: 99, marginBottom: 5 }}/><div style={{ height: 11, width: 26, background: "#15294a", borderRadius: 2 }}/></div>
+    </div>,
+    mapTo: { businessType: "Law Firm", style: "corporate", primaryColor: "#15294a", secondaryColor: "#a98531", darkMode: false, fontFamily: "classic-serif" },
+  },
+  {
+    id: "real-estate", name: "Real Estate", category: "Property",
+    desc: "Clean, natural, trustworthy",
+    preview: <div style={{ height: 64, background: "#eef0eb", padding: 8, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><div style={{ height: 4, width: 24, background: "#7d8a6e", borderRadius: 99 }} /><div style={{ display: "flex", gap: 3 }}><div style={{ height: 2, width: 10, background: "#d5d8cd", borderRadius: 99 }}/><div style={{ height: 2, width: 10, background: "#d5d8cd", borderRadius: 99 }}/></div></div>
+      <div><div style={{ height: 5, width: 40, background: "#1a2218", borderRadius: 99, marginBottom: 3 }}/><div style={{ height: 2, width: 28, background: "#697063", borderRadius: 99, marginBottom: 5 }}/><div style={{ height: 11, width: 26, background: "#525e44", borderRadius: 4 }}/></div>
+    </div>,
+    mapTo: { businessType: "Real Estate", style: "minimalist", primaryColor: "#7d8a6e", secondaryColor: "#525e44", darkMode: false, fontFamily: "modern-sans" },
+  },
+  {
+    id: "hair-salon", name: "Hair Salon", category: "Beauty",
+    desc: "Chic, elegant, feminine",
+    preview: <div style={{ height: 64, background: "#f6efe9", padding: 8, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><div style={{ height: 4, width: 24, background: "#b2756a", borderRadius: 99 }} /><div style={{ display: "flex", gap: 3 }}><div style={{ height: 2, width: 10, background: "#e8c5b4", borderRadius: 99 }}/><div style={{ height: 2, width: 10, background: "#e8c5b4", borderRadius: 99 }}/></div></div>
+      <div><div style={{ height: 5, width: 40, background: "#231711", borderRadius: 99, marginBottom: 3 }}/><div style={{ height: 2, width: 28, background: "#7a655a", borderRadius: 99, marginBottom: 5 }}/><div style={{ height: 11, width: 26, background: "#b2756a", borderRadius: 4 }}/></div>
+    </div>,
+    mapTo: { businessType: "Hair Salon", style: "elegant", primaryColor: "#b2756a", secondaryColor: "#e8c5b4", darkMode: false, fontFamily: "classic-serif" },
+  },
+  {
+    id: "auto-repair", name: "Auto Repair Shop", category: "Automotive",
+    desc: "Industrial, bold, reliable",
+    preview: <div style={{ height: 64, background: "#161614", padding: 8, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><div style={{ height: 4, width: 24, background: "#f5c542", borderRadius: 99 }} /><div style={{ display: "flex", gap: 3 }}><div style={{ height: 2, width: 10, background: "#2e2d29", borderRadius: 99 }}/><div style={{ height: 2, width: 10, background: "#2e2d29", borderRadius: 99 }}/></div></div>
+      <div><div style={{ height: 5, width: 40, background: "#f4f1e8", borderRadius: 99, marginBottom: 3 }}/><div style={{ height: 2, width: 28, background: "#8a867b", borderRadius: 99, marginBottom: 5 }}/><div style={{ height: 11, width: 26, background: "#f5c542", borderRadius: 2 }}/></div>
+    </div>,
+    mapTo: { businessType: "Other", style: "bold-dark", primaryColor: "#f5c542", secondaryColor: "#f37a23", darkMode: true, fontFamily: "geo-bold" },
+  },
+  {
+    id: "vet-clinic", name: "Vet Clinic", category: "Healthcare",
+    desc: "Caring, friendly, professional",
+    preview: <div style={{ height: 64, background: "#f4f7f2", padding: 8, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><div style={{ height: 4, width: 24, background: "#5c8b6e", borderRadius: 99 }} /><div style={{ display: "flex", gap: 3 }}><div style={{ height: 2, width: 10, background: "#a5cae0", borderRadius: 99 }}/><div style={{ height: 2, width: 10, background: "#ffc9a8", borderRadius: 99 }}/></div></div>
+      <div><div style={{ height: 5, width: 40, background: "#1f2a23", borderRadius: 99, marginBottom: 3 }}/><div style={{ height: 2, width: 28, background: "#6c7a70", borderRadius: 99, marginBottom: 5 }}/><div style={{ height: 11, width: 26, background: "#5c8b6e", borderRadius: 4 }}/></div>
+    </div>,
+    mapTo: { businessType: "Medical Clinic", style: "warm", primaryColor: "#5c8b6e", secondaryColor: "#a5cae0", darkMode: false, fontFamily: "modern-sans" },
+  },
+  {
+    id: "yoga-studio", name: "Yoga Studio", category: "Wellness",
+    desc: "Calming, earthy, mindful",
+    preview: <div style={{ height: 64, background: "#e8e0d2", padding: 8, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><div style={{ height: 4, width: 24, background: "#c87f5b", borderRadius: 99 }} /><div style={{ display: "flex", gap: 3 }}><div style={{ height: 2, width: 10, background: "#d6cdba", borderRadius: 99 }}/><div style={{ height: 2, width: 10, background: "#7a8a6a", borderRadius: 99 }}/></div></div>
+      <div><div style={{ height: 5, width: 40, background: "#2a261f", borderRadius: 99, marginBottom: 3 }}/><div style={{ height: 2, width: 28, background: "#736959", borderRadius: 99, marginBottom: 5 }}/><div style={{ height: 11, width: 26, background: "#c87f5b", borderRadius: 4 }}/></div>
+    </div>,
+    mapTo: { businessType: "Fitness", style: "warm", primaryColor: "#c87f5b", secondaryColor: "#7a8a6a", darkMode: false, fontFamily: "classic-serif" },
+  },
+  {
+    id: "tattoo-studio", name: "Tattoo Studio", category: "Creative",
+    desc: "Edgy, dark, artistic",
+    preview: <div style={{ height: 64, background: "#0a0a0a", padding: 8, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><div style={{ height: 4, width: 24, background: "#8a2424", borderRadius: 99 }} /><div style={{ display: "flex", gap: 3 }}><div style={{ height: 2, width: 10, background: "#1d1c1a", borderRadius: 99 }}/><div style={{ height: 2, width: 10, background: "#1d1c1a", borderRadius: 99 }}/></div></div>
+      <div><div style={{ height: 5, width: 40, background: "#efe8db", borderRadius: 99, marginBottom: 3 }}/><div style={{ height: 2, width: 28, background: "#7a7367", borderRadius: 99, marginBottom: 5 }}/><div style={{ height: 11, width: 26, background: "#8a2424", borderRadius: 2 }}/></div>
+    </div>,
+    mapTo: { businessType: "Other", style: "bold-dark", primaryColor: "#8a2424", secondaryColor: "#b89968", darkMode: true, fontFamily: "geo-bold" },
+  },
+  {
+    id: "florist", name: "Florist", category: "Retail",
+    desc: "Delicate, romantic, natural",
+    preview: <div style={{ height: 64, background: "#f5f0ea", padding: 8, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><div style={{ height: 4, width: 24, background: "#b97a6f", borderRadius: 99 }} /><div style={{ display: "flex", gap: 3 }}><div style={{ height: 2, width: 10, background: "#e1aaa1", borderRadius: 99 }}/><div style={{ height: 2, width: 10, background: "#7d9173", borderRadius: 99 }}/></div></div>
+      <div><div style={{ height: 5, width: 40, background: "#2c2a23", borderRadius: 99, marginBottom: 3 }}/><div style={{ height: 2, width: 28, background: "#7a7466", borderRadius: 99, marginBottom: 5 }}/><div style={{ height: 11, width: 26, background: "#b97a6f", borderRadius: 4 }}/></div>
+    </div>,
+    mapTo: { businessType: "Other", style: "elegant", primaryColor: "#b97a6f", secondaryColor: "#e1aaa1", darkMode: false, fontFamily: "classic-serif" },
+  },
+  {
+    id: "bookstore", name: "Bookstore", category: "Retail",
+    desc: "Literary, warm, inviting",
+    preview: <div style={{ height: 64, background: "#f3eddf", padding: 8, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><div style={{ height: 4, width: 24, background: "#7a2828", borderRadius: 99 }} /><div style={{ display: "flex", gap: 3 }}><div style={{ height: 2, width: 10, background: "#d8cdb2", borderRadius: 99 }}/><div style={{ height: 2, width: 10, background: "#d8cdb2", borderRadius: 99 }}/></div></div>
+      <div><div style={{ height: 5, width: 40, background: "#1f1812", borderRadius: 99, marginBottom: 3 }}/><div style={{ height: 2, width: 28, background: "#6a5e4b", borderRadius: 99, marginBottom: 5 }}/><div style={{ height: 11, width: 26, background: "#7a2828", borderRadius: 3 }}/></div>
+    </div>,
+    mapTo: { businessType: "Other", style: "elegant", primaryColor: "#7a2828", secondaryColor: "#a25234", darkMode: false, fontFamily: "classic-serif" },
+  },
+  {
+    id: "saas-startup", name: "SaaS / Tech Startup", category: "Technology",
+    desc: "Modern, neon, tech-forward",
+    preview: <div style={{ height: 64, background: "#0a0b0d", padding: 8, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><div style={{ height: 4, width: 24, background: "#a8ff5c", borderRadius: 99 }} /><div style={{ display: "flex", gap: 3 }}><div style={{ height: 2, width: 10, background: "#1e2026", borderRadius: 99 }}/><div style={{ height: 2, width: 10, background: "#1e2026", borderRadius: 99 }}/></div></div>
+      <div><div style={{ height: 5, width: 40, background: "#f5f5f7", borderRadius: 99, marginBottom: 3 }}/><div style={{ height: 2, width: 28, background: "#8a8c93", borderRadius: 99, marginBottom: 5 }}/><div style={{ height: 11, width: 26, background: "#a8ff5c", borderRadius: 3 }}/></div>
+    </div>,
+    mapTo: { businessType: "Tech Startup", style: "futuristic", primaryColor: "#a8ff5c", secondaryColor: "#7a5cff", darkMode: true, fontFamily: "mono" },
+  },
+];
+
+// ─── Goals & Audience constants ───────────────────────────────────────────────
+
+const MAIN_GOALS = [
+  { id: "calls",      label: "Get phone calls",            desc: "Drive call inquiries from the homepage" },
+  { id: "bookings",   label: "Get bookings / appointments",desc: "Fill your calendar online" },
+  { id: "sell",       label: "Sell products online",       desc: "E-commerce or direct sales" },
+  { id: "leads",      label: "Generate leads",             desc: "B2B inquiries & quote requests" },
+  { id: "present",    label: "Present services",           desc: "Showcase what you offer" },
+  { id: "credibility",label: "Build credibility",          desc: "Establish authority & trust" },
+  { id: "portfolio",  label: "Show portfolio / gallery",   desc: "Display your creative work" },
+  { id: "info",       label: "Share information",          desc: "Nonprofit, education, community" },
+];
+
+const VISITOR_FEELS = [
+  "Trust", "Excitement", "Calm", "Luxury",
+  "Safety", "Professionalism", "Warmth", "Innovation", "Creativity", "Fun",
+];
+
+// ─── Services constants ────────────────────────────────────────────────────────
+
+const OFFERS_TYPES = [
+  { id: "services", label: "Services",               desc: "I provide services to clients" },
+  { id: "products", label: "Products",               desc: "I sell physical or digital products" },
+  { id: "both",     label: "Both",                   desc: "Services and products" },
+  { id: "info",     label: "Information / Portfolio",desc: "No direct sales — just showcasing" },
+];
+
+const PRICE_VISIBILITY = [
+  { id: "exact",    label: "Show exact prices" },
+  { id: "from",     label: "Show 'from' prices" },
+  { id: "packages", label: "Packages only" },
+  { id: "quote",    label: "Request a quote" },
+  { id: "hide",     label: "Hide prices" },
+];
+
+// ─── Design extra constants ────────────────────────────────────────────────────
+
+const PERSONALITY_LEVELS = [
+  { id: "minimal",   label: "Very simple",        desc: "Content first, minimal decoration" },
+  { id: "balanced",  label: "Balanced",           desc: "Professional with personality" },
+  { id: "strong",    label: "Strong personality", desc: "Bold, memorable, distinctive" },
+  { id: "ai-decide", label: "AI decides",         desc: "Best match for your style" },
+];
+
+const BACKGROUND_STYLES = [
+  { id: "white",     label: "White / Light" },
+  { id: "cream",     label: "Cream / Warm" },
+  { id: "dark",      label: "Dark" },
+  { id: "gradient",  label: "Gradient" },
+  { id: "photo",     label: "Photo background" },
+  { id: "ai-decide", label: "AI decides" },
 ];
 
 // ─── Small UI helpers ──────────────────────────────────────────────────────────
@@ -443,24 +643,99 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (v: string)
   );
 }
 
-// ─── Step 1: Business Basics ──────────────────────────────────────────────────
+// ─── Step 1: Template Selection ───────────────────────────────────────────────
 
-function Step1({ data, onChange }: { data: WizardData["business"]; onChange: (d: WizardData["business"]) => void }) {
+function StepTemplate({ selectedId, onSelect }: {
+  selectedId: string;
+  onSelect: (id: string, mapTo: TemplateMapTo) => void;
+}) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+        {TEMPLATES.map(t => {
+          const on = selectedId === t.id;
+          return (
+            <button key={t.id} type="button" onClick={() => onSelect(t.id, t.mapTo)} style={{
+              textAlign: "left", borderRadius: 10, cursor: "pointer",
+              border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
+              overflow: "hidden", background: "transparent", padding: 0,
+              transition: "all 0.15s",
+              boxShadow: on ? "0 0 0 3px rgba(99,102,241,0.15)" : "none",
+            }}>
+              {t.preview}
+              <div style={{ padding: "6px 8px", background: on ? "rgba(99,102,241,0.08)" : "rgba(255,255,255,0.03)", borderTop: "1px solid var(--border)" }}>
+                <p style={{ fontSize: 10, fontWeight: 700, color: on ? "#a5b4fc" : "#fff", margin: 0, lineHeight: 1.3 }}>{t.name}</p>
+                <p style={{ fontSize: 9, color: "var(--text3)", margin: "2px 0 0" }}>{t.category}</p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      {selectedId && (
+        <button type="button" onClick={() => onSelect("", { businessType: "Restaurant", style: "minimalist", primaryColor: "#6366f1", secondaryColor: "#a855f7", darkMode: false, fontFamily: "modern-sans" })}
+          style={{ alignSelf: "flex-start", fontSize: 12, color: "var(--text3)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", padding: 0 }}>
+          Clear selection (start fully custom)
+        </button>
+      )}
+      {!selectedId && (
+        <p style={{ fontSize: 12, color: "var(--text3)", fontStyle: "italic" }}>
+          No template selected — you&apos;ll customize everything from scratch in the next steps.
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ─── Step 2: Business Basics ──────────────────────────────────────────────────
+
+function Step2Business({ data, onChange }: { data: WizardData["business"]; onChange: (d: WizardData["business"]) => void }) {
   const set = (k: keyof typeof data, v: string) => onChange({ ...data, [k]: v });
   const descLen = data.description.length;
   const descOk = descLen >= 20;
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div>
-        <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Website name *</label>
-        <input className="inp" value={data.name} onChange={e => set("name", e.target.value)}
-          placeholder="e.g., John's Plumbing or Luna Photography" />
-      </div>
-      <div>
-        <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Business type *</label>
-        <select className="inp" value={data.type} onChange={e => set("type", e.target.value)}>
-          {BUSINESS_TYPES.map(t => <option key={t}>{t}</option>)}
-        </select>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div style={{ gridColumn: "1 / -1" }}>
+          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Business name *</label>
+          <input className="inp" value={data.name} onChange={e => set("name", e.target.value)}
+            placeholder="e.g., Bella Roma or Luna Photography" />
+        </div>
+        <div style={{ gridColumn: "1 / -1" }}>
+          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Business type *</label>
+          <select className="inp" value={data.type} onChange={e => set("type", e.target.value)}>
+            {BUSINESS_TYPES.map(t => <option key={t}>{t}</option>)}
+          </select>
+        </div>
+        <div>
+          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Location <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(opt.)</span></label>
+          <input className="inp" value={data.location} onChange={e => set("location", e.target.value)}
+            placeholder="City, Country" />
+        </div>
+        <div>
+          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Service area <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(opt.)</span></label>
+          <input className="inp" value={data.serviceArea} onChange={e => set("serviceArea", e.target.value)}
+            placeholder="e.g., Greater London, Online only" />
+        </div>
+        <div>
+          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Email <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(opt.)</span></label>
+          <input className="inp" type="email" value={data.email} onChange={e => set("email", e.target.value)}
+            placeholder="contact@yourbusiness.com" />
+        </div>
+        <div>
+          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Phone <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(opt.)</span></label>
+          <input className="inp" type="tel" value={data.phone} onChange={e => set("phone", e.target.value)}
+            placeholder="+1 555 000 1234" />
+        </div>
+        <div>
+          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Opening hours <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(opt.)</span></label>
+          <input className="inp" value={data.openingHours} onChange={e => set("openingHours", e.target.value)}
+            placeholder="Mon–Fri 9am–6pm, Sat 10am–4pm" />
+        </div>
+        <div>
+          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Your name <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(opt.)</span></label>
+          <input className="inp" value={data.ownerName} onChange={e => set("ownerName", e.target.value)}
+            placeholder="For personalization" />
+        </div>
       </div>
       <div>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
@@ -469,34 +744,163 @@ function Step1({ data, onChange }: { data: WizardData["business"]; onChange: (d:
         </div>
         <textarea className="inp" value={data.description}
           onChange={e => set("description", e.target.value.slice(0, 500))}
-          placeholder="What do you do? What services/products do you offer? Target audience? Special features?"
+          placeholder="What do you do? Who do you serve? Write rough notes — AI will polish it into professional copy."
           style={{ height: 110, resize: "none" }} />
         {descLen > 0 && !descOk && <p style={{ fontSize: 11, color: "#f87171", marginTop: 4 }}>Minimum 20 characters for best results.</p>}
       </div>
+    </div>
+  );
+}
+
+// ─── Step 3: Goals & Audience ─────────────────────────────────────────────────
+
+function StepGoals({ data, onChange }: { data: WizardData["goals"]; onChange: (d: WizardData["goals"]) => void }) {
+  const set = (k: keyof typeof data, v: string) => onChange({ ...data, [k]: v });
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
       <div>
-        <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Target audience <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(optional)</span></label>
-        <input className="inp" value={data.targetAudience} onChange={e => set("targetAudience", e.target.value)}
-          placeholder="e.g., Busy professionals, college students, local families" />
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        <div>
-          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Location <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(opt.)</span></label>
-          <input className="inp" value={data.location} onChange={e => set("location", e.target.value)}
-            placeholder="City, Country" />
+        <SectionLabel label="Main goal — what should your website accomplish?" />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          {MAIN_GOALS.map(g => {
+            const on = data.mainGoal === g.id;
+            return (
+              <button key={g.id} type="button" onClick={() => set("mainGoal", g.id)} style={{
+                textAlign: "left", padding: "12px 14px", borderRadius: 10, cursor: "pointer",
+                border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
+                background: on ? "rgba(99,102,241,0.08)" : "transparent",
+                transition: "all 0.15s",
+              }}>
+                <p style={{ fontSize: 13, fontWeight: 600, color: on ? "#a5b4fc" : "#fff", margin: 0 }}>{g.label}</p>
+                <p style={{ fontSize: 11, color: "var(--text3)", margin: "3px 0 0" }}>{g.desc}</p>
+              </button>
+            );
+          })}
         </div>
-        <div>
-          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Your name <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(opt.)</span></label>
-          <input className="inp" value={data.ownerName} onChange={e => set("ownerName", e.target.value)}
-            placeholder="For personalization" />
+      </div>
+
+      <div>
+        <SectionLabel label="How should visitors feel when they land on your site?" />
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {VISITOR_FEELS.map(feel => {
+            const on = data.visitorFeel === feel;
+            return (
+              <button key={feel} type="button" onClick={() => set("visitorFeel", on ? "" : feel)} style={{
+                padding: "8px 16px", borderRadius: 999, fontSize: 13, fontWeight: 500, cursor: "pointer",
+                border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
+                background: on ? "rgba(99,102,241,0.12)" : "transparent",
+                color: on ? "#a5b4fc" : "var(--text2)", transition: "all 0.15s",
+              }}>{feel}</button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div>
+        <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          Who is your ideal customer? <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(optional)</span>
+        </label>
+        <input className="inp" value={data.idealCustomer} onChange={e => set("idealCustomer", e.target.value)}
+          placeholder="e.g., Busy professionals aged 30–50 looking for quick, reliable service" />
+      </div>
+
+      <div>
+        <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          What problem do you solve for them? <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(optional)</span>
+        </label>
+        <textarea className="inp" value={data.problemSolved} onChange={e => set("problemSolved", e.target.value)}
+          placeholder="e.g., We fix plumbing emergencies fast without overcharging — fully transparent pricing"
+          style={{ height: 80, resize: "none" }} />
+      </div>
+
+      <div>
+        <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          Why should they choose you over competitors? <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(optional)</span>
+        </label>
+        <textarea className="inp" value={data.whyChoose} onChange={e => set("whyChoose", e.target.value)}
+          placeholder="e.g., Family-owned since 1998, certified professionals, same-day guarantee, 500+ 5-star reviews"
+          style={{ height: 80, resize: "none" }} />
+      </div>
+    </div>
+  );
+}
+
+// ─── Step 4: Services & Pricing ───────────────────────────────────────────────
+
+function StepServices({ data, onChange }: { data: WizardData["services"]; onChange: (d: WizardData["services"]) => void }) {
+  const set = <K extends keyof WizardData["services"]>(k: K, v: WizardData["services"][K]) =>
+    onChange({ ...data, [k]: v });
+
+  const addItem = () => set("list", [...data.list, ""]);
+  const updateItem = (i: number, v: string) => {
+    const next = [...data.list]; next[i] = v; set("list", next);
+  };
+  const removeItem = (i: number) => set("list", data.list.filter((_, idx) => idx !== i));
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <div>
+        <SectionLabel label="What do you offer?" />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          {OFFERS_TYPES.map(o => {
+            const on = data.offersType === o.id;
+            return (
+              <button key={o.id} type="button" onClick={() => set("offersType", o.id)} style={{
+                textAlign: "left", padding: "12px 14px", borderRadius: 10, cursor: "pointer",
+                border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
+                background: on ? "rgba(99,102,241,0.08)" : "transparent", transition: "all 0.15s",
+              }}>
+                <p style={{ fontSize: 13, fontWeight: 600, color: on ? "#a5b4fc" : "#fff", margin: 0 }}>{o.label}</p>
+                <p style={{ fontSize: 11, color: "var(--text3)", margin: "3px 0 0" }}>{o.desc}</p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div>
+        <SectionLabel label="List your main services or products (optional — AI will generate descriptions)" />
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {data.list.map((item, i) => (
+            <div key={i} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <input className="inp" value={item} onChange={e => updateItem(i, e.target.value)}
+                placeholder={`e.g., ${i === 0 ? "Haircut & Styling" : i === 1 ? "Color & Highlights" : "Deep Conditioning"}`}
+                style={{ flex: 1 }} />
+              <button type="button" onClick={() => removeItem(i)} style={{
+                flexShrink: 0, width: 32, height: 32, borderRadius: 8, border: "1.5px solid var(--border)",
+                background: "transparent", color: "#f87171", cursor: "pointer", fontSize: 16, lineHeight: 1,
+              }}>×</button>
+            </div>
+          ))}
+          <button type="button" onClick={addItem} style={{
+            alignSelf: "flex-start", padding: "8px 16px", borderRadius: 8, fontSize: 13, fontWeight: 500,
+            border: "1.5px dashed var(--border)", background: "transparent", color: "var(--text2)", cursor: "pointer",
+          }}>+ Add item</button>
+        </div>
+      </div>
+
+      <div>
+        <SectionLabel label="How should pricing be shown on the website?" />
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {PRICE_VISIBILITY.map(p => {
+            const on = data.priceVisibility === p.id;
+            return (
+              <button key={p.id} type="button" onClick={() => set("priceVisibility", p.id)} style={{
+                padding: "8px 16px", borderRadius: 999, fontSize: 13, fontWeight: 500, cursor: "pointer",
+                border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
+                background: on ? "rgba(99,102,241,0.12)" : "transparent",
+                color: on ? "#a5b4fc" : "var(--text2)", transition: "all 0.15s",
+              }}>{p.label}</button>
+            );
+          })}
         </div>
       </div>
     </div>
   );
 }
 
-// ─── Step 2: Design Style ─────────────────────────────────────────────────────
+// ─── Step 5: Design Style ─────────────────────────────────────────────────────
 
-function Step2({ data, onChange }: { data: WizardData["design"]; onChange: (d: WizardData["design"]) => void }) {
+function Step3Design({ data, onChange }: { data: WizardData["design"]; onChange: (d: WizardData["design"]) => void }) {
   const set = (k: keyof typeof data, v: string | boolean) => onChange({ ...data, [k]: v });
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -525,6 +929,42 @@ function Step2({ data, onChange }: { data: WizardData["design"]; onChange: (d: W
       </div>
 
       <div>
+        <SectionLabel label="Personality level" />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+          {PERSONALITY_LEVELS.map(p => {
+            const on = data.personalityLevel === p.id;
+            return (
+              <button key={p.id} type="button" onClick={() => set("personalityLevel", p.id)} style={{
+                textAlign: "left", padding: "10px 12px", borderRadius: 10, cursor: "pointer",
+                border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
+                background: on ? "rgba(99,102,241,0.08)" : "transparent", transition: "all 0.15s",
+              }}>
+                <p style={{ fontSize: 12, fontWeight: 600, color: on ? "#a5b4fc" : "#fff", margin: 0 }}>{p.label}</p>
+                <p style={{ fontSize: 10, color: "var(--text3)", margin: "3px 0 0" }}>{p.desc}</p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div>
+        <SectionLabel label="Background style" />
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {BACKGROUND_STYLES.map(b => {
+            const on = data.backgroundStyle === b.id;
+            return (
+              <button key={b.id} type="button" onClick={() => set("backgroundStyle", b.id)} style={{
+                padding: "8px 16px", borderRadius: 999, fontSize: 13, fontWeight: 500, cursor: "pointer",
+                border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
+                background: on ? "rgba(99,102,241,0.12)" : "transparent",
+                color: on ? "#a5b4fc" : "var(--text2)", transition: "all 0.15s",
+              }}>{b.label}</button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div>
         <SectionLabel label="Primary brand color" />
         <ColorPicker value={data.primaryColor} onChange={v => set("primaryColor", v)} />
       </div>
@@ -534,15 +974,20 @@ function Step2({ data, onChange }: { data: WizardData["design"]; onChange: (d: W
         <ColorPicker value={data.secondaryColor} onChange={v => set("secondaryColor", v)} />
       </div>
 
+      <div>
+        <SectionLabel label="Animations & interactions" />
+        <RadioRow options={ANIMATION_OPTS} value={data.animations} onChange={v => set("animations", v)} />
+      </div>
+
       <Toggle checked={data.darkMode} onChange={v => set("darkMode", v)}
         label="Include dark mode" desc="Adds a dark variant — appealing on mobile, modern UX" />
     </div>
   );
 }
 
-// ─── Step 3: Typography & Imagery ─────────────────────────────────────────────
+// ─── Step 6: Typography & Imagery ─────────────────────────────────────────────
 
-function Step3({ data, onChange, logo, onLogoChange }: {
+function Step4Typography({ data, onChange, logo, onLogoChange }: {
   data: WizardData["typography"];
   onChange: (d: WizardData["typography"]) => void;
   logo: WizardData["logo"];
@@ -635,9 +1080,9 @@ function Step3({ data, onChange, logo, onLogoChange }: {
   );
 }
 
-// ─── Step 4: Pages & Content ──────────────────────────────────────────────────
+// ─── Step 5: Pages & Content ──────────────────────────────────────────────────
 
-function Step4({ data, onChange }: { data: WizardData["pages"]; onChange: (d: WizardData["pages"]) => void }) {
+function Step5Pages({ data, onChange }: { data: WizardData["pages"]; onChange: (d: WizardData["pages"]) => void }) {
   const togglePage = (id: string) => {
     if (id === "home") return;
     const sel = data.selected.includes(id)
@@ -720,65 +1165,33 @@ function Step4({ data, onChange }: { data: WizardData["pages"]; onChange: (d: Wi
         <SectionLabel label="Content tone" />
         <RadioRow options={TONE_OPTIONS} value={data.contentTone} onChange={v => onChange({ ...data, contentTone: v })} />
       </div>
-    </div>
-  );
-}
 
-// ─── Step 5: Features ─────────────────────────────────────────────────────────
-
-function Step5({ data, onChange }: { data: WizardData["features"]; onChange: (d: WizardData["features"]) => void }) {
-  const set = (k: keyof typeof data, v: string | string[]) => onChange({ ...data, [k]: v });
-  const notesLen = data.additionalNotes.length;
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
       <div>
-        <SectionLabel label="Special features" />
+        <SectionLabel label="Special features to include" />
         <CheckRow
           options={SPECIAL_FEATURES}
           values={data.specialFeatures}
-          onChange={v => set("specialFeatures", v)}
+          onChange={v => onChange({ ...data, specialFeatures: v })}
         />
       </div>
 
       <div>
-        <SectionLabel label="Animations & interactions" />
-        <RadioRow options={ANIMATION_OPTS} value={data.animations} onChange={v => set("animations", v)} />
-      </div>
-
-      <div>
-        <SectionLabel label="Layout preference" />
-        <RadioRow options={LAYOUT_OPTS} value={data.layout} onChange={v => set("layout", v)} />
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        <div>
-          <SectionLabel label="Mobile optimization" />
-          <RadioRow options={MOBILE_OPTS} value={data.mobileOptimization} onChange={v => set("mobileOptimization", v)} />
-        </div>
-        <div>
-          <SectionLabel label="Speed priority" />
-          <RadioRow options={SPEED_OPTS} value={data.speedPriority} onChange={v => set("speedPriority", v)} />
-        </div>
-      </div>
-
-      <div>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-          <SectionLabel label="Additional notes" />
-          <span style={{ fontSize: 11, color: "var(--text3)" }}>{notesLen}/300</span>
+          <SectionLabel label="Anything else to tell the AI?" />
+          <span style={{ fontSize: 11, color: "var(--text3)" }}>{data.additionalNotes.length}/300</span>
         </div>
         <textarea className="inp" value={data.additionalNotes}
-          onChange={e => set("additionalNotes", e.target.value.slice(0, 300))}
-          placeholder="e.g., 'I have 3 products to showcase', 'Prefer earth tones', 'Need booking form for 2 services'"
+          onChange={e => onChange({ ...data, additionalNotes: e.target.value.slice(0, 300) })}
+          placeholder="e.g., 'Include a before/after gallery', 'Prefer earth tones', 'We have 3 locations'"
           style={{ height: 90, resize: "none" }} />
       </div>
     </div>
   );
 }
 
-// ─── Step 6: Review ───────────────────────────────────────────────────────────
+// ─── Step 7: Review ───────────────────────────────────────────────────────────
 
-function Step6({ data, onEdit, onSubmit, loading, countdown, stageMsg }: {
+function Step7Review({ data, onEdit, onSubmit, loading, countdown, stageMsg }: {
   data: WizardData;
   onEdit: (step: number) => void;
   onSubmit: () => void;
@@ -810,11 +1223,16 @@ function Step6({ data, onEdit, onSubmit, loading, countdown, stageMsg }: {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
       <div className="glass rounded-2xl" style={{ padding: 20, marginBottom: 20 }}>
-        {row("Business", `${data.business.name} — ${data.business.type}`, 1)}
-        {row("Description", data.business.description.slice(0, 80) + (data.business.description.length > 80 ? "…" : ""), 1)}
-        {data.business.targetAudience && row("Target audience", data.business.targetAudience, 1)}
-        {data.business.location && row("Location", data.business.location, 1)}
-        {row("Design style", style?.name || data.design.style, 2)}
+        {row("Business", `${data.business.name} — ${data.business.type}`, 2)}
+        {row("Description", data.business.description.slice(0, 80) + (data.business.description.length > 80 ? "…" : ""), 2)}
+        {data.business.location && row("Location", `${data.business.location}${data.business.serviceArea ? ` · ${data.business.serviceArea}` : ""}`, 2)}
+        {data.business.email && row("Contact", `${data.business.email}${data.business.phone ? ` · ${data.business.phone}` : ""}`, 2)}
+        {data.goals.mainGoal && row("Main goal", MAIN_GOALS.find(g => g.id === data.goals.mainGoal)?.label || data.goals.mainGoal, 3)}
+        {data.goals.visitorFeel && row("Visitor feeling", data.goals.visitorFeel, 3)}
+        {data.goals.whyChoose && row("Your edge", data.goals.whyChoose.slice(0, 80) + (data.goals.whyChoose.length > 80 ? "…" : ""), 3)}
+        {data.services.offersType && row("What you offer", OFFERS_TYPES.find(o => o.id === data.services.offersType)?.label || data.services.offersType, 4)}
+        {data.services.list.length > 0 && row("Services / products", data.services.list.filter(Boolean).join(", ").slice(0, 80), 4)}
+        {row("Design style", style?.name || data.design.style, 5)}
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid var(--border)" }}>
           <div style={{ flex: 1 }}>
             <p style={{ fontSize: 11, color: "var(--text3)", margin: 0, textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 600 }}>Colors</p>
@@ -824,16 +1242,16 @@ function Step6({ data, onEdit, onSubmit, loading, countdown, stageMsg }: {
               {data.design.darkMode && <span style={{ fontSize: 11, color: "var(--text3)" }}>+ dark mode</span>}
             </div>
           </div>
-          <button type="button" onClick={() => onEdit(2)} style={{ fontSize: 11, color: "var(--accent)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>Edit</button>
+          <button type="button" onClick={() => onEdit(5)} style={{ fontSize: 11, color: "var(--accent)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>Edit</button>
         </div>
-        {row("Typography", font?.name || data.typography.fontFamily, 3)}
-        {row("Imagery", imagery?.label || data.typography.imageryStyle, 3)}
-        {data.logo.uploaded && row("Logo", data.logo.fileName, 3)}
-        {row("Pages", pages.join(", ") || "Home", 4)}
-        {row("Primary CTA", cta?.label || data.pages.primaryCTA, 4)}
-        {row("Content tone", tone?.label || data.pages.contentTone, 4)}
-        {data.features.specialFeatures.length > 0 && row("Special features", data.features.specialFeatures.join(", "), 5)}
-        {data.features.additionalNotes && row("Additional notes", data.features.additionalNotes, 5)}
+        {row("Typography", font?.name || data.typography.fontFamily, 6)}
+        {row("Imagery", imagery?.label || data.typography.imageryStyle, 6)}
+        {data.logo.uploaded && row("Logo", data.logo.fileName, 6)}
+        {row("Pages", pages.join(", ") || "Home", 7)}
+        {row("Primary CTA", cta?.label || data.pages.primaryCTA, 7)}
+        {row("Content tone", tone?.label || data.pages.contentTone, 7)}
+        {data.pages.specialFeatures.length > 0 && row("Special features", data.pages.specialFeatures.join(", "), 7)}
+        {data.pages.additionalNotes && row("Additional notes", data.pages.additionalNotes, 7)}
       </div>
 
       {loading && (
@@ -1369,12 +1787,14 @@ function PaymentStepInner({
 // ─── Main Wizard ──────────────────────────────────────────────────────────────
 
 const STEP_TITLES = [
-  { title: "Tell us about your business",        sub: "The more specific, the better the AI understands your needs" },
-  { title: "Choose your design aesthetic",        sub: "Pick the vibe that matches your brand" },
-  { title: "Define typography and imagery",       sub: "Fonts and imagery shape brand perception" },
-  { title: "Pages and content structure",         sub: "Select the pages that matter for your business" },
-  { title: "Fine-tune your website",              sub: "Tell us about any special features or preferences" },
-  { title: "Review and generate",                 sub: "Make sure everything looks good before we build" },
+  { title: "Choose a starting template",          sub: "Pick an industry template or skip to customize everything from scratch" },
+  { title: "Tell us about your business",         sub: "Name, contact details, location, and opening hours" },
+  { title: "Goals & audience",                    sub: "What your website needs to accomplish and who it's for" },
+  { title: "Services & pricing",                  sub: "What you offer and how you want pricing displayed" },
+  { title: "Design aesthetic",                    sub: "Visual style, personality, colors, and mood" },
+  { title: "Typography & imagery",                sub: "Fonts, photos, and your logo" },
+  { title: "Pages & finishing touches",           sub: "Page structure, CTA, tone, and anything extra to tell the AI" },
+  { title: "Review and generate",                 sub: "Everything looks good? Let's build your website" },
 ];
 
 const STAGE_MESSAGES: Record<number, string> = {
@@ -1396,20 +1816,12 @@ export default function GenerateWizard() {
   const [countdown, setCountdown] = useState(100);
   const [stageMsg, setStageMsg]   = useState("");
   const [clientSecret, setClientSecret] = useState("");
-  const [fetchingPayment, setFetchingPayment] = useState(false);
-  const [vercelAuthorized, setVercelAuthorized] = useState<boolean | null>(null);
   const [selectedTier, setSelectedTier] = useState<"website" | "website_5">("website_5");
 
-  // Restore wizard progress + check Vercel auth + handle OAuth return
+  // Restore wizard progress
   useEffect(() => {
     const saved = localStorage.getItem("wizard_data");
     if (saved) { try { setData(JSON.parse(saved)); } catch {} }
-
-    // Load Vercel auth status for current user
-    fetch("/api/auth/me")
-      .then((r) => r.json())
-      .then((d) => setVercelAuthorized(d.user?.vercelAuthorized ?? false))
-      .catch(() => setVercelAuthorized(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -1431,19 +1843,31 @@ export default function GenerateWizard() {
     return () => clearInterval(iv);
   }, [loading]);
 
-  const step1Valid = data.business.name.trim().length > 0 && data.business.description.trim().length >= 20;
+  const step2Valid = data.business.name.trim().length > 0 && data.business.description.trim().length >= 20;
 
   const canNext = () => {
-    if (step === 1) return step1Valid;
+    if (step === 2) return step2Valid;
     return true;
   };
 
-  const next = () => { if (canNext()) setStep(s => Math.min(s + 1, 6)); };
+  const next = () => { if (canNext()) setStep(s => Math.min(s + 1, 8)); };
   const back = () => setStep(s => Math.max(s - 1, 1));
 
-  // Go to pricing step (step 7) before generating
+  // Go to pricing step (step 9) before generating
   const handleGoToPayment = () => {
-    setStep(7);
+    setStep(9);
+  };
+
+  const applyTemplate = (id: string, mapTo: TemplateMapTo) => {
+    setData(p => ({
+      ...p,
+      templateId: id,
+      ...(id ? {
+        business: { ...p.business, type: mapTo.businessType },
+        design: { ...p.design, style: mapTo.style, primaryColor: mapTo.primaryColor, secondaryColor: mapTo.secondaryColor, darkMode: mapTo.darkMode },
+        typography: { ...p.typography, fontFamily: mapTo.fontFamily },
+      } : {}),
+    }));
   };
 
   const handleSubmit = async (paymentIntentId?: string, tier?: string) => {
@@ -1475,9 +1899,9 @@ export default function GenerateWizard() {
   };
 
   const stepEntry =
-    step <= 6
+    step <= 8
       ? STEP_TITLES[step - 1]
-      : step === 7
+      : step === 9
       ? { title: "Choose your plan", sub: "Select the plan that fits your business — all plans free during beta" }
       : { title: "Complete payment", sub: "Secure checkout — then we generate and deploy your website instantly" };
   const { title, sub } = stepEntry;
@@ -1502,17 +1926,17 @@ export default function GenerateWizard() {
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
             <span style={{ fontSize: 12, color: "var(--text3)" }}>
-              {step <= 6 ? `Step ${step} of 6` : step === 7 ? "Choose plan" : "Payment"}
+              {step <= 8 ? `Step ${step} of 8` : step === 9 ? "Choose plan" : "Payment"}
             </span>
             <span style={{ fontSize: 12, color: "var(--text3)" }}>
-              {step <= 6 ? `${Math.round((step / 6) * 100)}%` : "100%"}
+              {step <= 8 ? `${Math.round((step / 8) * 100)}%` : "100%"}
             </span>
           </div>
           <div style={{ display: "flex", gap: 4 }}>
             {STEP_TITLES.map((_, i) => (
               <div key={i} style={{
                 flex: 1, height: 3, borderRadius: 99, transition: "background 0.4s",
-                background: i < Math.min(step, 6) ? "linear-gradient(90deg,var(--accent),var(--accent2))" : "var(--border)",
+                background: i < Math.min(step, 8) ? "linear-gradient(90deg,var(--accent),var(--accent2))" : "var(--border)",
               }} />
             ))}
           </div>
@@ -1539,43 +1963,45 @@ export default function GenerateWizard() {
 
         {/* Steps */}
         <div key={step} className="fade-up">
-          {step === 1 && <Step1 data={data.business} onChange={d => setData(p => ({ ...p, business: d }))} />}
-          {step === 2 && <Step2 data={data.design}   onChange={d => setData(p => ({ ...p, design: d }))} />}
-          {step === 3 && (
-            <Step3
+          {step === 1 && <StepTemplate selectedId={data.templateId} onSelect={applyTemplate} />}
+          {step === 2 && <Step2Business data={data.business} onChange={(d: WizardData["business"]) => setData(p => ({ ...p, business: d }))} />}
+          {step === 3 && <StepGoals data={data.goals} onChange={(d: WizardData["goals"]) => setData(p => ({ ...p, goals: d }))} />}
+          {step === 4 && <StepServices data={data.services} onChange={(d: WizardData["services"]) => setData(p => ({ ...p, services: d }))} />}
+          {step === 5 && <Step3Design data={data.design} onChange={(d: WizardData["design"]) => setData(p => ({ ...p, design: d }))} />}
+          {step === 6 && (
+            <Step4Typography
               data={data.typography}
-              onChange={d => setData(p => ({ ...p, typography: d }))}
+              onChange={(d: WizardData["typography"]) => setData(p => ({ ...p, typography: d }))}
               logo={data.logo}
-              onLogoChange={d => setData(p => ({ ...p, logo: d }))}
+              onLogoChange={(d: WizardData["logo"]) => setData(p => ({ ...p, logo: d }))}
             />
           )}
-          {step === 4 && <Step4 data={data.pages}    onChange={d => setData(p => ({ ...p, pages: d }))} />}
-          {step === 5 && <Step5 data={data.features} onChange={d => setData(p => ({ ...p, features: d }))} />}
-          {step === 6 && (
-            <Step6
+          {step === 7 && <Step5Pages data={data.pages} onChange={(d: WizardData["pages"]) => setData(p => ({ ...p, pages: d }))} />}
+          {step === 8 && (
+            <Step7Review
               data={data}
-              onEdit={(s) => setStep(s)}
+              onEdit={(s: number) => setStep(s)}
               onSubmit={handleGoToPayment}
-              loading={fetchingPayment || loading}
+              loading={loading}
               countdown={countdown}
               stageMsg={stageMsg}
             />
           )}
-          {/* Step 7 — Pricing plan selection */}
-          {step === 7 && (
+          {/* Step 9 — Pricing plan selection */}
+          {step === 9 && (
             <PricingStep
               selected={selectedTier}
               onSelect={setSelectedTier}
               onGenerate={() => handleSubmit(undefined, selectedTier)}
-              onBack={() => setStep(6)}
+              onBack={() => setStep(8)}
               loading={loading}
               stageMsg={stageMsg}
               countdown={countdown}
             />
           )}
 
-          {/* Step 8 — Payment */}
-          {step === 8 && clientSecret && (
+          {/* Step 10 — Payment */}
+          {step === 10 && clientSecret && (
             <Elements
               stripe={stripePromise}
               options={{
@@ -1595,15 +2021,15 @@ export default function GenerateWizard() {
             >
               <PaymentStepInner
                 formData={data}
-                onBack={() => { setStep(7); setClientSecret(""); }}
+                onBack={() => { setStep(9); setClientSecret(""); }}
                 onSuccess={(piId) => handleSubmit(piId)}
               />
             </Elements>
           )}
         </div>
 
-        {/* Nav buttons (steps 1-5 only) */}
-        {step < 6 && (
+        {/* Nav buttons (steps 1–7 only) */}
+        {step < 8 && (
           <div style={{ display: "flex", gap: 12, marginTop: 32 }}>
             {step > 1 && (
               <button type="button" onClick={back} className="btn-ghost rounded-xl py-3.5 flex-1 text-sm" style={{ fontWeight: 600 }}>
@@ -1612,12 +2038,12 @@ export default function GenerateWizard() {
             )}
             <button type="button" onClick={next} disabled={!canNext()} className="btn-primary rounded-xl py-3.5 text-sm"
               style={{ flex: step > 1 ? 2 : 1, fontSize: 15 }}>
-              {step === 5 ? "Review my choices" : "Continue"}
+              {step === 7 ? "Review my choices" : step === 1 ? (data.templateId ? "Continue with template" : "Skip — customize from scratch") : "Continue"}
             </button>
           </div>
         )}
 
-        {step < 6 && (
+        {step < 8 && (
           <p style={{ fontSize: 11, color: "var(--text3)", textAlign: "center", marginTop: 12 }}>
             Your answers are saved automatically.
           </p>
