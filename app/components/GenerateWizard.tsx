@@ -1818,10 +1818,27 @@ export default function GenerateWizard() {
   const [clientSecret, setClientSecret] = useState("");
   const [selectedTier, setSelectedTier] = useState<"website" | "website_5">("website_5");
 
-  // Restore wizard progress
+  // Restore wizard progress — deep-merge with DEFAULT so new fields from
+  // schema updates are always present even when older data is in localStorage.
   useEffect(() => {
     const saved = localStorage.getItem("wizard_data");
-    if (saved) { try { setData(JSON.parse(saved)); } catch {} }
+    if (!saved) return;
+    try {
+      const p = JSON.parse(saved) as Partial<WizardData>;
+      setData({
+        ...DEFAULT,
+        ...p,
+        business:   { ...DEFAULT.business,   ...p.business },
+        goals:      { ...DEFAULT.goals,      ...p.goals },
+        services:   { ...DEFAULT.services,   ...p.services },
+        design:     { ...DEFAULT.design,     ...p.design },
+        typography: { ...DEFAULT.typography, ...p.typography },
+        pages:      { ...DEFAULT.pages,      ...p.pages },
+        logo:       { ...DEFAULT.logo,       ...p.logo },
+      });
+    } catch {
+      localStorage.removeItem("wizard_data");
+    }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
