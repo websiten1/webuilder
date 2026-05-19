@@ -49,7 +49,7 @@ function Mark({ size = 30 }: { size?: number }) {
   );
 }
 function Wordmark({ size = 22 }: { size?: number }) {
-  return <span style={{ fontSize: size, fontWeight: 700, letterSpacing: -0.6, color: C.ink }}>insix<span style={{ color: C.six }}>live</span></span>;
+  return <span style={{ fontSize: size, fontWeight: 700, letterSpacing: -0.6, color: C.ink }}>in<span style={{ color: C.six }}>six</span>live</span>;
 }
 function Eyebrow({ children, color = C.six }: { children: React.ReactNode; color?: string }) {
   return (
