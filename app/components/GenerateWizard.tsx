@@ -917,6 +917,89 @@ function LanguageSelect({ value, onChange }: { value: string; onChange: (lang: s
   );
 }
 
+// ─── Image uploader ──────────────────────────────────────────────────────────
+// Uses <label htmlFor> — never needs programmatic .click(), works everywhere.
+
+const IMG_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
+const IMG_MAX_MB = 5;
+
+type ImgValue = { dataUrl: string; fileName: string } | null;
+
+function ImageUploader({
+  id, value, onChange, label = "Upload image",
+  shape = "square", previewW = 56, previewH = 56,
+}: {
+  id: string; value: ImgValue;
+  onChange: (v: ImgValue) => void;
+  label?: string; shape?: "square" | "circle";
+  previewW?: number; previewH?: number;
+}) {
+  const [err, setErr] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    setErr("");
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!IMG_TYPES.includes(file.type)) {
+      setErr("Please upload a JPG, PNG, GIF, WebP, or SVG image.");
+      e.target.value = ""; return;
+    }
+    if (file.size > IMG_MAX_MB * 1024 * 1024) {
+      setErr(`Max ${IMG_MAX_MB}MB — this file is ${(file.size / 1024 / 1024).toFixed(1)}MB.`);
+      e.target.value = ""; return;
+    }
+    const reader = new FileReader();
+    reader.onerror = () => { setErr("Could not read the image. Please try again."); e.target.value = ""; };
+    reader.onload = ev => {
+      const result = ev.target?.result as string;
+      if (!result) { setErr("Could not read the image."); return; }
+      onChange({ dataUrl: result, fileName: file.name });
+      e.target.value = ""; // allow re-selecting same file later
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const borderRadius = shape === "circle" ? "50%" : 8;
+
+  return (
+    <div style={{ display: "inline-flex", flexDirection: "column", gap: 6 }}>
+      {value ? (
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <img src={value.dataUrl} alt={value.fileName}
+            style={{ width: previewW, height: previewH, objectFit: "cover", borderRadius, border: "1px solid var(--border)", flexShrink: 0 }}/>
+          <div>
+            <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: "#374151", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{value.fileName}</p>
+            <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+              <label htmlFor={id} style={{ fontSize: 11, color: "var(--accent)", cursor: "pointer", textDecoration: "underline" }}>Replace</label>
+              <button type="button" onClick={() => { onChange(null); setErr(""); }}
+                style={{ fontSize: 11, color: "#ef4444", background: "none", border: "none", cursor: "pointer", padding: 0 }}>Remove</button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <label htmlFor={id} style={{
+          display: "inline-flex", alignItems: "center", gap: 6,
+          padding: "6px 13px", borderRadius: 8, cursor: "pointer",
+          border: "1.5px dashed var(--border)",
+          fontSize: 12, color: "#6B7180", fontFamily: "var(--font)",
+          transition: "border-color 0.15s, color 0.15s",
+          userSelect: "none",
+        }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = "#374151"; e.currentTarget.style.color = "#374151"; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "#6B7180"; }}
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+          {label}
+        </label>
+      )}
+      {err && <p style={{ margin: 0, fontSize: 11, color: "#ef4444" }}>{err}</p>}
+      {/* Hidden input — label triggers it via htmlFor, no JS click needed */}
+      <input id={id} type="file" accept={IMG_TYPES.join(",")} onChange={handleChange} style={{ display: "none" }}/>
+    </div>
+  );
+}
+
 // ─── AI rephrase toggle ───────────────────────────────────────────────────────
 
 function AiToggle({ value, onChange, label = "AI will rephrase this for better quality" }: {
@@ -1456,15 +1539,6 @@ function Step4Typography({ data, onChange, logo, onLogoChange }: {
   onLogoChange: (d: WizardData["logo"]) => void;
 }) {
   const set = (k: keyof typeof data, v: string) => onChange({ ...data, [k]: v });
-  const fileRef = useRef<HTMLInputElement>(null);
-
-  const handleLogo = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => onLogoChange({ uploaded: true, dataUrl: ev.target?.result as string, fileName: file.name });
-    reader.readAsDataURL(file);
-  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -1499,39 +1573,14 @@ function Step4Typography({ data, onChange, logo, onLogoChange }: {
 
       <div>
         <SectionLabel label="Logo (optional)" />
-        <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-          <div onClick={() => fileRef.current?.click()} style={{
-            width: 80, height: 80, flexShrink: 0, borderRadius: 10, cursor: "pointer",
-            border: "2px dashed var(--border)", overflow: "hidden",
-            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            transition: "border-color 0.15s",
-          }}
-            onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--border-h)")}
-            onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--border)")}
-          >
-            {logo.uploaded
-              ? <img src={logo.dataUrl} alt="logo" style={{ width: "100%", height: "100%", objectFit: "contain", padding: 6 }} />
-              : <>
-                  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} style={{ color: "#6B7180", marginBottom: 3 }}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-                  <span style={{ fontSize: 9, color: "#6B7180" }}>Upload</span>
-                </>}
-          </div>
-          <div>
-            <p style={{ fontSize: 13, color: "#374151", fontWeight: 500, marginBottom: 4 }}>PNG, SVG or JPG · Max 5MB</p>
-            <p style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.5, marginBottom: 8 }}>AI will place your logo in the header and match colors to your brand.</p>
-            {logo.uploaded
-              ? <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                  <span style={{ fontSize: 12, color: "var(--text2)" }}>{logo.fileName}</span>
-                  <button type="button" onClick={() => onLogoChange({ uploaded: false, dataUrl: "", fileName: "" })}
-                    style={{ fontSize: 11, color: "#f87171", background: "none", border: "none", cursor: "pointer" }}>Remove</button>
-                </div>
-              : <button type="button" onClick={() => fileRef.current?.click()}
-                  style={{ fontSize: 12, color: "var(--text2)", textDecoration: "underline", background: "none", border: "none", cursor: "pointer" }}>
-                  Choose file
-                </button>}
-            <input ref={fileRef} type="file" accept="image/*" onChange={handleLogo} style={{ display: "none" }} />
-          </div>
-        </div>
+        <p style={{ fontSize: 12, color: "#6B7180", marginBottom: 10, marginTop: -8 }}>PNG, SVG, JPG or WebP · Max 5MB — AI places it in the header, sized for navigation.</p>
+        <ImageUploader
+          id="logo-upload"
+          value={logo.uploaded ? { dataUrl: logo.dataUrl, fileName: logo.fileName } : null}
+          onChange={v => onLogoChange(v ? { uploaded: true, dataUrl: v.dataUrl, fileName: v.fileName } : { uploaded: false, dataUrl: "", fileName: "" })}
+          label="Upload your logo"
+          previewW={80} previewH={80}
+        />
       </div>
 
       <div>
@@ -1549,36 +1598,21 @@ function PageDescBlock({ pageId, pageName, desc, onChange }: {
   desc: PageDesc;
   onChange: (d: PageDesc) => void;
 }) {
-  const fileRef = useRef<HTMLInputElement>(null);
-  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => onChange({ ...desc, image: ev.target?.result as string, imageName: file.name });
-    reader.readAsDataURL(file);
-  };
   return (
-    <div style={{ marginTop: 8, padding: "12px 14px", background: "rgba(99,102,241,0.04)", border: "1px solid rgba(99,102,241,0.18)", borderRadius: 10, display: "flex", flexDirection: "column", gap: 8, animation: "fadeUp 0.2s ease-out" }}>
-      <p style={{ fontSize: 11, fontWeight: 600, color: "#6B7180", margin: 0, textTransform: "uppercase", letterSpacing: "0.08em" }}>{pageName} section</p>
+    <div style={{ marginTop: 8, padding: "12px 14px", background: "#eef2ff", border: "1px solid #c7d2fe", borderRadius: 10, display: "flex", flexDirection: "column", gap: 8, animation: "fadeUp 0.2s ease-out" }}>
+      <p style={{ fontSize: 11, fontWeight: 700, color: "#374151", margin: 0, textTransform: "uppercase", letterSpacing: "0.08em" }}>{pageName} section</p>
       <textarea className="inp" value={desc.description}
         onChange={e => onChange({ ...desc, description: e.target.value })}
         placeholder="Describe this section in a few words…"
         style={{ height: 64, resize: "none", fontSize: 13 }} />
       <AiToggle value={desc.aiRephrase} onChange={v => onChange({ ...desc, aiRephrase: v })} label="AI will rephrase this for better quality"/>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 2 }}>
-        {desc.image ? (
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <img src={desc.image} alt="" style={{ width: 48, height: 36, objectFit: "cover", borderRadius: 5, border: "1px solid var(--border)" }}/>
-            <span style={{ fontSize: 11, color: "#6B7180" }}>{desc.imageName}</span>
-            <button type="button" onClick={() => onChange({ ...desc, image: "", imageName: "" })} style={{ fontSize: 11, color: "#f87171", background: "none", border: "none", cursor: "pointer" }}>Remove</button>
-          </div>
-        ) : (
-          <button type="button" onClick={() => fileRef.current?.click()} style={{ fontSize: 12, color: "#6B7180", background: "none", border: "1px dashed var(--border)", borderRadius: 7, padding: "5px 12px", cursor: "pointer" }}>
-            + Add image for this section
-          </button>
-        )}
-        <input ref={fileRef} type="file" accept="image/*" onChange={handleImage} style={{ display: "none" }}/>
-      </div>
+      <ImageUploader
+        id={`section-img-${pageId}`}
+        value={desc.image ? { dataUrl: desc.image, fileName: desc.imageName } : null}
+        onChange={v => onChange({ ...desc, image: v?.dataUrl ?? "", imageName: v?.fileName ?? "" })}
+        label="+ Add image for this section"
+        previewW={72} previewH={52}
+      />
     </div>
   );
 }
@@ -1589,22 +1623,15 @@ function TeamSection({ team, onChange }: {
   team: WizardData["team"];
   onChange: (t: WizardData["team"]) => void;
 }) {
-  const fileRefs = useRef<(HTMLInputElement | null)[]>([]);
   const addMember = () => onChange({ ...team, members: [...team.members, { name: "", role: "", bio: "", photo: "", fileName: "" }] });
   const removeMember = (i: number) => onChange({ ...team, members: team.members.filter((_, idx) => idx !== i) });
   const setMember = (i: number, field: keyof TeamMember, val: string) => {
     const next = team.members.map((m, idx) => idx === i ? { ...m, [field]: val } : m);
     onChange({ ...team, members: next });
   };
-  const handlePhoto = (i: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const next = team.members.map((m, idx) => idx === i ? { ...m, photo: ev.target?.result as string, fileName: file.name } : m);
-      onChange({ ...team, members: next });
-    };
-    reader.readAsDataURL(file);
+  const setPhoto = (i: number, v: ImgValue) => {
+    const next = team.members.map((m, idx) => idx === i ? { ...m, photo: v?.dataUrl ?? "", fileName: v?.fileName ?? "" } : m);
+    onChange({ ...team, members: next });
   };
 
   return (
@@ -1647,20 +1674,14 @@ function TeamSection({ team, onChange }: {
               <textarea className="inp" value={m.bio} onChange={e => setMember(i, "bio", e.target.value)}
                 placeholder="A brief description of their experience or background…"
                 style={{ height: 64, resize: "none", marginBottom: 10 }}/>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                {m.photo ? (
-                  <>
-                    <img src={m.photo} alt="" style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", border: "2px solid var(--border)" }}/>
-                    <span style={{ fontSize: 11, color: "#6B7180" }}>{m.fileName}</span>
-                    <button type="button" onClick={() => { const n = [...team.members]; n[i] = {...n[i], photo:"", fileName:""}; onChange({...team, members:n}); }} style={{ fontSize: 11, color: "#f87171", background: "none", border: "none", cursor: "pointer" }}>Remove</button>
-                  </>
-                ) : (
-                  <button type="button" onClick={() => fileRefs.current[i]?.click()} style={{ fontSize: 12, color: "#6B7180", background: "none", border: "1px dashed var(--border)", borderRadius: 7, padding: "5px 12px", cursor: "pointer" }}>
-                    + Add photo for this team member
-                  </button>
-                )}
-                <input ref={el => { fileRefs.current[i] = el; }} type="file" accept="image/*" onChange={e => handlePhoto(i, e)} style={{ display: "none" }}/>
-              </div>
+              <ImageUploader
+                id={`team-photo-${i}`}
+                value={m.photo ? { dataUrl: m.photo, fileName: m.fileName } : null}
+                onChange={v => setPhoto(i, v)}
+                label="+ Add photo"
+                shape="circle"
+                previewW={44} previewH={44}
+              />
             </div>
           ))}
           <button type="button" onClick={addMember} style={{
@@ -2204,8 +2225,8 @@ function PaymentStepInner({
     setPaying(true);
     setError("");
 
-    // Save formData in case 3DS redirects away
-    localStorage.setItem("wizard_data", JSON.stringify(formData));
+    // Save formData for 3DS redirect recovery — images stripped to avoid QuotaExceededError
+    try { localStorage.setItem("wizard_data", JSON.stringify({ ...formData, logo: { ...formData.logo, dataUrl: "" } })); } catch {}
 
     const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
       elements,
@@ -2504,8 +2525,23 @@ export default function GenerateWizard() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Save wizard progress — strip base64 images to avoid QuotaExceededError.
+  // Images are kept in React state and sent directly to the API on submit.
   useEffect(() => {
-    localStorage.setItem("wizard_data", JSON.stringify(data));
+    try {
+      const stripped: WizardData = {
+        ...data,
+        logo: { ...data.logo, dataUrl: "" },
+        team: { ...data.team, members: data.team.members.map(m => ({ ...m, photo: "" })) },
+        pages: {
+          ...data.pages,
+          pageDescriptions: Object.fromEntries(
+            Object.entries(data.pages.pageDescriptions).map(([k, v]) => [k, { ...v, image: "" }])
+          ),
+        },
+      };
+      localStorage.setItem("wizard_data", JSON.stringify(stripped));
+    } catch { /* QuotaExceededError — silently skip */ }
   }, [data]);
 
   // Countdown during generation
