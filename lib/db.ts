@@ -370,6 +370,15 @@ export async function saveSiteWithVercel(
   return rows[0] as Site;
 }
 
+export async function updateSiteVercelUrl(siteId: string, vercelUrl: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE sites
+    SET vercel_url = ${vercelUrl}, updated_at = NOW()
+    WHERE id = ${siteId}
+  `;
+}
+
 export async function decrementFreeEdits(siteId: string): Promise<void> {
   const sql = getDb();
   await sql`

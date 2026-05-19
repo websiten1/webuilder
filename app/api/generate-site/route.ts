@@ -343,7 +343,11 @@ export async function POST(request: NextRequest) {
       userToken: user.vercel_access_token ?? undefined,
       teamId: user.vercel_team_id ?? undefined,
     });
-    console.log("✅ Deployed:", deployment.url);
+    // Use the real Vercel project ID if returned; fall back to the name we supplied.
+    // Storing the real ID prevents "project not found" errors when editing later
+    // with a different token scope.
+    const vercelProjectId = deployment.projectId ?? projectName;
+    console.log("✅ Deployed:", deployment.url, "| vercel project id:", vercelProjectId);
 
     const siteUrl = `https://${deployment.url}`;
 
@@ -352,7 +356,7 @@ export async function POST(request: NextRequest) {
       siteName,
       formData.business.type,
       siteUrl,
-      projectName,
+      vercelProjectId,
       deployment.id,
       formData as unknown as Record<string, unknown>,
       tier

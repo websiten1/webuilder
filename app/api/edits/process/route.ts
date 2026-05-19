@@ -6,6 +6,7 @@ import {
   getSiteById,
   updateSiteEditStatus,
   incrementSiteVersion,
+  updateSiteVercelUrl,
   getUserById,
 } from "@/lib/db";
 import { deployToVercel } from "@/lib/vercel";
@@ -97,6 +98,30 @@ export async function POST(request: NextRequest) {
     const user = await getUserById(authSession.userId);
     if (!user) return NextResponse.json({ error: "User not found." }, { status: 404 });
 
+    // ── Smart Vercel token selection ─────────────────────────────────────────
+    // The critical invariant: the edit MUST redeploy to the same Vercel account
+    // that owns the original project, otherwise Vercel creates a new project and
+    // the user's custom domain and old URL stop working.
+    //
+    // Heuristic: if the user's Vercel OAuth was connected BEFORE this site was
+    // created, the site lives in their account → use their token.
+    // If they connected AFTER (or never), the site was deployed with the app's
+    // token → use the app token for the edit too.
+    const vercelAuthorizedAt = user.vercel_authorized_at ? new Date(user.vercel_authorized_at) : null;
+    const siteCreatedAt = site.created_at ? new Date(site.created_at) : null;
+    const siteOwnedByUser =
+      !!(user.vercel_access_token &&
+        vercelAuthorizedAt &&
+        siteCreatedAt &&
+        vercelAuthorizedAt < siteCreatedAt);
+
+    const editVercelToken = siteOwnedByUser
+      ? (user.vercel_access_token ?? undefined)
+      : process.env.VERCEL_API_TOKEN;
+    const editVercelTeam = siteOwnedByUser ? (user.vercel_team_id ?? undefined) : undefined;
+
+    console.log(`Edit ${editId}: project=${site.vercel_project_id} siteOwnedByUser=${siteOwnedByUser} usingToken=${siteOwnedByUser ? "user" : "app"}`);
+
     sendEditStartedEmail(user.email, site.name, edit.description).catch(console.error);
 
     // Build edit prompt from design preferences + requested changes
@@ -136,8 +161,8 @@ INSTRUCTIONS:
     let deployedUrl: string;
     try {
       const deployment = await deployToVercel(site.vercel_project_id, newCode, {
-        userToken: user.vercel_access_token ?? undefined,
-        teamId: user.vercel_team_id ?? undefined,
+        userToken: editVercelToken,
+        teamId: editVercelTeam,
       });
       deployedUrl = `https://${deployment.url}`;
     } catch (e) {
@@ -154,6 +179,11 @@ INSTRUCTIONS:
       completedAt: new Date(),
     });
     await incrementSiteVersion(site.id);
+    // Keep the site's canonical URL current so the dashboard always shows the
+    // latest deployment link (Vercel aliases update automatically, but we log it).
+    if (deployedUrl !== site.vercel_url) {
+      await updateSiteVercelUrl(site.id, deployedUrl);
+    }
 
     const newVersion = (site.current_version ?? 1) + 1;
     sendEditCompletedEmail(

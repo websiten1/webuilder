@@ -4,7 +4,7 @@ export async function deployToVercel(
   projectName: string,
   code: string,
   options?: { userToken?: string; teamId?: string | null }
-): Promise<{ id: string; url: string }> {
+): Promise<{ id: string; url: string; projectId: string | null }> {
   // Prefer user's own Vercel token; fall back to app token (used by edit feature)
   const token = options?.userToken ?? process.env.VERCEL_API_TOKEN;
   const teamId = options?.teamId;
@@ -92,9 +92,16 @@ export async function deployToVercel(
 
     const data = await response.json();
 
+    // Vercel returns the project ID in different fields depending on API version
+    const projectId: string | null =
+      data.projectId ?? data.project?.id ?? null;
+
+    console.log(`Vercel deployment: id=${data.id} projectId=${projectId ?? "unknown"} url=${data.url}`);
+
     return {
       id: data.id,
       url: data.url,
+      projectId,       // actual Vercel project ID (e.g. "prj_abc123")
     };
   } catch (error) {
     console.error("Error deploying to Vercel:", error);
