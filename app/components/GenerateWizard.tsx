@@ -532,7 +532,7 @@ const BACKGROUND_STYLES = [
 function SectionLabel({ label }: { label: string }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-      <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text3)", whiteSpace: "nowrap" }}>
+      <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#374151", whiteSpace: "nowrap" }}>
         {label}
       </span>
       <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
@@ -562,8 +562,8 @@ function RadioRow({ options, value, onChange }: {
               background: "transparent", transition: "all 0.15s",
             }} />
             <div>
-              <p style={{ fontSize: 13, fontWeight: 500, color: on ? "#fff" : "var(--text2)", margin: 0 }}>{o.label}</p>
-              {o.desc && <p style={{ fontSize: 11, color: "var(--text3)", margin: "2px 0 0" }}>{o.desc}</p>}
+              <p style={{ fontSize: 13, fontWeight: 500, color: on ? "#111827" : "#374151", margin: 0 }}>{o.label}</p>
+              {o.desc && <p style={{ fontSize: 11, color: "#6B7180", margin: "2px 0 0" }}>{o.desc}</p>}
             </div>
           </button>
         );
@@ -600,8 +600,8 @@ function CheckRow({ options, values, onChange }: {
               {on && <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
             </div>
             <div>
-              <p style={{ fontSize: 13, fontWeight: 500, color: on ? "#fff" : "var(--text2)", margin: 0 }}>{o.label}</p>
-              {o.desc && <p style={{ fontSize: 11, color: "var(--text3)", margin: "2px 0 0" }}>{o.desc}</p>}
+              <p style={{ fontSize: 13, fontWeight: 500, color: on ? "#111827" : "#374151", margin: 0 }}>{o.label}</p>
+              {o.desc && <p style={{ fontSize: 11, color: "#6B7180", margin: "2px 0 0" }}>{o.desc}</p>}
             </div>
           </button>
         );
@@ -616,12 +616,12 @@ function Toggle({ checked, onChange, label, desc }: {
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", borderRadius: 10, border: "1.5px solid var(--border)", background: checked ? "rgba(99,102,241,0.06)" : "transparent" }}>
       <div>
-        <p style={{ fontSize: 13, fontWeight: 500, color: "#fff", margin: 0 }}>{label}</p>
-        {desc && <p style={{ fontSize: 11, color: "var(--text3)", margin: "2px 0 0" }}>{desc}</p>}
+        <p style={{ fontSize: 13, fontWeight: 500, color: "#111827", margin: 0 }}>{label}</p>
+        {desc && <p style={{ fontSize: 11, color: "#6B7180", margin: "2px 0 0" }}>{desc}</p>}
       </div>
       <div onClick={() => onChange(!checked)} style={{
         width: 40, height: 22, borderRadius: 11, cursor: "pointer", flexShrink: 0,
-        background: checked ? "var(--accent)" : "rgba(255,255,255,0.1)",
+        background: checked ? "var(--accent)" : "#e5e7eb",
         position: "relative", transition: "background 0.2s",
       }}>
         <div style={{
@@ -640,17 +640,17 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (v: string)
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <div style={{ width: 32, height: 32, borderRadius: 8, background: value, border: "2px solid rgba(255,255,255,0.2)", flexShrink: 0 }} />
         <span style={{ fontSize: 12, fontFamily: "ui-monospace,monospace", color: "var(--text2)" }}>{value}</span>
-        <label style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: "auto", fontSize: 11, color: "var(--text3)", cursor: "pointer" }}>
+        <label style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: "auto", fontSize: 11, color: "#6B7180", cursor: "pointer" }}>
           Custom
           <input type="color" value={value} onChange={e => onChange(e.target.value)}
             style={{ width: 28, height: 28, border: "none", cursor: "pointer", borderRadius: 6, padding: 1, background: "transparent" }} />
         </label>
       </div>
       {/* Grouped palette */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "12px 14px", borderRadius: 12, border: "1px solid var(--border)", background: "rgba(255,255,255,0.02)" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "12px 14px", borderRadius: 12, border: "1px solid var(--border)", background: "#f9fafb" }}>
         {COLOR_GROUPS.map(group => (
           <div key={group.label}>
-            <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text3)", marginBottom: 5 }}>{group.label}</p>
+            <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#6B7180", marginBottom: 5 }}>{group.label}</p>
             <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
               {group.colors.map(c => {
                 const selected = value.toLowerCase() === c.hex.toLowerCase();
@@ -703,11 +703,11 @@ function AiToggle({ value, onChange, label = "AI will rephrase this for better q
             transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
           }}/>
         </div>
-        <span style={{ fontSize: 12, color: value ? "var(--text2)" : "var(--text3)", fontWeight: 500 }}>
+        <span style={{ fontSize: 12, color: value ? "#111827" : "#374151", fontWeight: 600 }}>
           {value ? "✓ " : ""}{label}
         </span>
       </label>
-      <p style={{ fontSize: 11, color: "var(--text3)", margin: "5px 0 0 46px", lineHeight: 1.5 }}>
+      <p style={{ fontSize: 11, color: "#6B7180", margin: "5px 0 0 46px", lineHeight: 1.5 }}>
         {value
           ? "AI will improve grammar, tone, and clarity while keeping your message. Toggle off to keep your exact wording."
           : "Your exact text will be used as-is, without any AI edits."}
@@ -733,8 +733,8 @@ function SkipCheck({ checked, onChange, label, helpText }: {
         {checked && <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
       </div>
       <div>
-        <span style={{ fontSize: 12, color: "var(--text2)", fontWeight: 500 }}>{label}</span>
-        {checked && <p style={{ margin: "3px 0 0", fontSize: 11, color: "var(--text3)", lineHeight: 1.4 }}>{helpText}</p>}
+        <span style={{ fontSize: 12, color: "#111827", fontWeight: 600 }}>{label}</span>
+        {checked && <p style={{ margin: "3px 0 0", fontSize: 11, color: "#6B7180", lineHeight: 1.4 }}>{helpText}</p>}
       </div>
     </label>
   );
@@ -773,8 +773,8 @@ function SchedulePicker({ schedule, onChange }: {
               border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
               background: on ? "rgba(99,102,241,0.08)" : "transparent", transition: "all 0.15s",
             }}>
-              <p style={{ fontSize: 12, fontWeight: 600, color: on ? "#a5b4fc" : "var(--text2)", margin: 0 }}>{s.label}</p>
-              <p style={{ fontSize: 10, color: "var(--text3)", margin: "2px 0 0" }}>{s.desc}</p>
+              <p style={{ fontSize: 12, fontWeight: 600, color: on ? "var(--accent)" : "#374151", margin: 0 }}>{s.label}</p>
+              <p style={{ fontSize: 10, color: "#6B7180", margin: "2px 0 0" }}>{s.desc}</p>
             </button>
           );
         })}
@@ -802,7 +802,7 @@ function SchedulePicker({ schedule, onChange }: {
                   border: "1px solid var(--border)",
                   opacity: h.closed ? 0.5 : 1, transition: "opacity 0.15s",
                 }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text2)" }}>{DAY_LABELS[day]}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#374151" }}>{DAY_LABELS[day]}</span>
                   <select
                     className="inp" value={h.open} disabled={h.closed}
                     onChange={e => setDay(day, "open", e.target.value)}
@@ -810,7 +810,7 @@ function SchedulePicker({ schedule, onChange }: {
                   >
                     {times.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
-                  <span style={{ textAlign: "center", fontSize: 11, color: "var(--text3)" }}>–</span>
+                  <span style={{ textAlign: "center", fontSize: 11, color: "#6B7180" }}>–</span>
                   <select
                     className="inp" value={h.close} disabled={h.closed}
                     onChange={e => setDay(day, "close", e.target.value)}
@@ -820,7 +820,7 @@ function SchedulePicker({ schedule, onChange }: {
                   </select>
                   <label style={{ display: "flex", alignItems: "center", gap: 4, cursor: "pointer", whiteSpace: "nowrap" }}>
                     <input type="checkbox" checked={h.closed} onChange={e => setDay(day, "closed", e.target.checked)} style={{ accentColor: "var(--accent)" }}/>
-                    <span style={{ fontSize: 11, color: "var(--text3)" }}>Closed</span>
+                    <span style={{ fontSize: 11, color: "#6B7180" }}>Closed</span>
                   </label>
                 </div>
               );
@@ -849,9 +849,9 @@ function StepTemplate({ selectedId, onSelect }: {
 // ─── Step 2: Business Basics ──────────────────────────────────────────────────
 
 const lbl = (text: string, required?: boolean) => (
-  <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-    {text}{required && <span style={{ color: "#f87171", marginLeft: 3 }}>*</span>}
-    {!required && <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none", marginLeft: 4 }}>(optional)</span>}
+  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#111827", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+    {text}{required && <span style={{ color: "#ef4444", marginLeft: 3 }}>*</span>}
+    {!required && <span style={{ color: "#6B7180", fontWeight: 400, textTransform: "none", marginLeft: 4 }}>(optional)</span>}
   </label>
 );
 
@@ -884,7 +884,7 @@ function Step2Business({ data, schedule, onChange, onScheduleChange }: {
       </div>
 
       {/* ── Short description ── */}
-      <div style={{ padding: "16px", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", borderRadius: 12 }}>
+      <div style={{ padding: "16px", background: "#f9fafb", border: "1px solid var(--border)", borderRadius: 12 }}>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
           {lbl("Business description", true)}
           <span style={{ fontSize: 11, color: descOk ? "#10b981" : "var(--text3)" }}>{descLen}/500</span>
@@ -894,18 +894,18 @@ function Step2Business({ data, schedule, onChange, onScheduleChange }: {
           placeholder="What do you do? Who do you serve? Write rough notes — AI will polish it into professional copy."
           style={{ height: 90, resize: "none" }} />
         {descLen > 0 && !descOk && <p style={{ fontSize: 11, color: "#f87171", marginTop: 4 }}>Minimum 20 characters for best results.</p>}
-        <p style={{ fontSize: 11, color: "var(--text3)", marginTop: 6 }}>This information helps us understand your business needs.</p>
+        <p style={{ fontSize: 11, color: "#6B7180", marginTop: 6 }}>This information helps us understand your business needs.</p>
         <AiToggle value={data.aboutAiRephrase} onChange={v => set("aboutAiRephrase", v)}/>
       </div>
 
       {/* ── About / story ── */}
-      <div style={{ padding: "16px", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", borderRadius: 12 }}>
+      <div style={{ padding: "16px", background: "#f9fafb", border: "1px solid var(--border)", borderRadius: 12 }}>
         {lbl("About your business")}
         <textarea className="inp" value={data.aboutText}
           onChange={e => set("aboutText", e.target.value.slice(0, 800))}
           placeholder="Describe your business's approach, philosophy, story, or what makes you different…"
           style={{ height: 90, resize: "none" }} />
-        <p style={{ fontSize: 11, color: "var(--text3)", marginTop: 6 }}>This information helps us understand your business needs.</p>
+        <p style={{ fontSize: 11, color: "#6B7180", marginTop: 6 }}>This information helps us understand your business needs.</p>
         <AiToggle value={data.aboutAiRephrase} onChange={v => set("aboutAiRephrase", v)} label="AI will rephrase this for better quality"/>
       </div>
 
@@ -993,8 +993,8 @@ function StepGoals({ data, onChange }: { data: WizardData["goals"]; onChange: (d
                 background: on ? "rgba(99,102,241,0.08)" : "transparent",
                 transition: "all 0.15s",
               }}>
-                <p style={{ fontSize: 13, fontWeight: 600, color: on ? "#a5b4fc" : "#fff", margin: 0 }}>{g.label}</p>
-                <p style={{ fontSize: 11, color: "var(--text3)", margin: "3px 0 0" }}>{g.desc}</p>
+                <p style={{ fontSize: 13, fontWeight: 600, color: on ? "var(--accent)" : "#111827", margin: 0 }}>{g.label}</p>
+                <p style={{ fontSize: 11, color: "#6B7180", margin: "3px 0 0" }}>{g.desc}</p>
               </button>
             );
           })}
@@ -1011,7 +1011,7 @@ function StepGoals({ data, onChange }: { data: WizardData["goals"]; onChange: (d
                 padding: "8px 16px", borderRadius: 999, fontSize: 13, fontWeight: 500, cursor: "pointer",
                 border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
                 background: on ? "rgba(99,102,241,0.12)" : "transparent",
-                color: on ? "#a5b4fc" : "var(--text2)", transition: "all 0.15s",
+                color: on ? "var(--accent)" : "#374151", transition: "all 0.15s",
               }}>{feel}</button>
             );
           })}
@@ -1019,16 +1019,16 @@ function StepGoals({ data, onChange }: { data: WizardData["goals"]; onChange: (d
       </div>
 
       <div>
-        <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-          Who is your ideal customer? <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(optional)</span>
+        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#111827", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          Who is your ideal customer? <span style={{ color: "#6B7180", fontWeight: 400, textTransform: "none" }}>(optional)</span>
         </label>
         <input className="inp" value={data.idealCustomer} onChange={e => set("idealCustomer", e.target.value)}
           placeholder="e.g., Busy professionals aged 30–50 looking for quick, reliable service" />
       </div>
 
       <div>
-        <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-          What problem do you solve for them? <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(optional)</span>
+        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#111827", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          What problem do you solve for them? <span style={{ color: "#6B7180", fontWeight: 400, textTransform: "none" }}>(optional)</span>
         </label>
         <textarea className="inp" value={data.problemSolved} onChange={e => set("problemSolved", e.target.value)}
           placeholder="e.g., We fix plumbing emergencies fast without overcharging — fully transparent pricing"
@@ -1036,8 +1036,8 @@ function StepGoals({ data, onChange }: { data: WizardData["goals"]; onChange: (d
       </div>
 
       <div>
-        <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-          Why should they choose you over competitors? <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(optional)</span>
+        <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#111827", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          Why should they choose you over competitors? <span style={{ color: "#6B7180", fontWeight: 400, textTransform: "none" }}>(optional)</span>
         </label>
         <textarea className="inp" value={data.whyChoose} onChange={e => set("whyChoose", e.target.value)}
           placeholder="e.g., Family-owned since 1998, certified professionals, same-day guarantee, 500+ 5-star reviews"
@@ -1072,8 +1072,8 @@ function StepServices({ data, onChange }: { data: WizardData["services"]; onChan
                 border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
                 background: on ? "rgba(99,102,241,0.08)" : "transparent", transition: "all 0.15s",
               }}>
-                <p style={{ fontSize: 13, fontWeight: 600, color: on ? "#a5b4fc" : "#fff", margin: 0 }}>{o.label}</p>
-                <p style={{ fontSize: 11, color: "var(--text3)", margin: "3px 0 0" }}>{o.desc}</p>
+                <p style={{ fontSize: 13, fontWeight: 600, color: on ? "var(--accent)" : "#111827", margin: 0 }}>{o.label}</p>
+                <p style={{ fontSize: 11, color: "#6B7180", margin: "3px 0 0" }}>{o.desc}</p>
               </button>
             );
           })}
@@ -1111,7 +1111,7 @@ function StepServices({ data, onChange }: { data: WizardData["services"]; onChan
                 padding: "8px 16px", borderRadius: 999, fontSize: 13, fontWeight: 500, cursor: "pointer",
                 border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
                 background: on ? "rgba(99,102,241,0.12)" : "transparent",
-                color: on ? "#a5b4fc" : "var(--text2)", transition: "all 0.15s",
+                color: on ? "var(--accent)" : "#374151", transition: "all 0.15s",
               }}>{p.label}</button>
             );
           })}
@@ -1141,9 +1141,9 @@ function Step3Design({ data, onChange }: { data: WizardData["design"]; onChange:
                 boxShadow: on ? "0 0 0 3px rgba(99,102,241,0.15)" : "none",
               }}>
                 {s.preview}
-                <div style={{ padding: "6px 8px", background: "rgba(255,255,255,0.03)", borderTop: "1px solid var(--border)" }}>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: on ? "#a5b4fc" : "#fff", margin: 0 }}>{s.name}</p>
-                  <p style={{ fontSize: 9, color: "var(--text3)", margin: "2px 0 0" }}>{s.best}</p>
+                <div style={{ padding: "6px 8px", background: "#f9fafb", borderTop: "1px solid var(--border)" }}>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: on ? "var(--accent)" : "#111827", margin: 0 }}>{s.name}</p>
+                  <p style={{ fontSize: 9, color: "#6B7180", margin: "2px 0 0" }}>{s.best}</p>
                 </div>
               </button>
             );
@@ -1162,8 +1162,8 @@ function Step3Design({ data, onChange }: { data: WizardData["design"]; onChange:
                 border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
                 background: on ? "rgba(99,102,241,0.08)" : "transparent", transition: "all 0.15s",
               }}>
-                <p style={{ fontSize: 12, fontWeight: 600, color: on ? "#a5b4fc" : "#fff", margin: 0 }}>{p.label}</p>
-                <p style={{ fontSize: 10, color: "var(--text3)", margin: "3px 0 0" }}>{p.desc}</p>
+                <p style={{ fontSize: 12, fontWeight: 600, color: on ? "var(--accent)" : "#111827", margin: 0 }}>{p.label}</p>
+                <p style={{ fontSize: 10, color: "#6B7180", margin: "3px 0 0" }}>{p.desc}</p>
               </button>
             );
           })}
@@ -1180,7 +1180,7 @@ function Step3Design({ data, onChange }: { data: WizardData["design"]; onChange:
                 padding: "8px 16px", borderRadius: 999, fontSize: 13, fontWeight: 500, cursor: "pointer",
                 border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
                 background: on ? "rgba(99,102,241,0.12)" : "transparent",
-                color: on ? "#a5b4fc" : "var(--text2)", transition: "all 0.15s",
+                color: on ? "var(--accent)" : "#374151", transition: "all 0.15s",
               }}>{b.label}</button>
             );
           })}
@@ -1240,12 +1240,12 @@ function Step4Typography({ data, onChange, logo, onLogoChange }: {
                 overflow: "hidden", background: "transparent", cursor: "pointer", padding: 0, transition: "all 0.15s",
                 boxShadow: on ? "0 0 0 3px rgba(99,102,241,0.15)" : "none",
               }}>
-                <div style={{ height: 60, background: "rgba(255,255,255,0.04)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <span style={{ ...f.style, fontSize: "1.7rem", color: "#fff" }}>{f.sample}</span>
+                <div style={{ height: 60, background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ ...f.style, fontSize: "1.7rem", color: "#111827" }}>{f.sample}</span>
                 </div>
-                <div style={{ padding: "6px 8px", background: "rgba(255,255,255,0.03)", borderTop: "1px solid var(--border)" }}>
-                  <p style={{ fontSize: 10, fontWeight: 600, color: on ? "#a5b4fc" : "#fff", margin: 0 }}>{f.name}</p>
-                  <p style={{ fontSize: 9, color: "var(--text3)", margin: "2px 0 0" }}>{f.best}</p>
+                <div style={{ padding: "6px 8px", background: "#f9fafb", borderTop: "1px solid var(--border)" }}>
+                  <p style={{ fontSize: 10, fontWeight: 600, color: on ? "var(--accent)" : "#111827", margin: 0 }}>{f.name}</p>
+                  <p style={{ fontSize: 9, color: "#6B7180", margin: "2px 0 0" }}>{f.best}</p>
                 </div>
               </button>
             );
@@ -1273,12 +1273,12 @@ function Step4Typography({ data, onChange, logo, onLogoChange }: {
             {logo.uploaded
               ? <img src={logo.dataUrl} alt="logo" style={{ width: "100%", height: "100%", objectFit: "contain", padding: 6 }} />
               : <>
-                  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} style={{ color: "var(--text3)", marginBottom: 3 }}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-                  <span style={{ fontSize: 9, color: "var(--text3)" }}>Upload</span>
+                  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} style={{ color: "#6B7180", marginBottom: 3 }}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+                  <span style={{ fontSize: 9, color: "#6B7180" }}>Upload</span>
                 </>}
           </div>
           <div>
-            <p style={{ fontSize: 13, color: "#fff", fontWeight: 500, marginBottom: 4 }}>PNG, SVG or JPG · Max 5MB</p>
+            <p style={{ fontSize: 13, color: "#374151", fontWeight: 500, marginBottom: 4 }}>PNG, SVG or JPG · Max 5MB</p>
             <p style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.5, marginBottom: 8 }}>AI will place your logo in the header and match colors to your brand.</p>
             {logo.uploaded
               ? <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
@@ -1320,7 +1320,7 @@ function PageDescBlock({ pageId, pageName, desc, onChange }: {
   };
   return (
     <div style={{ marginTop: 8, padding: "12px 14px", background: "rgba(99,102,241,0.04)", border: "1px solid rgba(99,102,241,0.18)", borderRadius: 10, display: "flex", flexDirection: "column", gap: 8, animation: "fadeUp 0.2s ease-out" }}>
-      <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text3)", margin: 0, textTransform: "uppercase", letterSpacing: "0.08em" }}>{pageName} section</p>
+      <p style={{ fontSize: 11, fontWeight: 600, color: "#6B7180", margin: 0, textTransform: "uppercase", letterSpacing: "0.08em" }}>{pageName} section</p>
       <textarea className="inp" value={desc.description}
         onChange={e => onChange({ ...desc, description: e.target.value })}
         placeholder="Describe this section in a few words…"
@@ -1330,11 +1330,11 @@ function PageDescBlock({ pageId, pageName, desc, onChange }: {
         {desc.image ? (
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <img src={desc.image} alt="" style={{ width: 48, height: 36, objectFit: "cover", borderRadius: 5, border: "1px solid var(--border)" }}/>
-            <span style={{ fontSize: 11, color: "var(--text3)" }}>{desc.imageName}</span>
+            <span style={{ fontSize: 11, color: "#6B7180" }}>{desc.imageName}</span>
             <button type="button" onClick={() => onChange({ ...desc, image: "", imageName: "" })} style={{ fontSize: 11, color: "#f87171", background: "none", border: "none", cursor: "pointer" }}>Remove</button>
           </div>
         ) : (
-          <button type="button" onClick={() => fileRef.current?.click()} style={{ fontSize: 12, color: "var(--text3)", background: "none", border: "1px dashed var(--border)", borderRadius: 7, padding: "5px 12px", cursor: "pointer" }}>
+          <button type="button" onClick={() => fileRef.current?.click()} style={{ fontSize: 12, color: "#6B7180", background: "none", border: "1px dashed var(--border)", borderRadius: 7, padding: "5px 12px", cursor: "pointer" }}>
             + Add image for this section
           </button>
         )}
@@ -1379,8 +1379,8 @@ function TeamSection({ team, onChange }: {
               border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
               background: on ? "rgba(99,102,241,0.08)" : "transparent", transition: "all 0.15s",
             }}>
-              <p style={{ fontSize: 12, fontWeight: 600, color: on ? "#a5b4fc" : "var(--text2)", margin: 0 }}>{o.label}</p>
-              <p style={{ fontSize: 10, color: "var(--text3)", margin: "2px 0 0" }}>{o.desc}</p>
+              <p style={{ fontSize: 12, fontWeight: 600, color: on ? "var(--accent)" : "#374151", margin: 0 }}>{o.label}</p>
+              <p style={{ fontSize: 10, color: "#6B7180", margin: "2px 0 0" }}>{o.desc}</p>
             </button>
           );
         })}
@@ -1389,9 +1389,9 @@ function TeamSection({ team, onChange }: {
       {team.enabled && (
         <div style={{ display: "flex", flexDirection: "column", gap: 12, animation: "fadeUp 0.2s ease-out" }}>
           {team.members.map((m, i) => (
-            <div key={i} style={{ padding: "14px 16px", background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", borderRadius: 12 }}>
+            <div key={i} style={{ padding: "14px 16px", background: "#f3f4f6", border: "1px solid var(--border)", borderRadius: 12 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Team member {i + 1}</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#6B7180", textTransform: "uppercase", letterSpacing: "0.08em" }}>Team member {i + 1}</span>
                 <button type="button" onClick={() => removeMember(i)} style={{ fontSize: 11, color: "#f87171", background: "none", border: "none", cursor: "pointer" }}>Remove</button>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
@@ -1412,11 +1412,11 @@ function TeamSection({ team, onChange }: {
                 {m.photo ? (
                   <>
                     <img src={m.photo} alt="" style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", border: "2px solid var(--border)" }}/>
-                    <span style={{ fontSize: 11, color: "var(--text3)" }}>{m.fileName}</span>
+                    <span style={{ fontSize: 11, color: "#6B7180" }}>{m.fileName}</span>
                     <button type="button" onClick={() => { const n = [...team.members]; n[i] = {...n[i], photo:"", fileName:""}; onChange({...team, members:n}); }} style={{ fontSize: 11, color: "#f87171", background: "none", border: "none", cursor: "pointer" }}>Remove</button>
                   </>
                 ) : (
-                  <button type="button" onClick={() => fileRefs.current[i]?.click()} style={{ fontSize: 12, color: "var(--text3)", background: "none", border: "1px dashed var(--border)", borderRadius: 7, padding: "5px 12px", cursor: "pointer" }}>
+                  <button type="button" onClick={() => fileRefs.current[i]?.click()} style={{ fontSize: 12, color: "#6B7180", background: "none", border: "1px dashed var(--border)", borderRadius: 7, padding: "5px 12px", cursor: "pointer" }}>
                     + Add photo for this team member
                   </button>
                 )}
@@ -1427,7 +1427,7 @@ function TeamSection({ team, onChange }: {
           <button type="button" onClick={addMember} style={{
             display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
             padding: "10px", borderRadius: 9, border: "1.5px dashed var(--border)",
-            background: "transparent", color: "var(--text3)", fontSize: 13, cursor: "pointer",
+            background: "transparent", color: "#6B7180", fontSize: 13, cursor: "pointer",
           }}>
             + Add team member
           </button>
@@ -1485,11 +1485,11 @@ function Step5Pages({ data, team, useEmojis, onChange, onTeamChange, onEmojisCha
                     {on && <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: 13, fontWeight: 500, color: on ? "#fff" : "var(--text2)", margin: 0 }}>
+                    <p style={{ fontSize: 13, fontWeight: 500, color: on ? "#111827" : "#374151", margin: 0 }}>
                       {p.label}
-                      {isHome && <span style={{ fontSize: 10, color: "var(--text3)", fontWeight: 400, marginLeft: 6 }}>(always included)</span>}
+                      {isHome && <span style={{ fontSize: 10, color: "#6B7180", fontWeight: 400, marginLeft: 6 }}>(always included)</span>}
                     </p>
-                    <p style={{ fontSize: 11, color: "var(--text3)", margin: "2px 0 0" }}>{p.desc}</p>
+                    <p style={{ fontSize: 11, color: "#6B7180", margin: "2px 0 0" }}>{p.desc}</p>
                   </div>
                 </button>
                 {on && !isHome && (
@@ -1542,8 +1542,8 @@ function Step5Pages({ data, team, useEmojis, onChange, onTeamChange, onEmojisCha
                 border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
                 background: on ? "rgba(99,102,241,0.08)" : "transparent", transition: "all 0.15s",
               }}>
-                <p style={{ fontSize: 12, fontWeight: 600, color: on ? "#a5b4fc" : "var(--text2)", margin: 0 }}>{o.label}</p>
-                <p style={{ fontSize: 10, color: "var(--text3)", margin: "2px 0 0" }}>{o.desc}</p>
+                <p style={{ fontSize: 12, fontWeight: 600, color: on ? "var(--accent)" : "#374151", margin: 0 }}>{o.label}</p>
+                <p style={{ fontSize: 10, color: "#6B7180", margin: "2px 0 0" }}>{o.desc}</p>
               </button>
             );
           })}
@@ -1554,7 +1554,7 @@ function Step5Pages({ data, team, useEmojis, onChange, onTeamChange, onEmojisCha
       <div>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
           <SectionLabel label="Anything else to tell the AI?" />
-          <span style={{ fontSize: 11, color: "var(--text3)" }}>{data.additionalNotes.length}/300</span>
+          <span style={{ fontSize: 11, color: "#6B7180" }}>{data.additionalNotes.length}/300</span>
         </div>
         <textarea className="inp" value={data.additionalNotes}
           onChange={e => onChange({ ...data, additionalNotes: e.target.value.slice(0, 300) })}
@@ -1586,7 +1586,7 @@ function Step7Review({ data, onEdit, onSubmit, loading, countdown, stageMsg }: {
   const row = (label: string, value: string, step: number) => (
     <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid var(--border)" }}>
       <div style={{ flex: 1 }}>
-        <p style={{ fontSize: 11, color: "var(--text3)", margin: 0, textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 600 }}>{label}</p>
+        <p style={{ fontSize: 11, color: "#6B7180", margin: 0, textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 600 }}>{label}</p>
         <p style={{ fontSize: 13, color: "var(--text2)", margin: "3px 0 0" }}>{value}</p>
       </div>
       <button type="button" onClick={() => onEdit(step)} style={{
@@ -1611,11 +1611,11 @@ function Step7Review({ data, onEdit, onSubmit, loading, countdown, stageMsg }: {
         {row("Design style", style?.name || data.design.style, 5)}
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid var(--border)" }}>
           <div style={{ flex: 1 }}>
-            <p style={{ fontSize: 11, color: "var(--text3)", margin: 0, textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 600 }}>Colors</p>
+            <p style={{ fontSize: 11, color: "#6B7180", margin: 0, textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 600 }}>Colors</p>
             <div style={{ display: "flex", gap: 8, marginTop: 6, alignItems: "center" }}>
               <div style={{ width: 20, height: 20, borderRadius: "50%", background: data.design.primaryColor, border: "1.5px solid rgba(255,255,255,0.15)" }} />
               <div style={{ width: 20, height: 20, borderRadius: "50%", background: data.design.secondaryColor, border: "1.5px solid rgba(255,255,255,0.15)" }} />
-              {data.design.darkMode && <span style={{ fontSize: 11, color: "var(--text3)" }}>+ dark mode</span>}
+              {data.design.darkMode && <span style={{ fontSize: 11, color: "#6B7180" }}>+ dark mode</span>}
             </div>
           </div>
           <button type="button" onClick={() => onEdit(5)} style={{ fontSize: 11, color: "var(--accent)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>Edit</button>
@@ -1636,10 +1636,10 @@ function Step7Review({ data, onEdit, onSubmit, loading, countdown, stageMsg }: {
             <p style={{ fontSize: 13, color: "var(--text2)", margin: 0 }}>{stageMsg}</p>
             <div style={{ display: "flex", alignItems: "baseline", gap: 3 }}>
               <span key={countdown} className="countdown-num" style={{ fontSize: "1.8rem", fontWeight: 700, color: "var(--accent)" }}>{countdown}</span>
-              <span style={{ fontSize: 12, color: "var(--text3)" }}>s</span>
+              <span style={{ fontSize: 12, color: "#6B7180" }}>s</span>
             </div>
           </div>
-          <div style={{ height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 99, overflow: "hidden" }}>
+          <div style={{ height: 4, background: "#eef2ff", borderRadius: 99, overflow: "hidden" }}>
             <div className="shimmer-bar" style={{
               height: "100%", background: "linear-gradient(135deg,var(--accent),var(--accent2))",
               width: `${progressPct}%`, borderRadius: 99, transition: "width 0.8s ease",
@@ -1651,7 +1651,7 @@ function Step7Review({ data, onEdit, onSubmit, loading, countdown, stageMsg }: {
       <button type="button" onClick={onSubmit} disabled={loading} className="btn-primary rounded-xl py-4 w-full" style={{ fontSize: 16 }}>
         {loading ? "Generating your website..." : "Generate My Website →"}
       </button>
-      <p style={{ fontSize: 12, color: "var(--text3)", textAlign: "center", marginTop: 8 }}>Takes approximately 100 seconds. Free while in beta.</p>
+      <p style={{ fontSize: 12, color: "#6B7180", textAlign: "center", marginTop: 8 }}>Takes approximately 100 seconds. Free while in beta.</p>
     </div>
   );
 }
@@ -1897,7 +1897,7 @@ function VercelAuthStep({
           width: "100%",
           background: "none",
           border: "none",
-          color: "var(--text3)",
+          color: "#6B7180",
           fontSize: 13,
           cursor: "pointer",
           padding: "8px 0",
@@ -1978,7 +1978,7 @@ function PaymentStepInner({
             fontWeight: 600,
             letterSpacing: "0.1em",
             textTransform: "uppercase",
-            color: "var(--text3)",
+            color: "#6B7180",
             marginBottom: 14,
           }}
         >
@@ -2000,7 +2000,7 @@ function PaymentStepInner({
             ["Dark mode", formData.design.darkMode ? "Yes" : "No"],
           ].map(([label, value]) => (
             <div key={label}>
-              <p style={{ fontSize: 11, color: "var(--text3)", marginBottom: 2 }}>{label}</p>
+              <p style={{ fontSize: 11, color: "#6B7180", marginBottom: 2 }}>{label}</p>
               <p
                 style={{
                   fontSize: 13,
@@ -2041,7 +2041,7 @@ function PaymentStepInner({
           alignItems: "center",
           justifyContent: "space-between",
           padding: "16px 20px",
-          background: "rgba(255,255,255,0.03)",
+          background: "#f9fafb",
           border: "1px solid rgba(255,255,255,0.08)",
           borderRadius: 12,
           marginBottom: 24,
@@ -2049,7 +2049,7 @@ function PaymentStepInner({
       >
         <div>
           <p style={{ fontWeight: 600, fontSize: 14 }}>Professional Website</p>
-          <p style={{ fontSize: 12, color: "var(--text3)", marginTop: 2 }}>
+          <p style={{ fontSize: 12, color: "#6B7180", marginTop: 2 }}>
             One-time · Deployed to Vercel · Code on GitHub
           </p>
         </div>
@@ -2063,7 +2063,7 @@ function PaymentStepInner({
           >
             €49.99
           </p>
-          <p style={{ fontSize: 11, color: "var(--text3)" }}>one-time</p>
+          <p style={{ fontSize: 11, color: "#6B7180" }}>one-time</p>
         </div>
       </div>
 
@@ -2071,7 +2071,7 @@ function PaymentStepInner({
       <form onSubmit={handlePay}>
         <div
           style={{
-            background: "rgba(255,255,255,0.03)",
+            background: "#f9fafb",
             border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: 12,
             padding: "20px",
@@ -2131,7 +2131,7 @@ function PaymentStepInner({
         <p
           style={{
             fontSize: 11,
-            color: "var(--text3)",
+            color: "#6B7180",
             textAlign: "center",
             marginTop: 10,
           }}
@@ -2148,7 +2148,7 @@ function PaymentStepInner({
           width: "100%",
           background: "none",
           border: "none",
-          color: "var(--text3)",
+          color: "#6B7180",
           fontSize: 13,
           cursor: "pointer",
           padding: "8px 0",
@@ -2325,10 +2325,10 @@ export default function GenerateWizard() {
         {/* Progress */}
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ fontSize: 12, color: "var(--text3)" }}>
+            <span style={{ fontSize: 12, color: "#6B7180" }}>
               {step <= 8 ? `Step ${step} of 8` : step === 9 ? "Choose plan" : "Payment"}
             </span>
-            <span style={{ fontSize: 12, color: "var(--text3)" }}>
+            <span style={{ fontSize: 12, color: "#6B7180" }}>
               {step <= 8 ? `${Math.round((step / 8) * 100)}%` : "100%"}
             </span>
           </div>
@@ -2345,7 +2345,7 @@ export default function GenerateWizard() {
         {/* Step header */}
         <div style={{ marginBottom: 32 }}>
           <h1 style={{ fontSize: "1.7rem", fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 6 }}>{title}</h1>
-          <p style={{ fontSize: 14, color: "var(--text2)", margin: 0 }}>{sub}</p>
+          <p style={{ fontSize: 14, color: "#374151", margin: 0 }}>{sub}</p>
         </div>
 
         {/* Error */}
@@ -2444,7 +2444,7 @@ export default function GenerateWizard() {
         )}
 
         {step < 8 && (
-          <p style={{ fontSize: 11, color: "var(--text3)", textAlign: "center", marginTop: 12 }}>
+          <p style={{ fontSize: 11, color: "#6B7180", textAlign: "center", marginTop: 12 }}>
             Your answers are saved automatically.
           </p>
         )}
