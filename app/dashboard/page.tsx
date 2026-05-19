@@ -37,6 +37,8 @@ type Site = {
   status: string; current_version: number; edit_count: number;
   custom_domain: string | null; pricing_tier: string | null;
   free_edits_remaining: number; total_edits_included: number; created_at: string;
+  business_type: string | null;
+  design_preferences: Record<string, unknown> | null;
 };
 type User = { id: string; email: string; paymentStatus: string };
 
@@ -113,50 +115,69 @@ const ListIcon = () => (
   </svg>
 );
 
-/* ── Mini browser preview ───────────────────────────────────────────────────── */
-function MiniBrowser({ slug, accent = C.six, name = "Your Website" }: { slug: string; accent?: string; name?: string }) {
-  const words = name.split(" ");
-  const line1 = words.slice(0, Math.ceil(words.length / 2)).join(" ");
-  const line2 = words.slice(Math.ceil(words.length / 2)).join(" ");
+/* ── Colour swatch preview ──────────────────────────────────────────────────── */
+
+// Business-type fallbacks when no design_preferences are stored (legacy sites)
+const BIZ_COLORS: Record<string, string> = {
+  "Restaurant":        "#b85c2c",
+  "Dental Clinic":     "#3a8a78",
+  "Hair Salon":        "#b2756a",
+  "Fitness":           "#ff4d1a",
+  "Law Firm":          "#15294a",
+  "Real Estate":       "#7d8a6e",
+  "Medical Clinic":    "#5c8b6e",
+  "Tech Startup":      "#a8ff5c",
+  "Beauty/Spa":        "#b97a6f",
+  "Photography":       "#7a2828",
+  "E-commerce":        "#0066CC",
+  "Consulting":        "#1a365d",
+  "Marketing Agency":  "#7c3aed",
+  "Architecture":      "#374151",
+  "Accounting":        "#065f46",
+  "Plumbing":          "#1e40af",
+};
+
+function getSiteColor(site: Site): string {
+  // 1 — stored in design_preferences (full formData saved on generation)
+  const prefs = site.design_preferences as Record<string, unknown> | null;
+  const design = prefs?.design as Record<string, unknown> | undefined;
+  if (typeof design?.primaryColor === "string" && design.primaryColor) return design.primaryColor;
+  // 2 — business type fallback
+  return BIZ_COLORS[site.business_type ?? ""] ?? C.six;
+}
+
+// Returns true if the color is perceptually dark (needs white label text)
+function isDark(hex: string): boolean {
+  try {
+    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    return (0.299*r + 0.587*g + 0.114*b) < 128;
+  } catch { return true; }
+}
+
+function ColorSwatch({ site, height = 120 }: { site: Site; height?: number }) {
+  const color = getSiteColor(site);
+  const dark = isDark(color);
+  const initials = (site.name ?? "?").split(/\s+/).map(w => w[0]).slice(0,2).join("").toUpperCase();
+
   return (
-    <div style={{ background: "#0F1A2A", width: "100%", height: "100%", overflow: "hidden" }}>
-      {/* Chrome */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", background: "rgba(255,255,255,0.04)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-        <div style={{ display: "flex", gap: 5 }}>
-          {["#FF5F57","#FEBC2E","#28C840"].map(c => <span key={c} style={{ width: 9, height: 9, borderRadius: 5, background: c, display: "block" }}/>)}
-        </div>
-        <div style={{ flex: 1, fontFamily: C.mono, fontSize: 10.5, color: "rgba(255,255,255,0.4)", textAlign: "center", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          {slug}
-        </div>
-      </div>
-      {/* Hero canvas */}
-      <div style={{ position: "relative", padding: "20px 22px", minHeight: 180 }}>
-        <div style={{ position: "absolute", top: -60, right: -50, width: 240, height: 240, borderRadius: 120, background: `radial-gradient(circle, ${accent}55, transparent 70%)`, filter: "blur(10px)" }}/>
-        {/* Nav */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative" }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", letterSpacing: -0.2 }}>{name}</span>
-          <div style={{ display: "flex", gap: 12 }}>
-            {["Home","Services","About"].map(p => <span key={p} style={{ fontSize: 9.5, color: "rgba(255,255,255,0.55)" }}>{p}</span>)}
-          </div>
-        </div>
-        {/* Hero */}
-        <div style={{ position: "relative", marginTop: 28 }}>
-          <div style={{ fontFamily: C.mono, fontSize: 8, fontWeight: 700, color: accent, textTransform: "uppercase", letterSpacing: 1.4, marginBottom: 6 }}>Built with insixlive</div>
-          <div style={{ fontSize: 22, fontWeight: 700, color: "#fff", letterSpacing: -0.6, lineHeight: 1.05 }}>
-            {line1}<br/>{line2}
-          </div>
-          <div style={{ marginTop: 14, display: "flex", gap: 6 }}>
-            <span style={{ background: accent, color: "#fff", padding: "5px 10px", borderRadius: 5, fontSize: 10, fontWeight: 600 }}>Get started</span>
-            <span style={{ border: "1px solid rgba(255,255,255,0.3)", color: "#fff", padding: "5px 10px", borderRadius: 5, fontSize: 10, fontWeight: 600 }}>Learn more</span>
-          </div>
-        </div>
-        {/* Product grid hint */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 5, marginTop: 18, position: "relative" }}>
-          {[0,1,2,3].map(i => (
-            <div key={i} style={{ height: 28, borderRadius: 3, background: `linear-gradient(135deg, rgba(255,255,255,${0.05 + i*0.02}) 0%, ${accent}${Math.floor((4 + i*3) * 2.55).toString(16).padStart(2,"0")} 100%)`, border: "1px solid rgba(255,255,255,0.06)" }}/>
-          ))}
-        </div>
-      </div>
+    <div style={{
+      width: "100%", height,
+      background: `linear-gradient(135deg, ${color} 0%, ${color}cc 100%)`,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      position: "relative", overflow: "hidden",
+    }}>
+      {/* Subtle diagonal stripe texture */}
+      <div style={{
+        position: "absolute", inset: 0, opacity: 0.06,
+        backgroundImage: "repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%)",
+        backgroundSize: "12px 12px",
+      }}/>
+      {/* Initials */}
+      <span style={{
+        fontFamily: C.font, fontSize: height * 0.28, fontWeight: 800,
+        color: dark ? "rgba(255,255,255,0.22)" : "rgba(0,0,0,0.12)",
+        letterSpacing: -2, userSelect: "none", position: "relative",
+      }}>{initials}</span>
     </div>
   );
 }
@@ -214,9 +235,9 @@ function SiteCard({ site, onDomain, onEdit }: { site: Site; onDomain: () => void
   return (
     <article style={{ background: "#fff", border: `1px solid ${C.line}`, borderRadius: 18, boxShadow: "0 1px 0 rgba(255,255,255,0.5) inset, 0 14px 40px rgba(10,14,20,0.04)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
       {/* Preview */}
-      <div style={{ height: 256, position: "relative", overflow: "hidden" }}>
-        <MiniBrowser slug={domain} name={site.name}/>
-        <span style={{ position: "absolute", top: 14, right: 14 }}><StatusPill status="live"/></span>
+      <div style={{ position: "relative", overflow: "hidden", borderRadius: "18px 18px 0 0" }}>
+        <ColorSwatch site={site} height={120}/>
+        <span style={{ position: "absolute", top: 12, right: 12 }}><StatusPill status="live"/></span>
       </div>
 
       {/* Body */}
@@ -276,8 +297,8 @@ function SiteRow({ site, onDomain, onEdit }: { site: Site; onDomain: () => void;
   const created = new Date(site.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
   return (
     <div style={{ display: "grid", gridTemplateColumns: "88px 1fr auto auto", alignItems: "center", gap: 22, padding: "16px 22px", background: "#fff", border: `1px solid ${C.line}`, borderRadius: 14, boxShadow: "0 1px 0 rgba(255,255,255,0.5) inset" }}>
-      <div style={{ width: 88, height: 64, borderRadius: 8, overflow: "hidden", border: `1px solid ${C.line}` }}>
-        <MiniBrowser slug={domain} name={site.name}/>
+      <div style={{ width: 88, height: 64, borderRadius: 8, overflow: "hidden", border: `1px solid ${C.line}`, flexShrink: 0 }}>
+        <ColorSwatch site={site} height={64}/>
       </div>
       <div style={{ minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
