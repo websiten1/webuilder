@@ -1815,13 +1815,14 @@ function Step5Pages({ data, team, useEmojis, websiteLanguage, onChange, onTeamCh
 
 // ─── Step 7: Review ───────────────────────────────────────────────────────────
 
-function Step7Review({ data, onEdit, onSubmit, loading, countdown, stageMsg }: {
+function Step7Review({ data, onEdit, onSubmit, loading, countdown, stageMsg, vercelAuthorized }: {
   data: WizardData;
   onEdit: (step: number) => void;
   onSubmit: () => void;
   loading: boolean;
   countdown: number;
   stageMsg: string;
+  vercelAuthorized: boolean | null;
 }) {
   const progressPct = loading ? Math.round(((100 - countdown) / 100) * 100) : 0;
   const style = STYLES.find(s => s.id === data.design.style);
@@ -1893,6 +1894,30 @@ function Step7Review({ data, onEdit, onSubmit, loading, countdown, stageMsg }: {
               width: `${progressPct}%`, borderRadius: 99, transition: "width 0.8s ease",
             }} />
           </div>
+        </div>
+      )}
+
+      {/* ── Vercel connection status ── */}
+      {!loading && (
+        <div style={{ marginBottom: 16, padding: "14px 16px", borderRadius: 12, border: "1px solid", borderColor: vercelAuthorized ? "#bbf7d0" : "#fed7aa", background: vercelAuthorized ? "#f0fdf4" : "#fff7ed", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+            <span style={{ fontSize: 20, lineHeight: 1, marginTop: 1 }}>{vercelAuthorized === null ? "⏳" : vercelAuthorized ? "✅" : "⚠️"}</span>
+            <div>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: vercelAuthorized ? "#166534" : "#92400e" }}>
+                {vercelAuthorized === null ? "Checking Vercel…" : vercelAuthorized ? "Vercel connected — site deploys to your account" : "Vercel not connected"}
+              </p>
+              <p style={{ margin: "3px 0 0", fontSize: 12, color: vercelAuthorized ? "#166534" : "#b45309", lineHeight: 1.4 }}>
+                {vercelAuthorized
+                  ? "Your generated website will be deployed directly to your own Vercel project."
+                  : "Connect your Vercel account so the site is deployed under your ownership. You can also continue without connecting — we'll deploy it on your behalf."}
+              </p>
+            </div>
+          </div>
+          {!vercelAuthorized && vercelAuthorized !== null && (
+            <a href="/api/auth/vercel/authorize" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 5, padding: "7px 14px", borderRadius: 8, background: "#0A0E14", color: "#fff", fontSize: 12, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>
+              Connect Vercel ↗
+            </a>
+          )}
         </div>
       )}
 
@@ -2441,6 +2466,15 @@ export default function GenerateWizard() {
   const [stageMsg, setStageMsg]   = useState("");
   const [clientSecret, setClientSecret] = useState("");
   const [selectedTier, setSelectedTier] = useState<"website" | "website_5">("website_5");
+  const [vercelAuthorized, setVercelAuthorized] = useState<boolean | null>(null);
+
+  // Check Vercel auth status once on mount
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then(r => r.json())
+      .then(d => setVercelAuthorized(d.user?.vercelAuthorized ?? false))
+      .catch(() => setVercelAuthorized(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Restore wizard progress — deep-merge with DEFAULT so new fields from
   // schema updates are always present even when older data is in localStorage.
@@ -2635,6 +2669,7 @@ export default function GenerateWizard() {
               loading={loading}
               countdown={countdown}
               stageMsg={stageMsg}
+              vercelAuthorized={vercelAuthorized}
             />
           )}
           {/* Step 9 — Pricing plan selection */}

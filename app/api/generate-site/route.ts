@@ -4,8 +4,110 @@ import { deployToVercel } from "@/lib/vercel";
 import { getSession } from "@/lib/session";
 import { getUserById, saveSiteWithVercel } from "@/lib/db";
 import type { WizardData } from "@/app/components/GenerateWizard";
+import fs from "fs";
+import path from "path";
 
 export const maxDuration = 300;
+
+// ─── Template CSS extraction ───────────────────────────────────────────────────
+
+const TEMPLATE_FILES: Record<string, string> = {
+  "dentist":       "01-dentist.html",
+  "gym-coach":     "02-gym-coach.html",
+  "kindergarten":  "03-kindergarten.html",
+  "coffee-shop":   "04-coffee-shop.html",
+  "fine-dining":   "05-fine-dining.html",
+  "bakery":        "06-bakery.html",
+  "law-firm":      "07-law-firm.html",
+  "real-estate":   "08-real-estate.html",
+  "hair-salon":    "09-hair-salon.html",
+  "auto-repair":   "10-auto-repair.html",
+  "vet-clinic":    "11-vet-clinic.html",
+  "yoga-studio":   "12-yoga-studio.html",
+  "tattoo-studio": "13-tattoo-studio.html",
+  "florist":       "14-florist.html",
+  "bookstore":     "15-bookstore.html",
+  "saas-startup":  "16-saas-startup.html",
+};
+
+function getTemplateDesignSpec(templateId: string): string {
+  try {
+    const file = TEMPLATE_FILES[templateId];
+    if (!file) return "";
+    const htmlPath = path.join(process.cwd(), "public", "templates", file);
+    const html = fs.readFileSync(htmlPath, "utf-8");
+
+    // Extract :root CSS custom properties
+    const rootMatch = html.match(/:root\s*\{([^}]+)\}/);
+    const cssVars = rootMatch
+      ? rootMatch[1].trim().split("\n").map(l => "  " + l.trim()).filter(l => l.trim().startsWith("--")).join("\n")
+      : "";
+
+    // Extract Google Fonts URL
+    const fontLinkMatch = html.match(/fonts\.googleapis\.com\/css2[^"']*/);
+    const fontUrl = fontLinkMatch ? `https://${fontLinkMatch[0]}` : "";
+
+    if (!cssVars) return "";
+    return `
+════════════════════════════════════════════════
+EXACT TEMPLATE DESIGN TOKENS — YOU MUST USE THESE
+════════════════════════════════════════════════
+The user chose the "${TEMPLATE_NAMES[templateId] || templateId}" template.
+Apply these EXACT CSS custom properties — do not approximate or substitute colours.
+
+:root {
+${cssVars}
+}
+${fontUrl ? `\nFont import: ${fontUrl}\nLoad this Google Font in a <link> tag in your <style> or component head.` : ""}
+
+Match the template's overall aesthetic: background colour, text colour, primary accent, card
+surfaces, borders, and typography scale. Your generated site must look like a refined
+production version of this template for the user's specific business.
+`;
+  } catch (err) {
+    console.warn("⚠️  Could not read template file for", templateId, err);
+    return "";
+  }
+}
+
+// ─── Logo / image post-processing ─────────────────────────────────────────────
+
+function embedUploads(code: string, formData: WizardData): string {
+  let result = code;
+
+  // Replace /logo.png placeholder with the actual uploaded logo data URL
+  if (formData.logo?.uploaded && formData.logo.dataUrl) {
+    const logoDataUrl = formData.logo.dataUrl;
+    console.log(`📎 Embedding logo: ${formData.logo.fileName} (${Math.round(logoDataUrl.length / 1024)} KB as base64)`);
+    result = result
+      .replace(/src="\/logo\.png"/g, `src="${logoDataUrl}"`)
+      .replace(/src='\/logo\.png'/g, `src='${logoDataUrl}'`);
+  }
+
+  // Replace per-section image placeholders with uploaded images
+  const descs = formData.pages?.pageDescriptions ?? {};
+  for (const [pageId, desc] of Object.entries(descs)) {
+    if (desc?.image) {
+      const placeholder = `/section-image-${pageId}`;
+      result = result
+        .replace(new RegExp(`src="${placeholder}[^"]*"`, "g"), `src="${desc.image}"`)
+        .replace(new RegExp(`src='${placeholder}[^']*'`, "g"), `src='${desc.image}'`);
+    }
+  }
+
+  return result;
+}
+
+const TEMPLATE_NAMES: Record<string, string> = {
+  "dentist": "Dental Practice", "gym-coach": "Gym / Fitness Coach",
+  "kindergarten": "Kindergarten", "coffee-shop": "Coffee Shop",
+  "fine-dining": "Fine Dining Restaurant", "bakery": "Bakery",
+  "law-firm": "Law Firm", "real-estate": "Real Estate Agency",
+  "hair-salon": "Hair Salon", "auto-repair": "Auto Repair Shop",
+  "vet-clinic": "Vet Clinic", "yoga-studio": "Yoga Studio",
+  "tattoo-studio": "Tattoo Studio", "florist": "Florist",
+  "bookstore": "Bookstore", "saas-startup": "SaaS / Tech Startup",
+};
 
 function buildPrompt(f: WizardData): string {
   const styleMap: Record<string, string> = {
@@ -90,19 +192,8 @@ function buildPrompt(f: WizardData): string {
     "ai-decide": "appropriate animations for the chosen style",
   };
 
-  const templateNames: Record<string, string> = {
-    "dentist": "Dental Practice", "gym-coach": "Gym / Fitness Coach",
-    "kindergarten": "Kindergarten", "coffee-shop": "Coffee Shop",
-    "fine-dining": "Fine Dining Restaurant", "bakery": "Bakery",
-    "law-firm": "Law Firm", "real-estate": "Real Estate Agency",
-    "hair-salon": "Hair Salon", "auto-repair": "Auto Repair Shop",
-    "vet-clinic": "Vet Clinic", "yoga-studio": "Yoga Studio",
-    "tattoo-studio": "Tattoo Studio", "florist": "Florist",
-    "bookstore": "Bookstore", "saas-startup": "SaaS / Tech Startup",
-  };
-
   return `Create a complete, professional, production-ready Next.js website for a ${f.business.type.toLowerCase()} business.
-${f.templateId && templateNames[f.templateId] ? `\nStarting template: "${templateNames[f.templateId]}" — use this as the primary visual reference for industry conventions, layout patterns, and aesthetic direction. Adapt it to the specific design settings and business details below.\n` : ""}
+${f.templateId ? getTemplateDesignSpec(f.templateId) : ""}
 ════════════════════════════════════════════════
 BUSINESS DETAILS
 ════════════════════════════════════════════════
@@ -133,7 +224,7 @@ Dark mode: ${f.design.darkMode ? "Yes — include a dark mode toggle and CSS var
 Typography: ${fontMap[f.typography.fontFamily] || f.typography.fontFamily}
 Imagery style: ${imageryMap[f.typography.imageryStyle] || f.typography.imageryStyle}
 Hero section: ${heroMap[f.typography.heroPreference] || f.typography.heroPreference}
-${f.logo.uploaded ? "Logo: A logo file was provided — include a <img> tag in the header with src set to '/logo.png' and size it appropriately (height ~40px in nav)." : "Logo: No logo uploaded — create a text-based logo using the business name, styled with the brand colors."}
+${f.logo.uploaded ? "Logo: The user uploaded a logo. Use exactly src=\"/logo.png\" in your <img> tag — this will be replaced with the real file automatically. Size: height 44px, width auto, object-fit contain, in the sticky nav." : "Logo: No logo uploaded — create a text-based wordmark using the business name styled with the primary brand colour."}
 
 ════════════════════════════════════════════════
 BUSINESS ABOUT & STORY
@@ -238,8 +329,12 @@ export async function POST(request: NextRequest) {
     console.log("Starting site generation for:", siteName);
 
     console.log("Calling Claude API...");
-    const websiteCode = await generateWebsiteCode(prompt);
-    console.log("✅ Code generated");
+    console.log(`🎨 Template: ${formData.templateId || "custom"}`);
+    console.log(`🖼️  Logo uploaded: ${formData.logo?.uploaded ? `yes (${formData.logo.fileName})` : "no"}`);
+    const rawCode = await generateWebsiteCode(prompt);
+    console.log("✅ Code generated, post-processing uploads...");
+    const websiteCode = embedUploads(rawCode, formData);
+    console.log("✅ Uploads embedded");
 
     // Deploy directly to user's Vercel account — no GitHub needed
     const projectName = `${siteName.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").slice(0, 40)}-${Date.now()}`;
