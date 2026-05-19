@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Your Dental Practice — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6faf8; --ink:#0e2a26; --muted:#5a7570;
+    --mint:#9fd9c8; --mint-deep:#3a8a78; --line:#dceae5; --card:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.55}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px}
+  nav{position:sticky;top:0;z-index:50;background:rgba(246,250,248,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:72px}
+  .logo{display:flex;align-items:center;gap:10px;font-family:Fraunces;font-weight:500;font-size:20px;letter-spacing:-.01em}
+  .logo svg{width:32px;height:32px}
+  .nav-links{display:flex;gap:36px;font-size:14.5px;color:var(--muted)}
+  .nav-links a{position:relative;padding:6px 0;cursor:pointer}
+  .nav-links a.active{color:var(--ink)}
+  .nav-links a.active::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--mint-deep);border-radius:2px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:999px;font-weight:500;font-size:14.5px;cursor:pointer;border:none;transition:.2s}
+  .btn-primary{background:var(--mint-deep);color:#fff}
+  .btn-primary:hover{background:#2d6e60}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .btn-ghost:hover{background:#fff}
+  .page{display:none;padding:80px 0 120px}
+  .page.active{display:block}
+
+  /* Home */
+  .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:80px;align-items:center}
+  .eyebrow{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint-deep);font-weight:500;margin-bottom:20px}
+  h1.display{font-family:Fraunces;font-weight:400;font-size:clamp(48px,5.6vw,80px);line-height:1.02;letter-spacing:-.025em;margin-bottom:24px}
+  h1.display em{font-style:italic;color:var(--mint-deep)}
+  .lede{font-size:18px;color:var(--muted);max-width:480px;margin-bottom:36px}
+  .hero-cta{display:flex;gap:14px}
+  .hero-art{position:relative;aspect-ratio:1/1;border-radius:50%;background:linear-gradient(160deg,#e7f3ef,#cfe7df);display:grid;place-items:center;overflow:hidden}
+  .hero-art::before{content:"";position:absolute;inset:18%;border:1px dashed var(--mint-deep);opacity:.3;border-radius:50%}
+  .tooth-mark{position:absolute;font-family:Fraunces;font-weight:400;font-style:italic;color:var(--mint-deep);font-size:14px}
+  .tooth-mark.a{top:10%;left:14%}.tooth-mark.b{bottom:14%;right:8%}.tooth-mark.c{top:50%;right:-2%}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;margin-top:120px;padding-top:48px;border-top:1px solid var(--line)}
+  .stat .num{font-family:Fraunces;font-size:48px;line-height:1;letter-spacing:-.02em}
+  .stat .lbl{font-size:13px;color:var(--muted);margin-top:8px}
+
+  /* About */
+  .page-head{margin-bottom:64px;max-width:760px}
+  .page-head h2{font-family:Fraunces;font-weight:400;font-size:clamp(40px,4.5vw,64px);line-height:1.05;letter-spacing:-.02em;margin:8px 0 20px}
+  .page-head p{font-size:18px;color:var(--muted)}
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
+  .about-text p{margin-bottom:20px;color:#33524d}
+  .values{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:48px}
+  .value{padding:28px;background:var(--card);border:1px solid var(--line);border-radius:18px}
+  .value .ico{width:40px;height:40px;border-radius:50%;background:#e7f3ef;display:grid;place-items:center;margin-bottom:16px;color:var(--mint-deep)}
+  .value h4{font-family:Fraunces;font-weight:500;font-size:18px;margin-bottom:6px}
+  .value p{font-size:14.5px;color:var(--muted)}
+  .team{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:24px}
+  .member{padding:24px;background:var(--card);border:1px solid var(--line);border-radius:18px;text-align:center}
+  .avatar{width:88px;height:88px;border-radius:50%;background:linear-gradient(160deg,#cfe7df,#9fd9c8);margin:0 auto 16px;display:grid;place-items:center;font-family:Fraunces;font-size:28px;color:#1f4a42}
+  .member h5{font-family:Fraunces;font-weight:500;font-size:17px;margin-bottom:4px}
+  .member .role{font-size:13px;color:var(--mint-deep);text-transform:uppercase;letter-spacing:.1em}
+  .member p{margin-top:12px;font-size:14px;color:var(--muted)}
+
+  /* Services */
+  .svc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  .svc{padding:36px;background:var(--card);border:1px solid var(--line);border-radius:22px;transition:.25s;position:relative;overflow:hidden}
+  .svc:hover{transform:translateY(-2px);border-color:var(--mint)}
+  .svc .num{font-family:Fraunces;font-style:italic;color:var(--mint-deep);font-size:14px;letter-spacing:.1em}
+  .svc h3{font-family:Fraunces;font-weight:500;font-size:26px;letter-spacing:-.015em;margin:8px 0 12px}
+  .svc p{font-size:15px;color:var(--muted);margin-bottom:20px}
+  .svc .price{font-family:Fraunces;font-size:22px;color:var(--ink)}
+  .svc .price span{font-size:13px;color:var(--muted);font-family:Inter}
+
+  /* Contact */
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px}
+  form{display:grid;gap:18px}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  .field input,.field textarea,.field select{width:100%;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:#fff;font:inherit;color:inherit}
+  .field input:focus,.field textarea:focus{outline:2px solid var(--mint);border-color:var(--mint-deep)}
+  .field textarea{min-height:120px;resize:vertical}
+  .field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .info-block{padding:36px;border-radius:22px;background:var(--mint-deep);color:#fff}
+  .info-block h3{font-family:Fraunces;font-weight:400;font-size:32px;margin-bottom:20px;letter-spacing:-.01em}
+  .info-row{display:flex;gap:14px;padding:18px 0;border-top:1px solid rgba(255,255,255,.18)}
+  .info-row:first-of-type{border-top:none}
+  .info-row .label{font-size:12px;letter-spacing:.15em;text-transform:uppercase;opacity:.75;min-width:90px}
+  .info-row .val{flex:1}
+  .hours-grid{display:grid;grid-template-columns:1fr auto;gap:8px 16px;font-size:14.5px}
+
+  footer{border-top:1px solid var(--line);padding:48px 0;color:var(--muted);font-size:14px}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px}
+  .foot-links{display:flex;gap:28px}
+  @media(max-width:880px){
+    .hero,.about-grid,.contact-grid{grid-template-columns:1fr;gap:48px}
+    .svc-grid,.team,.values{grid-template-columns:1fr}
+    .stats{grid-template-columns:1fr 1fr}
+    .nav-links{display:none}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" data-page="home">
+      <svg viewBox="0 0 40 40" fill="none"><path d="M20 6c-5 0-8 3-8 7 0 4 2 5 2 10 0 4-1 8 1 10 1 1 3-1 3-5 0-4 1-5 2-5s2 1 2 5c0 4 2 6 3 5 2-2 1-6 1-10 0-5 2-6 2-10 0-4-3-7-8-7Z" fill="#3a8a78"/></svg>
+      Your Dental Practice
+    </a>
+    <div class="nav-links">
+      <a data-page="home" class="active">Home</a>
+      <a data-page="about">About</a>
+      <a data-page="services">Services</a>
+      <a data-page="contact">Contact</a>
+    </div>
+    <button class="btn btn-primary" onclick="goto('contact')">Book a visit</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div>
+      <div class="eyebrow">Family Dentistry · Est. Year</div>
+      <h1 class="display">Gentle care for the smile you've <em>always wanted</em>.</h1>
+      <p class="lede">A modern dental practice built around quiet rooms, honest pricing, and dentistry that respects your time. Replace this paragraph with a sentence about your office.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="goto('contact')">Schedule consultation →</button>
+        <button class="btn btn-ghost" onclick="goto('services')">See services</button>
+      </div>
+    </div>
+    <div class="hero-art">
+      <svg width="58%" viewBox="0 0 100 100" fill="none">
+        <path d="M50 18c-13 0-20 7-20 17 0 10 5 12 5 25 0 10-3 20 3 24 4 3 7-4 7-13 0-9 2-13 5-13s5 4 5 13c0 9 3 16 7 13 6-4 3-14 3-24 0-13 5-15 5-25 0-10-7-17-20-17Z" fill="#3a8a78"/>
+      </svg>
+      <span class="tooth-mark a">soft</span>
+      <span class="tooth-mark b">precise</span>
+      <span class="tooth-mark c">honest</span>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="num">12k+</div><div class="lbl">Smiles cared for</div></div>
+    <div class="stat"><div class="num">4.9★</div><div class="lbl">Average review</div></div>
+    <div class="stat"><div class="num">20yr</div><div class="lbl">Combined experience</div></div>
+    <div class="stat"><div class="num">100%</div><div class="lbl">Sterilization standard</div></div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head">
+    <div class="eyebrow">About the practice</div>
+    <h2>Dentistry that feels like a conversation, not a procedure.</h2>
+    <p>This section is yours. Tell visitors when you opened, what you stand for, and why your patients keep coming back.</p>
+  </div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p>Replace this with the story of your practice — where you started, what drew you to dentistry, and the kind of room you wanted to build for your patients.</p>
+      <p>Mention your approach: maybe it's minimal-intervention care, maybe it's making nervous patients feel okay, maybe it's the playlist you've curated for the waiting room. Specifics build trust.</p>
+      <p>Close with the part that's hardest to write — what you actually want for the people who sit in your chair.</p>
+    </div>
+    <div class="values">
+      <div class="value">
+        <div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 7v5c0 5 3 9 8 10 5-1 8-5 8-10V7l-8-5Z"/></svg></div>
+        <h4>Safety first</h4><p>Hospital-grade sterilization on every instrument, every visit.</p>
+      </div>
+      <div class="value">
+        <div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v8M8 12h8"/><circle cx="12" cy="12" r="9"/></svg></div>
+        <h4>Honest pricing</h4><p>Transparent quotes before any work begins. No surprises after.</p>
+      </div>
+      <div class="value">
+        <div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 14c0 4-3 7-8 7s-8-3-8-7c0-6 8-12 8-12s8 6 8 12Z"/></svg></div>
+        <h4>Quiet rooms</h4><p>Soundproofed treatment rooms with natural light wherever possible.</p>
+      </div>
+      <div class="value">
+        <div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
+        <h4>Modern tech</h4><p>Digital impressions, low-radiation imaging, same-day crowns.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-family:Fraunces;font-weight:400;font-size:32px;letter-spacing:-.015em;margin:80px 0 24px">Meet the team</h3>
+  <div class="team">
+    <div class="member"><div class="avatar">AB</div><h5>Dr. Your Name</h5><div class="role">Founder, DDS</div><p>One-line bio. Where they studied, what they care about.</p></div>
+    <div class="member"><div class="avatar">CD</div><h5>Dr. Second Name</h5><div class="role">Associate, DMD</div><p>One-line bio. Where they studied, what they care about.</p></div>
+    <div class="member"><div class="avatar">EF</div><h5>Lead Hygienist Name</h5><div class="role">Dental Hygienist</div><p>One-line bio. Where they studied, what they care about.</p></div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head">
+    <div class="eyebrow">What we offer</div>
+    <h2>Routine care, restorative work, and the cosmetic finish.</h2>
+    <p>Six services to get you started. Edit, remove, or duplicate to match what your practice actually does.</p>
+  </div>
+  <div class="svc-grid">
+    <div class="svc"><div class="num">— 01</div><h3>Cleanings & checkups</h3><p>Twice-yearly exams, gentle scaling, and oral cancer screening. The foundation of everything else.</p><div class="price">From $XX <span>/ visit</span></div></div>
+    <div class="svc"><div class="num">— 02</div><h3>Cosmetic dentistry</h3><p>Veneers, whitening, and bonding done with restraint — natural looking, not catalog-perfect.</p><div class="price">From $XX</div></div>
+    <div class="svc"><div class="num">— 03</div><h3>Invisible aligners</h3><p>Clear aligner therapy planned with 3D imaging. Most courses run 6–14 months.</p><div class="price">From $X,XXX</div></div>
+    <div class="svc"><div class="num">— 04</div><h3>Implants & crowns</h3><p>Same-day crowns and titanium implants placed in-house. Full restoration without a second office.</p><div class="price">From $X,XXX</div></div>
+    <div class="svc"><div class="num">— 05</div><h3>Children's dentistry</h3><p>First visits, fluoride, sealants, and the kind of patience that makes kids actually want to come back.</p><div class="price">From $XX</div></div>
+    <div class="svc"><div class="num">— 06</div><h3>Emergency care</h3><p>Same-day appointments for pain, trauma, or anything that won't wait. Call us first.</p><div class="price">Call directly</div></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head">
+    <div class="eyebrow">Get in touch</div>
+    <h2>Book a visit or send us a question.</h2>
+    <p>We answer most emails within a business day. For anything urgent, please call.</p>
+  </div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo form — wire this up to your booking system.')">
+      <div class="field row">
+        <div><label>First name</label><input type="text" placeholder="Your first name"/></div>
+        <div><label>Last name</label><input type="text" placeholder="Your last name"/></div>
+      </div>
+      <div class="field"><label>Email</label><input type="email" placeholder="you@example.com"/></div>
+      <div class="field"><label>Phone</label><input type="tel" placeholder="(555) 000-0000"/></div>
+      <div class="field"><label>I'm interested in</label>
+        <select><option>A routine cleaning</option><option>Cosmetic consultation</option><option>Aligners</option><option>Emergency care</option><option>Something else</option></select>
+      </div>
+      <div class="field"><label>Anything we should know?</label><textarea placeholder="Optional"></textarea></div>
+      <button type="submit" class="btn btn-primary">Request appointment →</button>
+    </form>
+    <div class="info-block">
+      <h3>Your Practice Name</h3>
+      <div class="info-row"><div class="label">Address</div><div class="val">123 Your Street<br/>City, ST 00000</div></div>
+      <div class="info-row"><div class="label">Phone</div><div class="val">(555) 000-0000</div></div>
+      <div class="info-row"><div class="label">Email</div><div class="val">hello@yourpractice.com</div></div>
+      <div class="info-row"><div class="label">Hours</div><div class="val">
+        <div class="hours-grid">
+          <span>Mon – Thu</span><span>8:00 – 18:00</span>
+          <span>Friday</span><span>8:00 – 14:00</span>
+          <span>Saturday</span><span>By appointment</span>
+          <span>Sunday</span><span>Closed</span>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>© 2026 Your Dental Practice. All rights reserved.</div>
+    <div class="foot-links">
+      <a>Privacy</a><a>Accessibility</a><a>Patient forms</a><a>Insurance</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function goto(id){
+    document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));
+    document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script>
+</body></html>

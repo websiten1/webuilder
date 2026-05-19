@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Your Restaurant — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0a0a;--ink:#f1ece2;--muted:#8a8378;--gold:#c9a96e;--line:#1f1d1a;--card:#141210}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;font-size:16px;line-height:1.65;font-weight:300}
+  a{color:inherit;text-decoration:none;cursor:pointer}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 40px}
+  nav{position:sticky;top:0;z-index:50;background:rgba(10,10,10,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:88px}
+  .logo{font-family:'Cormorant Garamond';font-weight:400;font-size:26px;letter-spacing:.05em;text-transform:uppercase}
+  .nav-links{display:flex;gap:40px;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+  .nav-links a.active{color:var(--gold)}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:14px 32px;font-size:12px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;border:none;font-weight:400}
+  .btn-primary{background:var(--gold);color:#0a0a0a}
+  .btn-primary:hover{background:#d6b87a}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--muted)}
+  .btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+  .page{display:none;padding:64px 0 120px}
+  .page.active{display:block}
+
+  /* Hero */
+  .hero{padding:60px 0 40px;text-align:center}
+  .hero .eyebrow{display:inline-flex;align-items:center;gap:14px;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:36px}
+  .hero .eyebrow::before,.hero .eyebrow::after{content:"";display:block;width:48px;height:1px;background:var(--gold)}
+  .hero h1{font-family:'Cormorant Garamond';font-weight:300;font-size:clamp(64px,8vw,140px);line-height:.96;letter-spacing:-.02em}
+  .hero h1 em{font-weight:400;color:var(--gold)}
+  .hero .sub{font-family:'Cormorant Garamond';font-style:italic;font-size:22px;color:var(--muted);margin-top:20px}
+  .hero-cta{display:flex;gap:14px;justify-content:center;margin-top:48px;flex-wrap:wrap}
+
+  /* Composition / table illustration */
+  .scene{margin-top:80px;position:relative;height:340px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);display:grid;place-items:center;background:radial-gradient(ellipse at center,#1a1815 0%,#0a0a0a 70%)}
+  .plate{position:absolute;border-radius:50%;border:1px solid var(--line)}
+  .plate.center{width:280px;height:280px;border-color:var(--gold);background:radial-gradient(circle at 40% 40%,#2a2620,#0a0a0a)}
+  .plate.center::after{content:"";position:absolute;inset:30%;border-radius:50%;background:radial-gradient(circle,#3a3228,#1a1612)}
+  .plate.left{width:160px;height:160px;left:14%;top:50%;transform:translateY(-50%)}
+  .plate.right{width:120px;height:120px;right:18%;top:30%}
+  .plate.tr{width:80px;height:80px;right:8%;bottom:18%}
+  .plate-label{position:absolute;font-family:'Cormorant Garamond';font-style:italic;font-size:14px;color:var(--gold);letter-spacing:.08em}
+  .plate-label.a{left:25%;top:20%}
+  .plate-label.b{right:25%;top:60%}
+  .scene-cap{position:absolute;bottom:24px;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted)}
+
+  /* Quote */
+  .quote-row{display:grid;grid-template-columns:repeat(3,1fr);gap:60px;margin-top:96px;padding:60px 0;border-bottom:1px solid var(--line)}
+  .quote{position:relative;padding-left:40px}
+  .quote::before{content:"❝";position:absolute;left:0;top:-8px;font-family:'Cormorant Garamond';font-size:48px;color:var(--gold);line-height:1}
+  .quote p{font-family:'Cormorant Garamond';font-style:italic;font-size:20px;color:var(--ink);line-height:1.5;margin-bottom:14px}
+  .quote .by{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+
+  /* Tasting menu preview */
+  .tasting{margin-top:120px;display:grid;grid-template-columns:1fr 1.6fr;gap:80px;align-items:start}
+  .tasting .head h2{font-family:'Cormorant Garamond';font-weight:300;font-size:64px;line-height:1;letter-spacing:-.015em}
+  .tasting .head .meta{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:18px}
+  .tasting .head p{color:var(--muted);margin-top:22px;font-size:15px}
+  .tasting .head .price{font-family:'Cormorant Garamond';font-size:48px;color:var(--gold);margin-top:32px}
+  .courses{display:grid;gap:1px;background:var(--line)}
+  .course{background:var(--bg);padding:28px 0;display:grid;grid-template-columns:60px 1fr 80px;gap:24px;align-items:baseline}
+  .course .n{font-family:'Cormorant Garamond';font-size:32px;color:var(--gold);font-style:italic}
+  .course .nm{font-family:'Cormorant Garamond';font-size:24px}
+  .course .ds{font-size:13.5px;color:var(--muted);margin-top:4px}
+  .course .pair{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);text-align:right;line-height:1.4}
+
+  /* Reservation card */
+  .res-card{margin-top:96px;padding:60px;background:var(--card);border:1px solid var(--line);display:grid;grid-template-columns:1fr 1.2fr;gap:60px;align-items:center}
+  .res-card h3{font-family:'Cormorant Garamond';font-size:48px;font-weight:300;line-height:1;margin-bottom:14px}
+  .res-card p{color:var(--muted);font-size:15px}
+  .res-form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .res-form .full{grid-column:1/-1}
+  .res-form .field label{display:block;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .res-form input,.res-form select{width:100%;background:transparent;border:none;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;padding:10px 0}
+  .res-form input:focus,.res-form select:focus{outline:none;border-bottom-color:var(--gold)}
+
+  /* Pages */
+  .page-head{margin-bottom:80px;max-width:780px;text-align:center;margin-left:auto;margin-right:auto}
+  .page-head .eyebrow{display:inline-flex;align-items:center;gap:14px;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:24px}
+  .page-head .eyebrow::before,.page-head .eyebrow::after{content:"";width:32px;height:1px;background:var(--gold)}
+  .page-head h2{font-family:'Cormorant Garamond';font-weight:300;font-size:clamp(48px,6vw,84px);line-height:1.02;letter-spacing:-.015em}
+  .page-head p{font-size:17px;color:var(--muted);margin-top:20px}
+
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+  .chef-card{padding:48px;background:var(--card);border:1px solid var(--line);text-align:center}
+  .chef-card .portrait{width:140px;height:140px;border-radius:50%;background:linear-gradient(160deg,#3a3228,#1a1612);border:1px solid var(--gold);margin:0 auto 24px;display:grid;place-items:center;font-family:'Cormorant Garamond';font-size:48px;color:var(--gold)}
+  .chef-card h4{font-family:'Cormorant Garamond';font-size:32px;font-weight:300}
+  .chef-card .role{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin:6px 0 18px}
+  .chef-card p{color:var(--muted);font-size:14.5px}
+  .about-text p{font-family:'Cormorant Garamond';font-size:22px;line-height:1.5;color:var(--ink);margin-bottom:24px;font-weight:300}
+  .about-text p.italic{font-style:italic;color:var(--gold)}
+
+  .menu-page{max-width:880px;margin:0 auto}
+  .menu-cat{margin-bottom:72px}
+  .menu-cat h3{font-family:'Cormorant Garamond';font-weight:300;font-size:36px;text-align:center;letter-spacing:.08em;margin-bottom:8px}
+  .menu-cat .cat-sub{text-align:center;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:40px}
+  .dish{padding:22px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr auto;gap:24px;align-items:baseline}
+  .dish .nm{font-family:'Cormorant Garamond';font-size:24px}
+  .dish .ds{font-size:13px;color:var(--muted);margin-top:6px;letter-spacing:.04em}
+  .dish .pr{font-family:'Cormorant Garamond';font-size:22px;color:var(--gold)}
+
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px}
+  form{display:grid;gap:18px}
+  .field label{display:block;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  input,textarea,select{width:100%;padding:14px 0;background:transparent;border:none;border-bottom:1px solid var(--line);color:var(--ink);font:inherit}
+  input:focus,textarea:focus{outline:none;border-bottom-color:var(--gold)}
+  .field.row{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  textarea{min-height:80px;resize:vertical}
+  .info-block{padding:48px;border:1px solid var(--line);background:var(--card)}
+  .info-block h3{font-family:'Cormorant Garamond';font-size:36px;font-weight:300;margin-bottom:24px}
+  .info-row{padding:18px 0;border-top:1px solid var(--line);font-size:14.5px}
+  .info-row:first-of-type{border-top:none}
+  .info-row .lbl{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+
+  footer{border-top:1px solid var(--line);padding:48px 0;color:var(--muted);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px}
+  .foot-links{display:flex;gap:32px}
+  @media(max-width:880px){.tasting,.res-card,.about-grid,.contact-grid,.quote-row{grid-template-columns:1fr;gap:48px}.nav-links{display:none}}
+</style></head>
+<body>
+
+<nav><div class="wrap">
+  <a class="logo" onclick="goto('home')">— Your Restaurant —</a>
+  <div class="nav-links">
+    <a data-page="home" class="active">Home</a>
+    <a data-page="about">The House</a>
+    <a data-page="services">Menu</a>
+    <a data-page="contact">Reserve</a>
+  </div>
+  <button class="btn btn-primary" onclick="goto('contact')">Reserve</button>
+</div></nav>
+
+<main>
+
+<section class="page active" id="home"><div class="wrap">
+  <div class="hero">
+    <div class="eyebrow">Modern European · Est. Year</div>
+    <h1>Quiet rooms, <em>loud flavors</em>,<br/>thirteen tables.</h1>
+    <div class="sub">— A tasting menu that changes with the season —</div>
+    <div class="hero-cta">
+      <button class="btn btn-primary" onclick="goto('contact')">Reserve a table</button>
+      <button class="btn btn-ghost" onclick="goto('services')">View the menu</button>
+    </div>
+  </div>
+
+  <div class="scene">
+    <div class="plate left"></div>
+    <div class="plate center"></div>
+    <span class="plate-label a">— amuse bouche</span>
+    <span class="plate-label b">— first course</span>
+    <div class="plate right"></div>
+    <div class="plate tr"></div>
+    <div class="scene-cap">— composition no. 7 —</div>
+  </div>
+
+  <div class="quote-row">
+    <div class="quote"><p>A dining room that takes itself seriously without taking itself too seriously.</p><div class="by">— The Local Paper</div></div>
+    <div class="quote"><p>The kind of place you save for the nights that need saving.</p><div class="by">— A Magazine</div></div>
+    <div class="quote"><p>Plates that remind you cooking is a kind of generosity.</p><div class="by">— A Critic</div></div>
+  </div>
+
+  <div class="tasting">
+    <div class="head">
+      <div class="meta">— The tasting menu</div>
+      <h2>Seven courses,<br/>one evening.</h2>
+      <p>Our chef builds a new tasting menu every six weeks. Optional wine pairings are selected the morning of your reservation, by glass and by hand.</p>
+      <div class="price">$135 <span style="font-family:Manrope;font-size:14px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase">per guest</span></div>
+    </div>
+    <div class="courses">
+      <div class="course"><div class="n">i</div><div><div class="nm">Oyster, lemon ice, dill</div><div class="ds">First bite, cold.</div></div><div class="pair">Champagne · brut</div></div>
+      <div class="course"><div class="n">ii</div><div><div class="nm">Heirloom tomato, almond cream</div><div class="ds">From the market that morning.</div></div><div class="pair">Albariño</div></div>
+      <div class="course"><div class="n">iii</div><div><div class="nm">Hand-cut tagliolini, sea urchin</div><div class="ds">Forty seconds in salt water.</div></div><div class="pair">Vermentino</div></div>
+      <div class="course"><div class="n">iv</div><div><div class="nm">Turbot, brown butter, capers</div><div class="ds">Bone-in, the old way.</div></div><div class="pair">White burgundy</div></div>
+      <div class="course"><div class="n">v</div><div><div class="nm">Squab, charred plum, juniper</div><div class="ds">Hung six days.</div></div><div class="pair">Pinot noir</div></div>
+      <div class="course"><div class="n">vi</div><div><div class="nm">Aged comté, walnut, honey</div><div class="ds">Forty months.</div></div><div class="pair">Sauternes</div></div>
+      <div class="course"><div class="n">vii</div><div><div class="nm">Chocolate, olive oil, sea salt</div><div class="ds">Last course, last word.</div></div><div class="pair">Oloroso</div></div>
+    </div>
+  </div>
+
+  <div class="res-card">
+    <div>
+      <h3>Reserve a table.</h3>
+      <p>Seatings at 6:30 and 9:00, Tuesday through Saturday. Bookings open 30 days in advance.</p>
+    </div>
+    <form class="res-form" onsubmit="event.preventDefault();goto('contact')">
+      <div class="field"><label>Date</label><input type="date"/></div>
+      <div class="field"><label>Time</label><select><option>6:30 PM</option><option>9:00 PM</option></select></div>
+      <div class="field"><label>Guests</label><select><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></div>
+      <div class="field"><label>Name</label><input placeholder="Your name"/></div>
+      <div class="field full"><button class="btn btn-primary" style="width:100%">Request reservation</button></div>
+    </form>
+  </div>
+</div></section>
+
+<section class="page" id="about"><div class="wrap">
+  <div class="page-head">
+    <div class="eyebrow">The House</div>
+    <h2>A small dining room, an honest kitchen.</h2>
+    <p>Replace this with the story of your restaurant. The market, the first hire, the menu you almost gave up on.</p>
+  </div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="italic">"We open the doors at six. Everything before that is the cooking."</p>
+      <p>Tell people who you are. Where the chef trained. What you grow on the rooftop. The Tuesday market trip that decides every Wednesday menu.</p>
+      <p>Describe the room: thirteen tables, an open pass, the way light moves through the front window in October. Concrete details earn the reservation.</p>
+      <p>Close with what you'd like guests to remember the next morning.</p>
+    </div>
+    <div>
+      <div class="chef-card" style="margin-bottom:24px"><div class="portrait">YN</div><h4>Chef Your Name</h4><div class="role">Chef · Founder</div><p>Where they trained, what they cooked before this, what they cook here now. Two sentences is enough.</p></div>
+      <div class="chef-card"><div class="portrait">SN</div><h4>Sommelier Name</h4><div class="role">Wine Director</div><p>Where they trained, what's in the cellar, what they're excited about pouring this season.</p></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="page" id="services"><div class="wrap">
+  <div class="page-head">
+    <div class="eyebrow">The Menu</div>
+    <h2>À la carte, this evening.</h2>
+    <p>Our menu rotates with what arrives. This week's offerings, listed by the order you'll meet them.</p>
+  </div>
+  <div class="menu-page">
+    <div class="menu-cat">
+      <h3>To Begin</h3><div class="cat-sub">— Small plates and raw bar —</div>
+      <div class="dish"><div><div class="nm">Oysters of the day</div><div class="ds">Six, lemon, mignonette</div></div><div class="pr">$28</div></div>
+      <div class="dish"><div><div class="nm">Beef tartare</div><div class="ds">Hand cut, capers, smoked yolk</div></div><div class="pr">$24</div></div>
+      <div class="dish"><div><div class="nm">Burrata, peaches, basil oil</div><div class="ds">In peak summer</div></div><div class="pr">$22</div></div>
+      <div class="dish"><div><div class="nm">Charred octopus</div><div class="ds">Romesco, pickled lemon</div></div><div class="pr">$26</div></div>
+    </div>
+    <div class="menu-cat">
+      <h3>Mains</h3><div class="cat-sub">— Larger plates —</div>
+      <div class="dish"><div><div class="nm">Turbot</div><div class="ds">Brown butter, capers, on the bone for two</div></div><div class="pr">$96</div></div>
+      <div class="dish"><div><div class="nm">Squab</div><div class="ds">Charred plum, juniper jus</div></div><div class="pr">$48</div></div>
+      <div class="dish"><div><div class="nm">Dry-aged ribeye</div><div class="ds">Sixty days, salt-baked potato</div></div><div class="pr">$58</div></div>
+      <div class="dish"><div><div class="nm">Garden risotto</div><div class="ds">Whatever's at the door that morning</div></div><div class="pr">$32</div></div>
+    </div>
+    <div class="menu-cat">
+      <h3>To Close</h3><div class="cat-sub">— Sweets and savory —</div>
+      <div class="dish"><div><div class="nm">Chocolate, olive oil, sea salt</div><div class="ds">Our oldest dessert, on the menu since day one</div></div><div class="pr">$16</div></div>
+      <div class="dish"><div><div class="nm">Vacherin</div><div class="ds">Meringue, vanilla cream, raspberry</div></div><div class="pr">$16</div></div>
+      <div class="dish"><div><div class="nm">Selection of cheeses</div><div class="ds">Five, walnut, honey</div></div><div class="pr">$24</div></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="page" id="contact"><div class="wrap">
+  <div class="page-head">
+    <div class="eyebrow">Reserve</div>
+    <h2>Two seatings, six nights a week.</h2>
+    <p>Tuesday through Saturday. We reply to every request within the day.</p>
+  </div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo form.')">
+      <div class="field row"><div><label>First name</label><input placeholder="Your first name"/></div><div><label>Last name</label><input placeholder="Last name"/></div></div>
+      <div class="field"><label>Email</label><input type="email" placeholder="you@example.com"/></div>
+      <div class="field"><label>Phone</label><input type="tel" placeholder="(555) 000-0000"/></div>
+      <div class="field row"><div><label>Date</label><input type="date"/></div><div><label>Guests</label>
+        <select><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>Private dining (8+)</option></select></div></div>
+      <div class="field"><label>Time</label>
+        <select><option>6:30 PM — First seating</option><option>9:00 PM — Second seating</option></select></div>
+      <div class="field"><label>Anything we should know? (dietary, occasion)</label><textarea placeholder="Optional"></textarea></div>
+      <button class="btn btn-primary">Request reservation</button>
+    </form>
+    <div class="info-block">
+      <h3>The House</h3>
+      <div class="info-row"><div class="lbl">Address</div>123 Your Street<br/>City, ST 00000</div>
+      <div class="info-row"><div class="lbl">Phone</div>(555) 000-0000</div>
+      <div class="info-row"><div class="lbl">Email</div>reserve@yourrestaurant.com</div>
+      <div class="info-row"><div class="lbl">Tue – Thu</div>6:30 PM and 9:00 PM</div>
+      <div class="info-row"><div class="lbl">Fri & Sat</div>6:00, 8:00, and 10:00 PM</div>
+      <div class="info-row"><div class="lbl">Sun & Mon</div>Closed</div>
+      <div class="info-row"><div class="lbl">Private dining</div>Up to 24 guests, by request</div>
+    </div>
+  </div>
+</div></section>
+
+</main>
+
+<footer><div class="wrap">
+  <div>© 2026 Your Restaurant</div>
+  <div class="foot-links"><a>Instagram</a><a>Press</a><a>Gift cards</a><a>Private dining</a></div>
+</div></footer>
+
+<script>
+  function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+  document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script>
+</body></html>

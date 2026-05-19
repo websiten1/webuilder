@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Your Tattoo Studio — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Cormorant+Garamond:ital,wght@0,400;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0a0a;--ink:#efe8db;--blood:#8a2424;--gold:#b89968;--muted:#7a7367;--line:#1d1c1a;--card:#13110f}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:Inter,sans-serif;font-size:16px;line-height:1.6;font-weight:300}
+  a{color:inherit;text-decoration:none;cursor:pointer}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+  .goth{font-family:'UnifrakturCook',serif;letter-spacing:.02em}
+  .ital{font-family:'Cormorant Garamond';font-style:italic}
+  nav{position:sticky;top:0;z-index:50;background:rgba(10,10,10,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:84px}
+  .logo{font-family:'UnifrakturCook';font-size:32px}
+  .nav-links{display:flex;gap:32px;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+  .nav-links a.active{color:var(--ink)}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:14px 28px;font-size:12px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;border:none;font-weight:400}
+  .btn-primary{background:var(--ink);color:#0a0a0a}
+  .btn-primary:hover{background:var(--gold);color:#0a0a0a}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+  .page{display:none;padding:60px 0 120px}
+  .page.active{display:block}
+
+  /* Hero */
+  .hero{position:relative}
+  .hero-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:60px;align-items:end}
+  .hero h1{font-family:'UnifrakturCook';font-size:clamp(80px,12vw,200px);line-height:.88;letter-spacing:.005em}
+  .hero h1 .b{color:var(--blood)}
+  .hero .sub{font-family:'Cormorant Garamond';font-style:italic;font-size:24px;color:var(--gold);margin:24px 0 32px}
+  .lede{color:#a8a294;max-width:480px;margin-bottom:32px}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+  .crest-art{position:relative;aspect-ratio:1/1.1;border:1px solid var(--gold);padding:32px;display:grid;place-items:center}
+  .crest-art::before,.crest-art::after{content:"";position:absolute;width:30px;height:30px;border:1px solid var(--gold)}
+  .crest-art::before{top:8px;left:8px;border-right:none;border-bottom:none}
+  .crest-art::after{bottom:8px;right:8px;border-left:none;border-top:none}
+  .crest-art svg{width:80%;height:auto}
+  .crest-cap{position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);background:var(--bg);padding:0 14px;font-family:'UnifrakturCook';font-size:18px;color:var(--gold)}
+
+  /* Marquee */
+  .marquee{margin-top:64px;padding:24px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;white-space:nowrap;font-family:'UnifrakturCook';font-size:36px}
+  .marquee span{display:inline-block;padding-right:48px;animation:scroll 30s linear infinite}
+  .marquee em{color:var(--blood);font-style:normal}
+  .marquee .div{color:var(--gold);margin:0 24px}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* Portfolio */
+  .portfolio{margin-top:96px}
+  .portfolio-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:32px;flex-wrap:wrap;gap:24px}
+  .portfolio-head h2{font-family:'UnifrakturCook';font-size:80px;line-height:.95}
+  .filters{display:flex;gap:8px;flex-wrap:wrap}
+  .filter{padding:8px 16px;border:1px solid var(--line);font-size:11px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;background:transparent;color:var(--muted)}
+  .filter.active{border-color:var(--gold);color:var(--gold)}
+  .gallery{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:200px;gap:8px}
+  .piece{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line);cursor:pointer;transition:.25s}
+  .piece:hover{transform:translateY(-3px);border-color:var(--gold)}
+  .piece .label{position:absolute;left:14px;bottom:14px;font-family:'Cormorant Garamond';font-style:italic;font-size:14px;color:var(--ink);background:rgba(10,10,10,.7);padding:4px 8px}
+  .piece svg{width:100%;height:100%;display:block;opacity:.85}
+  .piece.tall{grid-row:span 2}
+  .piece.wide{grid-column:span 2}
+
+  /* Artists */
+  .artists{margin-top:96px}
+  .artists h2{font-family:'UnifrakturCook';font-size:80px;line-height:.95;margin-bottom:32px}
+  .artist-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--line);border-left:1px solid var(--line)}
+  .artist{padding:32px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);position:relative;background:var(--card)}
+  .artist .num{font-family:'UnifrakturCook';color:var(--gold);font-size:24px}
+  .artist h4{font-family:'UnifrakturCook';font-size:36px;margin-top:8px}
+  .artist .style{font-family:'Cormorant Garamond';font-style:italic;color:var(--blood);font-size:18px;margin:6px 0 14px}
+  .artist p{font-size:13.5px;color:#a8a294;margin-bottom:18px}
+  .artist .ig{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+  .artist .wait{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .artist .wait strong{color:var(--ink)}
+
+  /* Process */
+  .process{margin-top:96px;padding:64px;border:1px solid var(--gold);background:var(--card)}
+  .process h3{font-family:'UnifrakturCook';font-size:56px;text-align:center;margin-bottom:32px}
+  .process h3 em{color:var(--blood);font-style:normal}
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:32px}
+  .step{text-align:center}
+  .step .roman{font-family:'Cormorant Garamond';font-style:italic;color:var(--gold);font-size:24px;margin-bottom:8px}
+  .step h4{font-family:'UnifrakturCook';font-size:24px;margin-bottom:8px}
+  .step p{font-size:13.5px;color:#a8a294}
+
+  /* Page heads */
+  .page-head{margin-bottom:80px;max-width:780px;text-align:center;margin-left:auto;margin-right:auto;position:relative;padding:48px 0}
+  .page-head::before,.page-head::after{content:"";position:absolute;left:50%;transform:translateX(-50%);width:80px;height:1px;background:var(--gold)}
+  .page-head::before{top:0}.page-head::after{bottom:0}
+  .page-head .pre{font-family:'Cormorant Garamond';font-style:italic;color:var(--gold);font-size:22px;margin-bottom:14px}
+  .page-head h2{font-family:'UnifrakturCook';font-size:clamp(56px,7vw,108px);line-height:.95}
+  .page-head p{color:#a8a294;margin-top:18px}
+
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+  .about-text p{margin-bottom:18px;color:#a8a294}
+  .about-text p.lead{font-family:'Cormorant Garamond';font-style:italic;font-size:26px;line-height:1.4;color:var(--ink);margin-bottom:24px}
+  .pillars{display:grid;gap:14px}
+  .pillar{padding:24px;border:1px solid var(--line);background:var(--card);display:grid;grid-template-columns:48px 1fr;gap:18px;align-items:start}
+  .pillar .ic{font-family:'UnifrakturCook';color:var(--gold);font-size:32px;line-height:1}
+  .pillar h4{font-family:'UnifrakturCook';font-size:22px}
+  .pillar p{font-size:13.5px;color:#a8a294;margin-top:4px}
+
+  /* Services */
+  .svc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border-top:1px solid var(--line);border-left:1px solid var(--line)}
+  .svc{padding:48px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--card)}
+  .svc .num{font-family:'Cormorant Garamond';font-style:italic;color:var(--gold);font-size:18px}
+  .svc h3{font-family:'UnifrakturCook';font-size:36px;margin:10px 0 12px}
+  .svc p{color:#a8a294;font-size:14.5px;margin-bottom:18px}
+  .svc .from{font-family:'Cormorant Garamond';font-style:italic;color:var(--blood);font-size:24px}
+
+  /* FAQ */
+  .faqs{margin-top:80px}
+  .faqs h3{font-family:'UnifrakturCook';font-size:48px;margin-bottom:24px}
+  .faq{padding:24px 0;border-bottom:1px solid var(--line)}
+  .faq summary{font-family:'Cormorant Garamond';font-style:italic;font-size:22px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;color:var(--ink)}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";color:var(--gold);font-family:'UnifrakturCook';font-size:24px}
+  .faq[open] summary::after{content:"—"}
+  .faq p{margin-top:14px;color:#a8a294;font-size:14.5px}
+
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px}
+  form{display:grid;gap:16px}
+  .field label{display:block;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  input,textarea,select{width:100%;padding:14px 0;background:transparent;border:none;border-bottom:1px solid var(--line);color:var(--ink);font:inherit}
+  input:focus,textarea:focus{outline:none;border-bottom-color:var(--gold)}
+  .field.row{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  textarea{min-height:120px;resize:vertical}
+  .info-block{padding:48px;border:1px solid var(--gold);background:var(--card)}
+  .info-block h3{font-family:'UnifrakturCook';font-size:48px;margin-bottom:24px}
+  .info-row{padding:16px 0;border-top:1px solid var(--line)}
+  .info-row:first-of-type{border-top:none}
+  .info-row .lbl{font-family:'Cormorant Garamond';font-style:italic;color:var(--gold);font-size:18px;margin-bottom:4px}
+
+  footer{border-top:1px solid var(--line);padding:48px 0;color:var(--muted);font-size:12px;letter-spacing:.18em;text-transform:uppercase}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px}
+  .foot-links{display:flex;gap:24px}
+  @media(max-width:880px){.hero-grid,.about-grid,.contact-grid{grid-template-columns:1fr}.gallery{grid-template-columns:1fr 1fr}.artist-grid,.steps,.svc-grid{grid-template-columns:1fr 1fr}.nav-links{display:none}}
+</style></head>
+<body>
+
+<nav><div class="wrap">
+  <a class="logo" onclick="goto('home')">Your Tattoo</a>
+  <div class="nav-links">
+    <a data-page="home" class="active">Home</a>
+    <a data-page="services">Work</a>
+    <a data-page="about">Studio</a>
+    <a data-page="contact">Book</a>
+  </div>
+  <button class="btn btn-primary" onclick="goto('contact')">Book a consult</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="ital" style="color:var(--gold);font-size:22px">— Established Year · By appointment only</div>
+        <h1>Marks <span class="b">made</span><br/>with intent.</h1>
+        <p class="lede">A small studio for considered tattoos — black and grey, illustrative, traditional. Booking opens monthly. Replace this with your studio's voice.</p>
+        <div class="hero-cta">
+          <button class="btn btn-primary" onclick="goto('contact')">Request consultation →</button>
+          <button class="btn btn-ghost" onclick="goto('services')">View portfolio</button>
+        </div>
+      </div>
+      <div class="crest-art">
+        <svg viewBox="0 0 200 220" fill="none" stroke="#b89968" stroke-width="1.5">
+          <circle cx="100" cy="100" r="60"/>
+          <path d="M100 40v120M40 100h120"/>
+          <path d="M100 40 L120 70 L100 100 L80 70Z" fill="#8a2424" stroke="#b89968"/>
+          <circle cx="100" cy="100" r="6" fill="#b89968"/>
+          <path d="M70 130c10 20 50 20 60 0" stroke="#b89968"/>
+          <text x="100" y="200" text-anchor="middle" font-family="Cormorant Garamond" font-style="italic" font-size="14" fill="#b89968" stroke="none">— ex tenebris, lux —</text>
+        </svg>
+        <span class="crest-cap">— since year —</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="marquee"><span>
+    Black &amp; grey <span class="div">✠</span> <em>Illustrative</em> <span class="div">✠</span> Traditional <span class="div">✠</span> Fineline <span class="div">✠</span> By appointment <span class="div">✠</span>
+    Black &amp; grey <span class="div">✠</span> <em>Illustrative</em> <span class="div">✠</span> Traditional <span class="div">✠</span> Fineline <span class="div">✠</span> By appointment <span class="div">✠</span>
+  </span></div>
+
+  <div class="portfolio">
+    <div class="portfolio-head">
+      <h2>Recent work.</h2>
+      <div class="filters">
+        <button class="filter active">All</button>
+        <button class="filter">Black &amp; grey</button>
+        <button class="filter">Fineline</button>
+        <button class="filter">Traditional</button>
+        <button class="filter">Illustrative</button>
+      </div>
+    </div>
+    <div class="gallery">
+      <div class="piece tall">
+        <svg viewBox="0 0 200 400" preserveAspectRatio="xMidYMid slice"><rect width="200" height="400" fill="#13110f"/><path d="M100 60 Q70 120 100 200 Q130 280 100 340" stroke="#efe8db" stroke-width="1.6" fill="none"/><circle cx="100" cy="200" r="40" stroke="#efe8db" stroke-width="1.4" fill="none"/><path d="M75 195 Q100 180 125 195" stroke="#efe8db" stroke-width="1"/></svg>
+        <span class="label">— moth, no. 14</span>
+      </div>
+      <div class="piece">
+        <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice"><rect width="200" height="200" fill="#13110f"/><path d="M50 100 Q100 40 150 100 Q100 160 50 100Z" stroke="#efe8db" stroke-width="1.4" fill="none"/><circle cx="100" cy="100" r="3" fill="#efe8db"/></svg>
+        <span class="label">— eye</span>
+      </div>
+      <div class="piece wide">
+        <svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice"><rect width="400" height="200" fill="#13110f"/><path d="M40 130 Q120 60 200 130 Q280 200 360 130" stroke="#efe8db" stroke-width="1.4" fill="none"/><path d="M40 130 L60 100 L80 130 L100 110 L120 130 L140 100 L160 130" stroke="#efe8db" stroke-width="1" fill="none"/><path d="M240 130 L260 100 L280 130 L300 110 L320 130 L340 100 L360 130" stroke="#efe8db" stroke-width="1" fill="none"/></svg>
+        <span class="label">— mountains</span>
+      </div>
+      <div class="piece">
+        <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice"><rect width="200" height="200" fill="#13110f"/><path d="M100 40 L130 100 L100 160 L70 100Z" stroke="#efe8db" stroke-width="1.4" fill="none"/><circle cx="100" cy="100" r="20" stroke="#efe8db" stroke-width="1"/></svg>
+        <span class="label">— diamond</span>
+      </div>
+      <div class="piece">
+        <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice"><rect width="200" height="200" fill="#13110f"/><circle cx="100" cy="100" r="60" stroke="#efe8db" stroke-width="1.4" fill="none"/><circle cx="100" cy="100" r="40" stroke="#efe8db" stroke-width="1" fill="none"/><circle cx="100" cy="100" r="20" stroke="#8a2424" stroke-width="1.4" fill="none"/></svg>
+        <span class="label">— ouroboros</span>
+      </div>
+      <div class="piece tall">
+        <svg viewBox="0 0 200 400" preserveAspectRatio="xMidYMid slice"><rect width="200" height="400" fill="#13110f"/><path d="M100 40 L60 200 L100 360 L140 200Z" stroke="#efe8db" stroke-width="1.4" fill="none"/><path d="M100 100 L80 200 L100 300 L120 200Z" stroke="#efe8db" stroke-width="1" fill="none"/></svg>
+        <span class="label">— dagger, no. 8</span>
+      </div>
+      <div class="piece">
+        <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice"><rect width="200" height="200" fill="#13110f"/><path d="M50 150 Q100 50 150 150" stroke="#efe8db" stroke-width="1.4" fill="none"/><circle cx="100" cy="80" r="8" stroke="#efe8db" stroke-width="1" fill="none"/></svg>
+        <span class="label">— arrow</span>
+      </div>
+      <div class="piece">
+        <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice"><rect width="200" height="200" fill="#13110f"/><path d="M40 100 Q100 40 160 100 Q100 160 40 100" stroke="#efe8db" stroke-width="1.4" fill="none"/><path d="M40 100 Q100 80 160 100" stroke="#efe8db" stroke-width="1" fill="none"/></svg>
+        <span class="label">— fish</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="artists">
+    <h2>Artists in residence.</h2>
+    <div class="artist-grid">
+      <div class="artist"><div class="num">I</div><h4>Name</h4><div class="style">— black &amp; grey · illustrative</div><p>Twelve years. Trained in Berlin. Drawings of moths, snakes, hands.</p><div class="ig">@instagram</div><div class="wait"><span>Wait</span><strong>~3 mo</strong></div></div>
+      <div class="artist"><div class="num">II</div><h4>Name</h4><div class="style">— fineline · ornament</div><p>Eight years. Botanical and ornamental. Specializes in small.</p><div class="ig">@instagram</div><div class="wait"><span>Wait</span><strong>~2 mo</strong></div></div>
+      <div class="artist"><div class="num">III</div><h4>Name</h4><div class="style">— traditional</div><p>Fifteen years. American traditional, japanese influence, big bold work.</p><div class="ig">@instagram</div><div class="wait"><span>Wait</span><strong>~4 mo</strong></div></div>
+      <div class="artist"><div class="num">IV</div><h4>Name</h4><div class="style">— resident · guest</div><p>Rotating residency. Open inquiries through the studio.</p><div class="ig">@instagram</div><div class="wait"><span>Next residency</span><strong>—</strong></div></div>
+    </div>
+  </div>
+
+  <div class="process">
+    <h3>How <em>it</em> works.</h3>
+    <div class="steps">
+      <div class="step"><div class="roman">I</div><h4>Inquiry</h4><p>Submit your idea. Include size, placement, references.</p></div>
+      <div class="step"><div class="roman">II</div><h4>Consult</h4><p>We meet, in person or by call. Free, no commitment.</p></div>
+      <div class="step"><div class="roman">III</div><h4>Draw</h4><p>Custom design delivered before your session.</p></div>
+      <div class="step"><div class="roman">IV</div><h4>Mark</h4><p>The session, the aftercare, and the photo for the book.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><div class="pre">— the studio</div><h2>A small room.<br/>Long hours.</h2></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">"We opened the studio in Year because we wanted to work the way we wanted to work — slow, custom, and on our own terms."</p>
+      <p>Replace this with your story. Where the founder trained. The room you converted. The morning you tattooed your first stranger.</p>
+      <p>Describe the studio. The light, the music, the smell, the wall of flash you draw from. Specifics carry weight here.</p>
+      <p>Close with what the room demands — of you, and of the people who come in.</p>
+    </div>
+    <div class="pillars">
+      <div class="pillar"><div class="ic">I</div><div><h4>Custom only</h4><p>Every piece is drawn for the person carrying it.</p></div></div>
+      <div class="pillar"><div class="ic">II</div><div><h4>Strict sterile</h4><p>Single-use everything. Autoclave logs in the open.</p></div></div>
+      <div class="pillar"><div class="ic">III</div><div><h4>No walk-ins</h4><p>By appointment, by consultation. We give you our time, fully.</p></div></div>
+      <div class="pillar"><div class="ic">IV</div><div><h4>Honest pricing</h4><p>Hourly or flat, quoted at consult, never moved at the chair.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><div class="pre">— work &amp; styles</div><h2>What we tattoo.</h2></div>
+  <div class="svc-grid">
+    <div class="svc"><div class="num">I.</div><h3>Black &amp; grey</h3><p>Shaded, contrasted, illustrative. Long sessions, layered washes.</p><div class="from">— from $200/hr</div></div>
+    <div class="svc"><div class="num">II.</div><h3>Fineline</h3><p>Single-needle work. Botanical, ornamental, small and exact.</p><div class="from">— from $200/hr</div></div>
+    <div class="svc"><div class="num">III.</div><h3>Traditional</h3><p>American and Japanese tradition. Bold line, full saturation, designed to age.</p><div class="from">— from $220/hr</div></div>
+    <div class="svc"><div class="num">IV.</div><h3>Illustrative</h3><p>Drawings made for the body. Pen-and-ink character, custom only.</p><div class="from">— from $220/hr</div></div>
+    <div class="svc"><div class="num">V.</div><h3>Cover-ups &amp; reworks</h3><p>Tactful redesign of older work. Always starts with a consultation.</p><div class="from">— quoted</div></div>
+    <div class="svc"><div class="num">VI.</div><h3>Flash days</h3><p>One Sunday a month. Pre-drawn designs, first-come bookings.</p><div class="from">— $150 / $300 / $500</div></div>
+  </div>
+
+  <div class="faqs">
+    <h3>Common questions.</h3>
+    <details class="faq" open><summary>How much will it cost?</summary><p>Most pieces are quoted at consultation. Hourly rates start at $200; smaller pieces are flat-priced. A $100 deposit holds your booking and is applied to the final cost.</p></details>
+    <details class="faq"><summary>How do I prepare for a session?</summary><p>Eat a real meal beforehand. Stay hydrated. Don't drink the night before. Wear loose clothing that gives easy access to the placement.</p></details>
+    <details class="faq"><summary>Aftercare?</summary><p>We send you home with full instructions and a second-skin patch. Two weeks of basic care, six weeks for full healing.</p></details>
+    <details class="faq"><summary>Touch-ups?</summary><p>One free touch-up within six months of the original session, if needed.</p></details>
+    <details class="faq"><summary>Walk-ins?</summary><p>Not generally. Flash days are the exception — one Sunday a month, posted in advance.</p></details>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><div class="pre">— book a consult</div><h2>Tell us<br/>your idea.</h2><p>We respond to every inquiry within three business days. Consultations are free.</p></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo form.')">
+      <div class="field row"><div><label>First name</label><input/></div><div><label>Last name</label><input/></div></div>
+      <div class="field"><label>Email</label><input type="email"/></div>
+      <div class="field"><label>Preferred artist</label>
+        <select><option>No preference</option><option>Artist I</option><option>Artist II</option><option>Artist III</option><option>Resident IV</option></select></div>
+      <div class="field row"><div><label>Style</label>
+        <select><option>Black &amp; grey</option><option>Fineline</option><option>Traditional</option><option>Illustrative</option><option>Cover-up</option><option>Not sure</option></select></div>
+        <div><label>Placement</label><input placeholder="e.g. forearm"/></div></div>
+      <div class="field"><label>Approx. size</label>
+        <select><option>Palm-sized or smaller</option><option>Forearm</option><option>Half-sleeve</option><option>Sleeve or larger</option></select></div>
+      <div class="field"><label>Describe your idea</label><textarea placeholder="References welcome. Be specific. We read every one."></textarea></div>
+      <button class="btn btn-primary">Send inquiry →</button>
+    </form>
+    <div class="info-block">
+      <h3>The Studio</h3>
+      <div class="info-row"><div class="lbl">— address</div>123 Your Street<br/>City, ST 00000</div>
+      <div class="info-row"><div class="lbl">— email</div>book@yourtattoo.com</div>
+      <div class="info-row"><div class="lbl">— hours</div>Tuesday – Saturday<br/>By appointment, 12:00 – 21:00</div>
+      <div class="info-row"><div class="lbl">— booking</div>New books open the first Monday of every month</div>
+      <div class="info-row"><div class="lbl">— deposit</div>$100, applied to your final session</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+
+<footer><div class="wrap">
+  <div>— Your Tattoo · Est. Year —</div>
+  <div class="foot-links"><a>Instagram</a><a>Aftercare</a><a>FAQ</a></div>
+</div></footer>
+
+<script>
+  function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+  document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+  document.querySelectorAll('.filter').forEach(f=>f.addEventListener('click',()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));f.classList.add('active')}));
+</script>
+</body></html>

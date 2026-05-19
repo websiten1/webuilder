@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Your Vet Clinic — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Recoleta:wght@500;600&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f4f7f2;--ink:#1f2a23;--green:#5c8b6e;--green-dk:#3a6b4d;--peach:#ffc9a8;--blue:#a5cae0;--cream:#fcfaf3;--muted:#6c7a70;--line:#dde4d7;--card:#fff}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:Nunito,sans-serif;font-size:16px;line-height:1.6}
+  a{color:inherit;text-decoration:none;cursor:pointer}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 32px}
+  .recoleta{font-family:Recoleta,Georgia,serif;font-weight:500}
+  nav{position:sticky;top:0;z-index:50;background:rgba(244,247,242,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:80px}
+  .logo{display:flex;align-items:center;gap:12px;font-family:Recoleta;font-weight:600;font-size:22px}
+  .logo .paw{width:42px;height:42px;border-radius:50%;background:var(--green);display:grid;place-items:center;color:#fff}
+  .nav-links{display:flex;gap:32px;font-size:15px;color:var(--muted);font-weight:500}
+  .nav-links a.active{color:var(--ink)}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:14px 26px;border-radius:999px;font-weight:600;font-size:14.5px;cursor:pointer;border:none;transition:.2s}
+  .btn-primary{background:var(--green);color:#fff}
+  .btn-primary:hover{background:var(--green-dk)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--ink)}
+  .page{display:none;padding:60px 0 120px}
+  .page.active{display:block}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:var(--cream);border:1px solid var(--line);font-size:13px;color:var(--green-dk);font-weight:600;margin-bottom:16px}
+  .eyebrow .d{width:8px;height:8px;border-radius:50%;background:var(--green)}
+
+  /* Hero */
+  .hero{display:grid;grid-template-columns:1.1fr 1fr;gap:60px;align-items:center}
+  h1.display{font-family:Recoleta;font-weight:600;font-size:clamp(48px,6vw,84px);line-height:1.04;letter-spacing:-.02em;margin:16px 0 24px}
+  h1.display em{font-style:normal;color:var(--green-dk);position:relative;display:inline-block}
+  h1.display em::after{content:"";position:absolute;left:-2px;right:-2px;bottom:0;height:14px;background:var(--peach);z-index:-1;border-radius:8px}
+  .lede{font-size:18px;color:var(--muted);max-width:480px;margin-bottom:28px}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+  .quick-row{display:flex;gap:24px;margin-top:32px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+  .quick-row .q{display:flex;align-items:center;gap:8px}
+  .quick-row .q .c{width:22px;height:22px;border-radius:50%;background:var(--peach);display:grid;place-items:center;color:var(--ink);font-size:13px}
+
+  .pets-art{position:relative;aspect-ratio:1/1;background:var(--cream);border-radius:50%;display:grid;place-items:center;border:1px solid var(--line)}
+  .pets-art::before{content:"";position:absolute;inset:14px;border:1px dashed var(--green);opacity:.3;border-radius:50%}
+  .pet-blob{position:absolute;border-radius:50%;display:grid;place-items:center}
+  .pet-blob.dog{width:38%;aspect-ratio:1/1;background:var(--peach);top:12%;left:14%}
+  .pet-blob.cat{width:30%;aspect-ratio:1/1;background:var(--green);top:46%;right:8%}
+  .pet-blob.bird{width:24%;aspect-ratio:1/1;background:var(--blue);bottom:8%;left:32%}
+  .pet-blob svg{width:65%;height:65%}
+  .tag-pill{position:absolute;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;color:var(--green-dk);box-shadow:0 4px 16px rgba(31,42,35,.08);display:flex;align-items:center;gap:8px}
+  .tag-pill .ic{width:8px;height:8px;border-radius:50%;background:var(--peach)}
+  .tag-pill.a{top:6%;right:8%}
+  .tag-pill.b{bottom:14%;right:-4%}
+  .tag-pill.c{bottom:0;left:8%}
+
+  /* Pet selector */
+  .pet-picker{margin-top:96px}
+  .pet-picker-head{margin-bottom:32px;display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:24px}
+  .pet-picker-head h2{font-family:Recoleta;font-weight:600;font-size:clamp(36px,4vw,56px);letter-spacing:-.015em}
+  .pet-tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+  .pet-tab{padding:32px 20px;background:#fff;border:2px solid transparent;border-radius:24px;text-align:center;cursor:pointer;transition:.2s}
+  .pet-tab:hover{transform:translateY(-3px)}
+  .pet-tab.active{border-color:var(--green);background:var(--cream)}
+  .pet-tab .ic{font-size:36px;margin-bottom:12px}
+  .pet-tab .nm{font-weight:700;font-size:16px}
+  .pet-tab .ds{font-size:12px;color:var(--muted);margin-top:2px}
+
+  /* Services preview */
+  .svc-grid{margin-top:96px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .svc{padding:32px;background:var(--card);border:1px solid var(--line);border-radius:22px;transition:.2s}
+  .svc:hover{border-color:var(--green);transform:translateY(-3px)}
+  .svc .icon{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;font-size:24px;margin-bottom:18px}
+  .svc:nth-child(1) .icon{background:var(--peach)}
+  .svc:nth-child(2) .icon{background:var(--blue)}
+  .svc:nth-child(3) .icon{background:#d4eccb}
+  .svc:nth-child(4) .icon{background:#fde0b5}
+  .svc:nth-child(5) .icon{background:#e6d6f0}
+  .svc:nth-child(6) .icon{background:#ffd4d4}
+  .svc h3{font-family:Recoleta;font-weight:600;font-size:22px;margin-bottom:8px}
+  .svc p{font-size:14.5px;color:var(--muted)}
+
+  /* Emergency band */
+  .emergency{margin-top:96px;background:var(--ink);color:#fff;padding:48px;border-radius:28px;display:grid;grid-template-columns:1fr auto;gap:48px;align-items:center}
+  .emergency h3{font-family:Recoleta;font-weight:600;font-size:36px;letter-spacing:-.01em;margin-bottom:8px}
+  .emergency p{color:#bcc7bf;max-width:520px}
+  .emergency .phone{font-family:Recoleta;font-weight:600;font-size:48px;color:var(--peach);line-height:1;letter-spacing:-.02em}
+  .emergency .phone small{display:block;font-family:Nunito;font-size:13px;color:#bcc7bf;letter-spacing:.06em;margin-top:6px;text-transform:uppercase;font-weight:500}
+
+  /* Stats */
+  .stats{margin-top:96px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--cream);border-radius:28px;overflow:hidden;border:1px solid var(--line)}
+  .stat{padding:36px;border-right:1px solid var(--line)}
+  .stat:last-child{border-right:none}
+  .stat .num{font-family:Recoleta;font-weight:600;font-size:48px;line-height:1;color:var(--green-dk)}
+  .stat .lbl{font-size:13.5px;color:var(--muted);margin-top:6px}
+
+  /* Pages */
+  .page-head{margin-bottom:64px;max-width:760px}
+  .page-head h2{font-family:Recoleta;font-weight:600;font-size:clamp(40px,5vw,68px);letter-spacing:-.02em;line-height:1.04}
+  .page-head p{font-size:17.5px;color:var(--muted);margin-top:14px}
+
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px}
+  .about-text p{margin-bottom:18px;color:#3a4a40}
+  .about-text p.lead{font-family:Recoleta;font-weight:500;font-size:24px;line-height:1.45;color:var(--ink);margin-bottom:24px}
+
+  .vets{margin-top:64px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .vet{padding:28px;background:var(--card);border:1px solid var(--line);border-radius:22px;text-align:center}
+  .vet .av{width:96px;height:96px;border-radius:50%;background:linear-gradient(160deg,var(--peach),var(--green));margin:0 auto 16px;display:grid;place-items:center;color:#fff;font-family:Recoleta;font-weight:600;font-size:32px}
+  .vet h4{font-family:Recoleta;font-weight:600;font-size:20px}
+  .vet .role{font-size:13px;color:var(--green-dk);font-weight:600;margin:4px 0 10px}
+  .vet p{font-size:14px;color:var(--muted)}
+
+  /* Detailed services */
+  .svc-list{display:grid;gap:20px}
+  .svc-row{padding:32px;background:var(--card);border:1px solid var(--line);border-radius:22px;display:grid;grid-template-columns:80px 1fr auto;gap:32px;align-items:center}
+  .svc-row .icon{width:64px;height:64px;border-radius:20px;background:var(--peach);display:grid;place-items:center;font-size:28px}
+  .svc-row:nth-child(odd) .icon{background:var(--blue)}
+  .svc-row:nth-child(3n) .icon{background:#d4eccb}
+  .svc-row h4{font-family:Recoleta;font-weight:600;font-size:22px;margin-bottom:6px}
+  .svc-row p{font-size:14.5px;color:var(--muted)}
+  .svc-row .pr{font-family:Recoleta;font-weight:600;font-size:22px;color:var(--green-dk);text-align:right;min-width:120px}
+  .svc-row .pr small{display:block;font-family:Nunito;font-weight:500;font-size:12px;color:var(--muted)}
+
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px}
+  form{display:grid;gap:16px}
+  .field label{display:block;font-size:14px;font-weight:600;color:var(--ink);margin-bottom:6px}
+  input,textarea,select{width:100%;padding:14px 18px;border-radius:14px;border:1px solid var(--line);background:var(--card);font:inherit;color:inherit}
+  input:focus,textarea:focus{outline:none;border-color:var(--green)}
+  .field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  textarea{min-height:120px;resize:vertical}
+  .info-block{padding:40px;background:var(--green);color:#fff;border-radius:28px}
+  .info-block h3{font-family:Recoleta;font-weight:600;font-size:30px;margin-bottom:24px}
+  .info-row{padding:16px 0;border-top:1px solid rgba(255,255,255,.2);font-size:14.5px}
+  .info-row:first-of-type{border-top:none}
+  .info-row .lbl{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.8;margin-bottom:4px}
+
+  footer{border-top:1px solid var(--line);padding:40px 0;color:var(--muted);font-size:14px}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px}
+  .foot-links{display:flex;gap:24px}
+  @media(max-width:880px){.hero,.about-grid,.contact-grid,.emergency{grid-template-columns:1fr}.svc-grid,.pet-tabs,.vets,.stats{grid-template-columns:1fr 1fr}.svc-row{grid-template-columns:1fr;gap:14px}.nav-links{display:none}}
+</style></head>
+<body>
+
+<nav><div class="wrap">
+  <a class="logo" onclick="goto('home')"><span class="paw"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="9" r="2.5"/><circle cx="12" cy="6" r="2.5"/><circle cx="18" cy="9" r="2.5"/><path d="M8 16c0-3 2-5 4-5s4 2 4 5-2 4-4 4-4-1-4-4Z"/></svg></span>Your Vet Clinic</a>
+  <div class="nav-links">
+    <a data-page="home" class="active">Home</a>
+    <a data-page="about">About us</a>
+    <a data-page="services">Services</a>
+    <a data-page="contact">Book a visit</a>
+  </div>
+  <button class="btn btn-primary" onclick="goto('contact')">Book a visit</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div>
+      <span class="eyebrow"><span class="d"></span>Accepting new patients</span>
+      <h1 class="display">Care your pet would <em>actually pick.</em></h1>
+      <p class="lede">A neighborhood veterinary clinic for the calm checkup, the gentle vaccination, and the kind of pet parent who reads the lab results. Replace this with your clinic's voice.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="goto('contact')">Book a visit →</button>
+        <button class="btn btn-ghost" onclick="goto('services')">See services</button>
+      </div>
+      <div class="quick-row">
+        <div class="q"><span class="c">✓</span>Fear-free certified</div>
+        <div class="q"><span class="c">✓</span>Same-day sick visits</div>
+        <div class="q"><span class="c">✓</span>Most insurance accepted</div>
+      </div>
+    </div>
+    <div class="pets-art">
+      <div class="pet-blob dog">
+        <svg viewBox="0 0 100 100" fill="#1f2a23"><ellipse cx="50" cy="58" rx="34" ry="30"/><ellipse cx="32" cy="38" rx="10" ry="14"/><ellipse cx="68" cy="38" rx="10" ry="14"/><circle cx="40" cy="55" r="2.5"/><circle cx="60" cy="55" r="2.5"/><path d="M44 68q6 6 12 0" stroke="#1f2a23" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="50" cy="64" rx="3" ry="2"/></svg>
+      </div>
+      <div class="pet-blob cat">
+        <svg viewBox="0 0 100 100" fill="#fff"><path d="M30 30l8 18M70 30l-8 18"/><polygon points="30,30 38,48 22,46"/><polygon points="70,30 62,48 78,46"/><ellipse cx="50" cy="60" rx="30" ry="28"/><circle cx="40" cy="58" r="2" fill="#1f2a23"/><circle cx="60" cy="58" r="2" fill="#1f2a23"/><path d="M40 70q10 6 20 0" stroke="#1f2a23" stroke-width="2" fill="none"/></svg>
+      </div>
+      <div class="pet-blob bird">
+        <svg viewBox="0 0 100 100" fill="#1f2a23"><ellipse cx="50" cy="60" rx="22" ry="24"/><circle cx="50" cy="34" r="14"/><polygon points="60,34 76,38 60,42" fill="#ffc9a8"/><circle cx="52" cy="32" r="2" fill="#fff"/></svg>
+      </div>
+      <span class="tag-pill a"><span class="ic"></span>Dogs</span>
+      <span class="tag-pill b"><span class="ic"></span>Cats</span>
+      <span class="tag-pill c"><span class="ic"></span>Exotics</span>
+    </div>
+  </div>
+
+  <div class="pet-picker">
+    <div class="pet-picker-head">
+      <h2>What kind of best friend do you have?</h2>
+      <a class="eyebrow" style="cursor:pointer">See species we treat →</a>
+    </div>
+    <div class="pet-tabs">
+      <div class="pet-tab active"><div class="ic">🐕</div><div class="nm">Dogs</div><div class="ds">All sizes</div></div>
+      <div class="pet-tab"><div class="ic">🐈</div><div class="nm">Cats</div><div class="ds">Indoor &amp; out</div></div>
+      <div class="pet-tab"><div class="ic">🐇</div><div class="nm">Rabbits</div><div class="ds">&amp; small mammals</div></div>
+      <div class="pet-tab"><div class="ic">🦜</div><div class="nm">Birds</div><div class="ds">Avian-trained vet</div></div>
+      <div class="pet-tab"><div class="ic">🦎</div><div class="nm">Reptiles</div><div class="ds">Exotic clinic</div></div>
+    </div>
+  </div>
+
+  <div class="svc-grid">
+    <div class="svc"><div class="icon">🩺</div><h3>Wellness exams</h3><p>Annual physicals, vaccinations, parasite prevention, and bloodwork.</p></div>
+    <div class="svc"><div class="icon">💉</div><h3>Surgery</h3><p>Spay/neuter, soft tissue, dental, and orthopedic. Board-certified anesthesia.</p></div>
+    <div class="svc"><div class="icon">🦷</div><h3>Dental care</h3><p>Cleanings, extractions, and digital x-ray. Anesthesia-monitored.</p></div>
+    <div class="svc"><div class="icon">🐾</div><h3>Senior care</h3><p>Mobility, pain management, and quality-of-life consultations.</p></div>
+    <div class="svc"><div class="icon">🌿</div><h3>Behavior &amp; nutrition</h3><p>One-on-one consults for the hard stuff: food, anxiety, training.</p></div>
+    <div class="svc"><div class="icon">🚨</div><h3>Urgent care</h3><p>Same-day sick visits for established patients.</p></div>
+  </div>
+
+  <div class="emergency">
+    <div>
+      <h3>After-hours emergency?</h3>
+      <p>Our team partners with the 24-hour emergency hospital up the street. Call our line first — we'll route you and forward your pet's chart.</p>
+    </div>
+    <div>
+      <div class="phone">(555) 000-0000<small>— 24-hour line</small></div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="num">5,000+</div><div class="lbl">Patients in our care</div></div>
+    <div class="stat"><div class="num">4.9★</div><div class="lbl">Average review</div></div>
+    <div class="stat"><div class="num">Fear-free</div><div class="lbl">Certified clinic</div></div>
+    <div class="stat"><div class="num">Year</div><div class="lbl">Caring for pets since</div></div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><span class="eyebrow"><span class="d"></span>About</span><h2>A quieter waiting room, a calmer exam.</h2><p>Replace this with what makes your clinic different — the cat-only entrance, the dog-only entrance, the slow appointments, the staff who text you a check-in the next day.</p></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">"The pet's first ten minutes set the tone for every visit after. We protect them."</p>
+      <p>Tell people who you are. Where the lead vet trained. The dog of yours that started it all. The reason you decided this clinic should be a low-stress, low-cortisol place.</p>
+      <p>Describe the philosophy. Fear-free handling, transparent estimates, no-shame conversations about cost. Specifics build trust faster than slogans.</p>
+    </div>
+    <div>
+      <h3 class="recoleta" style="font-size:28px;margin-bottom:18px">Care principles</h3>
+      <div style="display:grid;gap:14px">
+        <div style="padding:24px;background:var(--card);border:1px solid var(--line);border-radius:18px;display:grid;grid-template-columns:36px 1fr;gap:16px;align-items:start"><span style="font-size:24px">🤝</span><div><strong style="font-family:Recoleta;font-size:18px">Fear-free first</strong><p style="font-size:14px;color:var(--muted);margin-top:4px">Every room is set up for calm — pheromones, towels, treats, time.</p></div></div>
+        <div style="padding:24px;background:var(--card);border:1px solid var(--line);border-radius:18px;display:grid;grid-template-columns:36px 1fr;gap:16px;align-items:start"><span style="font-size:24px">💬</span><div><strong style="font-family:Recoleta;font-size:18px">Transparent quotes</strong><p style="font-size:14px;color:var(--muted);margin-top:4px">Estimates before procedures. Choices, not surprises.</p></div></div>
+        <div style="padding:24px;background:var(--card);border:1px solid var(--line);border-radius:18px;display:grid;grid-template-columns:36px 1fr;gap:16px;align-items:start"><span style="font-size:24px">🌿</span><div><strong style="font-family:Recoleta;font-size:18px">Whole-pet care</strong><p style="font-size:14px;color:var(--muted);margin-top:4px">Nutrition, behavior, and at-home setup, not just the prescription pad.</p></div></div>
+        <div style="padding:24px;background:var(--card);border:1px solid var(--line);border-radius:18px;display:grid;grid-template-columns:36px 1fr;gap:16px;align-items:start"><span style="font-size:24px">📞</span><div><strong style="font-family:Recoleta;font-size:18px">We follow up</strong><p style="font-size:14px;color:var(--muted);margin-top:4px">Day-after texts after every procedure. We want to know how it went.</p></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="vets">
+    <div class="vet"><div class="av">AB</div><h4>Dr. Vet Name</h4><div class="role">Founder · DVM</div><p>One sentence on training, specialty, and what they're known for in the exam room.</p></div>
+    <div class="vet"><div class="av">CD</div><h4>Dr. Vet Name</h4><div class="role">Associate · DVM</div><p>One sentence on training, specialty, and what they're known for in the exam room.</p></div>
+    <div class="vet"><div class="av">EF</div><h4>Lead Tech Name</h4><div class="role">Certified vet technician</div><p>One sentence on training, specialty, and what they're known for in the exam room.</p></div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><span class="eyebrow"><span class="d"></span>Services</span><h2>Everything from puppy shots to senior care.</h2></div>
+  <div class="svc-list">
+    <div class="svc-row"><div class="icon">🩺</div><div><h4>Wellness visit</h4><p>Annual physical, vaccinations, parasite prevention, age-appropriate bloodwork.</p></div><div class="pr">From $89<small>per visit</small></div></div>
+    <div class="svc-row"><div class="icon">💉</div><div><h4>Surgery &amp; sterilization</h4><p>Spay, neuter, soft-tissue, dental extractions. Board-certified anesthesia.</p></div><div class="pr">From $349<small>quoted</small></div></div>
+    <div class="svc-row"><div class="icon">🦷</div><div><h4>Dental cleaning</h4><p>Full dental with digital x-ray, scaling, polish, and home plan.</p></div><div class="pr">From $429<small>quoted</small></div></div>
+    <div class="svc-row"><div class="icon">🐾</div><div><h4>Senior wellness</h4><p>Twice-yearly exam, mobility assessment, pain management plan, quality-of-life support.</p></div><div class="pr">From $129<small>per visit</small></div></div>
+    <div class="svc-row"><div class="icon">🌿</div><div><h4>Behavior consult</h4><p>One-hour assessment with our certified veterinary behavior consultant.</p></div><div class="pr">From $179<small>per consult</small></div></div>
+    <div class="svc-row"><div class="icon">🚨</div><div><h4>Same-day sick visit</h4><p>For established patients. Call before 10 AM whenever possible.</p></div><div class="pr">From $109<small>per visit</small></div></div>
+    <div class="svc-row"><div class="icon">🐰</div><div><h4>Exotic medicine</h4><p>Rabbits, ferrets, small mammals, reptiles, and birds. Specialty appointments.</p></div><div class="pr">From $129<small>per visit</small></div></div>
+    <div class="svc-row"><div class="icon">🐶</div><div><h4>Puppy / kitten package</h4><p>All visits, vaccines, and parasite prevention through the first six months.</p></div><div class="pr">From $399<small>package</small></div></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><span class="eyebrow"><span class="d"></span>Book a visit</span><h2>Let's meet your best friend.</h2><p>Tell us a bit about your pet and what's bringing you in. We'll respond within a business day.</p></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo form.')">
+      <div class="field row"><div><label>Your name</label><input/></div><div><label>Phone</label><input type="tel"/></div></div>
+      <div class="field"><label>Email</label><input type="email"/></div>
+      <div class="field row"><div><label>Pet's name</label><input/></div><div><label>Species</label>
+        <select><option>Dog</option><option>Cat</option><option>Rabbit / small mammal</option><option>Bird</option><option>Reptile</option><option>Other</option></select></div></div>
+      <div class="field row"><div><label>Breed</label><input/></div><div><label>Age</label><input placeholder="e.g. 3 years"/></div></div>
+      <div class="field"><label>Reason for visit</label>
+        <select><option>Wellness exam</option><option>Vaccinations</option><option>Sick visit</option><option>Surgery consult</option><option>Dental</option><option>Behavior</option><option>New to the clinic</option></select></div>
+      <div class="field"><label>Anything we should know?</label><textarea placeholder="Anxious in cars, recent symptoms, allergies — anything that helps."></textarea></div>
+      <button class="btn btn-primary">Request appointment →</button>
+    </form>
+    <div class="info-block">
+      <h3>Come on by</h3>
+      <div class="info-row"><div class="lbl">Address</div>123 Your Street<br/>City, ST 00000</div>
+      <div class="info-row"><div class="lbl">Phone</div>(555) 000-0000</div>
+      <div class="info-row"><div class="lbl">Email</div>hello@yourvet.com</div>
+      <div class="info-row"><div class="lbl">Hours</div>Mon–Fri 8:00 – 18:00<br/>Sat 9:00 – 14:00<br/>Sun Closed</div>
+      <div class="info-row"><div class="lbl">After hours</div>Routed to 24-hr emergency partner</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+
+<footer><div class="wrap">
+  <div>© 2026 Your Vet Clinic · Fear-free certified</div>
+  <div class="foot-links"><a>Instagram</a><a>New patient forms</a><a>Insurance</a><a>Careers</a></div>
+</div></footer>
+
+<script>
+  function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+  document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+  document.querySelectorAll('.pet-tab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.pet-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active')}));
+</script>
+</body></html>

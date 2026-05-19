@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Your Yoga Studio — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;1,400&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#e8e0d2;--ink:#2a261f;--clay:#c87f5b;--clay-dk:#8c4f33;--sage:#7a8a6a;--cream:#f5efe1;--muted:#736959;--line:#d6cdba}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:'Work Sans',sans-serif;font-size:16px;font-weight:300;line-height:1.7;letter-spacing:.01em}
+  a{color:inherit;text-decoration:none;cursor:pointer}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 36px}
+  nav{position:sticky;top:0;z-index:50;background:rgba(232,224,210,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:84px}
+  .logo{display:flex;align-items:center;gap:14px;font-family:Cormorant;font-style:italic;font-weight:500;font-size:24px;letter-spacing:.02em}
+  .nav-links{display:flex;gap:32px;font-size:14px;letter-spacing:.08em;text-transform:lowercase;color:var(--muted)}
+  .nav-links a.active{color:var(--ink)}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:14px 28px;border-radius:999px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border:none;font-weight:500}
+  .btn-primary{background:var(--ink);color:var(--cream)}
+  .btn-primary:hover{background:var(--clay-dk)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+  .page{display:none;padding:60px 0 120px}
+  .page.active{display:block}
+  .italic{font-family:Cormorant;font-style:italic;color:var(--clay-dk)}
+
+  /* Hero */
+  .hero{display:grid;grid-template-columns:1.2fr 1fr;gap:80px;align-items:center}
+  .eyebrow{font-family:Cormorant;font-style:italic;color:var(--clay);font-size:22px;letter-spacing:.04em;margin-bottom:16px}
+  h1.display{font-family:Cormorant;font-weight:400;font-size:clamp(64px,8vw,144px);line-height:.92;letter-spacing:-.01em}
+  h1.display em{font-style:italic;color:var(--clay-dk)}
+  .lede{font-size:18px;color:var(--muted);max-width:480px;margin:32px 0;font-weight:300}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+  .breath-art{position:relative;aspect-ratio:1/1;display:grid;place-items:center}
+  .ring{position:absolute;border-radius:50%;border:1px solid var(--clay)}
+  .ring.a{width:100%;height:100%;opacity:.25;animation:breathe 8s ease-in-out infinite}
+  .ring.b{width:78%;height:78%;opacity:.4;animation:breathe 8s ease-in-out infinite -2s}
+  .ring.c{width:56%;height:56%;opacity:.6;animation:breathe 8s ease-in-out infinite -4s}
+  .sun{width:34%;height:34%;background:radial-gradient(circle at 40% 40%,var(--clay),var(--clay-dk));border-radius:50%}
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+  .breath-label{position:absolute;font-family:Cormorant;font-style:italic;color:var(--muted)}
+  .breath-label.in{top:8%;left:50%;transform:translateX(-50%)}
+  .breath-label.hold{right:0;top:48%}
+  .breath-label.out{bottom:6%;left:50%;transform:translateX(-50%)}
+  .breath-label.pause{left:0;top:48%}
+
+  /* Class schedule */
+  .sched{margin-top:120px}
+  .sched-head{display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:24px;margin-bottom:32px}
+  .sched-head h2{font-family:Cormorant;font-weight:400;font-size:clamp(48px,5.5vw,80px);letter-spacing:-.01em}
+  .sched-head .nav-arrows{display:flex;gap:8px}
+  .sched-head .nav-arrows button{width:42px;height:42px;border:1px solid var(--ink);background:transparent;border-radius:50%;font-size:14px;cursor:pointer}
+  .week{display:grid;grid-template-columns:90px repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+  .week .col-head{background:var(--bg);padding:16px 14px;text-align:center;font-family:Cormorant;font-size:16px}
+  .week .col-head em{display:block;font-style:italic;color:var(--clay-dk);font-size:13px;margin-top:2px}
+  .week .time-col{background:var(--bg);padding:18px 14px;font-size:13px;color:var(--muted);font-family:Cormorant;font-style:italic;font-size:16px}
+  .week .cell{background:var(--cream);padding:14px;min-height:84px;cursor:pointer;transition:.2s;border-left:3px solid transparent}
+  .week .cell:hover{background:#fff}
+  .week .cell.flow{border-left-color:var(--clay)}
+  .week .cell.yin{border-left-color:var(--sage)}
+  .week .cell.power{border-left-color:#5a6a8a}
+  .week .cell .nm{font-weight:500;font-size:14px}
+  .week .cell .teach{font-size:12px;color:var(--muted);margin-top:4px;font-style:italic;font-family:Cormorant}
+  .week .cell.empty{opacity:.3}
+
+  /* Teachers */
+  .teachers{margin-top:120px}
+  .teachers h2{font-family:Cormorant;font-weight:400;font-size:64px;letter-spacing:-.01em;margin-bottom:32px}
+  .teacher-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+  .teacher{padding:32px;background:var(--cream);border:1px solid var(--line);border-radius:8px;text-align:center;transition:.2s}
+  .teacher:hover{background:#fff;transform:translateY(-3px)}
+  .teacher .av{width:96px;height:96px;border-radius:50%;background:linear-gradient(160deg,var(--clay),var(--clay-dk));margin:0 auto 16px;display:grid;place-items:center;color:var(--cream);font-family:Cormorant;font-size:32px;font-style:italic}
+  .teacher h4{font-family:Cormorant;font-size:24px}
+  .teacher .style{font-family:Cormorant;font-style:italic;color:var(--clay-dk);font-size:14px;margin:4px 0 10px}
+  .teacher p{font-size:13.5px;color:var(--muted)}
+
+  /* Practice intro */
+  .practice{margin-top:120px;padding:80px;background:var(--cream);border-radius:24px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+  .practice .meta{font-family:Cormorant;font-style:italic;color:var(--clay-dk);font-size:20px;margin-bottom:14px}
+  .practice h3{font-family:Cormorant;font-weight:400;font-size:56px;line-height:1;letter-spacing:-.01em;margin-bottom:20px}
+  .practice p{color:var(--muted)}
+  .practice .quote{font-family:Cormorant;font-style:italic;font-size:28px;line-height:1.4;color:var(--ink);padding-left:24px;border-left:1px solid var(--clay);margin-top:24px}
+
+  /* Pages */
+  .page-head{margin-bottom:64px;max-width:780px}
+  .page-head h2{font-family:Cormorant;font-weight:400;font-size:clamp(48px,6vw,96px);letter-spacing:-.01em;line-height:1;margin-top:6px}
+  .page-head p{font-size:18px;color:var(--muted);margin-top:18px}
+
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px}
+  .about-text p{margin-bottom:18px;color:#4a3f2e}
+  .about-text p.lead{font-family:Cormorant;font-style:italic;font-size:26px;line-height:1.4;color:var(--ink);margin-bottom:24px}
+
+  /* Service / class menu */
+  .menu-cat{margin-bottom:64px}
+  .menu-cat h3{font-family:Cormorant;font-weight:400;font-size:42px;margin-bottom:6px;letter-spacing:-.01em}
+  .menu-cat .cap{font-family:Cormorant;font-style:italic;color:var(--clay-dk);font-size:18px;margin-bottom:24px}
+  .class-row{padding:24px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr 120px 160px;gap:24px;align-items:baseline}
+  .class-row:last-child{border-bottom:none}
+  .class-row .nm{font-family:Cormorant;font-size:24px;font-weight:500}
+  .class-row .ds{font-size:14px;color:var(--muted);margin-top:6px}
+  .class-row .dur{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--clay)}
+  .class-row .pr{font-family:Cormorant;font-size:24px;color:var(--clay-dk);text-align:right}
+  .class-row .pr small{display:block;font-family:'Work Sans';font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+
+  .passes{margin-top:80px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .pass{padding:32px;background:var(--cream);border:1px solid var(--line);border-radius:8px}
+  .pass.featured{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+  .pass.featured .pr{color:var(--clay)}
+  .pass.featured ul{color:#bcb3a0}
+  .pass .nm{font-family:Cormorant;font-style:italic;font-size:24px}
+  .pass .pr{font-family:Cormorant;font-size:48px;margin:14px 0 0;letter-spacing:-.01em}
+  .pass .pr small{font-family:'Work Sans';font-size:12px;color:var(--muted);font-weight:400;letter-spacing:.06em;text-transform:uppercase}
+  .pass ul{list-style:none;margin-top:18px;font-size:14px;color:var(--muted);display:grid;gap:8px}
+  .pass li{padding-left:16px;position:relative}
+  .pass li::before{content:"—";position:absolute;left:0;color:var(--clay)}
+
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px}
+  form{display:grid;gap:16px}
+  .field label{display:block;font-size:13px;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;font-weight:500}
+  input,textarea,select{width:100%;padding:14px 16px;border-radius:0;border:1px solid var(--line);background:var(--cream);font:inherit;color:inherit}
+  input:focus,textarea:focus{outline:none;border-color:var(--clay)}
+  .field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  textarea{min-height:120px;resize:vertical}
+  .info-block{padding:48px;background:var(--ink);color:var(--cream)}
+  .info-block h3{font-family:Cormorant;font-size:36px;margin-bottom:24px;font-weight:400}
+  .info-row{padding:16px 0;border-top:1px solid #3a3429;font-size:14.5px}
+  .info-row:first-of-type{border-top:none}
+  .info-row .lbl{font-family:Cormorant;font-style:italic;color:var(--clay);font-size:16px;margin-bottom:4px}
+
+  footer{border-top:1px solid var(--line);padding:48px 0;color:var(--muted);font-size:13.5px;font-style:italic;font-family:Cormorant}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;font-size:16px}
+  .foot-links{display:flex;gap:24px}
+  @media(max-width:880px){.hero,.about-grid,.contact-grid,.practice{grid-template-columns:1fr}.teacher-grid,.passes{grid-template-columns:1fr 1fr}.week{overflow-x:auto}.class-row{grid-template-columns:1fr auto}.class-row .dur{display:none}.nav-links{display:none}}
+</style></head>
+<body>
+
+<nav><div class="wrap">
+  <a class="logo" onclick="goto('home')">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#2a261f" stroke-width="1.2"><circle cx="16" cy="16" r="14"/><circle cx="16" cy="16" r="10"/><circle cx="16" cy="16" r="6"/><circle cx="16" cy="16" r="2" fill="#c87f5b" stroke="none"/></svg>
+    Your Yoga Studio
+  </a>
+  <div class="nav-links">
+    <a data-page="home" class="active">home</a>
+    <a data-page="about">about</a>
+    <a data-page="services">classes</a>
+    <a data-page="contact">visit</a>
+  </div>
+  <button class="btn btn-primary" onclick="goto('contact')">Book a class</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div>
+      <div class="eyebrow">— a small studio, a long practice</div>
+      <h1 class="display">slow down,<br/><em>arrive,</em><br/>breathe.</h1>
+      <p class="lede">A neighborhood yoga studio for the long, soft practice — vinyasa, yin, restorative. Replace this with your studio's voice and the way you want the room to feel.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="goto('services')">First class — $15 →</button>
+        <button class="btn btn-ghost" onclick="goto('about')">our practice</button>
+      </div>
+    </div>
+    <div class="breath-art">
+      <div class="ring a"></div>
+      <div class="ring b"></div>
+      <div class="ring c"></div>
+      <div class="sun"></div>
+      <span class="breath-label in">— inhale —</span>
+      <span class="breath-label hold">hold</span>
+      <span class="breath-label out">— exhale —</span>
+      <span class="breath-label pause">pause</span>
+    </div>
+  </div>
+
+  <div class="sched">
+    <div class="sched-head">
+      <h2>This week,<br/>on the mat.</h2>
+      <div class="nav-arrows"><button>←</button><button>→</button></div>
+    </div>
+    <div class="week">
+      <div class="col-head italic">time</div>
+      <div class="col-head">Mon<em>19</em></div>
+      <div class="col-head">Tue<em>20</em></div>
+      <div class="col-head">Wed<em>21</em></div>
+      <div class="col-head">Thu<em>22</em></div>
+      <div class="col-head">Fri<em>23</em></div>
+
+      <div class="time-col">6:30</div>
+      <div class="cell flow"><div class="nm">Slow flow</div><div class="teach">— with Iris</div></div>
+      <div class="cell power"><div class="nm">Power vinyasa</div><div class="teach">— with Theo</div></div>
+      <div class="cell flow"><div class="nm">Slow flow</div><div class="teach">— with Iris</div></div>
+      <div class="cell power"><div class="nm">Power vinyasa</div><div class="teach">— with Theo</div></div>
+      <div class="cell empty"></div>
+
+      <div class="time-col">9:00</div>
+      <div class="cell yin"><div class="nm">Yin &amp; sound</div><div class="teach">— with Maya</div></div>
+      <div class="cell flow"><div class="nm">Vinyasa flow</div><div class="teach">— with Iris</div></div>
+      <div class="cell empty"></div>
+      <div class="cell yin"><div class="nm">Yin &amp; restorative</div><div class="teach">— with Maya</div></div>
+      <div class="cell flow"><div class="nm">Vinyasa flow</div><div class="teach">— with Iris</div></div>
+
+      <div class="time-col">12:00</div>
+      <div class="cell flow"><div class="nm">Lunchtime flow</div><div class="teach">— with Theo</div></div>
+      <div class="cell yin"><div class="nm">Yin</div><div class="teach">— with Maya</div></div>
+      <div class="cell flow"><div class="nm">Lunchtime flow</div><div class="teach">— with Theo</div></div>
+      <div class="cell empty"></div>
+      <div class="cell flow"><div class="nm">Lunchtime flow</div><div class="teach">— with Iris</div></div>
+
+      <div class="time-col">18:30</div>
+      <div class="cell power"><div class="nm">Power vinyasa</div><div class="teach">— with Iris</div></div>
+      <div class="cell flow"><div class="nm">Candlelit flow</div><div class="teach">— with Maya</div></div>
+      <div class="cell power"><div class="nm">Power vinyasa</div><div class="teach">— with Iris</div></div>
+      <div class="cell flow"><div class="nm">Candlelit flow</div><div class="teach">— with Maya</div></div>
+      <div class="cell yin"><div class="nm">Yin &amp; sound</div><div class="teach">— with Theo</div></div>
+    </div>
+  </div>
+
+  <div class="teachers">
+    <h2>Teachers in the room.</h2>
+    <div class="teacher-grid">
+      <div class="teacher"><div class="av">I</div><h4>Iris</h4><div class="style">— slow flow · vinyasa</div><p>RYT-500. Trained in Mysore. Teaches breath first.</p></div>
+      <div class="teacher"><div class="av">M</div><h4>Maya</h4><div class="style">— yin · restorative · sound</div><p>RYT-200. Sound bath certified. Knows where you hold it.</p></div>
+      <div class="teacher"><div class="av">T</div><h4>Theo</h4><div class="style">— power · ashtanga</div><p>RYT-500. Strong, steady, and warm.</p></div>
+      <div class="teacher"><div class="av">A</div><h4>Asha</h4><div class="style">— prenatal · gentle</div><p>RPYT certified. Adapts every shape.</p></div>
+    </div>
+  </div>
+
+  <div class="practice">
+    <div>
+      <div class="meta">— the practice we keep</div>
+      <h3>Soft work,<br/>repeated daily.</h3>
+      <p>This is where you tell people what they'll meet on the mat — your style, your music, the way you handle hands-on assists, the way you sequence a class.</p>
+      <p>Mention what's outside the room too: the tea after class, the props library, the cubbies that don't have locks because the room is the kind of room where nothing goes missing.</p>
+    </div>
+    <div>
+      <div class="quote">"You don't have to be flexible. You have to be willing to slow down. The rest is built one breath at a time."</div>
+      <div style="font-family:Cormorant;font-style:italic;color:var(--muted);margin-top:24px">— from a recent class</div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><div class="eyebrow">— our studio</div><h2>Small room. Long practice.</h2><p>Replace this with how the studio came to be. The first class you taught in a borrowed room. The morning the lease came through.</p></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">"We opened the studio in Year on a simple bet: that there were enough people in this neighborhood who wanted to slow down."</p>
+      <p>Tell people what the room feels like. Wood floor, warm lamps, sandalwood somewhere in the corner. We teach four lineages but always come back to the breath.</p>
+      <p>Talk about your training, your teachers, and the long line of practice you stand inside of. Specifics are the only thing that prevents this from sounding like a brochure.</p>
+      <p>End with the part that's actually yours — what you hope someone takes home from a Tuesday morning class.</p>
+    </div>
+    <div>
+      <h3 class="italic" style="font-family:Cormorant;font-size:32px;margin-bottom:24px">what's in the room</h3>
+      <div style="display:grid;gap:0;border-top:1px solid var(--line)">
+        <div style="padding:20px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:140px 1fr;gap:24px"><span class="italic">— studio</span><span>800 sqft · warm wood floor · curtained windows</span></div>
+        <div style="padding:20px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:140px 1fr;gap:24px"><span class="italic">— capacity</span><span>16 mats, soft enough to hear breath</span></div>
+        <div style="padding:20px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:140px 1fr;gap:24px"><span class="italic">— props</span><span>Mats, blocks, bolsters, blankets — all included</span></div>
+        <div style="padding:20px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:140px 1fr;gap:24px"><span class="italic">— amenities</span><span>Two showers, cubbies, hot tea, no phones</span></div>
+        <div style="padding:20px 0;display:grid;grid-template-columns:140px 1fr;gap:24px"><span class="italic">— heat</span><span>Warm — never hot. Around 24°C / 75°F</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><div class="eyebrow">— classes &amp; passes</div><h2>Practices &amp;<br/>pricing.</h2></div>
+  <div class="menu-cat">
+    <h3>Group classes</h3>
+    <div class="cap">— twenty-six per week · sixty minutes unless noted</div>
+    <div>
+      <div class="class-row"><div><div class="nm">Slow flow</div><div class="ds">A breath-led practice. Long holds, simple shapes.</div></div><div class="dur">— 60 min</div><div class="pr">$26<small>drop-in</small></div></div>
+      <div class="class-row"><div><div class="nm">Vinyasa flow</div><div class="ds">Standing sequences, soft landings.</div></div><div class="dur">— 60 min</div><div class="pr">$26<small>drop-in</small></div></div>
+      <div class="class-row"><div><div class="nm">Power vinyasa</div><div class="ds">Heated, strong, sweat-honest.</div></div><div class="dur">— 75 min</div><div class="pr">$30<small>drop-in</small></div></div>
+      <div class="class-row"><div><div class="nm">Yin</div><div class="ds">Long, quiet holds for the connective tissue.</div></div><div class="dur">— 75 min</div><div class="pr">$30<small>drop-in</small></div></div>
+      <div class="class-row"><div><div class="nm">Yin &amp; sound</div><div class="ds">Yin with a closing sound bath.</div></div><div class="dur">— 90 min</div><div class="pr">$35<small>drop-in</small></div></div>
+      <div class="class-row"><div><div class="nm">Restorative</div><div class="ds">Held shapes with props. Mostly stillness.</div></div><div class="dur">— 60 min</div><div class="pr">$26<small>drop-in</small></div></div>
+      <div class="class-row"><div><div class="nm">Prenatal</div><div class="ds">For every trimester. Doctor-approved sequences.</div></div><div class="dur">— 60 min</div><div class="pr">$28<small>drop-in</small></div></div>
+    </div>
+  </div>
+  <div class="menu-cat">
+    <h3>Workshops &amp; trainings</h3>
+    <div class="cap">— once a month, sometimes more</div>
+    <div>
+      <div class="class-row"><div><div class="nm">Foundations of breath</div><div class="ds">Three Saturdays, two hours each. Pranayama from the start.</div></div><div class="dur">— 6 hr</div><div class="pr">$180<small>workshop</small></div></div>
+      <div class="class-row"><div><div class="nm">Inversions &amp; arm balances</div><div class="ds">Held in two parts. Progressions, not party tricks.</div></div><div class="dur">— 4 hr</div><div class="pr">$120<small>workshop</small></div></div>
+      <div class="class-row"><div><div class="nm">200-hour teacher training</div><div class="ds">Cohorts of 12, twice a year. Application required.</div></div><div class="dur">— 6 months</div><div class="pr">$2,800<small>full</small></div></div>
+    </div>
+  </div>
+  <h3 class="italic" style="font-family:Cormorant;font-size:32px;margin-top:40px;margin-bottom:24px">passes</h3>
+  <div class="passes">
+    <div class="pass"><div class="nm">first class</div><div class="pr">$15<small>one time</small></div><ul><li>any class</li><li>all props included</li><li>no commitment</li></ul></div>
+    <div class="pass"><div class="nm">five-pack</div><div class="pr">$120<small>three-month exp</small></div><ul><li>five classes</li><li>any time, any teacher</li><li>shareable with one friend</li></ul></div>
+    <div class="pass featured"><div class="nm">monthly</div><div class="pr">$165<small>per month</small></div><ul><li>unlimited classes</li><li>guest pass once a month</li><li>15% off workshops</li><li>cancel anytime</li></ul></div>
+    <div class="pass"><div class="nm">annual</div><div class="pr">$1,650<small>per year</small></div><ul><li>everything in monthly</li><li>two months free</li><li>one workshop included</li></ul></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><div class="eyebrow">— visit</div><h2>Come<br/>by the studio.</h2><p>Tell us a little about yourself. We answer every note within a day.</p></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo form.')">
+      <div class="field row"><div><label>First name</label><input/></div><div><label>Last name</label><input/></div></div>
+      <div class="field"><label>Email</label><input type="email"/></div>
+      <div class="field"><label>What brings you in?</label>
+        <select><option>I'm new to yoga</option><option>I have a practice and want to come try</option><option>Looking for prenatal classes</option><option>Workshop or training</option><option>Just exploring</option></select></div>
+      <div class="field"><label>Anything we should know? (injuries, pregnancy, anxiety)</label><textarea placeholder="Optional"></textarea></div>
+      <button class="btn btn-primary">Send →</button>
+    </form>
+    <div class="info-block">
+      <h3>The studio</h3>
+      <div class="info-row"><div class="lbl">address</div>123 Your Street<br/>City, ST 00000</div>
+      <div class="info-row"><div class="lbl">phone</div>(555) 000-0000</div>
+      <div class="info-row"><div class="lbl">email</div>hello@yourstudio.com</div>
+      <div class="info-row"><div class="lbl">first class</div>$15 — any class, any teacher</div>
+      <div class="info-row"><div class="lbl">arrival</div>fifteen minutes early, please</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+
+<footer><div class="wrap">
+  <div>— mat, breath, repeat —</div>
+  <div class="foot-links" style="font-family:'Work Sans';font-style:normal"><a>Instagram</a><a>Newsletter</a><a>Schedule app</a></div>
+</div></footer>
+
+<script>
+  function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+  document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script>
+</body></html>

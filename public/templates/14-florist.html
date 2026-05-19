@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Your Florist — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Infant:ital,wght@0,400;0,500;1,400&family=Karla:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f5f0ea;--ink:#2c2a23;--blush:#e1aaa1;--rose:#b97a6f;--sage:#7d9173;--sage-dk:#52684a;--cream:#fbf7f0;--muted:#7a7466;--line:#e3dccf}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:Karla,sans-serif;font-size:16px;line-height:1.7;font-weight:400}
+  a{color:inherit;text-decoration:none;cursor:pointer}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 36px}
+  .serif{font-family:'Cormorant Infant',serif;font-weight:500}
+  .ital{font-family:'Cormorant Infant';font-style:italic}
+  nav{position:sticky;top:0;z-index:50;background:rgba(245,240,234,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:84px}
+  .logo{display:flex;align-items:center;gap:12px;font-family:'Cormorant Infant';font-style:italic;font-size:28px}
+  .nav-links{display:flex;gap:32px;font-size:14px;color:var(--muted)}
+  .nav-links a.active{color:var(--ink);font-weight:500}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:14px 28px;border-radius:0;font-size:13px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border:none;font-weight:500;font-family:Karla}
+  .btn-primary{background:var(--ink);color:var(--cream)}
+  .btn-primary:hover{background:var(--sage-dk)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+  .page{display:none;padding:48px 0 120px}
+  .page.active{display:block}
+
+  /* Hero */
+  .hero{display:grid;grid-template-columns:1.1fr 1fr;gap:80px;align-items:center}
+  .eyebrow{font-family:'Cormorant Infant';font-style:italic;color:var(--rose);font-size:22px;margin-bottom:14px}
+  h1.display{font-family:'Cormorant Infant';font-weight:500;font-size:clamp(56px,7.5vw,120px);line-height:.94;letter-spacing:-.01em}
+  h1.display em{font-style:italic;color:var(--sage-dk)}
+  .lede{font-size:18px;color:var(--muted);max-width:460px;margin:32px 0}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+  .bouquet{position:relative;aspect-ratio:1/1.2;background:var(--cream);border-radius:50%;display:grid;place-items:center;border:1px solid var(--line)}
+  .bouquet svg{width:80%;height:80%}
+  .flower-tag{position:absolute;font-family:'Cormorant Infant';font-style:italic;background:var(--bg);padding:6px 14px;border-radius:999px;font-size:14px;color:var(--rose);border:1px solid var(--line)}
+  .flower-tag.a{top:10%;left:-4%;transform:rotate(-8deg)}
+  .flower-tag.b{top:24%;right:-6%;transform:rotate(8deg);color:var(--sage-dk)}
+  .flower-tag.c{bottom:14%;left:0%;transform:rotate(4deg)}
+
+  /* Seasonal stems */
+  .seasonal{margin-top:120px}
+  .seasonal-head{margin-bottom:32px}
+  .seasonal-head h2{font-family:'Cormorant Infant';font-weight:500;font-size:clamp(48px,5.5vw,80px);letter-spacing:-.01em}
+  .seasonal-head .meta{font-family:'Cormorant Infant';font-style:italic;color:var(--rose);font-size:20px;margin-top:8px}
+  .stems-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+  .stem{padding:22px;background:var(--cream);border:1px solid var(--line);border-radius:24px;text-align:center;transition:.2s}
+  .stem:hover{transform:translateY(-3px);background:#fff}
+  .stem .ic{height:60px;display:grid;place-items:center;margin-bottom:8px}
+  .stem .nm{font-family:'Cormorant Infant';font-weight:500;font-size:18px}
+  .stem .lat{font-family:'Cormorant Infant';font-style:italic;font-size:12px;color:var(--muted)}
+  .stem .month{margin-top:6px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--sage-dk)}
+
+  /* Bouquet builder */
+  .builder{margin-top:120px;padding:64px;background:var(--cream);border-radius:32px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+  .builder h3{font-family:'Cormorant Infant';font-weight:500;font-size:56px;line-height:1;letter-spacing:-.01em;margin-bottom:14px}
+  .builder p{color:var(--muted)}
+  .builder .pre{font-family:'Cormorant Infant';font-style:italic;color:var(--rose);font-size:20px;margin-bottom:6px}
+  .build-form{display:grid;gap:18px}
+  .opt-row{display:grid;gap:8px}
+  .opt-row .lab{font-family:'Cormorant Infant';font-style:italic;color:var(--ink);font-size:18px}
+  .opts{display:flex;gap:8px;flex-wrap:wrap}
+  .opt{padding:10px 18px;border:1px solid var(--line);border-radius:999px;cursor:pointer;font-size:13.5px;background:#fff;transition:.15s}
+  .opt:hover{border-color:var(--rose)}
+  .opt.sel{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+  .total{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-top:1px solid var(--line);margin-top:12px;font-family:'Cormorant Infant'}
+  .total .l{font-style:italic;color:var(--muted)}
+  .total .v{font-size:36px;font-weight:500}
+
+  /* Workshops */
+  .workshops{margin-top:120px}
+  .ws-head{display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:24px;margin-bottom:24px}
+  .ws-head h2{font-family:'Cormorant Infant';font-weight:500;font-size:64px;letter-spacing:-.01em}
+  .ws-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .ws{padding:32px;background:#fff;border:1px solid var(--line);border-radius:24px}
+  .ws .date{font-family:'Cormorant Infant';font-style:italic;color:var(--rose);font-size:18px}
+  .ws h4{font-family:'Cormorant Infant';font-size:28px;margin:8px 0 12px;line-height:1.1}
+  .ws p{font-size:14.5px;color:var(--muted)}
+  .ws .footer{display:flex;justify-content:space-between;align-items:baseline;margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+  .ws .pr{font-family:'Cormorant Infant';font-size:24px;font-weight:500}
+  .ws .spots{font-size:12px;color:var(--sage-dk);letter-spacing:.06em}
+
+  /* Pages */
+  .page-head{margin-bottom:64px;max-width:780px}
+  .page-head h2{font-family:'Cormorant Infant';font-weight:500;font-size:clamp(48px,6vw,84px);letter-spacing:-.01em;line-height:1.02;margin-top:6px}
+  .page-head p{font-size:18px;color:var(--muted);margin-top:18px}
+
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px}
+  .about-text p{margin-bottom:18px;color:#403d33}
+  .about-text p.lead{font-family:'Cormorant Infant';font-style:italic;font-size:26px;line-height:1.4;color:var(--ink);margin-bottom:24px}
+
+  .pillars{display:grid;gap:14px}
+  .pillar{padding:24px;background:#fff;border:1px solid var(--line);border-radius:18px;display:grid;grid-template-columns:48px 1fr;gap:16px;align-items:start}
+  .pillar .ic{width:48px;height:48px;border-radius:50%;background:var(--blush);display:grid;place-items:center;font-size:22px}
+  .pillar h4{font-family:'Cormorant Infant';font-size:22px}
+  .pillar p{font-size:14px;color:var(--muted)}
+
+  /* Services */
+  .svc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  .svc{padding:36px;background:#fff;border:1px solid var(--line);border-radius:24px;position:relative}
+  .svc .ic{font-size:28px;margin-bottom:18px}
+  .svc h3{font-family:'Cormorant Infant';font-weight:500;font-size:30px;letter-spacing:-.01em;margin-bottom:8px}
+  .svc p{font-size:15px;color:var(--muted);margin-bottom:18px}
+  .svc ul{list-style:none;display:grid;gap:6px}
+  .svc li{padding-left:16px;position:relative;font-size:14px;color:var(--muted)}
+  .svc li::before{content:"❀";position:absolute;left:0;color:var(--rose);font-size:12px}
+  .svc .pr{font-family:'Cormorant Infant';font-size:22px;color:var(--sage-dk);margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}
+
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px}
+  form{display:grid;gap:16px}
+  .field label{display:block;font-family:'Cormorant Infant';font-style:italic;font-size:18px;color:var(--ink);margin-bottom:4px}
+  input,textarea,select{width:100%;padding:14px 18px;border-radius:14px;border:1px solid var(--line);background:var(--cream);font:inherit;color:inherit}
+  input:focus,textarea:focus{outline:none;border-color:var(--rose)}
+  .field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  textarea{min-height:120px;resize:vertical}
+  .info-block{padding:48px;background:var(--sage-dk);color:var(--cream);border-radius:24px}
+  .info-block h3{font-family:'Cormorant Infant';font-weight:500;font-size:36px;margin-bottom:24px}
+  .info-row{padding:16px 0;border-top:1px solid rgba(255,255,255,.2);font-size:14.5px}
+  .info-row:first-of-type{border-top:none}
+  .info-row .lbl{font-family:'Cormorant Infant';font-style:italic;color:var(--blush);font-size:18px;margin-bottom:4px}
+
+  footer{border-top:1px solid var(--line);padding:48px 0;color:var(--muted);font-size:14px}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px}
+  .foot-links{display:flex;gap:24px}
+  @media(max-width:880px){.hero,.builder,.about-grid,.contact-grid{grid-template-columns:1fr}.stems-grid{grid-template-columns:repeat(3,1fr)}.svc-grid,.ws-grid{grid-template-columns:1fr}.nav-links{display:none}}
+</style></head>
+<body>
+
+<nav><div class="wrap">
+  <a class="logo" onclick="goto('home')">
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="12" r="5" fill="#e1aaa1"/><circle cx="11" cy="18" r="5" fill="#7d9173"/><circle cx="25" cy="18" r="5" fill="#b97a6f"/><circle cx="18" cy="24" r="5" fill="#e1aaa1"/><circle cx="18" cy="18" r="2.5" fill="#fbf7f0"/></svg>
+    Your Florist
+  </a>
+  <div class="nav-links">
+    <a data-page="home" class="active">Home</a>
+    <a data-page="about">Our shop</a>
+    <a data-page="services">Services</a>
+    <a data-page="contact">Order flowers</a>
+  </div>
+  <button class="btn btn-primary" onclick="goto('contact')">Order flowers</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div>
+      <div class="eyebrow">— Seasonal florals, by hand</div>
+      <h1 class="display">Bouquets<br/>arranged the <em>old way</em>.</h1>
+      <p class="lede">A neighborhood florist working with seasonal stems from growers we know. No imported red roses in February. Replace this with your shop's voice.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="goto('contact')">Order a bouquet →</button>
+        <button class="btn btn-ghost" onclick="goto('services')">Weddings &amp; events</button>
+      </div>
+    </div>
+    <div class="bouquet">
+      <svg viewBox="0 0 200 240" fill="none">
+        <path d="M100 150 L80 220 M100 150 L100 220 M100 150 L120 220" stroke="#52684a" stroke-width="1.6"/>
+        <circle cx="80" cy="100" r="22" fill="#e1aaa1"/><circle cx="80" cy="100" r="10" fill="#b97a6f"/>
+        <circle cx="120" cy="90" r="20" fill="#b97a6f"/><circle cx="120" cy="90" r="8" fill="#7a4a44"/>
+        <circle cx="100" cy="140" r="24" fill="#fbf7f0" stroke="#7d9173"/><circle cx="100" cy="140" r="6" fill="#d4a456"/>
+        <circle cx="60" cy="135" r="14" fill="#e1aaa1"/>
+        <circle cx="140" cy="135" r="16" fill="#7d9173"/>
+        <path d="M55 130 L40 100 M60 120 L50 90" stroke="#52684a" stroke-width="1.4"/>
+        <path d="M148 130 L165 95 M142 120 L155 85" stroke="#52684a" stroke-width="1.4"/>
+        <path d="M70 220 L130 220 L120 235 L80 235 Z" fill="#7d9173" opacity=".7"/>
+      </svg>
+      <span class="flower-tag a">— peony</span>
+      <span class="flower-tag b">eucalyptus</span>
+      <span class="flower-tag c">— ranunculus</span>
+    </div>
+  </div>
+
+  <div class="seasonal">
+    <div class="seasonal-head">
+      <h2>In season this month.</h2>
+      <div class="meta">— Late spring · May</div>
+    </div>
+    <div class="stems-grid">
+      <div class="stem">
+        <div class="ic"><svg width="36" height="48" viewBox="0 0 36 48"><circle cx="18" cy="14" r="11" fill="#e1aaa1"/><circle cx="18" cy="14" r="5" fill="#b97a6f"/><path d="M18 26v20" stroke="#52684a" stroke-width="1.6"/></svg></div>
+        <div class="nm">Peony</div><div class="lat">Paeonia</div><div class="month">— peak now</div>
+      </div>
+      <div class="stem">
+        <div class="ic"><svg width="36" height="48" viewBox="0 0 36 48"><circle cx="18" cy="12" r="5" fill="#fbf7f0"/><circle cx="11" cy="18" r="5" fill="#fbf7f0"/><circle cx="25" cy="18" r="5" fill="#fbf7f0"/><circle cx="18" cy="22" r="2" fill="#d4a456"/><path d="M18 24v22" stroke="#52684a" stroke-width="1.6"/></svg></div>
+        <div class="nm">Sweet pea</div><div class="lat">Lathyrus</div><div class="month">— peak now</div>
+      </div>
+      <div class="stem">
+        <div class="ic"><svg width="36" height="48" viewBox="0 0 36 48"><circle cx="18" cy="14" r="10" fill="#b97a6f"/><circle cx="18" cy="14" r="4" fill="#7a4a44"/><path d="M18 24v22" stroke="#52684a" stroke-width="1.6"/></svg></div>
+        <div class="nm">Ranunculus</div><div class="lat">Ranunculus</div><div class="month">— peak now</div>
+      </div>
+      <div class="stem">
+        <div class="ic"><svg width="36" height="48" viewBox="0 0 36 48"><ellipse cx="18" cy="14" rx="6" ry="10" fill="#7d9173"/><ellipse cx="12" cy="22" rx="5" ry="8" fill="#7d9173"/><ellipse cx="24" cy="22" rx="5" ry="8" fill="#7d9173"/><path d="M18 30v16" stroke="#52684a" stroke-width="1.6"/></svg></div>
+        <div class="nm">Eucalyptus</div><div class="lat">Eucalyptus</div><div class="month">— year round</div>
+      </div>
+      <div class="stem">
+        <div class="ic"><svg width="36" height="48" viewBox="0 0 36 48"><circle cx="18" cy="10" r="3" fill="#e1aaa1"/><circle cx="13" cy="15" r="3" fill="#e1aaa1"/><circle cx="23" cy="15" r="3" fill="#e1aaa1"/><circle cx="14" cy="22" r="3" fill="#e1aaa1"/><circle cx="22" cy="22" r="3" fill="#e1aaa1"/><circle cx="18" cy="27" r="3" fill="#e1aaa1"/><path d="M18 30v16" stroke="#52684a" stroke-width="1.6"/></svg></div>
+        <div class="nm">Lilac</div><div class="lat">Syringa</div><div class="month">— through june</div>
+      </div>
+      <div class="stem">
+        <div class="ic"><svg width="36" height="48" viewBox="0 0 36 48"><path d="M18 4l3 8 8 1-6 5 2 8-7-4-7 4 2-8-6-5 8-1z" fill="#fbf7f0" stroke="#52684a" stroke-width="1"/><path d="M18 26v20" stroke="#52684a" stroke-width="1.6"/></svg></div>
+        <div class="nm">Anemone</div><div class="lat">Anemone</div><div class="month">— last weeks</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="builder">
+    <div>
+      <div class="pre">— design your own</div>
+      <h3>Build a bouquet.</h3>
+      <p>Pick a palette, a size, a vibe. We arrange it the morning of delivery from whatever's beautiful at the market that day.</p>
+    </div>
+    <form class="build-form" onsubmit="event.preventDefault();alert('Demo form.')">
+      <div class="opt-row"><div class="lab">— palette</div>
+        <div class="opts">
+          <span class="opt sel">Soft &amp; romantic</span><span class="opt">Earthy &amp; wild</span><span class="opt">Bright &amp; bold</span><span class="opt">Whites only</span>
+        </div></div>
+      <div class="opt-row"><div class="lab">— size</div>
+        <div class="opts">
+          <span class="opt">Small · $45</span><span class="opt sel">Medium · $85</span><span class="opt">Large · $125</span><span class="opt">Statement · $185</span>
+        </div></div>
+      <div class="opt-row"><div class="lab">— vase</div>
+        <div class="opts">
+          <span class="opt sel">Hand-tied</span><span class="opt">In a vase (+$15)</span>
+        </div></div>
+      <div class="total"><span class="l">— estimated total</span><span class="v">$85</span></div>
+      <button class="btn btn-primary">Continue to delivery →</button>
+    </form>
+  </div>
+
+  <div class="workshops">
+    <div class="ws-head">
+      <h2>Workshops &amp; events.</h2>
+      <a class="ital" style="color:var(--rose);cursor:pointer">— see all dates</a>
+    </div>
+    <div class="ws-grid">
+      <div class="ws"><div class="date">— Saturday, June 7</div><h4>Garden bouquet workshop</h4><p>Three hours of arranging with seasonal stems. Walk out with a bouquet for someone you love.</p><div class="footer"><div class="pr">$85</div><div class="spots">— 4 spots left</div></div></div>
+      <div class="ws"><div class="date">— Sunday, June 22</div><h4>Foraged wreath, summer</h4><p>An afternoon weaving fresh-and-dried wreaths with what's blooming locally.</p><div class="footer"><div class="pr">$95</div><div class="spots">— 6 spots left</div></div></div>
+      <div class="ws"><div class="date">— Wednesday evenings</div><h4>Single-stem study</h4><p>Six weeks, six flowers. Care, color, composition. Limited to eight students.</p><div class="footer"><div class="pr">$420</div><div class="spots">— starts July</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><div class="eyebrow">— our shop</div><h2>Slow flowers,<br/>made by hand.</h2></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">"We opened the shop in Year on a single bet — that there were people in this neighborhood who wanted flowers that looked like flowers."</p>
+      <p>Replace this with your story. The growers you work with. The Saturday market trip that shapes every Monday delivery.</p>
+      <p>Describe the shop. The cooler full of buckets, the table covered in stems, the dogs that come along with their owners on pickup day.</p>
+    </div>
+    <div class="pillars">
+      <div class="pillar"><div class="ic">🌿</div><div><h4>Seasonal only</h4><p>If it doesn't grow this month, it isn't in the bouquet.</p></div></div>
+      <div class="pillar"><div class="ic">🤝</div><div><h4>Local growers</h4><p>Five farms within an hour. Names we say at the table.</p></div></div>
+      <div class="pillar"><div class="ic">♻︎</div><div><h4>No floral foam</h4><p>Reusable mechanics in every arrangement. Always.</p></div></div>
+      <div class="pillar"><div class="ic">✿</div><div><h4>One designer per order</h4><p>Your bouquet is made by one pair of hands, start to finish.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><div class="eyebrow">— services</div><h2>From everyday<br/>to once in a life.</h2></div>
+  <div class="svc-grid">
+    <div class="svc"><div class="ic">💐</div><h3>Weekly bouquets</h3><p>A subscription that arrives every Wednesday morning. Cancel any week.</p>
+      <ul><li>Choose small, medium, large</li><li>Delivered or pickup</li><li>Skip a week anytime</li></ul>
+      <div class="pr">From $35/week</div></div>
+    <div class="svc"><div class="ic">🎁</div><h3>Gift bouquets</h3><p>Same- and next-day delivery within the city. With a hand-written note.</p>
+      <ul><li>Hand-tied or vase</li><li>Custom message card</li><li>Photo confirmation on delivery</li></ul>
+      <div class="pr">From $55</div></div>
+    <div class="svc"><div class="ic">💒</div><h3>Weddings &amp; events</h3><p>Full-service florals — from a single bridal bouquet to a hundred-guest installation.</p>
+      <ul><li>Consultation &amp; mood board</li><li>Mock-up bouquet</li><li>Day-of delivery &amp; styling</li><li>Strike &amp; takeaway service</li></ul>
+      <div class="pr">From $1,800</div></div>
+    <div class="svc"><div class="ic">🏪</div><h3>Restaurants &amp; offices</h3><p>Weekly arrangements for cafés, lobbies, and hospitality spaces.</p>
+      <ul><li>Bi-weekly or weekly</li><li>Vases included</li><li>Branded color stories</li></ul>
+      <div class="pr">From $120/week</div></div>
+    <div class="svc"><div class="ic">🌸</div><h3>Workshops</h3><p>Public and private workshops for two to twenty. Studio or your space.</p>
+      <ul><li>Bouquet, wreath, or installation</li><li>All materials included</li><li>Private bookings available</li></ul>
+      <div class="pr">From $85/person</div></div>
+    <div class="svc"><div class="ic">🕯️</div><h3>Sympathy &amp; service</h3><p>Quiet, low-press arrangements for funerals and remembrance.</p>
+      <ul><li>Same-day available</li><li>Coordinated with service</li><li>Includes delivery</li></ul>
+      <div class="pr">From $95</div></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><div class="eyebrow">— order flowers</div><h2>Tell us<br/>what's the occasion.</h2><p>Same-day orders before 11 AM. We respond to every inquiry the day we receive it.</p></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo form.')">
+      <div class="field row"><div><label>Your name</label><input/></div><div><label>Email</label><input type="email"/></div></div>
+      <div class="field"><label>Occasion</label>
+        <select><option>Just because</option><option>Birthday</option><option>Anniversary</option><option>Sympathy</option><option>Wedding</option><option>Event</option><option>Restaurant / office</option></select></div>
+      <div class="field row"><div><label>Budget</label>
+        <select><option>$45 – $85</option><option>$85 – $150</option><option>$150 – $300</option><option>$300+</option></select></div><div><label>Date needed</label><input type="date"/></div></div>
+      <div class="field"><label>Delivery or pickup?</label>
+        <select><option>Local delivery</option><option>Pickup at shop</option></select></div>
+      <div class="field"><label>Tell us more</label><textarea placeholder="Recipient, address, mood, color preferences, card message — anything that helps."></textarea></div>
+      <button class="btn btn-primary">Send order →</button>
+    </form>
+    <div class="info-block">
+      <h3>Come by the shop</h3>
+      <div class="info-row"><div class="lbl">address</div>123 Your Street<br/>City, ST 00000</div>
+      <div class="info-row"><div class="lbl">phone</div>(555) 000-0000</div>
+      <div class="info-row"><div class="lbl">email</div>shop@yourflorist.com</div>
+      <div class="info-row"><div class="lbl">tue – fri</div>10:00 – 18:00</div>
+      <div class="info-row"><div class="lbl">saturday</div>9:00 – 16:00</div>
+      <div class="info-row"><div class="lbl">delivery</div>Same-day if ordered before 11 AM</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+
+<footer><div class="wrap">
+  <div>© 2026 Your Florist · Seasonal flowers, made by hand</div>
+  <div class="foot-links"><a>Instagram</a><a>Newsletter</a><a>Care guides</a><a>Wholesale</a></div>
+</div></footer>
+
+<script>
+  function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+  document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+  document.querySelectorAll('.opt-row').forEach(row=>{row.querySelectorAll('.opt').forEach(o=>o.addEventListener('click',()=>{row.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));o.classList.add('sel')}))});
+</script>
+</body></html>

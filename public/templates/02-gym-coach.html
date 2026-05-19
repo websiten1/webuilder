@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Your Gym / Coach — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#0d0d0d; --ink:#f5f1ea; --muted:#8a8580; --accent:#ff4d1a; --line:#1f1d1b; --card:#161412;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',sans-serif;font-size:16px;line-height:1.5}
+  a{color:inherit;text-decoration:none;cursor:pointer}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+  nav{position:sticky;top:0;z-index:50;background:rgba(13,13,13,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:76px}
+  .logo{font-family:Anton;font-size:24px;letter-spacing:.02em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+  .logo .bar{width:6px;height:24px;background:var(--accent)}
+  .nav-links{display:flex;gap:32px;font-size:13px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+  .nav-links a.active{color:var(--ink)}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:14px 24px;font-family:Anton;font-size:15px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border:none;transition:.15s}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:#e63d0a}
+  .btn-ghost{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+  .btn-ghost:hover{background:var(--ink);color:#0d0d0d}
+  .page{display:none;padding:80px 0 120px}
+  .page.active{display:block}
+
+  .hero{position:relative;padding:40px 0 0}
+  .hero h1{font-family:Anton;font-size:clamp(80px,15vw,220px);line-height:.86;letter-spacing:-.01em;text-transform:uppercase}
+  .hero h1 .stroke{-webkit-text-stroke:2px var(--ink);color:transparent}
+  .hero h1 .accent{color:var(--accent)}
+  .hero-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:60px;margin-top:60px;align-items:end}
+  .hero-meta{display:flex;flex-direction:column;gap:24px}
+  .lede{font-size:18px;color:var(--muted);max-width:420px}
+  .marquee{margin-top:80px;padding:24px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;white-space:nowrap;font-family:Anton;font-size:42px;text-transform:uppercase;letter-spacing:.04em}
+  .marquee span{display:inline-block;padding-right:48px;animation:scroll 28s linear infinite}
+  .marquee em{color:var(--accent);font-style:normal}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:64px;border:1px solid var(--line)}
+  .stat{padding:36px;border-right:1px solid var(--line)}
+  .stat:last-child{border-right:none}
+  .stat .num{font-family:Anton;font-size:64px;line-height:1;color:var(--accent)}
+  .stat .lbl{margin-top:8px;font-size:12px;text-transform:uppercase;letter-spacing:.16em;color:var(--muted)}
+
+  .page-head{margin-bottom:64px;max-width:760px}
+  .page-head .eyebrow{font-family:Anton;font-size:14px;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;margin-bottom:16px}
+  .page-head h2{font-family:Anton;font-size:clamp(56px,7vw,96px);line-height:.96;letter-spacing:-.01em;text-transform:uppercase}
+  .page-head p{font-size:18px;color:var(--muted);margin-top:20px}
+
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px}
+  .about-text p{margin-bottom:20px;color:#cfcac0}
+  .pillars{display:grid;grid-template-columns:1fr;gap:0;border:1px solid var(--line)}
+  .pillar{padding:28px 32px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:48px 1fr;gap:24px;align-items:center}
+  .pillar:last-child{border-bottom:none}
+  .pillar .n{font-family:Anton;font-size:36px;color:var(--accent)}
+  .pillar h4{font-family:Anton;font-size:22px;text-transform:uppercase;letter-spacing:.04em}
+  .pillar p{font-size:14.5px;color:var(--muted);margin-top:4px}
+
+  .programs{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line);border-left:1px solid var(--line)}
+  .prog{padding:48px 36px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);transition:.2s;position:relative}
+  .prog:hover{background:var(--card)}
+  .prog .tag{display:inline-block;padding:4px 10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;background:var(--accent);color:#fff;margin-bottom:24px}
+  .prog h3{font-family:Anton;font-size:38px;line-height:1;text-transform:uppercase;letter-spacing:.01em}
+  .prog p{font-size:15px;color:var(--muted);margin:14px 0 28px}
+  .prog .price{font-family:Anton;font-size:28px;display:flex;align-items:baseline;gap:6px}
+  .prog .price small{font-family:'Space Grotesk';font-size:13px;color:var(--muted)}
+  .prog .arrow{position:absolute;top:48px;right:32px;font-size:22px;color:var(--accent)}
+
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px}
+  form{display:grid;gap:14px}
+  .field label{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  input,textarea,select{width:100%;padding:14px 16px;background:var(--card);border:1px solid var(--line);color:var(--ink);font:inherit}
+  input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+  .field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  textarea{min-height:120px;resize:vertical}
+  .info-block{padding:36px;background:var(--card);border:1px solid var(--line)}
+  .info-block h3{font-family:Anton;font-size:32px;text-transform:uppercase;margin-bottom:24px}
+  .info-row{display:flex;justify-content:space-between;padding:16px 0;border-top:1px solid var(--line);font-size:14.5px;color:#cfcac0}
+  .info-row .lbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+  footer{border-top:1px solid var(--line);padding:48px 0;color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.12em}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px}
+  .foot-links{display:flex;gap:28px}
+  @media(max-width:880px){.hero-grid,.about-grid,.contact-grid{grid-template-columns:1fr}.stats,.programs{grid-template-columns:1fr 1fr}.nav-links{display:none}}
+</style></head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" onclick="goto('home')"><span class="bar"></span>Your Gym Name</a>
+    <div class="nav-links">
+      <a data-page="home" class="active">Home</a><a data-page="about">About</a>
+      <a data-page="services">Programs</a><a data-page="contact">Contact</a>
+    </div>
+    <button class="btn btn-primary" onclick="goto('contact')">Start Trial</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div style="font-size:13px;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;font-family:Anton">— Performance training, your city</div>
+    <h1>STRONGER<br/><span class="accent">EVERY</span> <span class="stroke">SESSION</span>.</h1>
+    <div class="hero-grid">
+      <p class="lede">Coaching built around your body and your week, not a template. Replace this with your gym's voice — the kind of room you've built and the people who keep showing up.</p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="goto('contact')">Book a free intro →</button>
+        <button class="btn btn-ghost" onclick="goto('services')">See programs</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="marquee"><span>Strength · Conditioning · Recovery · <em>Results</em> · Mobility · Nutrition · Coaching · <em>Built for life</em> · Strength · Conditioning · Recovery · <em>Results</em> · Mobility · Nutrition · Coaching · <em>Built for life</em> · </span></div>
+
+  <div class="stats">
+    <div class="stat"><div class="num">500+</div><div class="lbl">Members coached</div></div>
+    <div class="stat"><div class="num">8</div><div class="lbl">Years in the gym</div></div>
+    <div class="stat"><div class="num">12</div><div class="lbl">Certified coaches</div></div>
+    <div class="stat"><div class="num">24/7</div><div class="lbl">Member access</div></div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head">
+    <div class="eyebrow">— The philosophy</div>
+    <h2>WE COACH<br/>HUMANS,<br/>NOT WORKOUTS.</h2>
+    <p>Your team. Your room. Your voice. Replace this with the story of how the gym started and what makes it yours.</p>
+  </div>
+
+  <div class="about-grid">
+    <div class="about-text">
+      <p>Start with the origin: who opened the doors and why. Coaches with a clear point of view always have a story. Tell yours.</p>
+      <p>Describe the room. Equipment, music, smell, the rack you fought to buy. Specifics make the gym feel real before someone walks in.</p>
+      <p>Close with what success looks like for the people you train. Not before-and-after photos — what they can do in their life now that they couldn't before.</p>
+    </div>
+    <div class="pillars">
+      <div class="pillar"><div class="n">01</div><div><h4>Move well first</h4><p>Mechanics before load. Always.</p></div></div>
+      <div class="pillar"><div class="n">02</div><div><h4>Train consistently</h4><p>Three honest sessions beats five great ones.</p></div></div>
+      <div class="pillar"><div class="n">03</div><div><h4>Recover seriously</h4><p>Sleep, food, breath — programmed like lifts.</p></div></div>
+      <div class="pillar"><div class="n">04</div><div><h4>Push at the edge</h4><p>Just past comfortable. Never past form.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head">
+    <div class="eyebrow">— Programs</div>
+    <h2>PICK YOUR LANE.<br/>WE'LL HANDLE THE REST.</h2>
+  </div>
+  <div class="programs">
+    <div class="prog"><div class="tag">Beginner</div><h3>FUNDAMENTALS</h3><p>Eight weeks of mechanics, mobility, and confidence under the bar. Perfect first program.</p><div class="price">$XX<small>/wk</small></div><span class="arrow">→</span></div>
+    <div class="prog"><div class="tag">Most popular</div><h3>STRENGTH</h3><p>Periodized barbell work. Squat, press, deadlift — and the accessory work that keeps them moving up.</p><div class="price">$XX<small>/wk</small></div><span class="arrow">→</span></div>
+    <div class="prog"><div class="tag">Conditioning</div><h3>METCON</h3><p>Group conditioning that scales. 45 minutes that hits hard and leaves something for tomorrow.</p><div class="price">$XX<small>/wk</small></div><span class="arrow">→</span></div>
+    <div class="prog"><div class="tag">1:1</div><h3>PRIVATE</h3><p>One coach, one athlete. For competition prep, rehab, or anyone who wants the full attention.</p><div class="price">$XXX<small>/session</small></div><span class="arrow">→</span></div>
+    <div class="prog"><div class="tag">Online</div><h3>REMOTE COACHING</h3><p>Programmed by us, executed wherever you are. Weekly check-ins, video review, real coaching.</p><div class="price">$XXX<small>/mo</small></div><span class="arrow">→</span></div>
+    <div class="prog"><div class="tag">Nutrition</div><h3>FUEL</h3><p>Habits before macros. Walk in with a plate problem, leave with a plate solution.</p><div class="price">$XX<small>/wk</small></div><span class="arrow">→</span></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head">
+    <div class="eyebrow">— Get started</div>
+    <h2>BOOK A FREE<br/>INTRO SESSION.</h2>
+    <p>30 minutes. We talk about your training history, what you want, and whether we're the right fit. No pressure.</p>
+  </div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo form — wire this to your CRM.')">
+      <div class="field row">
+        <div><label>First name</label><input placeholder="Your first name"/></div>
+        <div><label>Last name</label><input placeholder="Your last name"/></div>
+      </div>
+      <div class="field"><label>Email</label><input type="email" placeholder="you@example.com"/></div>
+      <div class="field"><label>Goal</label>
+        <select><option>Get stronger</option><option>Lose body fat</option><option>Improve conditioning</option><option>Rehab / injury</option><option>Compete</option></select></div>
+      <div class="field"><label>Tell us about your training history</label><textarea placeholder="The more we know, the better the intro."></textarea></div>
+      <button type="submit" class="btn btn-primary">Send →</button>
+    </form>
+    <div class="info-block">
+      <h3>YOUR GYM</h3>
+      <div class="info-row"><span class="lbl">Address</span><span>123 Your Street, City</span></div>
+      <div class="info-row"><span class="lbl">Phone</span><span>(555) 000-0000</span></div>
+      <div class="info-row"><span class="lbl">Email</span><span>train@yourgym.com</span></div>
+      <div class="info-row"><span class="lbl">Mon–Fri</span><span>05:00 – 22:00</span></div>
+      <div class="info-row"><span class="lbl">Saturday</span><span>07:00 – 18:00</span></div>
+      <div class="info-row"><span class="lbl">Sunday</span><span>08:00 – 14:00</span></div>
+      <div class="info-row"><span class="lbl">Members</span><span>24 / 7 access</span></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>© 2026 Your Gym Name — Built to move.</div>
+    <div class="foot-links"><a>Instagram</a><a>YouTube</a><a>Newsletter</a><a>Careers</a></div>
+  </div>
+</footer>
+
+<script>
+  function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+  document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script>
+</body></html>

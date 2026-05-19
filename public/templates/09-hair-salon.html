@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Your Salon — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Italiana&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f6efe9;--ink:#231711;--blush:#e8c5b4;--rose:#b2756a;--cream:#fcf7f2;--muted:#7a655a;--line:#e5d6ca;--ink-dk:#180e0a}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:Manrope,sans-serif;font-size:16px;line-height:1.6}
+  a{color:inherit;text-decoration:none;cursor:pointer}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 36px}
+  nav{position:sticky;top:0;z-index:50;background:rgba(246,239,233,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:84px}
+  .logo{font-family:Italiana;font-size:32px;letter-spacing:.05em}
+  .nav-links{display:flex;gap:32px;font-size:14px;color:var(--muted);letter-spacing:.04em}
+  .nav-links a.active{color:var(--ink);font-weight:500}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:14px 28px;border-radius:999px;font-size:13.5px;cursor:pointer;border:none;font-weight:500;letter-spacing:.04em;transition:.2s}
+  .btn-primary{background:var(--ink);color:var(--cream)}
+  .btn-primary:hover{background:var(--rose)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+  .page{display:none;padding:48px 0 120px}
+  .page.active{display:block}
+  .eyebrow{font-family:Italiana;color:var(--rose);font-size:22px;letter-spacing:.04em}
+
+  /* Hero */
+  .hero{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;padding-top:32px}
+  h1.display{font-family:Italiana;font-size:clamp(72px,9vw,160px);line-height:.92;letter-spacing:.005em;margin:18px 0 28px}
+  .lede{font-size:18px;color:var(--muted);max-width:460px;margin-bottom:32px}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+  .portrait{position:relative;aspect-ratio:4/5;background:linear-gradient(160deg,var(--blush),#d9a895);overflow:hidden;border-radius:8px}
+  .portrait svg{position:absolute;inset:0;width:100%;height:100%}
+  .portrait .frame-cap{position:absolute;bottom:18px;left:18px;right:18px;display:flex;justify-content:space-between;color:var(--cream);font-family:Italiana;font-size:14px;letter-spacing:.18em;text-transform:uppercase;opacity:.9}
+  .scribble-tag{position:absolute;background:var(--cream);padding:10px 18px;border-radius:999px;font-family:Italiana;font-size:18px;color:var(--rose)}
+  .scribble-tag.a{top:24px;right:-12px;transform:rotate(8deg)}
+
+  /* Looks gallery */
+  .looks{margin-top:120px}
+  .looks-head{display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:24px;margin-bottom:32px}
+  .looks-head h2{font-family:Italiana;font-size:clamp(56px,7vw,108px);line-height:.96}
+  .look-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .look{aspect-ratio:3/4;border-radius:8px;position:relative;overflow:hidden;cursor:pointer;transition:.3s}
+  .look:hover{transform:translateY(-4px)}
+  .look:nth-child(1){background:linear-gradient(160deg,#d6a08b,#9a5d4f)}
+  .look:nth-child(2){background:linear-gradient(160deg,#b78b6b,#7a4f3b);grid-row:span 2;aspect-ratio:3/8.2}
+  .look:nth-child(3){background:linear-gradient(160deg,#e8c5b4,#b07d6c)}
+  .look:nth-child(4){background:linear-gradient(160deg,#c89786,#6e4239)}
+  .look:nth-child(5){background:linear-gradient(160deg,#dab39d,#9b6852)}
+  .look:nth-child(6){background:linear-gradient(160deg,#e5beab,#a3705e)}
+  .look:nth-child(7){background:linear-gradient(160deg,#bf8b76,#724a3a)}
+  .look svg{position:absolute;inset:0;width:100%;height:100%;opacity:.85}
+  .look .tag{position:absolute;bottom:14px;left:14px;font-family:Italiana;color:var(--cream);font-size:18px;letter-spacing:.05em}
+
+  /* Stylist picker */
+  .stylists{margin-top:120px}
+  .stylists h2{font-family:Italiana;font-size:64px;margin-bottom:32px}
+  .stylist-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .stylist{padding:28px;background:var(--cream);border-radius:18px;border:1px solid var(--line);text-align:center;transition:.2s;cursor:pointer}
+  .stylist:hover{background:var(--ink);color:var(--cream);transform:translateY(-3px)}
+  .stylist:hover .role,.stylist:hover p{color:#c8b8aa}
+  .stylist .av{width:100px;height:100px;border-radius:50%;background:linear-gradient(160deg,var(--blush),var(--rose));margin:0 auto 16px;display:grid;place-items:center;font-family:Italiana;font-size:36px;color:var(--cream)}
+  .stylist h4{font-family:Italiana;font-size:24px}
+  .stylist .role{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--rose);margin:6px 0 10px}
+  .stylist p{font-size:13.5px;color:var(--muted)}
+  .stylist .lvl{margin-top:14px;font-family:Italiana;color:var(--rose);font-size:18px}
+
+  /* Booking strip */
+  .booking{margin-top:120px;padding:64px;border-radius:24px;background:var(--ink);color:var(--cream);display:grid;grid-template-columns:1fr 1.4fr;gap:64px;align-items:center}
+  .booking h3{font-family:Italiana;font-size:56px;line-height:1;letter-spacing:.01em;margin-bottom:14px}
+  .booking p{color:#c8b8aa;font-size:15px}
+  .slot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .slot{padding:14px;border:1px solid #3a2820;text-align:center;font-size:13.5px;cursor:pointer;transition:.15s;border-radius:8px}
+  .slot:hover,.slot.sel{background:var(--blush);color:var(--ink);border-color:var(--blush)}
+  .slot.taken{color:#5a4439;text-decoration:line-through;cursor:not-allowed}
+  .slot .d{font-family:Italiana;font-size:22px;display:block}
+
+  /* Pages */
+  .page-head{margin-bottom:64px;max-width:780px}
+  .page-head h2{font-family:Italiana;font-size:clamp(56px,7vw,112px);line-height:.96;letter-spacing:.005em;margin-top:8px}
+  .page-head p{font-size:18px;color:var(--muted);margin-top:18px}
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px}
+  .about-text p{margin-bottom:20px;color:#4a3329}
+  .about-text p.lead{font-family:Italiana;font-size:28px;line-height:1.3;color:var(--ink);margin-bottom:28px}
+
+  .principles{display:grid;gap:14px}
+  .principle{padding:24px;border-radius:16px;background:var(--cream);border:1px solid var(--line);display:grid;grid-template-columns:48px 1fr;gap:18px;align-items:start}
+  .principle .n{font-family:Italiana;color:var(--rose);font-size:32px;line-height:1}
+  .principle h4{font-family:Italiana;font-size:22px}
+  .principle p{font-size:14px;color:var(--muted);margin-top:4px}
+
+  /* Services / price list */
+  .svc-list{display:grid;gap:48px}
+  .svc-cat h3{font-family:Italiana;font-size:42px;margin-bottom:6px}
+  .svc-cat .cap{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--rose);margin-bottom:24px}
+  .svc-rows{display:grid;gap:0;background:var(--cream);border-radius:18px;border:1px solid var(--line);overflow:hidden}
+  .svc-row{display:grid;grid-template-columns:1fr 120px 100px;gap:24px;padding:22px 28px;border-bottom:1px solid var(--line);align-items:baseline;font-size:15px}
+  .svc-row:last-child{border-bottom:none}
+  .svc-row .nm{font-family:Italiana;font-size:22px}
+  .svc-row .ds{color:var(--muted);font-size:13.5px;margin-top:4px}
+  .svc-row .time{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .svc-row .pr{font-family:Italiana;color:var(--rose);font-size:24px;text-align:right}
+
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px}
+  form{display:grid;gap:16px}
+  .field label{display:block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;font-weight:500}
+  input,textarea,select{width:100%;padding:14px 18px;border-radius:14px;border:1px solid var(--line);background:var(--cream);font:inherit;color:inherit}
+  input:focus,textarea:focus{outline:none;border-color:var(--rose)}
+  .field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  textarea{min-height:120px;resize:vertical}
+  .info-block{padding:48px;background:var(--cream);border-radius:24px;border:1px solid var(--line)}
+  .info-block h3{font-family:Italiana;font-size:38px;margin-bottom:24px}
+  .info-row{padding:18px 0;border-top:1px solid var(--line);font-size:14.5px}
+  .info-row:first-of-type{border-top:none}
+  .info-row .lbl{font-family:Italiana;color:var(--rose);font-size:18px;margin-bottom:4px}
+
+  footer{border-top:1px solid var(--line);padding:48px 0;color:var(--muted);font-size:13px}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px}
+  .foot-links{display:flex;gap:24px}
+  @media(max-width:880px){.hero,.about-grid,.contact-grid,.booking{grid-template-columns:1fr}.look-grid,.stylist-grid,.slot-grid{grid-template-columns:1fr 1fr}.svc-row{grid-template-columns:1fr auto}.svc-row .time{display:none}.nav-links{display:none}}
+</style></head>
+<body>
+
+<nav><div class="wrap">
+  <a class="logo" onclick="goto('home')">Your Salon —</a>
+  <div class="nav-links">
+    <a data-page="home" class="active">Home</a>
+    <a data-page="about">The studio</a>
+    <a data-page="services">Menu</a>
+    <a data-page="contact">Book</a>
+  </div>
+  <button class="btn btn-primary" onclick="goto('contact')">Book a visit →</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div>
+      <span class="eyebrow">— A hair studio.</span>
+      <h1 class="display">Cuts, color,<br/>conversation.</h1>
+      <p class="lede">A small, considered hair studio for soft color, lived-in cuts, and the kind of consultation that asks "how do you actually wear it?" Replace this with your studio's voice.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="goto('contact')">Book a chair →</button>
+        <button class="btn btn-ghost" onclick="goto('services')">Service menu</button>
+      </div>
+    </div>
+    <div class="portrait">
+      <svg viewBox="0 0 200 250" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id="hg" cx="50%" cy="35%" r="45%"><stop offset="0%" stop-color="#f2cdb9"/><stop offset="100%" stop-color="#9a5d4f"/></radialGradient>
+        </defs>
+        <rect width="200" height="250" fill="url(#hg)"/>
+        <path d="M60 90 Q 100 40 140 90 Q 150 130 140 170 Q 130 200 100 210 Q 70 200 60 170 Q 50 130 60 90Z" fill="#3a1e15" opacity=".88"/>
+        <ellipse cx="100" cy="130" rx="34" ry="42" fill="#e8c5b4"/>
+        <path d="M70 100 Q 80 70 100 70 Q 120 70 130 100 Q 134 130 128 140 Q 100 95 72 140 Q 66 130 70 100Z" fill="#231711"/>
+        <path d="M85 140q5 5 15 5t15-5" stroke="#231711" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <circle cx="88" cy="125" r="2" fill="#231711"/><circle cx="112" cy="125" r="2" fill="#231711"/>
+      </svg>
+      <span class="scribble-tag a">— soft blonde</span>
+      <div class="frame-cap"><span>—</span><span>signature color · 02</span></div>
+    </div>
+  </div>
+
+  <div class="looks">
+    <div class="looks-head">
+      <h2>Recent looks.</h2>
+      <a class="eyebrow" style="cursor:pointer">— see all on instagram</a>
+    </div>
+    <div class="look-grid">
+      <div class="look"><span class="tag">Lived-in blonde</span></div>
+      <div class="look"><span class="tag">Long layers</span></div>
+      <div class="look"><span class="tag">Copper tones</span></div>
+      <div class="look"><span class="tag">Curtain bangs</span></div>
+      <div class="look"><span class="tag">Brunette gloss</span></div>
+      <div class="look"><span class="tag">Babylights</span></div>
+      <div class="look"><span class="tag">Bob, modern</span></div>
+    </div>
+  </div>
+
+  <div class="stylists">
+    <h2>Pick your stylist.</h2>
+    <div class="stylist-grid">
+      <div class="stylist"><div class="av">A</div><h4>Stylist Name</h4><div class="role">Founder · Master</div><p>Lived-in color, soft blondes, brunette dimension.</p><div class="lvl">— Level V —</div></div>
+      <div class="stylist"><div class="av">B</div><h4>Stylist Name</h4><div class="role">Senior</div><p>Precision cuts, fringe, modern bobs.</p><div class="lvl">— Level IV —</div></div>
+      <div class="stylist"><div class="av">C</div><h4>Stylist Name</h4><div class="role">Senior</div><p>Vivid color, balayage, copper specialist.</p><div class="lvl">— Level IV —</div></div>
+      <div class="stylist"><div class="av">D</div><h4>Stylist Name</h4><div class="role">Stylist</div><p>Long hair, blowouts, weddings.</p><div class="lvl">— Level III —</div></div>
+    </div>
+  </div>
+
+  <div class="booking">
+    <div>
+      <span class="eyebrow">— This week</span>
+      <h3>Pick a chair.</h3>
+      <p>Live availability across the studio. Tap a slot, we'll text to confirm in five minutes or less.</p>
+    </div>
+    <div>
+      <div style="margin-bottom:14px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#c8b8aa">— Sat, May 23</div>
+      <div class="slot-grid">
+        <div class="slot taken"><span class="d">9:00</span>booked</div>
+        <div class="slot"><span class="d">10:30</span>open</div>
+        <div class="slot sel"><span class="d">12:00</span>selected</div>
+        <div class="slot taken"><span class="d">13:30</span>booked</div>
+        <div class="slot"><span class="d">15:00</span>open</div>
+        <div class="slot"><span class="d">16:30</span>open</div>
+        <div class="slot"><span class="d">18:00</span>open</div>
+        <div class="slot taken"><span class="d">19:30</span>booked</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head">
+    <span class="eyebrow">— Our studio</span>
+    <h2>Small room.<br/>Big care.</h2>
+    <p>Replace this with your story. Where you trained, what brought you here, what makes the chair different.</p>
+  </div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">"We're a four-chair studio because we like the conversation. Replace this with what your studio is actually about."</p>
+      <p>Tell people about your education, the brands you trust on your shelf, and the days you used to work seven to seven in someone else's salon.</p>
+      <p>Describe the room. The light, the espresso machine, the playlist, the fact that you don't double-book.</p>
+    </div>
+    <div class="principles">
+      <div class="principle"><div class="n">01</div><div><h4>One guest at a time</h4><p>We don't double-book. Your chair is yours.</p></div></div>
+      <div class="principle"><div class="n">02</div><div><h4>Clean color</h4><p>Ammonia-free, low-aroma, plant-derived where it works.</p></div></div>
+      <div class="principle"><div class="n">03</div><div><h4>Honest consults</h4><p>We say yes to what suits you. We say it gently when something won't.</p></div></div>
+      <div class="principle"><div class="n">04</div><div><h4>Educate &amp; equip</h4><p>You leave knowing how to do this at home, with the right tools to do it.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head">
+    <span class="eyebrow">— The menu</span>
+    <h2>Services<br/>&amp; pricing.</h2>
+    <p>Prices reflect time on the books, not your hair. Long, thick, or layered hair may add a charge — we'll discuss at consult.</p>
+  </div>
+  <div class="svc-list">
+    <div class="svc-cat">
+      <h3>Cuts</h3><div class="cap">— Including consult, shampoo, and finish</div>
+      <div class="svc-rows">
+        <div class="svc-row"><div><div class="nm">Signature cut &amp; style</div><div class="ds">Wet to dry, shaped to how you actually wear it.</div></div><div class="time">— 60 min</div><div class="pr">$95+</div></div>
+        <div class="svc-row"><div><div class="nm">Dry cut &amp; refresh</div><div class="ds">Between appointments. Shape only.</div></div><div class="time">— 30 min</div><div class="pr">$55+</div></div>
+        <div class="svc-row"><div><div class="nm">Fringe &amp; bang trim</div><div class="ds">Walk in, ten minutes.</div></div><div class="time">— 15 min</div><div class="pr">$25</div></div>
+        <div class="svc-row"><div><div class="nm">Children (under 12)</div><div class="ds">Cut, finish, snack.</div></div><div class="time">— 30 min</div><div class="pr">$45</div></div>
+      </div>
+    </div>
+    <div class="svc-cat">
+      <h3>Color</h3><div class="cap">— All color includes glossing finish</div>
+      <div class="svc-rows">
+        <div class="svc-row"><div><div class="nm">Single process</div><div class="ds">Root retouch or all-over base.</div></div><div class="time">— 90 min</div><div class="pr">$125+</div></div>
+        <div class="svc-row"><div><div class="nm">Partial highlights</div><div class="ds">Brightening through the front and crown.</div></div><div class="time">— 2 hr</div><div class="pr">$165+</div></div>
+        <div class="svc-row"><div><div class="nm">Full highlights · balayage</div><div class="ds">Lived-in, hand-painted, soft grow-out.</div></div><div class="time">— 3 hr</div><div class="pr">$245+</div></div>
+        <div class="svc-row"><div><div class="nm">Gloss / toner</div><div class="ds">Between color visits. Five-week refresh.</div></div><div class="time">— 30 min</div><div class="pr">$55+</div></div>
+      </div>
+    </div>
+    <div class="svc-cat">
+      <h3>Treatments &amp; events</h3>
+      <div class="svc-rows">
+        <div class="svc-row"><div><div class="nm">Bond builder</div><div class="ds">Added during any color service.</div></div><div class="time">— add-on</div><div class="pr">$45</div></div>
+        <div class="svc-row"><div><div class="nm">Blow-dry &amp; style</div><div class="ds">Loose waves, sleek, soft volume.</div></div><div class="time">— 45 min</div><div class="pr">$65+</div></div>
+        <div class="svc-row"><div><div class="nm">Bridal hair</div><div class="ds">Trial included. On-site available.</div></div><div class="time">— 2 hr</div><div class="pr">$245+</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head">
+    <span class="eyebrow">— Book a visit</span>
+    <h2>Reserve<br/>your chair.</h2>
+  </div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo form.')">
+      <div class="field row"><div><label>First name</label><input/></div><div><label>Last name</label><input/></div></div>
+      <div class="field"><label>Email</label><input type="email"/></div>
+      <div class="field"><label>Phone</label><input type="tel"/></div>
+      <div class="field"><label>Service</label>
+        <select><option>Cut &amp; style</option><option>Color · single process</option><option>Color · highlights / balayage</option><option>Treatment</option><option>Bridal / event</option><option>I'm not sure yet</option></select></div>
+      <div class="field"><label>Preferred stylist</label>
+        <select><option>No preference</option><option>Stylist A</option><option>Stylist B</option><option>Stylist C</option><option>Stylist D</option></select></div>
+      <div class="field"><label>Tell us about your hair</label><textarea placeholder="History, what you'd like, references — anything that helps."></textarea></div>
+      <button class="btn btn-primary">Request appointment →</button>
+    </form>
+    <div class="info-block">
+      <h3>The studio</h3>
+      <div class="info-row"><div class="lbl">Address —</div>123 Your Street<br/>City, ST 00000</div>
+      <div class="info-row"><div class="lbl">Phone —</div>(555) 000-0000</div>
+      <div class="info-row"><div class="lbl">Email —</div>book@yoursalon.com</div>
+      <div class="info-row"><div class="lbl">Tue – Fri</div>10:00 – 19:00</div>
+      <div class="info-row"><div class="lbl">Saturday</div>9:00 – 17:00</div>
+      <div class="info-row"><div class="lbl">Sun &amp; Mon</div>Closed</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+
+<footer><div class="wrap">
+  <div>© 2026 Your Salon</div>
+  <div class="foot-links"><a>Instagram</a><a>Tiktok</a><a>Gift cards</a><a>Careers</a></div>
+</div></footer>
+
+<script>
+  function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+  document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script>
+</body></html>

@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Your Coffee Shop — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f3ece1;--ink:#2a1d12;--muted:#7a6a58;--accent:#b85c2c;--cream:#f8f2e6;--line:#e3d6c1;--dark:#1a120b}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.55}
+  a{color:inherit;text-decoration:none;cursor:pointer}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 32px}
+  nav{position:sticky;top:0;z-index:50;background:rgba(243,236,225,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:80px}
+  .logo{display:flex;align-items:center;gap:12px;font-family:'DM Serif Display';font-size:24px}
+  .nav-links{display:flex;gap:32px;font-size:14px;color:var(--muted)}
+  .nav-links a.active{color:var(--ink);font-weight:500}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:0;font-weight:500;font-size:14px;cursor:pointer;border:none;letter-spacing:.02em}
+  .btn-primary{background:var(--ink);color:var(--cream)}
+  .btn-primary:hover{background:var(--accent)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+  .page{display:none;padding:64px 0 120px}
+  .page.active{display:block}
+  .eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:18px}
+  h1.display{font-family:'DM Serif Display';font-weight:400;font-size:clamp(56px,7vw,108px);line-height:1;letter-spacing:-.02em}
+  h1.display em{font-style:italic;color:var(--accent)}
+  .page-head{margin-bottom:64px;max-width:780px}
+  .page-head h2{font-family:'DM Serif Display';font-weight:400;font-size:clamp(44px,5vw,72px);line-height:1.04;letter-spacing:-.015em;margin:6px 0 18px}
+  .page-head p{font-size:18px;color:var(--muted)}
+
+  /* Hero */
+  .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:end;padding-top:40px}
+  .hero .lede{font-size:18px;color:var(--muted);max-width:460px;margin:28px 0 32px}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+  .ticker{margin-top:64px;background:var(--dark);color:var(--cream);overflow:hidden;white-space:nowrap;padding:18px 0;font-family:'DM Serif Display';font-size:28px}
+  .ticker span{display:inline-block;animation:scroll 30s linear infinite;padding-right:48px}
+  .ticker .dot{color:var(--accent);margin:0 24px}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* Cup illustration */
+  .cup-art{position:relative;height:480px;display:grid;place-items:center}
+  .cup{width:280px;height:280px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#5a3a22,#2a1d12 70%);position:relative;box-shadow:0 30px 60px rgba(42,29,18,.3),inset 0 0 0 14px var(--cream),inset 0 0 0 16px var(--ink)}
+  .cup::before{content:"";position:absolute;top:36px;left:36px;right:36px;bottom:36px;border-radius:50%;background:radial-gradient(ellipse at 35% 35%,#7a5239,#1a120b 75%)}
+  .steam{position:absolute;top:-60px;left:50%;width:180px;height:80px;transform:translateX(-50%)}
+  .steam path{fill:none;stroke:var(--muted);stroke-width:3;stroke-linecap:round;opacity:.5;animation:rise 4s ease-in-out infinite}
+  .steam path:nth-child(2){animation-delay:1s}
+  .steam path:nth-child(3){animation-delay:2s}
+  @keyframes rise{0%,100%{opacity:0;transform:translateY(20px)}50%{opacity:.6;transform:translateY(-20px)}}
+  .label-tag{position:absolute;background:var(--cream);border:1px solid var(--line);padding:8px 14px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .label-tag.tl{top:60px;left:20px;transform:rotate(-4deg)}
+  .label-tag.br{bottom:60px;right:20px;transform:rotate(4deg)}
+
+  /* Today's brew */
+  .brew-board{margin-top:96px;padding:60px;background:var(--dark);color:var(--cream);border-radius:0;display:grid;grid-template-columns:1fr 1.4fr;gap:60px}
+  .brew-board h3{font-family:'DM Serif Display';font-size:48px;letter-spacing:-.01em;line-height:1.05;margin-bottom:8px}
+  .brew-board .meta{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:#b89a78}
+  .brew-board p{margin-top:20px;color:#cdb89a;font-size:15.5px;max-width:340px}
+  .brew-cards{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#3a2a1c}
+  .brew-card{background:var(--dark);padding:28px;display:grid;gap:8px}
+  .brew-card .name{font-family:'DM Serif Display';font-size:24px;color:var(--cream)}
+  .brew-card .origin{font-size:13px;color:#b89a78;letter-spacing:.12em;text-transform:uppercase}
+  .brew-card .notes{font-size:13.5px;color:#a08b6f;margin-top:8px;font-style:italic}
+  .brew-card .price{font-family:'DM Serif Display';font-size:22px;color:var(--accent);margin-top:auto;padding-top:14px}
+
+  /* Hours / location bar */
+  .info-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:96px;border:1px solid var(--line);background:var(--cream)}
+  .info-bar > div{padding:32px;border-right:1px solid var(--line)}
+  .info-bar > div:last-child{border-right:none}
+  .info-bar .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  .info-bar .val{font-family:'DM Serif Display';font-size:26px;line-height:1.15}
+  .open-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4ea676;margin-right:8px;animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+  /* Menu page (services) */
+  .menu-tabs{display:flex;gap:0;border-bottom:1px solid var(--line);margin-bottom:48px}
+  .menu-tabs button{padding:18px 28px;background:transparent;border:none;border-bottom:2px solid transparent;font:inherit;font-size:14px;letter-spacing:.04em;cursor:pointer;color:var(--muted)}
+  .menu-tabs button.active{color:var(--ink);border-bottom-color:var(--accent);font-weight:500}
+  .menu-section{display:none}
+  .menu-section.active{display:block}
+  .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 60px}
+  .menu-item{display:grid;grid-template-columns:1fr auto;gap:14px;padding:18px 0;border-bottom:1px dotted var(--line);align-items:baseline}
+  .menu-item .nm{font-family:'DM Serif Display';font-size:22px}
+  .menu-item .ds{font-size:14px;color:var(--muted);margin-top:4px}
+  .menu-item .pr{font-family:'DM Serif Display';font-size:20px;color:var(--accent)}
+  .menu-item .pr::before{content:"·····················";color:var(--line);margin-right:10px}
+
+  /* About */
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px}
+  .about-text p{margin-bottom:20px;color:#4a3a2a}
+  .about-text p.lead::first-letter{font-family:'DM Serif Display';font-size:64px;float:left;line-height:.85;padding:6px 12px 0 0;color:var(--accent)}
+  .source-card{padding:32px;background:var(--cream);border:1px solid var(--line);margin-bottom:16px;display:grid;grid-template-columns:60px 1fr;gap:20px;align-items:center}
+  .source-card .glyph{width:60px;height:60px;border:2px solid var(--ink);border-radius:50%;display:grid;place-items:center;font-family:'DM Serif Display';font-size:24px}
+  .source-card h4{font-family:'DM Serif Display';font-size:22px;margin-bottom:4px}
+  .source-card .where{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+  .source-card p{font-size:14px;color:var(--muted);margin-top:6px}
+
+  /* Contact */
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px}
+  form{display:grid;gap:16px}
+  .field label{display:block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  input,textarea,select{width:100%;padding:14px 16px;border-radius:0;border:1px solid var(--line);background:var(--cream);font:inherit;color:inherit}
+  input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+  .field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  textarea{min-height:120px;resize:vertical}
+  .info-block{padding:48px;background:var(--dark);color:var(--cream)}
+  .info-block h3{font-family:'DM Serif Display';font-size:36px;margin-bottom:24px}
+  .info-row{padding:18px 0;border-top:1px solid #3a2a1c;font-size:14.5px}
+  .info-row:first-of-type{border-top:none}
+  .info-row .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#b89a78;margin-bottom:4px}
+
+  footer{border-top:1px solid var(--line);padding:40px 0;color:var(--muted);font-size:13px}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+  .foot-links{display:flex;gap:24px}
+  @media(max-width:880px){.hero,.brew-board,.about-grid,.contact-grid{grid-template-columns:1fr}.menu-grid,.info-bar{grid-template-columns:1fr 1fr}.nav-links{display:none}}
+</style></head>
+<body>
+
+<nav><div class="wrap">
+  <a class="logo" onclick="goto('home')">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M6 12h16v8a6 6 0 0 1-6 6h-4a6 6 0 0 1-6-6v-8Z" fill="#b85c2c"/><path d="M22 14h2a3 3 0 0 1 0 6h-2" stroke="#2a1d12" stroke-width="2" fill="none"/><path d="M10 4c0 2 2 2 2 4M14 4c0 2 2 2 2 4M18 4c0 2 2 2 2 4" stroke="#2a1d12" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+    Your Coffee Shop
+  </a>
+  <div class="nav-links">
+    <a data-page="home" class="active">Home</a><a data-page="about">Our story</a>
+    <a data-page="services">Menu</a><a data-page="contact">Visit</a>
+  </div>
+  <button class="btn btn-primary" onclick="goto('contact')">Order ahead</button>
+</div></nav>
+
+<main>
+
+<section class="page active" id="home"><div class="wrap">
+  <div class="hero">
+    <div>
+      <div class="eyebrow">— Roastery & café · Est. Year</div>
+      <h1 class="display">A neighborhood <em>coffee</em>, slow on purpose.</h1>
+      <p class="lede">Small-batch roasting, espresso pulled at the bar, and a sourdough toast worth sitting down for. Replace this with your shop's voice.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="goto('services')">See the menu →</button>
+        <button class="btn btn-ghost" onclick="goto('contact')">Find us</button>
+      </div>
+    </div>
+    <div class="cup-art">
+      <span class="label-tag tl">— pulled at 9.2 bar</span>
+      <div class="cup">
+        <svg class="steam" viewBox="0 0 180 80">
+          <path d="M40 70 C 50 50, 30 30, 50 10"/>
+          <path d="M90 70 C 100 50, 80 30, 100 10"/>
+          <path d="M140 70 C 150 50, 130 30, 150 10"/>
+        </svg>
+      </div>
+      <span class="label-tag br">single origin</span>
+    </div>
+  </div>
+
+  <div class="ticker"><span>
+    Slow coffee <span class="dot">●</span> Fresh bread <span class="dot">●</span> Small batch <span class="dot">●</span> Open early <span class="dot">●</span> Cash & card <span class="dot">●</span> Stay a while <span class="dot">●</span>
+    Slow coffee <span class="dot">●</span> Fresh bread <span class="dot">●</span> Small batch <span class="dot">●</span> Open early <span class="dot">●</span> Cash & card <span class="dot">●</span> Stay a while <span class="dot">●</span>
+  </span></div>
+
+  <div class="brew-board">
+    <div>
+      <div class="meta">— On the bar today</div>
+      <h3>This week's beans, brewed three ways.</h3>
+      <p>We rotate single-origin coffees every week. Ask the barista what's in the hopper or pick your method below.</p>
+    </div>
+    <div class="brew-cards">
+      <div class="brew-card"><div class="origin">Ethiopia · Yirgacheffe</div><div class="name">Konga Natural</div><div class="notes">Blueberry · jasmine · honey</div><div class="price">$4.50</div></div>
+      <div class="brew-card"><div class="origin">Colombia · Huila</div><div class="name">Finca La Esmeralda</div><div class="notes">Caramel · plum · cocoa</div><div class="price">$4.20</div></div>
+      <div class="brew-card"><div class="origin">Kenya · Nyeri</div><div class="name">Gathaithi AA</div><div class="notes">Black currant · grapefruit</div><div class="price">$4.80</div></div>
+      <div class="brew-card"><div class="origin">House blend</div><div class="name">Morning Walk</div><div class="notes">Milk chocolate · almond</div><div class="price">$3.80</div></div>
+    </div>
+  </div>
+
+  <div class="info-bar">
+    <div><div class="lbl">Status</div><div class="val"><span class="open-dot"></span>Open until 18:00</div></div>
+    <div><div class="lbl">Find us</div><div class="val">123 Your Street</div></div>
+    <div><div class="lbl">Roasting since</div><div class="val">Year</div></div>
+    <div><div class="lbl">Today's bake</div><div class="val">Sourdough · Olive loaf</div></div>
+  </div>
+</div></section>
+
+<section class="page" id="about"><div class="wrap">
+  <div class="page-head">
+    <div class="eyebrow">— Our story</div>
+    <h2>From a one-kilo roaster to the shop on the corner.</h2>
+    <p>Tell people how you got here. The first café job, the burned batches, the lease that almost fell through. Specifics earn the trust.</p>
+  </div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">Replace this with the story of your shop in your own voice. The day you signed the lease. The hours you spent leveling the bar. The first customer who came back the next morning.</p>
+      <p>Write about what you serve and why. The roaster you bought. The bakery you partner with. The dairy farm forty minutes north that delivers on Tuesdays.</p>
+      <p>End with the part you can't fake — what you want this corner of the city to feel like.</p>
+    </div>
+    <div>
+      <div class="source-card"><div class="glyph">☕</div><div><h4>Beans</h4><div class="where">Roasted in-house · weekly</div><p>Single-origin, light to medium roasts. Three on rotation.</p></div></div>
+      <div class="source-card"><div class="glyph">🥛</div><div><h4>Milk</h4><div class="where">Local dairy · Tuesday + Friday</div><p>Whole, oat, almond. We don't charge extra for non-dairy.</p></div></div>
+      <div class="source-card"><div class="glyph">🍞</div><div><h4>Bread</h4><div class="where">Baked here · every morning at 5</div><p>Sourdough, olive loaf, brioche buns for the breakfast sandwich.</p></div></div>
+      <div class="source-card"><div class="glyph">🌿</div><div><h4>Produce</h4><div class="where">Farmer's market · seasonal</div><p>Whatever's at the market on Saturday is on the toast on Monday.</p></div></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="page" id="services"><div class="wrap">
+  <div class="page-head">
+    <div class="eyebrow">— The menu</div>
+    <h2>Espresso, slow brews, and what comes alongside.</h2>
+  </div>
+  <div class="menu-tabs">
+    <button class="active" data-tab="espresso">Espresso</button>
+    <button data-tab="brew">Brewed</button>
+    <button data-tab="not">Not coffee</button>
+    <button data-tab="food">Food</button>
+  </div>
+  <div class="menu-section active" id="espresso">
+    <div class="menu-grid">
+      <div class="menu-item"><div><div class="nm">Espresso</div><div class="ds">Double shot. The whole point.</div></div><div class="pr">$3.50</div></div>
+      <div class="menu-item"><div><div class="nm">Macchiato</div><div class="ds">Espresso, a spoon of foam.</div></div><div class="pr">$3.80</div></div>
+      <div class="menu-item"><div><div class="nm">Cortado</div><div class="ds">Equal parts espresso and milk.</div></div><div class="pr">$4.20</div></div>
+      <div class="menu-item"><div><div class="nm">Cappuccino</div><div class="ds">Six ounces. Real foam.</div></div><div class="pr">$4.80</div></div>
+      <div class="menu-item"><div><div class="nm">Flat white</div><div class="ds">Antipodean tradition, on the small side.</div></div><div class="pr">$4.80</div></div>
+      <div class="menu-item"><div><div class="nm">Latte</div><div class="ds">Twelve ounces. House blend.</div></div><div class="pr">$5.20</div></div>
+    </div>
+  </div>
+  <div class="menu-section" id="brew">
+    <div class="menu-grid">
+      <div class="menu-item"><div><div class="nm">Pour-over</div><div class="ds">V60. Choose your bean. 5 min.</div></div><div class="pr">$5.50</div></div>
+      <div class="menu-item"><div><div class="nm">Aeropress</div><div class="ds">Inverted method. Brighter cup.</div></div><div class="pr">$5.00</div></div>
+      <div class="menu-item"><div><div class="nm">Batch brew</div><div class="ds">Today's bean. Always fresh.</div></div><div class="pr">$3.80</div></div>
+      <div class="menu-item"><div><div class="nm">Cold brew</div><div class="ds">16-hour steep. Black or with milk.</div></div><div class="pr">$5.50</div></div>
+    </div>
+  </div>
+  <div class="menu-section" id="not">
+    <div class="menu-grid">
+      <div class="menu-item"><div><div class="nm">Loose-leaf tea</div><div class="ds">Six varieties. Ask the bar.</div></div><div class="pr">$4.20</div></div>
+      <div class="menu-item"><div><div class="nm">Matcha latte</div><div class="ds">Ceremonial grade. Lightly sweet.</div></div><div class="pr">$5.80</div></div>
+      <div class="menu-item"><div><div class="nm">Hot chocolate</div><div class="ds">70% dark, real milk.</div></div><div class="pr">$5.20</div></div>
+      <div class="menu-item"><div><div class="nm">Fresh juice</div><div class="ds">Pressed daily. Orange or seasonal.</div></div><div class="pr">$5.50</div></div>
+    </div>
+  </div>
+  <div class="menu-section" id="food">
+    <div class="menu-grid">
+      <div class="menu-item"><div><div class="nm">Sourdough toast</div><div class="ds">Butter & jam, avocado, or seasonal.</div></div><div class="pr">$6.50</div></div>
+      <div class="menu-item"><div><div class="nm">Breakfast sandwich</div><div class="ds">Egg, cheddar, brioche bun.</div></div><div class="pr">$8.80</div></div>
+      <div class="menu-item"><div><div class="nm">Granola bowl</div><div class="ds">House granola, yogurt, fruit.</div></div><div class="pr">$7.50</div></div>
+      <div class="menu-item"><div><div class="nm">Pastry of the day</div><div class="ds">Croissant, scone, kouign-amann.</div></div><div class="pr">$4.20</div></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="page" id="contact"><div class="wrap">
+  <div class="page-head">
+    <div class="eyebrow">— Visit</div>
+    <h2>Come sit for a minute.</h2>
+    <p>Drop a note for catering, wholesale beans, or just to say hi.</p>
+  </div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo form.')">
+      <div class="field row"><div><label>Name</label><input placeholder="Your name"/></div><div><label>Email</label><input type="email" placeholder="you@example.com"/></div></div>
+      <div class="field"><label>What's this about?</label>
+        <select><option>Catering</option><option>Wholesale beans</option><option>Event space</option><option>Just saying hi</option></select></div>
+      <div class="field"><label>Message</label><textarea placeholder="Tell us a bit more"></textarea></div>
+      <button class="btn btn-primary">Send →</button>
+    </form>
+    <div class="info-block">
+      <h3>Find the shop</h3>
+      <div class="info-row"><div class="lbl">Address</div>123 Your Street<br/>City, ST 00000</div>
+      <div class="info-row"><div class="lbl">Phone</div>(555) 000-0000</div>
+      <div class="info-row"><div class="lbl">Email</div>hello@yourcoffee.com</div>
+      <div class="info-row"><div class="lbl">Mon–Fri</div>7:00 – 18:00</div>
+      <div class="info-row"><div class="lbl">Sat & Sun</div>8:00 – 17:00</div>
+      <div class="info-row"><div class="lbl">Wholesale</div>Beans shipped Tue & Thu</div>
+    </div>
+  </div>
+</div></section>
+
+</main>
+
+<footer><div class="wrap">
+  <div>© 2026 Your Coffee Shop · Roasted with care</div>
+  <div class="foot-links"><a>Instagram</a><a>Newsletter</a><a>Wholesale</a><a>Gift cards</a></div>
+</div></footer>
+
+<script>
+  function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+  document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+  document.querySelectorAll('.menu-tabs button').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('.menu-tabs button').forEach(x=>x.classList.toggle('active',x===b));
+    document.querySelectorAll('.menu-section').forEach(s=>s.classList.toggle('active',s.id===b.dataset.tab));
+  }));
+</script>
+</body></html>

@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Your SaaS — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0b0d;--bg2:#101115;--ink:#f5f5f7;--muted:#8a8c93;--accent:#a8ff5c;--accent-dk:#7dd14a;--purple:#7a5cff;--line:#1e2026;--card:#13151a}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:Geist,'Inter',system-ui,sans-serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none;cursor:pointer}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+  .mono{font-family:'Geist Mono',monospace}
+  nav{position:sticky;top:0;z-index:50;background:rgba(10,11,13,.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:17px;letter-spacing:-.02em}
+  .logo .dot{width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,var(--accent),var(--purple));display:grid;place-items:center;color:#0a0b0d;font-size:14px;font-weight:700}
+  .nav-links{display:flex;gap:28px;font-size:14px;color:var(--muted)}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-links a.active{color:var(--ink)}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;font-weight:500;font-size:14px;cursor:pointer;border:none;transition:.15s}
+  .btn-primary{background:var(--accent);color:#0a0b0d}
+  .btn-primary:hover{background:var(--accent-dk)}
+  .btn-ghost{background:rgba(255,255,255,.06);color:var(--ink);border:1px solid var(--line)}
+  .btn-ghost:hover{background:rgba(255,255,255,.1)}
+  .page{display:none;padding:80px 0 120px}
+  .page.active{display:block}
+
+  /* Hero */
+  .hero{text-align:center;max-width:920px;margin:0 auto;position:relative}
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:6px 14px 6px 6px;border-radius:999px;background:rgba(168,255,92,.08);border:1px solid rgba(168,255,92,.2);font-size:13px;color:var(--ink);margin-bottom:28px}
+  .pill .tag{padding:3px 10px;border-radius:999px;background:var(--accent);color:#0a0b0d;font-size:11px;font-weight:600;letter-spacing:.02em}
+  h1.display{font-size:clamp(56px,7vw,108px);line-height:.96;letter-spacing:-.04em;font-weight:500}
+  h1.display .grad{background:linear-gradient(135deg,#f5f5f7 0%,var(--accent) 60%,var(--purple) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .lede{font-size:20px;color:var(--muted);max-width:560px;margin:24px auto 36px;letter-spacing:-.01em}
+  .hero-cta{display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .trusted{margin-top:64px;display:flex;flex-direction:column;align-items:center;gap:18px}
+  .trusted .lbl{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  .logo-strip{display:flex;gap:48px;flex-wrap:wrap;justify-content:center;font-family:'Geist Mono';font-size:18px;color:var(--muted);font-weight:500}
+  .logo-strip span{opacity:.6}
+
+  /* Product preview */
+  .preview{margin-top:96px;border-radius:20px;background:linear-gradient(180deg,rgba(168,255,92,.06),rgba(122,92,255,.04));padding:1px;position:relative;overflow:hidden}
+  .preview::before{content:"";position:absolute;inset:0;border-radius:20px;background:radial-gradient(circle at 50% 0%,rgba(168,255,92,.25),transparent 60%);opacity:.5;pointer-events:none}
+  .preview-inner{background:var(--bg2);border-radius:20px;padding:8px}
+  .browser-bar{display:flex;gap:6px;padding:8px 14px;border-bottom:1px solid var(--line);align-items:center}
+  .browser-bar .dot{width:11px;height:11px;border-radius:50%;background:var(--line)}
+  .browser-bar .url{flex:1;margin:0 14px;padding:5px 12px;background:rgba(255,255,255,.04);border-radius:6px;font-family:'Geist Mono';font-size:12px;color:var(--muted)}
+  .app-shell{display:grid;grid-template-columns:200px 1fr 280px;gap:0;min-height:480px}
+  .sidebar{padding:20px;border-right:1px solid var(--line)}
+  .sb-section{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:14px 0 8px}
+  .sb-section:first-child{margin-top:0}
+  .sb-item{padding:8px 10px;border-radius:8px;font-size:13.5px;color:var(--muted);display:flex;align-items:center;gap:10px;cursor:pointer}
+  .sb-item:hover{background:rgba(255,255,255,.04);color:var(--ink)}
+  .sb-item.active{background:rgba(168,255,92,.08);color:var(--accent)}
+  .sb-item .ic{width:16px;height:16px;border-radius:4px;background:currentColor;opacity:.5}
+  .canvas{padding:24px;display:grid;gap:14px;align-content:start}
+  .kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .kpi{padding:18px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px}
+  .kpi .l{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .kpi .v{font-size:28px;font-weight:600;letter-spacing:-.02em;margin-top:6px}
+  .kpi .d{font-size:12px;color:var(--accent);margin-top:4px}
+  .chart{padding:18px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;height:200px;position:relative}
+  .chart svg{width:100%;height:100%}
+  .panel{padding:20px;border-left:1px solid var(--line);background:rgba(255,255,255,.02)}
+  .panel .p-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .panel h5{font-size:13px;font-weight:600;letter-spacing:.04em}
+  .panel .tag-mini{font-family:'Geist Mono';font-size:11px;padding:2px 6px;background:rgba(168,255,92,.08);color:var(--accent);border-radius:4px}
+  .activity{display:grid;gap:8px}
+  .act-row{padding:10px 12px;background:rgba(255,255,255,.02);border-radius:8px;font-size:12.5px}
+  .act-row .t{color:var(--muted);font-family:'Geist Mono';font-size:10.5px}
+  .act-row .who{color:var(--accent);font-weight:500}
+
+  /* Features grid */
+  .features{margin-top:140px}
+  .section-head{text-align:center;max-width:680px;margin:0 auto 56px}
+  .section-head .kicker{font-family:'Geist Mono';font-size:13px;color:var(--accent);letter-spacing:.02em;margin-bottom:14px}
+  .section-head h2{font-size:clamp(40px,4.8vw,64px);font-weight:500;line-height:1.05;letter-spacing:-.03em}
+  .section-head p{font-size:18px;color:var(--muted);margin-top:18px}
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .feat{padding:32px;background:var(--card);border:1px solid var(--line);border-radius:18px;position:relative;transition:.2s}
+  .feat:hover{border-color:rgba(168,255,92,.3);transform:translateY(-2px)}
+  .feat .ico{width:40px;height:40px;border-radius:10px;background:rgba(168,255,92,.1);display:grid;place-items:center;margin-bottom:20px;color:var(--accent)}
+  .feat h3{font-size:18px;font-weight:600;letter-spacing:-.01em;margin-bottom:8px}
+  .feat p{font-size:14px;color:var(--muted);line-height:1.55}
+  .feat.span2{grid-column:span 2}
+  .feat-code{margin-top:16px;padding:14px;background:#06070a;border:1px solid var(--line);border-radius:10px;font-family:'Geist Mono';font-size:12px;color:var(--muted);overflow-x:auto;line-height:1.6}
+  .feat-code .k{color:var(--accent)}
+  .feat-code .s{color:#f5b0a8}
+  .feat-code .c{color:#5a5d65}
+
+  /* Pricing */
+  .pricing{margin-top:140px}
+  .toggle-row{display:flex;justify-content:center;margin:0 auto 40px}
+  .toggle{display:inline-flex;padding:4px;background:var(--card);border:1px solid var(--line);border-radius:999px;gap:4px}
+  .toggle button{padding:8px 20px;border-radius:999px;border:none;background:transparent;color:var(--muted);font:inherit;cursor:pointer;font-size:13.5px}
+  .toggle button.active{background:var(--accent);color:#0a0b0d;font-weight:600}
+  .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .plan{padding:32px;background:var(--card);border:1px solid var(--line);border-radius:20px;display:grid;gap:18px;align-content:start}
+  .plan.featured{border-color:var(--accent);background:linear-gradient(180deg,rgba(168,255,92,.05),transparent)}
+  .plan .head{display:flex;justify-content:space-between;align-items:center}
+  .plan h4{font-size:18px;font-weight:600}
+  .plan .tag{font-family:'Geist Mono';font-size:11px;padding:3px 8px;background:var(--accent);color:#0a0b0d;border-radius:4px;font-weight:600}
+  .plan .price{font-size:48px;letter-spacing:-.04em;font-weight:500}
+  .plan .price small{font-size:14px;color:var(--muted);letter-spacing:0;font-weight:400}
+  .plan p{font-size:14px;color:var(--muted)}
+  .plan ul{list-style:none;display:grid;gap:10px;font-size:14px;color:#d0d2d8}
+  .plan li{padding-left:22px;position:relative}
+  .plan li::before{content:"";position:absolute;left:0;top:6px;width:14px;height:14px;border-radius:50%;background:rgba(168,255,92,.15);background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='%23a8ff5c' stroke-width='1.8'><path d='M3 7l3 3 5-6'/></svg>")}
+
+  /* Logos / integrations */
+  .integrations{margin-top:120px;padding:48px;background:var(--card);border:1px solid var(--line);border-radius:24px;text-align:center}
+  .integrations .kicker{font-family:'Geist Mono';font-size:12px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;margin-bottom:24px}
+  .int-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+  .int{aspect-ratio:1/1;background:rgba(255,255,255,.03);border-radius:14px;display:grid;place-items:center;font-family:'Geist Mono';font-size:13px;color:var(--muted);transition:.15s}
+  .int:hover{background:rgba(168,255,92,.06);color:var(--accent)}
+
+  /* Pages */
+  .page-head{margin-bottom:64px;max-width:760px}
+  .page-head .kicker{font-family:'Geist Mono';font-size:13px;color:var(--accent);margin-bottom:12px}
+  .page-head h2{font-size:clamp(44px,5vw,72px);font-weight:500;line-height:1.04;letter-spacing:-.03em}
+  .page-head p{font-size:18px;color:var(--muted);margin-top:18px}
+
+  /* About */
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px}
+  .about-text p{margin-bottom:18px;color:#c8cad0}
+  .about-stats{padding:32px;background:var(--card);border:1px solid var(--line);border-radius:18px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .about-stats .s .v{font-size:42px;font-weight:500;letter-spacing:-.03em;color:var(--accent)}
+  .about-stats .s .l{font-size:13px;color:var(--muted);margin-top:4px}
+  .team{margin-top:80px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .member{padding:24px;background:var(--card);border:1px solid var(--line);border-radius:16px}
+  .member .av{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));margin-bottom:14px;display:grid;place-items:center;color:#0a0b0d;font-weight:600}
+  .member h4{font-size:16px;font-weight:600}
+  .member .role{font-size:12.5px;color:var(--muted);margin:2px 0 10px}
+  .member p{font-size:13px;color:#a0a3aa}
+
+  /* Services / use cases */
+  .uc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .uc{padding:36px;background:var(--card);border:1px solid var(--line);border-radius:18px;transition:.2s}
+  .uc:hover{border-color:rgba(168,255,92,.3)}
+  .uc .kicker{font-family:'Geist Mono';font-size:12px;color:var(--accent)}
+  .uc h3{font-size:24px;font-weight:600;margin:10px 0 10px;letter-spacing:-.02em}
+  .uc p{color:var(--muted);font-size:14.5px;margin-bottom:18px}
+  .uc ul{list-style:none;display:grid;gap:8px;font-size:14px;color:#c0c3c9}
+  .uc li{padding-left:20px;position:relative}
+  .uc li::before{content:"→";position:absolute;left:0;color:var(--accent)}
+
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px}
+  form{display:grid;gap:16px}
+  .field label{display:block;font-size:13px;color:#d0d2d8;margin-bottom:6px;font-weight:500}
+  input,textarea,select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);font:inherit;color:inherit}
+  input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+  .field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  textarea{min-height:120px;resize:vertical}
+  .info-block{padding:40px;background:var(--card);border:1px solid var(--line);border-radius:20px}
+  .info-block h3{font-size:24px;font-weight:600;margin-bottom:20px;letter-spacing:-.02em}
+  .info-row{padding:16px 0;border-top:1px solid var(--line);font-size:14.5px;color:#d0d2d8}
+  .info-row:first-of-type{border-top:none}
+  .info-row .lbl{font-family:'Geist Mono';font-size:11px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+
+  footer{border-top:1px solid var(--line);padding:32px 0;color:var(--muted);font-size:13px;font-family:'Geist Mono'}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+  .foot-links{display:flex;gap:24px}
+  @media(max-width:880px){.app-shell{grid-template-columns:1fr}.sidebar,.panel{display:none}.feat-grid,.plans,.uc-grid,.team,.about-grid,.contact-grid{grid-template-columns:1fr}.feat.span2{grid-column:span 1}.int-grid{grid-template-columns:repeat(4,1fr)}.nav-links{display:none}}
+</style></head>
+<body>
+
+<nav><div class="wrap">
+  <a class="logo" onclick="goto('home')"><span class="dot">◆</span>Your Product</a>
+  <div class="nav-links">
+    <a data-page="home" class="active">Home</a>
+    <a data-page="services">Use cases</a>
+    <a data-page="about">Company</a>
+    <a data-page="contact">Contact</a>
+  </div>
+  <div style="display:flex;gap:10px">
+    <button class="btn btn-ghost">Log in</button>
+    <button class="btn btn-primary" onclick="goto('contact')">Get started →</button>
+  </div>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div class="pill"><span class="tag">New</span><span>v3.0 — agents on every workflow →</span></div>
+    <h1 class="display"><span class="grad">Ship faster.</span><br/>Operate slower.</h1>
+    <p class="lede">Your Product is the operating layer for teams who'd rather build than babysit dashboards. One workspace, every workflow, fully scriptable. Replace this with your product's one-liner.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary">Start free — 14 days →</button>
+      <button class="btn btn-ghost">Book a demo</button>
+    </div>
+    <div class="trusted">
+      <div class="lbl">Trusted by teams at</div>
+      <div class="logo-strip"><span>◆ vercel</span><span>○ linear</span><span>▲ stripe</span><span>◇ figma</span><span>▢ notion</span><span>◑ retool</span></div>
+    </div>
+  </div>
+
+  <div class="preview">
+    <div class="preview-inner">
+      <div class="browser-bar"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="url">app.yourproduct.com/workspace/main</div><div class="mono" style="font-size:11px;color:var(--accent)">● live</div></div>
+      <div class="app-shell">
+        <div class="sidebar">
+          <div class="sb-section">Workspace</div>
+          <div class="sb-item active"><span class="ic"></span>Overview</div>
+          <div class="sb-item"><span class="ic"></span>Projects</div>
+          <div class="sb-item"><span class="ic"></span>Flows</div>
+          <div class="sb-item"><span class="ic"></span>Tasks</div>
+          <div class="sb-section">Reports</div>
+          <div class="sb-item"><span class="ic"></span>Weekly</div>
+          <div class="sb-item"><span class="ic"></span>Pipelines</div>
+          <div class="sb-section">Settings</div>
+          <div class="sb-item"><span class="ic"></span>Team</div>
+          <div class="sb-item"><span class="ic"></span>API keys</div>
+        </div>
+        <div class="canvas">
+          <div class="kpi-row">
+            <div class="kpi"><div class="l">Active flows</div><div class="v">128</div><div class="d">↑ 12% this week</div></div>
+            <div class="kpi"><div class="l">Avg. cycle</div><div class="v">3.4d</div><div class="d">↓ 0.8d this week</div></div>
+            <div class="kpi"><div class="l">Throughput</div><div class="v">94%</div><div class="d">↑ 4 pts</div></div>
+          </div>
+          <div class="chart">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px"><span>Throughput · last 30 days</span><span class="mono" style="color:var(--accent)">+18%</span></div>
+            <svg viewBox="0 0 600 140" preserveAspectRatio="none">
+              <defs><linearGradient id="g1" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#a8ff5c" stop-opacity=".35"/><stop offset="100%" stop-color="#a8ff5c" stop-opacity="0"/></linearGradient></defs>
+              <path d="M0 100 L40 90 L80 95 L120 80 L160 70 L200 78 L240 60 L280 65 L320 50 L360 55 L400 40 L440 42 L480 30 L520 35 L560 22 L600 25 L600 140 L0 140Z" fill="url(#g1)"/>
+              <path d="M0 100 L40 90 L80 95 L120 80 L160 70 L200 78 L240 60 L280 65 L320 50 L360 55 L400 40 L440 42 L480 30 L520 35 L560 22 L600 25" stroke="#a8ff5c" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="p-head"><h5>Activity</h5><span class="tag-mini">live</span></div>
+          <div class="activity">
+            <div class="act-row"><span class="t">2 min ago</span><br/><span class="who">Iris</span> shipped <code>auth-v2</code></div>
+            <div class="act-row"><span class="t">14 min ago</span><br/><span class="who">Theo</span> deployed to prod</div>
+            <div class="act-row"><span class="t">31 min ago</span><br/><span class="who">Maya</span> merged 3 PRs</div>
+            <div class="act-row"><span class="t">1 hr ago</span><br/><span class="who">Agent</span> resolved 28 tasks</div>
+            <div class="act-row"><span class="t">2 hr ago</span><br/><span class="who">Sam</span> closed sprint</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="section-head">
+      <div class="kicker">— What you get</div>
+      <h2>The whole platform, not a flat dashboard.</h2>
+      <p>Six things you don't have to wire together yourself.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat span2">
+        <div class="ico"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10h14M10 3l7 7-7 7"/></svg></div>
+        <h3>Workflow engine</h3>
+        <p>Define flows in code or in the editor. Run them anywhere. Version, branch, and roll back like Git.</p>
+        <div class="feat-code"><span class="c">// flow.config.ts</span><br/><span class="k">export default</span> defineFlow(<span class="s">'onboard-user'</span>, <span class="k">async</span> (ctx) =&gt; {<br/>&nbsp;&nbsp;<span class="k">await</span> ctx.run(<span class="s">'verify'</span>, verifyEmail)<br/>&nbsp;&nbsp;<span class="k">await</span> ctx.run(<span class="s">'enroll'</span>, addToProgram)<br/>})</div>
+      </div>
+      <div class="feat">
+        <div class="ico"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l4 12 4-8 4 8 4-12"/></svg></div>
+        <h3>Real-time analytics</h3>
+        <p>Track every step, every result. Streaming dashboards with no setup.</p>
+      </div>
+      <div class="feat">
+        <div class="ico"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="14" height="14" rx="2"/><path d="M3 8h14M8 3v14"/></svg></div>
+        <h3>Sane API</h3>
+        <p>REST, GraphQL, and webhooks for every object. Code samples in five languages.</p>
+      </div>
+      <div class="feat">
+        <div class="ico"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8a5 5 0 0 1 10 0v4M3 14h14"/></svg></div>
+        <h3>SSO &amp; RBAC</h3>
+        <p>SAML, SCIM, fine-grained roles. SOC 2 Type II, ISO 27001.</p>
+      </div>
+      <div class="feat">
+        <div class="ico"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="6"/><path d="M10 4v12M4 10h12"/></svg></div>
+        <h3>Agents, not autopilot</h3>
+        <p>LLM-powered agents that ask before they act and log every decision.</p>
+      </div>
+      <div class="feat span2">
+        <div class="ico"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l4-10 3 7 3-5 4 8"/></svg></div>
+        <h3>Audit-grade history</h3>
+        <p>Every action, every actor, every payload — searchable for seven years.</p>
+        <div class="feat-code"><span class="c">// 14:32 — agent-prod-2</span><br/>action: <span class="s">"task.create"</span><br/>actor: <span class="s">"agent#a7c"</span><br/>diff: { status: <span class="s">"open"</span> → <span class="s">"in-progress"</span> }<br/>cost: <span class="k">$0.0012</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pricing">
+    <div class="section-head">
+      <div class="kicker">— Pricing</div>
+      <h2>Honest pricing. No surprises.</h2>
+      <p>Start free, scale linearly. No per-seat tax on read-only viewers.</p>
+    </div>
+    <div class="toggle-row"><div class="toggle"><button class="active">Monthly</button><button>Yearly · save 20%</button></div></div>
+    <div class="plans">
+      <div class="plan">
+        <div class="head"><h4>Hobby</h4></div>
+        <div class="price">$0<small> / month</small></div>
+        <p>For solo builders and trial workspaces.</p>
+        <ul><li>1 workspace</li><li>3 active flows</li><li>10k events / mo</li><li>Community support</li></ul>
+        <button class="btn btn-ghost" style="margin-top:auto;width:100%">Get started</button>
+      </div>
+      <div class="plan featured">
+        <div class="head"><h4>Team</h4><span class="tag">Most popular</span></div>
+        <div class="price">$49<small> / user / month</small></div>
+        <p>For small teams shipping every week.</p>
+        <ul><li>Unlimited workspaces</li><li>Unlimited flows</li><li>1M events / mo</li><li>SSO, RBAC, audit log</li><li>Priority support</li></ul>
+        <button class="btn btn-primary" style="margin-top:auto;width:100%">Start 14-day trial</button>
+      </div>
+      <div class="plan">
+        <div class="head"><h4>Enterprise</h4></div>
+        <div class="price">Custom</div>
+        <p>For larger teams with stricter requirements.</p>
+        <ul><li>Custom event volume</li><li>SAML, SCIM, custom roles</li><li>Dedicated infra option</li><li>SOC 2, ISO 27001, HIPAA</li><li>Named support engineer</li></ul>
+        <button class="btn btn-ghost" style="margin-top:auto;width:100%">Talk to sales</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="integrations">
+    <div class="kicker">— Plays well with</div>
+    <div class="int-grid">
+      <div class="int">slack</div><div class="int">github</div><div class="int">linear</div><div class="int">notion</div>
+      <div class="int">stripe</div><div class="int">datadog</div><div class="int">snowflake</div><div class="int">+ 90 more</div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><div class="kicker">— Company</div><h2>Building tools<br/>for the next ten years of teamwork.</h2><p>Replace this with the why behind the product. Where you came from. What's broken that you're trying to fix.</p></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p>Replace this with your founding story. The product you tried to build twice before. The team you assembled. The lesson that became the wedge.</p>
+      <p>Talk about how the company operates. Async-first. Open salary bands. Written more than spoken. Whatever's actually yours.</p>
+      <p>End with what you're hiring for and why someone reading this should care.</p>
+    </div>
+    <div>
+      <div class="about-stats">
+        <div class="s"><div class="v">$XXm</div><div class="l">In ARR</div></div>
+        <div class="s"><div class="v">XXX</div><div class="l">Customers</div></div>
+        <div class="s"><div class="v">XX</div><div class="l">Team members</div></div>
+        <div class="s"><div class="v">XX%</div><div class="l">Remote</div></div>
+      </div>
+      <div style="margin-top:24px;padding:32px;background:var(--card);border:1px solid var(--line);border-radius:18px">
+        <div class="kicker mono" style="font-size:11px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:8px">// backed by</div>
+        <div style="font-family:'Geist Mono';color:var(--muted);font-size:14px;line-height:1.8">◆ Tier-one VC · Tier-one VC<br/>○ Founders of well-known companies<br/>▲ Angels you'd recognize</div>
+      </div>
+    </div>
+  </div>
+  <div class="team">
+    <div class="member"><div class="av">A</div><h4>Founder Name</h4><div class="role">CEO &amp; co-founder</div><p>One sentence on background and the why.</p></div>
+    <div class="member"><div class="av">B</div><h4>Founder Name</h4><div class="role">CTO &amp; co-founder</div><p>One sentence on background and the why.</p></div>
+    <div class="member"><div class="av">C</div><h4>Leader Name</h4><div class="role">Head of Product</div><p>One sentence on background and the why.</p></div>
+    <div class="member"><div class="av">D</div><h4>Leader Name</h4><div class="role">Head of Design</div><p>One sentence on background and the why.</p></div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><div class="kicker">— Use cases</div><h2>One platform.<br/>Six teams.</h2><p>Where customers reach for Your Product first.</p></div>
+  <div class="uc-grid">
+    <div class="uc"><div class="kicker">// 01</div><h3>Product teams</h3><p>Ship faster with flows that span planning, build, and release. Linear + GitHub + your CD, on rails.</p><ul><li>Visual + code flow editor</li><li>Native GitHub integration</li><li>Release notes auto-generated</li><li>Outcomes tracked end-to-end</li></ul></div>
+    <div class="uc"><div class="kicker">// 02</div><h3>Ops &amp; finance</h3><p>Replace the spreadsheet that's holding the company together. Approvals, reconciliations, and reports — versioned.</p><ul><li>Multi-step approval flows</li><li>Stripe + Mercury + NetSuite</li><li>SLA monitoring</li><li>Quarterly close in days, not weeks</li></ul></div>
+    <div class="uc"><div class="kicker">// 03</div><h3>Customer success</h3><p>Every renewal, onboarding, and escalation in one place. Plus the agent that drafts your weekly update.</p><ul><li>Health scoring with reasoning</li><li>Cross-team escalations</li><li>Renewal pipeline view</li><li>Auto-summarized account notes</li></ul></div>
+    <div class="uc"><div class="kicker">// 04</div><h3>Data &amp; ML</h3><p>Promote notebooks to production flows in one click. Track everything that touched the model.</p><ul><li>Model versioning + rollbacks</li><li>Training + inference flows</li><li>Snowflake / dbt / Airflow integrations</li><li>Cost dashboards by team</li></ul></div>
+    <div class="uc"><div class="kicker">// 05</div><h3>Security &amp; compliance</h3><p>Auditable, by design. Every action signed, every payload retained, every access logged.</p><ul><li>SOC 2 + ISO 27001 + HIPAA</li><li>Field-level encryption</li><li>Configurable retention</li><li>Just-in-time access</li></ul></div>
+    <div class="uc"><div class="kicker">// 06</div><h3>Field operations</h3><p>For teams whose Mondays are made of forms, routes, and PDFs.</p><ul><li>Offline-capable mobile flows</li><li>Geo-bounded permissions</li><li>Photo + signature steps</li><li>Bulk export to whatever</li></ul></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><div class="kicker">— Contact</div><h2>Talk to a human.</h2><p>Sales, support, or partnerships — we'll route you. Median first response is under 2 hours during business hours.</p></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo form.')">
+      <div class="field row"><div><label>First name</label><input/></div><div><label>Last name</label><input/></div></div>
+      <div class="field row"><div><label>Work email</label><input type="email"/></div><div><label>Company</label><input/></div></div>
+      <div class="field"><label>Team size</label>
+        <select><option>1 – 10</option><option>11 – 50</option><option>51 – 200</option><option>201 – 1000</option><option>1000+</option></select></div>
+      <div class="field"><label>What's this about?</label>
+        <select><option>Pricing &amp; demo</option><option>Technical question</option><option>Partnerships</option><option>Security review</option><option>Press</option></select></div>
+      <div class="field"><label>Tell us more</label><textarea placeholder="What are you trying to solve?"></textarea></div>
+      <button class="btn btn-primary">Send →</button>
+    </form>
+    <div class="info-block">
+      <h3>Reach us directly</h3>
+      <div class="info-row"><div class="lbl">// sales</div>sales@yourproduct.com</div>
+      <div class="info-row"><div class="lbl">// support</div>help@yourproduct.com · ~2hr median response</div>
+      <div class="info-row"><div class="lbl">// security</div>security@yourproduct.com</div>
+      <div class="info-row"><div class="lbl">// press</div>press@yourproduct.com</div>
+      <div class="info-row"><div class="lbl">// headquarters</div>123 Your Street<br/>City, ST 00000</div>
+      <div class="info-row"><div class="lbl">// status</div><span style="color:var(--accent)">● all systems operational</span></div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+
+<footer><div class="wrap">
+  <div>© 2026 Your Product · Made for builders</div>
+  <div class="foot-links"><a>Docs</a><a>Changelog</a><a>Status</a><a>Security</a><a>Privacy</a></div>
+</div></footer>
+
+<script>
+  function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+  document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+  document.querySelectorAll('.toggle button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.toggle button').forEach(x=>x.classList.remove('active'));b.classList.add('active')}));
+</script>
+</body></html>

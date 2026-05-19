@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Your Law Firm — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f5f3ee;--ink:#0e1a2b;--navy:#15294a;--gold:#a98531;--muted:#5a6478;--line:#dad4c8;--card:#fff}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;font-size:16px;line-height:1.65}
+  a{color:inherit;text-decoration:none;cursor:pointer}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 36px}
+  nav{position:sticky;top:0;z-index:50;background:rgba(245,243,238,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:84px}
+  .logo{display:flex;align-items:center;gap:14px;font-family:Lora;font-weight:500;font-size:22px;letter-spacing:.01em}
+  .logo .seal{width:40px;height:40px;border:1px solid var(--gold);display:grid;place-items:center;font-family:Lora;font-style:italic;font-weight:500;color:var(--gold);font-size:18px}
+  .nav-links{display:flex;gap:36px;font-size:14px;color:var(--muted)}
+  .nav-links a.active{color:var(--navy);font-weight:500}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:14px 26px;border-radius:0;font-weight:500;font-size:14px;cursor:pointer;border:none}
+  .btn-primary{background:var(--navy);color:#fff}
+  .btn-primary:hover{background:#0a1830}
+  .btn-ghost{background:transparent;color:var(--navy);border:1px solid var(--navy)}
+  .page{display:none;padding:64px 0 120px}
+  .page.active{display:block}
+  .eyebrow{display:inline-block;font-family:Lora;font-style:italic;color:var(--gold);font-size:18px;margin-bottom:16px}
+
+  .hero{display:grid;grid-template-columns:1.2fr 1fr;gap:80px;align-items:center}
+  h1.display{font-family:Lora;font-weight:500;font-size:clamp(48px,5.8vw,84px);line-height:1.04;letter-spacing:-.015em;margin-bottom:24px}
+  h1.display em{font-style:italic;color:var(--gold)}
+  .lede{font-size:18px;color:var(--muted);max-width:480px;margin-bottom:32px}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+  .credentials{display:flex;gap:24px;margin-top:48px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+  .credentials .c{padding-left:14px;border-left:2px solid var(--gold)}
+
+  .crest{position:relative;aspect-ratio:1/1.1;background:linear-gradient(180deg,var(--navy),#0a1830);padding:48px;display:grid;place-items:center;color:#fff}
+  .crest::before{content:"";position:absolute;inset:14px;border:1px solid var(--gold);pointer-events:none}
+  .crest-inner{text-align:center;position:relative;z-index:1}
+  .crest-inner .est{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:32px}
+  .crest-inner h3{font-family:Lora;font-weight:500;font-size:42px;line-height:1.05;letter-spacing:.01em}
+  .crest-inner .div{width:60px;height:1px;background:var(--gold);margin:24px auto}
+  .crest-inner p{font-family:Lora;font-style:italic;font-size:18px;color:#d4d8e0}
+  .crest-inner .latin{font-family:Lora;font-style:italic;color:var(--gold);font-size:14px;letter-spacing:.1em;margin-top:24px}
+
+  .results{margin-top:120px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:48px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:48px}
+  .result .num{font-family:Lora;font-weight:500;font-size:64px;color:var(--navy);line-height:1;letter-spacing:-.02em}
+  .result .num span{color:var(--gold)}
+  .result .lbl{font-size:13px;color:var(--muted);margin-top:8px}
+
+  /* Practice areas */
+  .practice{margin-top:96px}
+  .practice-head{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:end;margin-bottom:48px}
+  .practice-head h2{font-family:Lora;font-weight:500;font-size:clamp(40px,4.5vw,64px);line-height:1.04;letter-spacing:-.015em}
+  .practice-head p{color:var(--muted);font-size:17px}
+  .practice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);background:var(--card)}
+  .area{padding:40px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);transition:.2s;cursor:pointer}
+  .area:nth-child(3n){border-right:none}
+  .area:nth-last-child(-n+3){border-bottom:none}
+  .area:hover{background:var(--navy);color:#fff}
+  .area:hover .num,.area:hover .arrow{color:var(--gold)}
+  .area .num{font-family:Lora;font-style:italic;color:var(--gold);font-size:14px;letter-spacing:.05em;margin-bottom:14px}
+  .area h4{font-family:Lora;font-weight:500;font-size:24px;letter-spacing:-.01em;margin-bottom:8px}
+  .area p{font-size:14px;color:var(--muted);margin-bottom:24px}
+  .area:hover p{color:#bcc2cf}
+  .area .arrow{font-size:18px;color:var(--navy)}
+
+  /* Notable matters */
+  .matters{margin-top:120px}
+  .matters h2{font-family:Lora;font-weight:500;font-size:48px;margin-bottom:32px}
+  .matter-table{background:var(--card);border:1px solid var(--line)}
+  .matter-row{display:grid;grid-template-columns:80px 1.4fr 1fr 1fr 160px;gap:24px;padding:24px 32px;border-bottom:1px solid var(--line);align-items:center;font-size:14.5px}
+  .matter-row:last-child{border-bottom:none}
+  .matter-row.head{background:var(--ink);color:#bcc2cf;font-size:11px;letter-spacing:.18em;text-transform:uppercase}
+  .matter-row .year{font-family:Lora;color:var(--gold);font-style:italic}
+  .matter-row .matter{font-family:Lora;font-size:17px}
+  .matter-row .outcome{font-weight:500;color:var(--navy)}
+
+  /* Page heads & general */
+  .page-head{margin-bottom:64px;max-width:760px}
+  .page-head h2{font-family:Lora;font-weight:500;font-size:clamp(40px,5vw,68px);line-height:1.04;letter-spacing:-.015em}
+  .page-head p{font-size:17.5px;color:var(--muted);margin-top:18px}
+
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px}
+  .about-text p{margin-bottom:20px;color:#33405a}
+  .about-text p.lead{font-family:Lora;font-size:24px;line-height:1.4;color:var(--ink);margin-bottom:32px}
+  .team-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:48px}
+  .partner{padding:32px;background:var(--card);border:1px solid var(--line);display:grid;grid-template-columns:80px 1fr;gap:20px;align-items:start}
+  .partner .avatar{width:80px;height:80px;background:var(--navy);color:var(--gold);display:grid;place-items:center;font-family:Lora;font-size:28px;letter-spacing:.04em}
+  .partner h4{font-family:Lora;font-weight:500;font-size:22px}
+  .partner .role{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin:4px 0 10px}
+  .partner p{font-size:14px;color:var(--muted)}
+
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px}
+  form{display:grid;gap:18px}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
+  input,textarea,select{width:100%;padding:14px 16px;border-radius:0;border:1px solid var(--line);background:#fff;font:inherit;color:inherit}
+  input:focus,textarea:focus{outline:none;border-color:var(--navy)}
+  .field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  textarea{min-height:140px;resize:vertical}
+  .confidential{padding:14px 18px;background:var(--card);border-left:3px solid var(--gold);font-size:13.5px;color:var(--muted);font-style:italic;font-family:Lora}
+  .info-block{padding:48px;background:var(--navy);color:#fff}
+  .info-block h3{font-family:Lora;font-weight:500;font-size:32px;margin-bottom:24px}
+  .info-row{padding:18px 0;border-top:1px solid #25395a;font-size:14.5px;color:#bcc2cf}
+  .info-row:first-of-type{border-top:none}
+  .info-row .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+
+  footer{border-top:1px solid var(--line);padding:48px 0;color:var(--muted);font-size:13px}
+  footer .wrap{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:start}
+  .disclaimer{font-style:italic;font-family:Lora;max-width:680px}
+  .foot-links{display:flex;gap:24px;justify-content:flex-end}
+  @media(max-width:880px){.hero,.about-grid,.contact-grid,.practice-head{grid-template-columns:1fr}.practice-grid,.team-grid{grid-template-columns:1fr}.results{grid-template-columns:1fr 1fr}.matter-row{grid-template-columns:1fr;gap:6px}.matter-row.head{display:none}.nav-links{display:none}}
+</style></head>
+<body>
+
+<nav><div class="wrap">
+  <a class="logo" onclick="goto('home')"><span class="seal">A</span>Your &amp; Partners LLP</a>
+  <div class="nav-links">
+    <a data-page="home" class="active">Home</a>
+    <a data-page="about">Firm</a>
+    <a data-page="services">Practice</a>
+    <a data-page="contact">Contact</a>
+  </div>
+  <button class="btn btn-primary" onclick="goto('contact')">Request consultation</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div>
+      <span class="eyebrow">— Established Year</span>
+      <h1 class="display">Counsel built on <em>preparation,</em> not pressure.</h1>
+      <p class="lede">A firm focused on corporate, litigation, and private wealth — for clients who want their lawyer to read the contract before they sign it. Replace this paragraph with your firm's voice.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="goto('contact')">Request consultation →</button>
+        <button class="btn btn-ghost" onclick="goto('services')">Practice areas</button>
+      </div>
+      <div class="credentials">
+        <div class="c"><strong style="color:var(--ink)">Bar admissions</strong><br/>State Bar · Federal District</div>
+        <div class="c"><strong style="color:var(--ink)">Recognitions</strong><br/>Chambers · Super Lawyers</div>
+        <div class="c"><strong style="color:var(--ink)">Languages</strong><br/>English · Add others</div>
+      </div>
+    </div>
+    <div class="crest">
+      <div class="crest-inner">
+        <div class="est">— Established Year —</div>
+        <h3>Your<br/>&amp; Partners<br/>LLP</h3>
+        <div class="div"></div>
+        <p>Attorneys at Law</p>
+        <div class="latin">— Consilio et animis —</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="results">
+    <div class="result"><div class="num">$XXX<span>M</span></div><div class="lbl">In settlements and verdicts</div></div>
+    <div class="result"><div class="num">XX<span>+</span></div><div class="lbl">Years of combined experience</div></div>
+    <div class="result"><div class="num">XX<span>%</span></div><div class="lbl">Clients who return</div></div>
+    <div class="result"><div class="num">XXX<span>+</span></div><div class="lbl">Cases handled to verdict</div></div>
+  </div>
+
+  <div class="practice">
+    <div class="practice-head">
+      <h2>Where we work,<br/>and how we work.</h2>
+      <p>Six practice areas, one team. Cases are staffed by a partner from day one — not handed off after the intake meeting.</p>
+    </div>
+    <div class="practice-grid">
+      <div class="area" onclick="goto('services')"><div class="num">— 01 —</div><h4>Corporate &amp; M&amp;A</h4><p>Formation, financings, acquisitions, and exits. From seed term sheet to nine-figure close.</p><div class="arrow">→</div></div>
+      <div class="area" onclick="goto('services')"><div class="num">— 02 —</div><h4>Commercial Litigation</h4><p>Contract disputes, partnership breakdowns, and the cases that should have been settled in March.</p><div class="arrow">→</div></div>
+      <div class="area" onclick="goto('services')"><div class="num">— 03 —</div><h4>Real Estate</h4><p>Acquisitions, leasing, development, and the difficult title clean-ups.</p><div class="arrow">→</div></div>
+      <div class="area" onclick="goto('services')"><div class="num">— 04 —</div><h4>Estate &amp; Trusts</h4><p>Plans for families and the closely-held businesses that sit inside them.</p><div class="arrow">→</div></div>
+      <div class="area" onclick="goto('services')"><div class="num">— 05 —</div><h4>Employment Law</h4><p>Both sides of the table — employers building right and employees treated wrong.</p><div class="arrow">→</div></div>
+      <div class="area" onclick="goto('services')"><div class="num">— 06 —</div><h4>Intellectual Property</h4><p>Trademarks, licensing, and protection for what you've actually built.</p><div class="arrow">→</div></div>
+    </div>
+  </div>
+
+  <div class="matters">
+    <h2>Recent matters</h2>
+    <div class="matter-table">
+      <div class="matter-row head"><div>Year</div><div>Matter</div><div>Practice</div><div>Role</div><div>Outcome</div></div>
+      <div class="matter-row"><div class="year">2025</div><div class="matter">Confidential — Series C financing</div><div>Corporate</div><div>Lead counsel</div><div class="outcome">Closed · $48M</div></div>
+      <div class="matter-row"><div class="year">2025</div><div class="matter">Estate of a closely-held family business</div><div>Trusts &amp; Estates</div><div>Counsel</div><div class="outcome">Transitioned</div></div>
+      <div class="matter-row"><div class="year">2024</div><div class="matter">Breach of joint venture agreement</div><div>Litigation</div><div>Trial counsel</div><div class="outcome">Verdict for plaintiff</div></div>
+      <div class="matter-row"><div class="year">2024</div><div class="matter">Mixed-use development, downtown</div><div>Real Estate</div><div>Lead counsel</div><div class="outcome">Closed · $112M</div></div>
+      <div class="matter-row"><div class="year">2023</div><div class="matter">Employment class action, defense</div><div>Employment</div><div>Trial team</div><div class="outcome">Dismissed</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head">
+    <span class="eyebrow">— The firm</span>
+    <h2>A small firm built on the work big firms outsource.</h2>
+    <p>Replace this with the founding story. What you left behind. What you wanted to build instead.</p>
+  </div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">We opened the firm in Year on a simple principle: every matter gets a partner from day one. Replace this with your version.</p>
+      <p>Write about the firm's values in concrete terms. Your billing approach. How you staff a case. The kinds of clients you don't take.</p>
+      <p>Close with the part that's hardest to fake — what your clients say to you the morning after they win, or the morning the deal closes.</p>
+    </div>
+    <div>
+      <h3 style="font-family:Lora;font-weight:500;font-size:28px;margin-bottom:18px">The partnership</h3>
+      <div class="team-grid">
+        <div class="partner"><div class="avatar">AB</div><div><h4>Partner Name</h4><div class="role">Managing partner</div><p>Practice focus. Where they trained. One sentence on the cases they're known for.</p></div></div>
+        <div class="partner"><div class="avatar">CD</div><div><h4>Partner Name</h4><div class="role">Litigation</div><p>Practice focus. Where they trained. One sentence on the cases they're known for.</p></div></div>
+        <div class="partner"><div class="avatar">EF</div><div><h4>Partner Name</h4><div class="role">Corporate</div><p>Practice focus. Where they trained. One sentence on the cases they're known for.</p></div></div>
+        <div class="partner"><div class="avatar">GH</div><div><h4>Partner Name</h4><div class="role">Estates &amp; Trusts</div><p>Practice focus. Where they trained. One sentence on the cases they're known for.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head">
+    <span class="eyebrow">— Practice areas</span>
+    <h2>Six areas of practice. One bench of attorneys.</h2>
+  </div>
+  <div class="practice-grid">
+    <div class="area"><div class="num">— 01 —</div><h4>Corporate &amp; M&amp;A</h4><p>Entity formation, equity financings, M&amp;A on either side of the table, founder agreements, and the long quiet work of governance.</p><div class="arrow">→</div></div>
+    <div class="area"><div class="num">— 02 —</div><h4>Commercial Litigation</h4><p>Contract disputes, fiduciary breaches, partnership dissolutions, and trial work in state and federal court.</p><div class="arrow">→</div></div>
+    <div class="area"><div class="num">— 03 —</div><h4>Real Estate</h4><p>Acquisitions, dispositions, leasing on both sides, mixed-use development, financing, and title clean-up.</p><div class="arrow">→</div></div>
+    <div class="area"><div class="num">— 04 —</div><h4>Trusts &amp; Estates</h4><p>Estate plans, family trusts, business succession, charitable planning, and probate work when it's needed.</p><div class="arrow">→</div></div>
+    <div class="area"><div class="num">— 05 —</div><h4>Employment Law</h4><p>Employee handbooks, executive agreements, internal investigations, separation negotiations, and EEOC defense.</p><div class="arrow">→</div></div>
+    <div class="area"><div class="num">— 06 —</div><h4>Intellectual Property</h4><p>Trademark registration and enforcement, copyright counsel, licensing agreements, and IP diligence in M&amp;A.</p><div class="arrow">→</div></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head">
+    <span class="eyebrow">— Contact</span>
+    <h2>Request a consultation.</h2>
+    <p>Tell us a little about your matter. A partner responds within one business day. Initial consultations are confidential whether or not we end up representing you.</p>
+  </div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo form.')">
+      <div class="confidential">— All communications submitted through this form are confidential. Submitting this form does not create an attorney-client relationship.</div>
+      <div class="field row"><div><label>First name</label><input/></div><div><label>Last name</label><input/></div></div>
+      <div class="field"><label>Email</label><input type="email"/></div>
+      <div class="field"><label>Phone</label><input type="tel"/></div>
+      <div class="field"><label>Matter type</label>
+        <select><option>Corporate / M&amp;A</option><option>Commercial litigation</option><option>Real estate</option><option>Trusts &amp; estates</option><option>Employment</option><option>Intellectual property</option><option>Other / unsure</option></select></div>
+      <div class="field"><label>Briefly describe your matter</label><textarea placeholder="Optional. Do not include privileged or sensitive details until we have confirmed representation."></textarea></div>
+      <button class="btn btn-primary">Submit request →</button>
+    </form>
+    <div class="info-block">
+      <h3>The office</h3>
+      <div class="info-row"><div class="lbl">Address</div>123 Your Street, Suite 100<br/>City, ST 00000</div>
+      <div class="info-row"><div class="lbl">Phone</div>(555) 000-0000</div>
+      <div class="info-row"><div class="lbl">Email</div>inquiry@yourfirm.com</div>
+      <div class="info-row"><div class="lbl">Hours</div>Mon – Fri · 8:30 – 17:30<br/>After hours by appointment</div>
+      <div class="info-row"><div class="lbl">Emergencies</div>Litigation matters: 24-hour line</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+
+<footer><div class="wrap">
+  <div class="disclaimer">© 2026 Your &amp; Partners LLP. All rights reserved. The information on this site is for general informational purposes only and should not be construed as legal advice. Use of this site does not create an attorney-client relationship.</div>
+  <div class="foot-links"><a>Disclaimer</a><a>Privacy</a><a>Attorney advertising</a></div>
+</div></footer>
+
+<script>
+  function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+  document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script>
+</body></html>
