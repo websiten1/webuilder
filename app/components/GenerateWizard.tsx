@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { TemplateGallery, type TemplateMapTo as GalleryTemplateMapTo } from "@/app/components/TemplateGallery";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -650,39 +651,10 @@ function StepTemplate({ selectedId, onSelect }: {
   onSelect: (id: string, mapTo: TemplateMapTo) => void;
 }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
-        {TEMPLATES.map(t => {
-          const on = selectedId === t.id;
-          return (
-            <button key={t.id} type="button" onClick={() => onSelect(t.id, t.mapTo)} style={{
-              textAlign: "left", borderRadius: 10, cursor: "pointer",
-              border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
-              overflow: "hidden", background: "transparent", padding: 0,
-              transition: "all 0.15s",
-              boxShadow: on ? "0 0 0 3px rgba(99,102,241,0.15)" : "none",
-            }}>
-              {t.preview}
-              <div style={{ padding: "6px 8px", background: on ? "rgba(99,102,241,0.08)" : "rgba(255,255,255,0.03)", borderTop: "1px solid var(--border)" }}>
-                <p style={{ fontSize: 10, fontWeight: 700, color: on ? "#a5b4fc" : "#fff", margin: 0, lineHeight: 1.3 }}>{t.name}</p>
-                <p style={{ fontSize: 9, color: "var(--text3)", margin: "2px 0 0" }}>{t.category}</p>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-      {selectedId && (
-        <button type="button" onClick={() => onSelect("", { businessType: "Restaurant", style: "minimalist", primaryColor: "#6366f1", secondaryColor: "#a855f7", darkMode: false, fontFamily: "modern-sans" })}
-          style={{ alignSelf: "flex-start", fontSize: 12, color: "var(--text3)", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", padding: 0 }}>
-          Clear selection (start fully custom)
-        </button>
-      )}
-      {!selectedId && (
-        <p style={{ fontSize: 12, color: "var(--text3)", fontStyle: "italic" }}>
-          No template selected — you&apos;ll customize everything from scratch in the next steps.
-        </p>
-      )}
-    </div>
+    <TemplateGallery
+      selectedId={selectedId}
+      onSelect={(id, mapTo) => onSelect(id, mapTo as unknown as TemplateMapTo)}
+    />
   );
 }
 
