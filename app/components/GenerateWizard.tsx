@@ -27,7 +27,7 @@ export type WizardData = {
   business: {
     name: string; type: string; description: string;
     aboutText: string; aboutAiRephrase: boolean;
-    hasLocation: boolean; location: string; serviceArea: string;
+    hasLocation: boolean; location: string; locationCity: string; locationCountry: string; serviceArea: string;
     email: string;
     hasPhone: boolean; phone: string;
     openingHours: string; ownerName: string; experience: string;
@@ -57,6 +57,7 @@ export type WizardData = {
     pageDescriptions: { [id: string]: PageDesc };
   };
   useEmojis: boolean;
+  websiteLanguage: string;
   logo: { uploaded: boolean; dataUrl: string; fileName: string };
 };
 
@@ -66,7 +67,7 @@ const DEFAULT_HOURS = Object.fromEntries(DAYS.map(d => [d, { open: "09:00", clos
 
 const DEFAULT: WizardData = {
   templateId: "",
-  business: { name: "", type: "Restaurant", description: "", aboutText: "", aboutAiRephrase: true, hasLocation: true, location: "", serviceArea: "", email: "", hasPhone: true, phone: "", openingHours: "", ownerName: "", experience: "" },
+  business: { name: "", type: "Restaurant", description: "", aboutText: "", aboutAiRephrase: true, hasLocation: true, location: "", locationCity: "", locationCountry: "", serviceArea: "", email: "", hasPhone: true, phone: "", openingHours: "", ownerName: "", experience: "" },
   schedule: { type: "no-schedule", hours: DEFAULT_HOURS },
   goals: { mainGoal: "", visitorFeel: "", problemSolved: "", whyChoose: "", idealCustomer: "" },
   services: { offersType: "", list: [], priceVisibility: "" },
@@ -75,6 +76,7 @@ const DEFAULT: WizardData = {
   team: { enabled: false, members: [] },
   pages: { selected: ["home", "services", "about", "contact"], primaryCTA: "contact-form", contentTone: "professional-approachable", specialFeatures: [], additionalNotes: "", pageDescriptions: {} },
   useEmojis: false,
+  websiteLanguage: "English",
   logo: { uploaded: false, dataUrl: "", fileName: "" },
 };
 
@@ -682,6 +684,239 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (v: string)
   );
 }
 
+// ─── Location autocomplete ────────────────────────────────────────────────────
+
+type NominatimResult = {
+  place_id: number; display_name: string; name: string; lat: string; lon: string;
+  type: string; class: string;
+  address: { city?: string; town?: string; village?: string; municipality?: string; state?: string; country?: string; country_code?: string; };
+};
+
+function flagEmoji(code: string): string {
+  if (!code || code.length !== 2) return "";
+  return code.toUpperCase().split("").map(c => String.fromCodePoint(c.charCodeAt(0) + 0x1F1A5)).join("");
+}
+
+function LocationAutocomplete({ city, country, disabled, onSelect, onClear }: {
+  city: string; country: string; disabled?: boolean;
+  onSelect: (city: string, country: string) => void;
+  onClear: () => void;
+}) {
+  const [query, setQuery] = useState(city ? `${city}${country ? `, ${country}` : ""}` : "");
+  const [results, setResults] = useState<NominatimResult[]>([]);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setQuery(city ? `${city}${country ? `, ${country}` : ""}` : "");
+  }, [city, country]);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => { if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const search = async (q: string) => {
+    if (q.length < 2) { setResults([]); setOpen(false); return; }
+    setLoading(true);
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=8&addressdetails=1&accept-language=en`;
+      const res = await fetch(url, { headers: { "User-Agent": "insixlive-website-builder/1.0" } });
+      const data: NominatimResult[] = await res.json();
+      const filtered = data.filter(r => r.class === "place" || ["city","town","village","administrative","hamlet"].includes(r.type)).slice(0, 7);
+      setResults(filtered);
+      setOpen(filtered.length > 0);
+    } catch { setResults([]); }
+    finally { setLoading(false); }
+  };
+
+  const handleChange = (val: string) => {
+    setQuery(val);
+    if (city) onClear();
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => search(val), 350);
+  };
+
+  const handleSelect = (r: NominatimResult) => {
+    const c = r.address.city || r.address.town || r.address.village || r.address.municipality || r.name;
+    const co = r.address.country || "";
+    setQuery(`${c}${co ? `, ${co}` : ""}`);
+    setResults([]); setOpen(false);
+    onSelect(c, co);
+  };
+
+  return (
+    <div ref={wrapRef} style={{ position: "relative" }}>
+      <div style={{ position: "relative" }}>
+        <input className="inp" value={query} disabled={disabled}
+          onChange={e => handleChange(e.target.value)}
+          placeholder="Search for a city…" autoComplete="off"
+          onFocus={() => { if (results.length > 0) setOpen(true); }}
+          style={{ paddingRight: 40, opacity: disabled ? 0.4 : 1, transition: "opacity 0.2s" }}
+        />
+        <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center", gap: 4 }}>
+          {loading && (
+            <svg width="14" height="14" viewBox="0 0 14 14" style={{ animation: "spin 0.7s linear infinite", display: "block" }}>
+              <circle cx="7" cy="7" r="5" fill="none" stroke="#E2E2DE" strokeWidth="2"/>
+              <path d="M7 2a5 5 0 015 5" fill="none" stroke="#6B7180" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          )}
+          {city && !loading && (
+            <button type="button" onClick={onClear} style={{ width: 18, height: 18, borderRadius: "50%", background: "#e5e7eb", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, color: "#374151", lineHeight: 1, padding: 0 }}>×</button>
+          )}
+        </div>
+      </div>
+
+      {open && results.length > 0 && (
+        <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 200, background: "#fff", border: "1px solid #E2E2DE", borderRadius: 12, boxShadow: "0 8px 24px rgba(10,14,20,0.12)", overflow: "hidden", animation: "fadeUp 0.15s ease-out" }}>
+          {results.map(r => {
+            const c = r.address.city || r.address.town || r.address.village || r.address.municipality || r.name;
+            const co = r.address.country || "";
+            const flag = r.address.country_code ? flagEmoji(r.address.country_code) : "";
+            const sub = [r.address.state, r.address.country].filter(Boolean).join(", ");
+            return (
+              <button key={r.place_id} type="button"
+                onMouseDown={e => { e.preventDefault(); handleSelect(r); }}
+                style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", border: "none", borderBottom: "1px solid #f3f4f6", background: "transparent", cursor: "pointer", textAlign: "left", transition: "background 0.1s" }}
+                onMouseEnter={e => (e.currentTarget.style.background = "#f9fafb")}
+                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+              >
+                {flag && <span style={{ fontSize: 20, lineHeight: 1, flexShrink: 0 }}>{flag}</span>}
+                <div style={{ minWidth: 0 }}>
+                  <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#111827" }}>{c}{co ? `, ${co}` : ""}</p>
+                  {sub && sub !== co && <p style={{ margin: 0, fontSize: 11, color: "#6B7180", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sub}</p>}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Language selector ────────────────────────────────────────────────────────
+
+const LANGUAGES = [
+  { code: "af", name: "Afrikaans",             flag: "🇿🇦" },
+  { code: "sq", name: "Albanian",               flag: "🇦🇱" },
+  { code: "ar", name: "Arabic",                 flag: "🇸🇦" },
+  { code: "hy", name: "Armenian",               flag: "🇦🇲" },
+  { code: "eu", name: "Basque",                 flag: "🏴" },
+  { code: "bn", name: "Bengali",                flag: "🇧🇩" },
+  { code: "bg", name: "Bulgarian",              flag: "🇧🇬" },
+  { code: "ca", name: "Catalan",                flag: "🏴" },
+  { code: "zh-CN", name: "Chinese (Simplified)",flag: "🇨🇳" },
+  { code: "zh-TW", name: "Chinese (Traditional)",flag: "🇹🇼" },
+  { code: "hr", name: "Croatian",               flag: "🇭🇷" },
+  { code: "cs", name: "Czech",                  flag: "🇨🇿" },
+  { code: "da", name: "Danish",                 flag: "🇩🇰" },
+  { code: "nl", name: "Dutch",                  flag: "🇳🇱" },
+  { code: "en", name: "English",                flag: "🇬🇧" },
+  { code: "et", name: "Estonian",               flag: "🇪🇪" },
+  { code: "fi", name: "Finnish",                flag: "🇫🇮" },
+  { code: "fr", name: "French",                 flag: "🇫🇷" },
+  { code: "ka", name: "Georgian",               flag: "🇬🇪" },
+  { code: "de", name: "German",                 flag: "🇩🇪" },
+  { code: "el", name: "Greek",                  flag: "🇬🇷" },
+  { code: "gu", name: "Gujarati",               flag: "🇮🇳" },
+  { code: "he", name: "Hebrew",                 flag: "🇮🇱" },
+  { code: "hi", name: "Hindi",                  flag: "🇮🇳" },
+  { code: "hu", name: "Hungarian",              flag: "🇭🇺" },
+  { code: "is", name: "Icelandic",              flag: "🇮🇸" },
+  { code: "id", name: "Indonesian",             flag: "🇮🇩" },
+  { code: "ga", name: "Irish",                  flag: "🇮🇪" },
+  { code: "it", name: "Italian",                flag: "🇮🇹" },
+  { code: "ja", name: "Japanese",               flag: "🇯🇵" },
+  { code: "kn", name: "Kannada",                flag: "🇮🇳" },
+  { code: "ko", name: "Korean",                 flag: "🇰🇷" },
+  { code: "lv", name: "Latvian",                flag: "🇱🇻" },
+  { code: "lt", name: "Lithuanian",             flag: "🇱🇹" },
+  { code: "lb", name: "Luxembourgish",          flag: "🇱🇺" },
+  { code: "mk", name: "Macedonian",             flag: "🇲🇰" },
+  { code: "ms", name: "Malay",                  flag: "🇲🇾" },
+  { code: "mr", name: "Marathi",                flag: "🇮🇳" },
+  { code: "no", name: "Norwegian",              flag: "🇳🇴" },
+  { code: "fa", name: "Persian",                flag: "🇮🇷" },
+  { code: "pl", name: "Polish",                 flag: "🇵🇱" },
+  { code: "pt", name: "Portuguese",             flag: "🇵🇹" },
+  { code: "ro", name: "Romanian",               flag: "🇷🇴" },
+  { code: "ru", name: "Russian",                flag: "🇷🇺" },
+  { code: "sa", name: "Sanskrit",               flag: "🇮🇳" },
+  { code: "sr", name: "Serbian",                flag: "🇷🇸" },
+  { code: "sk", name: "Slovak",                 flag: "🇸🇰" },
+  { code: "sl", name: "Slovenian",              flag: "🇸🇮" },
+  { code: "es", name: "Spanish",                flag: "🇪🇸" },
+  { code: "sv", name: "Swedish",                flag: "🇸🇪" },
+  { code: "ta", name: "Tamil",                  flag: "🇱🇰" },
+  { code: "te", name: "Telugu",                 flag: "🇮🇳" },
+  { code: "th", name: "Thai",                   flag: "🇹🇭" },
+  { code: "tr", name: "Turkish",                flag: "🇹🇷" },
+  { code: "uk", name: "Ukrainian",              flag: "🇺🇦" },
+  { code: "ur", name: "Urdu",                   flag: "🇵🇰" },
+  { code: "vi", name: "Vietnamese",             flag: "🇻🇳" },
+  { code: "cy", name: "Welsh",                  flag: "🏴󠁧󠁢󠁷󠁬󠁳󠁿" },
+];
+
+function LanguageSelect({ value, onChange }: { value: string; onChange: (lang: string) => void }) {
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const selected = LANGUAGES.find(l => l.name === value);
+  const filtered = search ? LANGUAGES.filter(l => l.name.toLowerCase().includes(search.toLowerCase())) : LANGUAGES;
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => { if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) { setOpen(false); setSearch(""); } };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const openDropdown = () => { setOpen(true); setTimeout(() => inputRef.current?.focus(), 10); };
+
+  return (
+    <div ref={wrapRef} style={{ position: "relative" }}>
+      <button type="button" onClick={() => open ? setOpen(false) : openDropdown()} style={{ width: "100%", padding: "12px 16px", background: "#fff", border: "1px solid #E2E2DE", borderRadius: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 15, color: "#111827", fontFamily: "var(--font)", textAlign: "left" }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {selected?.flag && <span style={{ fontSize: 20, lineHeight: 1 }}>{selected.flag}</span>}
+          <span style={{ fontWeight: selected ? 500 : 400, color: selected ? "#111827" : "#9CA3AF" }}>{selected?.name ?? "Select a language…"}</span>
+        </span>
+        <span style={{ fontSize: 10, color: "#6B7180", transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>▾</span>
+      </button>
+
+      {open && (
+        <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 200, background: "#fff", border: "1px solid #E2E2DE", borderRadius: 12, boxShadow: "0 8px 28px rgba(10,14,20,0.14)", overflow: "hidden", animation: "fadeUp 0.15s ease-out" }}>
+          <div style={{ padding: "8px 10px", borderBottom: "1px solid #f3f4f6" }}>
+            <input ref={inputRef} className="inp" value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="Search language…" style={{ height: 36, borderRadius: 8, fontSize: 13 }}/>
+          </div>
+          <div style={{ maxHeight: 260, overflowY: "auto" }}>
+            {filtered.map(l => {
+              const sel = l.name === value;
+              return (
+                <button key={l.code} type="button"
+                  onMouseDown={() => { onChange(l.name); setOpen(false); setSearch(""); }}
+                  style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "9px 14px", border: "none", background: sel ? "rgba(255,90,31,0.06)" : "transparent", cursor: "pointer", textAlign: "left", fontSize: 14, color: sel ? "var(--accent)" : "#374151", fontWeight: sel ? 600 : 400, transition: "background 0.1s" }}
+                  onMouseEnter={e => { if (!sel) e.currentTarget.style.background = "#f9fafb"; }}
+                  onMouseLeave={e => { if (!sel) e.currentTarget.style.background = "transparent"; }}
+                >
+                  {l.flag && <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{l.flag}</span>}
+                  <span style={{ flex: 1 }}>{l.name}</span>
+                  {sel && <span style={{ fontSize: 13, color: "var(--accent)" }}>✓</span>}
+                </button>
+              );
+            })}
+            {filtered.length === 0 && <p style={{ padding: "12px 14px", fontSize: 13, color: "#6B7180", margin: 0 }}>No languages found</p>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── AI rephrase toggle ───────────────────────────────────────────────────────
 
 function AiToggle({ value, onChange, label = "AI will rephrase this for better quality" }: {
@@ -912,9 +1147,13 @@ function Step2Business({ data, schedule, onChange, onScheduleChange }: {
       {/* ── Location ── */}
       <div>
         {lbl("Location", data.hasLocation)}
-        <input className="inp" value={data.location} onChange={e => set("location", e.target.value)}
+        <LocationAutocomplete
+          city={data.locationCity}
+          country={data.locationCountry}
           disabled={!data.hasLocation}
-          placeholder="City, Country" style={{ opacity: data.hasLocation ? 1 : 0.4, transition: "opacity 0.2s" }} />
+          onSelect={(city, country) => onChange({ ...data, locationCity: city, locationCountry: country, location: `${city}${country ? `, ${country}` : ""}` })}
+          onClear={() => onChange({ ...data, locationCity: "", locationCountry: "", location: "" })}
+        />
         <SkipCheck
           checked={!data.hasLocation}
           onChange={v => set("hasLocation", !v)}
@@ -1439,13 +1678,15 @@ function TeamSection({ team, onChange }: {
 
 // ─── Step 5: Pages & Content ──────────────────────────────────────────────────
 
-function Step5Pages({ data, team, useEmojis, onChange, onTeamChange, onEmojisChange }: {
+function Step5Pages({ data, team, useEmojis, websiteLanguage, onChange, onTeamChange, onEmojisChange, onLanguageChange }: {
   data: WizardData["pages"];
   team: WizardData["team"];
   useEmojis: boolean;
+  websiteLanguage: string;
   onChange: (d: WizardData["pages"]) => void;
   onTeamChange: (t: WizardData["team"]) => void;
   onEmojisChange: (v: boolean) => void;
+  onLanguageChange: (lang: string) => void;
 }) {
   const togglePage = (id: string) => {
     if (id === "home") return;
@@ -1548,6 +1789,13 @@ function Step5Pages({ data, team, useEmojis, onChange, onTeamChange, onEmojisCha
             );
           })}
         </div>
+      </div>
+
+      {/* ── Website language ── */}
+      <div>
+        <SectionLabel label="Website language" />
+        <LanguageSelect value={websiteLanguage} onChange={onLanguageChange}/>
+        <p style={{ fontSize: 11, color: "#6B7180", marginTop: 7 }}>All website content will be generated in this language.</p>
       </div>
 
       {/* ── Additional notes ── */}
@@ -2204,7 +2452,7 @@ export default function GenerateWizard() {
       setData({
         ...DEFAULT,
         ...p,
-        business:   { ...DEFAULT.business,   ...p.business },
+
         schedule:   { ...DEFAULT.schedule,   ...p.schedule, hours: { ...DEFAULT_HOURS, ...(p.schedule?.hours ?? {}) } },
         goals:      { ...DEFAULT.goals,      ...p.goals },
         services:   { ...DEFAULT.services,   ...p.services },
@@ -2213,7 +2461,9 @@ export default function GenerateWizard() {
         team:       { ...DEFAULT.team,       ...p.team },
         pages:      { ...DEFAULT.pages,      ...p.pages, pageDescriptions: p.pages?.pageDescriptions ?? {} },
         logo:       { ...DEFAULT.logo,       ...p.logo },
-        useEmojis:  p.useEmojis ?? false,
+        useEmojis:       p.useEmojis ?? false,
+        websiteLanguage: p.websiteLanguage ?? "English",
+        business: { ...DEFAULT.business, ...p.business, locationCity: p.business?.locationCity ?? "", locationCountry: p.business?.locationCountry ?? "" },
       });
     } catch {
       localStorage.removeItem("wizard_data");
@@ -2376,7 +2626,7 @@ export default function GenerateWizard() {
               onLogoChange={(d: WizardData["logo"]) => setData(p => ({ ...p, logo: d }))}
             />
           )}
-          {step === 7 && <Step5Pages data={data.pages} team={data.team} useEmojis={data.useEmojis} onChange={(d: WizardData["pages"]) => setData(p => ({ ...p, pages: d }))} onTeamChange={(t: WizardData["team"]) => setData(p => ({ ...p, team: t }))} onEmojisChange={(v: boolean) => setData(p => ({ ...p, useEmojis: v }))} />}
+          {step === 7 && <Step5Pages data={data.pages} team={data.team} useEmojis={data.useEmojis} websiteLanguage={data.websiteLanguage} onChange={(d: WizardData["pages"]) => setData(p => ({ ...p, pages: d }))} onTeamChange={(t: WizardData["team"]) => setData(p => ({ ...p, team: t }))} onEmojisChange={(v: boolean) => setData(p => ({ ...p, useEmojis: v }))} onLanguageChange={(lang: string) => setData(p => ({ ...p, websiteLanguage: lang }))} />}
           {step === 8 && (
             <Step7Review
               data={data}

@@ -170,6 +170,7 @@ ${allPages.map(p => {
 
 Primary call-to-action: ${ctaMap[f.pages.primaryCTA] || f.pages.primaryCTA}
 Content tone: ${toneMap[f.pages.contentTone] || f.pages.contentTone}
+Website language: ${f.websiteLanguage || "English"} — ALL copy, headings, labels, and text on the website MUST be written entirely in ${f.websiteLanguage || "English"}. Do not include any English unless the target language IS English.
 Emojis: ${f.useEmojis ? "Yes — use emojis tastefully throughout headings and copy for personality" : "No — keep it professional, no emojis"}
 
 ${f.team?.enabled && f.team.members.length > 0 ? `════════════════════════════════════════════════
