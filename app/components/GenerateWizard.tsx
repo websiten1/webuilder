@@ -921,9 +921,37 @@ function LanguageSelect({ value, onChange }: { value: string; onChange: (lang: s
 // Uses <label htmlFor> — never needs programmatic .click(), works everywhere.
 
 const IMG_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
-const IMG_MAX_MB = 5;
+const IMG_MAX_MB = 10; // validated before compression; after compression will be much smaller
 
 type ImgValue = { dataUrl: string; fileName: string } | null;
+
+// Compress an image data URL using the browser Canvas API.
+// Resizes to maxDim on the longest side and re-encodes.
+// SVGs are returned as-is (text-based, already small).
+function compressImage(dataUrl: string, maxDim = 1200, quality = 0.78): Promise<string> {
+  if (dataUrl.startsWith("data:image/svg")) return Promise.resolve(dataUrl);
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxDim / Math.max(img.width, img.height, 1));
+      const w = Math.max(1, Math.round(img.width * scale));
+      const h = Math.max(1, Math.round(img.height * scale));
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) { resolve(dataUrl); return; }
+        ctx.drawImage(img, 0, 0, w, h);
+        // Keep PNG for transparency; compress everything else as JPEG
+        const isPng = dataUrl.startsWith("data:image/png");
+        const out = isPng ? canvas.toDataURL("image/png") : canvas.toDataURL("image/jpeg", quality);
+        resolve(out.length < dataUrl.length ? out : dataUrl);
+      } catch { resolve(dataUrl); }
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
 
 function ImageUploader({
   id, value, onChange, label = "Upload image",
@@ -935,6 +963,7 @@ function ImageUploader({
   previewW?: number; previewH?: number;
 }) {
   const [err, setErr] = useState("");
+  const [compressing, setCompressing] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
@@ -949,13 +978,17 @@ function ImageUploader({
       setErr(`Max ${IMG_MAX_MB}MB — this file is ${(file.size / 1024 / 1024).toFixed(1)}MB.`);
       e.target.value = ""; return;
     }
+    setCompressing(true);
     const reader = new FileReader();
-    reader.onerror = () => { setErr("Could not read the image. Please try again."); e.target.value = ""; };
-    reader.onload = ev => {
-      const result = ev.target?.result as string;
-      if (!result) { setErr("Could not read the image."); return; }
-      onChange({ dataUrl: result, fileName: file.name });
-      e.target.value = ""; // allow re-selecting same file later
+    reader.onerror = () => { setErr("Could not read the image. Please try again."); e.target.value = ""; setCompressing(false); };
+    reader.onload = async ev => {
+      try {
+        const raw = ev.target?.result as string;
+        if (!raw) { setErr("Could not read the image."); return; }
+        const compressed = await compressImage(raw);
+        onChange({ dataUrl: compressed, fileName: file.name });
+      } catch { setErr("Could not process image. Please try again."); }
+      finally { setCompressing(false); e.target.value = ""; }
     };
     reader.readAsDataURL(file);
   };
@@ -964,7 +997,16 @@ function ImageUploader({
 
   return (
     <div style={{ display: "inline-flex", flexDirection: "column", gap: 6 }}>
-      {value ? (
+      {compressing && (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#6B7180" }}>
+          <svg width="14" height="14" viewBox="0 0 14 14" style={{ animation: "spin 0.7s linear infinite", flexShrink: 0 }}>
+            <circle cx="7" cy="7" r="5" fill="none" stroke="#E2E2DE" strokeWidth="2"/>
+            <path d="M7 2a5 5 0 015 5" fill="none" stroke="#6B7180" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+          Optimising…
+        </div>
+      )}
+      {!compressing && !!value && (
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <img src={value.dataUrl} alt={value.fileName}
             style={{ width: previewW, height: previewH, objectFit: "cover", borderRadius, border: "1px solid var(--border)", flexShrink: 0 }}/>
@@ -977,7 +1019,8 @@ function ImageUploader({
             </div>
           </div>
         </div>
-      ) : (
+      )}
+      {!compressing && !value && (
         <label htmlFor={id} style={{
           display: "inline-flex", alignItems: "center", gap: 6,
           padding: "6px 13px", borderRadius: 8, cursor: "pointer",
