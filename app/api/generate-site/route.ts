@@ -136,18 +136,52 @@ Hero section: ${heroMap[f.typography.heroPreference] || f.typography.heroPrefere
 ${f.logo.uploaded ? "Logo: A logo file was provided — include a <img> tag in the header with src set to '/logo.png' and size it appropriately (height ~40px in nav)." : "Logo: No logo uploaded — create a text-based logo using the business name, styled with the brand colors."}
 
 ════════════════════════════════════════════════
+BUSINESS ABOUT & STORY
+════════════════════════════════════════════════
+${f.business.aboutText ? `About / story: ${f.business.aboutText}${f.business.aboutAiRephrase ? "\n(The client has authorised AI improvement of this text — rephrase for professional quality.)" : "\n(Use this text VERBATIM — the client wants their exact wording.)"}` : ""}
+${f.business.experience ? `Years in business: ${f.business.experience}` : ""}
+
+════════════════════════════════════════════════
+SCHEDULE & HOURS
+════════════════════════════════════════════════
+${(() => {
+  const s = f.schedule;
+  if (!s || s.type === "no-schedule") return "No fixed schedule.";
+  if (s.type === "online") return "Fully online business — no physical opening hours.";
+  if (s.type === "always-open") return "Open 24/7 — always available.";
+  const lines = Object.entries(s.hours ?? {}).map(([day, h]: [string, {open:string;close:string;closed:boolean}]) =>
+    h.closed ? `  ${day.charAt(0).toUpperCase()+day.slice(1)}: Closed` : `  ${day.charAt(0).toUpperCase()+day.slice(1)}: ${h.open} – ${h.close}`
+  );
+  return `Custom hours:\n${lines.join("\n")}`;
+})()}
+
+════════════════════════════════════════════════
 PAGES & CONTENT
 ════════════════════════════════════════════════
 Pages to include (create dedicated sections or full pages for each):
-${allPages.map(p => `• ${p}`).join("\n")}
+${allPages.map(p => {
+  const desc = f.pages.pageDescriptions?.[p.toLowerCase().replace(/[^a-z]/g,"")];
+  if (desc?.description) {
+    const text = desc.aiRephrase ? `AI may rephrase: "${desc.description}"` : `Use verbatim: "${desc.description}"`;
+    return `• ${p} — ${text}`;
+  }
+  return `• ${p}`;
+}).join("\n")}
 
 Primary call-to-action: ${ctaMap[f.pages.primaryCTA] || f.pages.primaryCTA}
 Content tone: ${toneMap[f.pages.contentTone] || f.pages.contentTone}
+Emojis: ${f.useEmojis ? "Yes — use emojis tastefully throughout headings and copy for personality" : "No — keep it professional, no emojis"}
+
+${f.team?.enabled && f.team.members.length > 0 ? `════════════════════════════════════════════════
+TEAM MEMBERS
+════════════════════════════════════════════════
+Include a team section featuring these people:
+${f.team.members.map((m, i) => `${i+1}. ${m.name}${m.role ? ` — ${m.role}` : ""}${m.bio ? `\n   Bio: ${m.bio}` : ""}`).join("\n")}` : ""}
 
 ════════════════════════════════════════════════
 FEATURES & BEHAVIOUR
 ════════════════════════════════════════════════
-${features.length > 0 ? `Special features:\n${features.map(feat => `• ${feat}`).join("\n")}` : "No additional special features."}
+${features.length > 0 ? `Special features:\n${features.map((feat: string) => `• ${feat}`).join("\n")}` : "No additional special features."}
 Animations: ${animMap[f.design.animations] || f.design.animations}
 ${f.pages.additionalNotes ? `\nAdditional notes from client:\n${f.pages.additionalNotes}` : ""}
 

@@ -18,12 +18,23 @@ const stripePromise = loadStripe(
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
+export type DayHours = { open: string; close: string; closed: boolean };
+export type TeamMember = { name: string; role: string; bio: string; photo: string; fileName: string };
+export type PageDesc = { description: string; aiRephrase: boolean; image: string; imageName: string };
+
 export type WizardData = {
   templateId: string;
   business: {
     name: string; type: string; description: string;
-    serviceArea: string; openingHours: string; email: string; phone: string;
-    location: string; ownerName: string;
+    aboutText: string; aboutAiRephrase: boolean;
+    hasLocation: boolean; location: string; serviceArea: string;
+    email: string;
+    hasPhone: boolean; phone: string;
+    openingHours: string; ownerName: string; experience: string;
+  };
+  schedule: {
+    type: "no-schedule" | "online" | "always-open" | "custom";
+    hours: { [day: string]: DayHours };
   };
   goals: {
     mainGoal: string; visitorFeel: string;
@@ -39,21 +50,31 @@ export type WizardData = {
   typography: {
     fontFamily: string; imageryStyle: string; heroPreference: string;
   };
+  team: { enabled: boolean; members: TeamMember[] };
   pages: {
     selected: string[]; primaryCTA: string; contentTone: string;
     specialFeatures: string[]; additionalNotes: string;
+    pageDescriptions: { [id: string]: PageDesc };
   };
+  useEmojis: boolean;
   logo: { uploaded: boolean; dataUrl: string; fileName: string };
 };
 
+const DAYS = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"] as const;
+const DAY_LABELS: Record<string, string> = { monday:"Monday",tuesday:"Tuesday",wednesday:"Wednesday",thursday:"Thursday",friday:"Friday",saturday:"Saturday",sunday:"Sunday" };
+const DEFAULT_HOURS = Object.fromEntries(DAYS.map(d => [d, { open: "09:00", close: "17:00", closed: d === "saturday" || d === "sunday" }]));
+
 const DEFAULT: WizardData = {
   templateId: "",
-  business: { name: "", type: "Restaurant", description: "", serviceArea: "", openingHours: "", email: "", phone: "", location: "", ownerName: "" },
+  business: { name: "", type: "Restaurant", description: "", aboutText: "", aboutAiRephrase: true, hasLocation: true, location: "", serviceArea: "", email: "", hasPhone: true, phone: "", openingHours: "", ownerName: "", experience: "" },
+  schedule: { type: "no-schedule", hours: DEFAULT_HOURS },
   goals: { mainGoal: "", visitorFeel: "", problemSolved: "", whyChoose: "", idealCustomer: "" },
   services: { offersType: "", list: [], priceVisibility: "" },
   design: { style: "minimalist", primaryColor: "#6366f1", secondaryColor: "#a855f7", darkMode: false, personalityLevel: "balanced", backgroundStyle: "ai-decide", animations: "moderate" },
   typography: { fontFamily: "modern-sans", imageryStyle: "stock-photos", heroPreference: "ai-decide" },
-  pages: { selected: ["home", "services", "about", "contact"], primaryCTA: "contact-form", contentTone: "professional-approachable", specialFeatures: [], additionalNotes: "" },
+  team: { enabled: false, members: [] },
+  pages: { selected: ["home", "services", "about", "contact"], primaryCTA: "contact-form", contentTone: "professional-approachable", specialFeatures: [], additionalNotes: "", pageDescriptions: {} },
+  useEmojis: false,
   logo: { uploaded: false, dataUrl: "", fileName: "" },
 };
 
@@ -65,6 +86,23 @@ const BUSINESS_TYPES = [
   "Plumbing","Accounting","Marketing Agency","Medical Clinic",
   "Tech Startup","Beauty/Spa","Other",
 ];
+
+const EXPERIENCE_OPTIONS = [
+  { id: "", label: "Select…" },
+  { id: "new", label: "New / Just started" },
+  { id: "1-2", label: "1–2 years" },
+  { id: "3-5", label: "3–5 years" },
+  { id: "5-10", label: "5–10 years" },
+  { id: "10+", label: "10+ years" },
+  { id: "20+", label: "20+ years" },
+];
+
+const SCHEDULE_TYPES = [
+  { id: "no-schedule",  label: "I don't have a schedule",    desc: "No regular hours" },
+  { id: "online",       label: "Fully online (no physical hours)", desc: "Online only business" },
+  { id: "always-open",  label: "Always open / 24/7",         desc: "Round-the-clock access" },
+  { id: "custom",       label: "I have specific hours",      desc: "Set hours per day" },
+] as const;
 
 const STYLES = [
   { id: "minimalist",   name: "Minimalist",         desc: "Clean, spacious, nothing wasted", best: "Modern, premium brands",
@@ -644,6 +682,156 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (v: string)
   );
 }
 
+// ─── AI rephrase toggle ───────────────────────────────────────────────────────
+
+function AiToggle({ value, onChange, label = "AI will rephrase this for better quality" }: {
+  value: boolean; onChange: (v: boolean) => void; label?: string;
+}) {
+  return (
+    <div style={{ marginTop: 10 }}>
+      <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+        <div
+          onClick={() => onChange(!value)}
+          style={{
+            width: 36, height: 20, borderRadius: 10, flexShrink: 0, position: "relative",
+            background: value ? "var(--accent)" : "var(--border)", transition: "background 0.2s", cursor: "pointer",
+          }}
+        >
+          <span style={{
+            position: "absolute", top: 2, left: value ? 18 : 2,
+            width: 16, height: 16, borderRadius: 8, background: "#fff",
+            transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+          }}/>
+        </div>
+        <span style={{ fontSize: 12, color: value ? "var(--text2)" : "var(--text3)", fontWeight: 500 }}>
+          {value ? "✓ " : ""}{label}
+        </span>
+      </label>
+      <p style={{ fontSize: 11, color: "var(--text3)", margin: "5px 0 0 46px", lineHeight: 1.5 }}>
+        {value
+          ? "AI will improve grammar, tone, and clarity while keeping your message. Toggle off to keep your exact wording."
+          : "Your exact text will be used as-is, without any AI edits."}
+      </p>
+    </div>
+  );
+}
+
+// ─── Skip checkbox ────────────────────────────────────────────────────────────
+
+function SkipCheck({ checked, onChange, label, helpText }: {
+  checked: boolean; onChange: (v: boolean) => void; label: string; helpText: string;
+}) {
+  return (
+    <label style={{ display: "flex", alignItems: "flex-start", gap: 8, marginTop: 8, cursor: "pointer" }}>
+      <div
+        onClick={() => onChange(!checked)}
+        style={{
+          width: 16, height: 16, marginTop: 1, borderRadius: 4, flexShrink: 0, border: checked ? "none" : "1.5px solid var(--border-h)",
+          background: checked ? "var(--accent)" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+        }}
+      >
+        {checked && <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
+      </div>
+      <div>
+        <span style={{ fontSize: 12, color: "var(--text2)", fontWeight: 500 }}>{label}</span>
+        {checked && <p style={{ margin: "3px 0 0", fontSize: 11, color: "var(--text3)", lineHeight: 1.4 }}>{helpText}</p>}
+      </div>
+    </label>
+  );
+}
+
+// ─── Schedule picker ──────────────────────────────────────────────────────────
+
+function SchedulePicker({ schedule, onChange }: {
+  schedule: WizardData["schedule"];
+  onChange: (s: WizardData["schedule"]) => void;
+}) {
+  const setType = (type: WizardData["schedule"]["type"]) => onChange({ ...schedule, type });
+  const setDay = (day: string, field: keyof DayHours, val: string | boolean) =>
+    onChange({ ...schedule, hours: { ...schedule.hours, [day]: { ...schedule.hours[day], [field]: val } } });
+
+  const applyWeekdayHours = () => {
+    const mon = schedule.hours["monday"];
+    const next = { ...schedule.hours };
+    ["tuesday","wednesday","thursday","friday"].forEach(d => { next[d] = { ...mon, closed: false }; });
+    onChange({ ...schedule, hours: next });
+  };
+
+  const times: string[] = [];
+  for (let h = 0; h < 24; h++) {
+    ["00","30"].forEach(m => times.push(`${String(h).padStart(2,"0")}:${m}`));
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+        {SCHEDULE_TYPES.map(s => {
+          const on = schedule.type === s.id;
+          return (
+            <button key={s.id} type="button" onClick={() => setType(s.id as WizardData["schedule"]["type"])} style={{
+              textAlign: "left", padding: "10px 12px", borderRadius: 9, cursor: "pointer",
+              border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
+              background: on ? "rgba(99,102,241,0.08)" : "transparent", transition: "all 0.15s",
+            }}>
+              <p style={{ fontSize: 12, fontWeight: 600, color: on ? "#a5b4fc" : "var(--text2)", margin: 0 }}>{s.label}</p>
+              <p style={{ fontSize: 10, color: "var(--text3)", margin: "2px 0 0" }}>{s.desc}</p>
+            </button>
+          );
+        })}
+      </div>
+
+      {schedule.type === "custom" && (
+        <div style={{ marginTop: 4 }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+            <button type="button" onClick={applyWeekdayHours} style={{
+              fontSize: 11, color: "var(--accent)", background: "none", border: "1px solid var(--border)",
+              borderRadius: 6, padding: "4px 10px", cursor: "pointer",
+            }}>
+              ↕ Same hours Mon–Fri
+            </button>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {DAYS.map(day => {
+              const h = schedule.hours[day] ?? { open: "09:00", close: "17:00", closed: false };
+              return (
+                <div key={day} style={{
+                  display: "grid", gridTemplateColumns: "88px 1fr 24px 1fr auto",
+                  gap: 8, alignItems: "center",
+                  padding: "8px 12px", borderRadius: 8,
+                  background: h.closed ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.04)",
+                  border: "1px solid var(--border)",
+                  opacity: h.closed ? 0.5 : 1, transition: "opacity 0.15s",
+                }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text2)" }}>{DAY_LABELS[day]}</span>
+                  <select
+                    className="inp" value={h.open} disabled={h.closed}
+                    onChange={e => setDay(day, "open", e.target.value)}
+                    style={{ fontSize: 12, padding: "5px 8px", height: 32 }}
+                  >
+                    {times.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                  <span style={{ textAlign: "center", fontSize: 11, color: "var(--text3)" }}>–</span>
+                  <select
+                    className="inp" value={h.close} disabled={h.closed}
+                    onChange={e => setDay(day, "close", e.target.value)}
+                    style={{ fontSize: 12, padding: "5px 8px", height: 32 }}
+                  >
+                    {times.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                  <label style={{ display: "flex", alignItems: "center", gap: 4, cursor: "pointer", whiteSpace: "nowrap" }}>
+                    <input type="checkbox" checked={h.closed} onChange={e => setDay(day, "closed", e.target.checked)} style={{ accentColor: "var(--accent)" }}/>
+                    <span style={{ fontSize: 11, color: "var(--text3)" }}>Closed</span>
+                  </label>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Step 1: Template Selection ───────────────────────────────────────────────
 
 function StepTemplate({ selectedId, onSelect }: {
@@ -660,65 +848,128 @@ function StepTemplate({ selectedId, onSelect }: {
 
 // ─── Step 2: Business Basics ──────────────────────────────────────────────────
 
-function Step2Business({ data, onChange }: { data: WizardData["business"]; onChange: (d: WizardData["business"]) => void }) {
-  const set = (k: keyof typeof data, v: string) => onChange({ ...data, [k]: v });
+const lbl = (text: string, required?: boolean) => (
+  <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+    {text}{required && <span style={{ color: "#f87171", marginLeft: 3 }}>*</span>}
+    {!required && <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none", marginLeft: 4 }}>(optional)</span>}
+  </label>
+);
+
+function Step2Business({ data, schedule, onChange, onScheduleChange }: {
+  data: WizardData["business"];
+  schedule: WizardData["schedule"];
+  onChange: (d: WizardData["business"]) => void;
+  onScheduleChange: (s: WizardData["schedule"]) => void;
+}) {
+  const set = <K extends keyof WizardData["business"]>(k: K, v: WizardData["business"][K]) => onChange({ ...data, [k]: v });
   const descLen = data.description.length;
   const descOk = descLen >= 20;
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        <div style={{ gridColumn: "1 / -1" }}>
-          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Business name *</label>
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+
+      {/* ── Core identity ── */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <div>
+          {lbl("Business name", true)}
           <input className="inp" value={data.name} onChange={e => set("name", e.target.value)}
             placeholder="e.g., Bella Roma or Luna Photography" />
         </div>
-        <div style={{ gridColumn: "1 / -1" }}>
-          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Business type *</label>
+        <div>
+          {lbl("Business type", true)}
           <select className="inp" value={data.type} onChange={e => set("type", e.target.value)}>
             {BUSINESS_TYPES.map(t => <option key={t}>{t}</option>)}
           </select>
         </div>
-        <div>
-          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Location <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(opt.)</span></label>
-          <input className="inp" value={data.location} onChange={e => set("location", e.target.value)}
-            placeholder="City, Country" />
-        </div>
-        <div>
-          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Service area <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(opt.)</span></label>
-          <input className="inp" value={data.serviceArea} onChange={e => set("serviceArea", e.target.value)}
-            placeholder="e.g., Greater London, Online only" />
-        </div>
-        <div>
-          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Email <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(opt.)</span></label>
-          <input className="inp" type="email" value={data.email} onChange={e => set("email", e.target.value)}
-            placeholder="contact@yourbusiness.com" />
-        </div>
-        <div>
-          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Phone <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(opt.)</span></label>
-          <input className="inp" type="tel" value={data.phone} onChange={e => set("phone", e.target.value)}
-            placeholder="+1 555 000 1234" />
-        </div>
-        <div>
-          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Opening hours <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(opt.)</span></label>
-          <input className="inp" value={data.openingHours} onChange={e => set("openingHours", e.target.value)}
-            placeholder="Mon–Fri 9am–6pm, Sat 10am–4pm" />
-        </div>
-        <div>
-          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--text2)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Your name <span style={{ color: "var(--text3)", fontWeight: 400, textTransform: "none" }}>(opt.)</span></label>
-          <input className="inp" value={data.ownerName} onChange={e => set("ownerName", e.target.value)}
-            placeholder="For personalization" />
-        </div>
       </div>
-      <div>
+
+      {/* ── Short description ── */}
+      <div style={{ padding: "16px", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", borderRadius: 12 }}>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-          <label style={{ fontSize: 11, fontWeight: 600, color: "var(--text2)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Business description *</label>
+          {lbl("Business description", true)}
           <span style={{ fontSize: 11, color: descOk ? "#10b981" : "var(--text3)" }}>{descLen}/500</span>
         </div>
         <textarea className="inp" value={data.description}
           onChange={e => set("description", e.target.value.slice(0, 500))}
           placeholder="What do you do? Who do you serve? Write rough notes — AI will polish it into professional copy."
-          style={{ height: 110, resize: "none" }} />
+          style={{ height: 90, resize: "none" }} />
         {descLen > 0 && !descOk && <p style={{ fontSize: 11, color: "#f87171", marginTop: 4 }}>Minimum 20 characters for best results.</p>}
+        <p style={{ fontSize: 11, color: "var(--text3)", marginTop: 6 }}>This information helps us understand your business needs.</p>
+        <AiToggle value={data.aboutAiRephrase} onChange={v => set("aboutAiRephrase", v)}/>
+      </div>
+
+      {/* ── About / story ── */}
+      <div style={{ padding: "16px", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", borderRadius: 12 }}>
+        {lbl("About your business")}
+        <textarea className="inp" value={data.aboutText}
+          onChange={e => set("aboutText", e.target.value.slice(0, 800))}
+          placeholder="Describe your business's approach, philosophy, story, or what makes you different…"
+          style={{ height: 90, resize: "none" }} />
+        <p style={{ fontSize: 11, color: "var(--text3)", marginTop: 6 }}>This information helps us understand your business needs.</p>
+        <AiToggle value={data.aboutAiRephrase} onChange={v => set("aboutAiRephrase", v)} label="AI will rephrase this for better quality"/>
+      </div>
+
+      {/* ── Location ── */}
+      <div>
+        {lbl("Location", data.hasLocation)}
+        <input className="inp" value={data.location} onChange={e => set("location", e.target.value)}
+          disabled={!data.hasLocation}
+          placeholder="City, Country" style={{ opacity: data.hasLocation ? 1 : 0.4, transition: "opacity 0.2s" }} />
+        <SkipCheck
+          checked={!data.hasLocation}
+          onChange={v => set("hasLocation", !v)}
+          label="I don't have a physical location"
+          helpText="That's fine — select this and continue. Your website will be tailored for an online-only business."
+        />
+        {data.hasLocation && (
+          <div style={{ marginTop: 10 }}>
+            {lbl("Service area")}
+            <input className="inp" value={data.serviceArea} onChange={e => set("serviceArea", e.target.value)}
+              placeholder="e.g., Greater London, Online only" />
+          </div>
+        )}
+      </div>
+
+      {/* ── Contact ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+        <div>
+          {lbl("Email")}
+          <input className="inp" type="email" value={data.email} onChange={e => set("email", e.target.value)}
+            placeholder="contact@yourbusiness.com" />
+        </div>
+        <div>
+          {lbl("Phone", data.hasPhone)}
+          <input className="inp" type="tel" value={data.phone} onChange={e => set("phone", e.target.value)}
+            disabled={!data.hasPhone}
+            placeholder="+1 555 000 1234" style={{ opacity: data.hasPhone ? 1 : 0.4, transition: "opacity 0.2s" }} />
+          <SkipCheck
+            checked={!data.hasPhone}
+            onChange={v => set("hasPhone", !v)}
+            label="I don't have a phone number"
+            helpText="No problem — you can skip this and visitors will contact you by email or form instead."
+          />
+        </div>
+      </div>
+
+      {/* ── Business schedule ── */}
+      <div>
+        <SectionLabel label="Business schedule" />
+        <SchedulePicker schedule={schedule} onChange={onScheduleChange}/>
+      </div>
+
+      {/* ── Experience + owner ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+        <div>
+          {lbl("Years in business")}
+          <select className="inp" value={data.experience} onChange={e => set("experience", e.target.value)}>
+            {EXPERIENCE_OPTIONS.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
+          </select>
+        </div>
+        <div>
+          {lbl("Your name")}
+          <input className="inp" value={data.ownerName} onChange={e => set("ownerName", e.target.value)}
+            placeholder="For personalization" />
+        </div>
       </div>
     </div>
   );
@@ -1052,101 +1303,254 @@ function Step4Typography({ data, onChange, logo, onLogoChange }: {
   );
 }
 
+// ─── Page description block ────────────────────────────────────────────────────
+
+function PageDescBlock({ pageId, pageName, desc, onChange }: {
+  pageId: string; pageName: string;
+  desc: PageDesc;
+  onChange: (d: PageDesc) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => onChange({ ...desc, image: ev.target?.result as string, imageName: file.name });
+    reader.readAsDataURL(file);
+  };
+  return (
+    <div style={{ marginTop: 8, padding: "12px 14px", background: "rgba(99,102,241,0.04)", border: "1px solid rgba(99,102,241,0.18)", borderRadius: 10, display: "flex", flexDirection: "column", gap: 8, animation: "fadeUp 0.2s ease-out" }}>
+      <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text3)", margin: 0, textTransform: "uppercase", letterSpacing: "0.08em" }}>{pageName} section</p>
+      <textarea className="inp" value={desc.description}
+        onChange={e => onChange({ ...desc, description: e.target.value })}
+        placeholder="Describe this section in a few words…"
+        style={{ height: 64, resize: "none", fontSize: 13 }} />
+      <AiToggle value={desc.aiRephrase} onChange={v => onChange({ ...desc, aiRephrase: v })} label="AI will rephrase this for better quality"/>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 2 }}>
+        {desc.image ? (
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <img src={desc.image} alt="" style={{ width: 48, height: 36, objectFit: "cover", borderRadius: 5, border: "1px solid var(--border)" }}/>
+            <span style={{ fontSize: 11, color: "var(--text3)" }}>{desc.imageName}</span>
+            <button type="button" onClick={() => onChange({ ...desc, image: "", imageName: "" })} style={{ fontSize: 11, color: "#f87171", background: "none", border: "none", cursor: "pointer" }}>Remove</button>
+          </div>
+        ) : (
+          <button type="button" onClick={() => fileRef.current?.click()} style={{ fontSize: 12, color: "var(--text3)", background: "none", border: "1px dashed var(--border)", borderRadius: 7, padding: "5px 12px", cursor: "pointer" }}>
+            + Add image for this section
+          </button>
+        )}
+        <input ref={fileRef} type="file" accept="image/*" onChange={handleImage} style={{ display: "none" }}/>
+      </div>
+    </div>
+  );
+}
+
+// ─── Team section ─────────────────────────────────────────────────────────────
+
+function TeamSection({ team, onChange }: {
+  team: WizardData["team"];
+  onChange: (t: WizardData["team"]) => void;
+}) {
+  const fileRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const addMember = () => onChange({ ...team, members: [...team.members, { name: "", role: "", bio: "", photo: "", fileName: "" }] });
+  const removeMember = (i: number) => onChange({ ...team, members: team.members.filter((_, idx) => idx !== i) });
+  const setMember = (i: number, field: keyof TeamMember, val: string) => {
+    const next = team.members.map((m, idx) => idx === i ? { ...m, [field]: val } : m);
+    onChange({ ...team, members: next });
+  };
+  const handlePhoto = (i: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const next = team.members.map((m, idx) => idx === i ? { ...m, photo: ev.target?.result as string, fileName: file.name } : m);
+      onChange({ ...team, members: next });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+        {[{id:"no",label:"No team section",desc:"Skip the team section"},{id:"yes",label:"Yes, add team members",desc:"Feature your team on the website"}].map(o => {
+          const on = team.enabled === (o.id === "yes");
+          return (
+            <button key={o.id} type="button" onClick={() => onChange({ ...team, enabled: o.id === "yes" })} style={{
+              textAlign: "left", padding: "10px 12px", borderRadius: 9, cursor: "pointer",
+              border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
+              background: on ? "rgba(99,102,241,0.08)" : "transparent", transition: "all 0.15s",
+            }}>
+              <p style={{ fontSize: 12, fontWeight: 600, color: on ? "#a5b4fc" : "var(--text2)", margin: 0 }}>{o.label}</p>
+              <p style={{ fontSize: 10, color: "var(--text3)", margin: "2px 0 0" }}>{o.desc}</p>
+            </button>
+          );
+        })}
+      </div>
+
+      {team.enabled && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, animation: "fadeUp 0.2s ease-out" }}>
+          {team.members.map((m, i) => (
+            <div key={i} style={{ padding: "14px 16px", background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", borderRadius: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Team member {i + 1}</span>
+                <button type="button" onClick={() => removeMember(i)} style={{ fontSize: 11, color: "#f87171", background: "none", border: "none", cursor: "pointer" }}>Remove</button>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+                <div>
+                  {lbl("Name")}
+                  <input className="inp" value={m.name} onChange={e => setMember(i, "name", e.target.value)} placeholder="e.g., Sarah Johnson"/>
+                </div>
+                <div>
+                  {lbl("Role / Position")}
+                  <input className="inp" value={m.role} onChange={e => setMember(i, "role", e.target.value)} placeholder="e.g., Head Chef"/>
+                </div>
+              </div>
+              {lbl("Short bio")}
+              <textarea className="inp" value={m.bio} onChange={e => setMember(i, "bio", e.target.value)}
+                placeholder="A brief description of their experience or background…"
+                style={{ height: 64, resize: "none", marginBottom: 10 }}/>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                {m.photo ? (
+                  <>
+                    <img src={m.photo} alt="" style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", border: "2px solid var(--border)" }}/>
+                    <span style={{ fontSize: 11, color: "var(--text3)" }}>{m.fileName}</span>
+                    <button type="button" onClick={() => { const n = [...team.members]; n[i] = {...n[i], photo:"", fileName:""}; onChange({...team, members:n}); }} style={{ fontSize: 11, color: "#f87171", background: "none", border: "none", cursor: "pointer" }}>Remove</button>
+                  </>
+                ) : (
+                  <button type="button" onClick={() => fileRefs.current[i]?.click()} style={{ fontSize: 12, color: "var(--text3)", background: "none", border: "1px dashed var(--border)", borderRadius: 7, padding: "5px 12px", cursor: "pointer" }}>
+                    + Add photo for this team member
+                  </button>
+                )}
+                <input ref={el => { fileRefs.current[i] = el; }} type="file" accept="image/*" onChange={e => handlePhoto(i, e)} style={{ display: "none" }}/>
+              </div>
+            </div>
+          ))}
+          <button type="button" onClick={addMember} style={{
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+            padding: "10px", borderRadius: 9, border: "1.5px dashed var(--border)",
+            background: "transparent", color: "var(--text3)", fontSize: 13, cursor: "pointer",
+          }}>
+            + Add team member
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Step 5: Pages & Content ──────────────────────────────────────────────────
 
-function Step5Pages({ data, onChange }: { data: WizardData["pages"]; onChange: (d: WizardData["pages"]) => void }) {
+function Step5Pages({ data, team, useEmojis, onChange, onTeamChange, onEmojisChange }: {
+  data: WizardData["pages"];
+  team: WizardData["team"];
+  useEmojis: boolean;
+  onChange: (d: WizardData["pages"]) => void;
+  onTeamChange: (t: WizardData["team"]) => void;
+  onEmojisChange: (v: boolean) => void;
+}) {
   const togglePage = (id: string) => {
     if (id === "home") return;
     const sel = data.selected.includes(id)
       ? data.selected.filter(p => p !== id)
       : [...data.selected, id];
-    onChange({ ...data, selected: sel });
+    // Remove description when deselecting
+    const pageDescriptions = { ...data.pageDescriptions };
+    if (data.selected.includes(id)) delete pageDescriptions[id];
+    onChange({ ...data, selected: sel, pageDescriptions });
   };
+  const setPageDesc = (id: string, desc: PageDesc) => onChange({ ...data, pageDescriptions: { ...data.pageDescriptions, [id]: desc } });
+  const getDesc = (id: string): PageDesc => data.pageDescriptions[id] ?? { description: "", aiRephrase: true, image: "", imageName: "" };
+  const allPages = [...ESSENTIAL_PAGES, ...EXTRA_PAGES];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+
+      {/* ── Pages ── */}
       <div>
-        <SectionLabel label="Essential pages" />
+        <SectionLabel label="Pages to include" />
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {ESSENTIAL_PAGES.map(p => {
+          {allPages.map(p => {
             const on = data.selected.includes(p.id);
+            const isHome = p.id === "home";
+            const isRequired = (p as { required?: boolean }).required;
             return (
-              <button key={p.id} type="button" onClick={() => togglePage(p.id)} disabled={p.required} style={{
-                display: "flex", alignItems: "center", gap: 12, padding: "10px 14px",
-                borderRadius: 10, border: on ? "1.5px solid var(--accent)" : "1.5px solid var(--border)",
-                background: on ? "rgba(99,102,241,0.08)" : "transparent",
-                cursor: p.required ? "not-allowed" : "pointer", textAlign: "left", transition: "all 0.15s",
-                opacity: p.required ? 0.7 : 1,
-              }}>
-                <div style={{
-                  width: 16, height: 16, borderRadius: 4, flexShrink: 0,
-                  border: on ? "none" : "1.5px solid var(--border-h)",
-                  background: on ? "var(--accent)" : "transparent",
-                  display: "flex", alignItems: "center", justifyContent: "center",
+              <div key={p.id}>
+                <button type="button" onClick={() => togglePage(p.id)} disabled={isRequired} style={{
+                  width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "10px 14px",
+                  borderRadius: 10, border: on ? "1.5px solid var(--accent)" : "1.5px solid var(--border)",
+                  background: on ? "rgba(99,102,241,0.08)" : "transparent",
+                  cursor: isRequired ? "not-allowed" : "pointer", textAlign: "left", transition: "all 0.15s",
+                  opacity: isRequired ? 0.75 : 1,
                 }}>
-                  {on && <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: 13, fontWeight: 500, color: on ? "#fff" : "var(--text2)", margin: 0 }}>
-                    {p.label} {p.required && <span style={{ fontSize: 10, color: "var(--text3)", fontWeight: 400 }}>(always included)</span>}
-                  </p>
-                  <p style={{ fontSize: 11, color: "var(--text3)", margin: "2px 0 0" }}>{p.desc}</p>
-                </div>
-              </button>
+                  <div style={{ width: 16, height: 16, borderRadius: 4, flexShrink: 0, border: on ? "none" : "1.5px solid var(--border-h)", background: on ? "var(--accent)" : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {on && <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: 13, fontWeight: 500, color: on ? "#fff" : "var(--text2)", margin: 0 }}>
+                      {p.label}
+                      {isHome && <span style={{ fontSize: 10, color: "var(--text3)", fontWeight: 400, marginLeft: 6 }}>(always included)</span>}
+                    </p>
+                    <p style={{ fontSize: 11, color: "var(--text3)", margin: "2px 0 0" }}>{p.desc}</p>
+                  </div>
+                </button>
+                {on && !isHome && (
+                  <PageDescBlock
+                    pageId={p.id} pageName={p.label}
+                    desc={getDesc(p.id)}
+                    onChange={d => setPageDesc(p.id, d)}
+                  />
+                )}
+              </div>
             );
           })}
         </div>
       </div>
 
-      <div>
-        <SectionLabel label="Additional pages" />
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-          {EXTRA_PAGES.map(p => {
-            const on = data.selected.includes(p.id);
-            return (
-              <button key={p.id} type="button" onClick={() => togglePage(p.id)} style={{
-                display: "flex", alignItems: "center", gap: 8, padding: "9px 12px",
-                borderRadius: 9, border: on ? "1.5px solid var(--accent)" : "1.5px solid var(--border)",
-                background: on ? "rgba(99,102,241,0.08)" : "transparent",
-                cursor: "pointer", textAlign: "left", transition: "all 0.15s",
-              }}>
-                <div style={{
-                  width: 14, height: 14, borderRadius: 3, flexShrink: 0,
-                  border: on ? "none" : "1.5px solid var(--border-h)",
-                  background: on ? "var(--accent)" : "transparent",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  {on && <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/></svg>}
-                </div>
-                <div>
-                  <p style={{ fontSize: 12, fontWeight: 500, color: on ? "#fff" : "var(--text2)", margin: 0 }}>{p.label}</p>
-                  <p style={{ fontSize: 10, color: "var(--text3)", margin: "1px 0 0" }}>{p.desc}</p>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
+      {/* ── CTA & Tone ── */}
       <div>
         <SectionLabel label="Primary call-to-action" />
         <RadioRow options={CTA_OPTIONS} value={data.primaryCTA} onChange={v => onChange({ ...data, primaryCTA: v })} />
       </div>
-
       <div>
         <SectionLabel label="Content tone" />
         <RadioRow options={TONE_OPTIONS} value={data.contentTone} onChange={v => onChange({ ...data, contentTone: v })} />
       </div>
 
+      {/* ── Team ── */}
       <div>
-        <SectionLabel label="Special features to include" />
-        <CheckRow
-          options={SPECIAL_FEATURES}
-          values={data.specialFeatures}
-          onChange={v => onChange({ ...data, specialFeatures: v })}
-        />
+        <SectionLabel label="Team section" />
+        <TeamSection team={team} onChange={onTeamChange}/>
       </div>
 
+      {/* ── Special features ── */}
+      <div>
+        <SectionLabel label="Special features to include" />
+        <CheckRow options={SPECIAL_FEATURES} values={data.specialFeatures} onChange={v => onChange({ ...data, specialFeatures: v })}/>
+      </div>
+
+      {/* ── Emojis ── */}
+      <div>
+        <SectionLabel label="Use emojis in your website?" />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          {[
+            { id: false, label: "No, keep it professional", desc: "No emojis — clean and formal" },
+            { id: true,  label: "Yes, add emojis for personality", desc: "Emojis to make it feel friendly" },
+          ].map(o => {
+            const on = useEmojis === o.id;
+            return (
+              <button key={String(o.id)} type="button" onClick={() => onEmojisChange(o.id)} style={{
+                textAlign: "left", padding: "10px 12px", borderRadius: 9, cursor: "pointer",
+                border: on ? "2px solid var(--accent)" : "2px solid var(--border)",
+                background: on ? "rgba(99,102,241,0.08)" : "transparent", transition: "all 0.15s",
+              }}>
+                <p style={{ fontSize: 12, fontWeight: 600, color: on ? "#a5b4fc" : "var(--text2)", margin: 0 }}>{o.label}</p>
+                <p style={{ fontSize: 10, color: "var(--text3)", margin: "2px 0 0" }}>{o.desc}</p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Additional notes ── */}
       <div>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
           <SectionLabel label="Anything else to tell the AI?" />
@@ -1801,12 +2205,15 @@ export default function GenerateWizard() {
         ...DEFAULT,
         ...p,
         business:   { ...DEFAULT.business,   ...p.business },
+        schedule:   { ...DEFAULT.schedule,   ...p.schedule, hours: { ...DEFAULT_HOURS, ...(p.schedule?.hours ?? {}) } },
         goals:      { ...DEFAULT.goals,      ...p.goals },
         services:   { ...DEFAULT.services,   ...p.services },
         design:     { ...DEFAULT.design,     ...p.design },
         typography: { ...DEFAULT.typography, ...p.typography },
-        pages:      { ...DEFAULT.pages,      ...p.pages },
+        team:       { ...DEFAULT.team,       ...p.team },
+        pages:      { ...DEFAULT.pages,      ...p.pages, pageDescriptions: p.pages?.pageDescriptions ?? {} },
         logo:       { ...DEFAULT.logo,       ...p.logo },
+        useEmojis:  p.useEmojis ?? false,
       });
     } catch {
       localStorage.removeItem("wizard_data");
@@ -1832,7 +2239,11 @@ export default function GenerateWizard() {
     return () => clearInterval(iv);
   }, [loading]);
 
-  const step2Valid = data.business.name.trim().length > 0 && data.business.description.trim().length >= 20;
+  const step2Valid =
+    data.business.name.trim().length > 0 &&
+    data.business.description.trim().length >= 20 &&
+    (!data.business.hasLocation || data.business.location.trim().length > 0) &&
+    (!data.business.hasPhone    || data.business.phone.trim().length > 0);
 
   const canNext = () => {
     if (step === 2) return step2Valid;
@@ -1953,7 +2364,7 @@ export default function GenerateWizard() {
         {/* Steps */}
         <div key={step} className="fade-up">
           {step === 1 && <StepTemplate selectedId={data.templateId} onSelect={applyTemplate} />}
-          {step === 2 && <Step2Business data={data.business} onChange={(d: WizardData["business"]) => setData(p => ({ ...p, business: d }))} />}
+          {step === 2 && <Step2Business data={data.business} schedule={data.schedule} onChange={(d: WizardData["business"]) => setData(p => ({ ...p, business: d }))} onScheduleChange={(s: WizardData["schedule"]) => setData(p => ({ ...p, schedule: s }))} />}
           {step === 3 && <StepGoals data={data.goals} onChange={(d: WizardData["goals"]) => setData(p => ({ ...p, goals: d }))} />}
           {step === 4 && <StepServices data={data.services} onChange={(d: WizardData["services"]) => setData(p => ({ ...p, services: d }))} />}
           {step === 5 && <Step3Design data={data.design} onChange={(d: WizardData["design"]) => setData(p => ({ ...p, design: d }))} />}
@@ -1965,7 +2376,7 @@ export default function GenerateWizard() {
               onLogoChange={(d: WizardData["logo"]) => setData(p => ({ ...p, logo: d }))}
             />
           )}
-          {step === 7 && <Step5Pages data={data.pages} onChange={(d: WizardData["pages"]) => setData(p => ({ ...p, pages: d }))} />}
+          {step === 7 && <Step5Pages data={data.pages} team={data.team} useEmojis={data.useEmojis} onChange={(d: WizardData["pages"]) => setData(p => ({ ...p, pages: d }))} onTeamChange={(t: WizardData["team"]) => setData(p => ({ ...p, team: t }))} onEmojisChange={(v: boolean) => setData(p => ({ ...p, useEmojis: v }))} />}
           {step === 8 && (
             <Step7Review
               data={data}
