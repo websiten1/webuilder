@@ -385,8 +385,7 @@ export async function updateSiteAfterRegeneration(
         vercel_deployment_id = ${vercelDeploymentId},
         vercel_project_id   = ${vercelProjectId},
         design_preferences  = ${prefs}::jsonb,
-        current_version     = current_version + 1,
-        updated_at          = NOW()
+        current_version     = current_version + 1
     WHERE id = ${siteId}
   `;
 }
@@ -395,7 +394,7 @@ export async function updateSiteVercelUrl(siteId: string, vercelUrl: string): Pr
   const sql = getDb();
   await sql`
     UPDATE sites
-    SET vercel_url = ${vercelUrl}, updated_at = NOW()
+    SET vercel_url = ${vercelUrl}
     WHERE id = ${siteId}
   `;
 }
