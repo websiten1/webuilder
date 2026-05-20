@@ -1879,7 +1879,7 @@ function Step5Pages({ data, team, useEmojis, websiteLanguage, onChange, onTeamCh
 
 // ─── Step 7: Review ───────────────────────────────────────────────────────────
 
-function Step7Review({ data, onEdit, onSubmit, loading, countdown, stageMsg, vercelAuthorized }: {
+function Step7Review({ data, onEdit, onSubmit, loading, countdown, stageMsg, vercelAuthorized, isEditMode, editSiteName }: {
   data: WizardData;
   onEdit: (step: number) => void;
   onSubmit: () => void;
@@ -1887,6 +1887,8 @@ function Step7Review({ data, onEdit, onSubmit, loading, countdown, stageMsg, ver
   countdown: number;
   stageMsg: string;
   vercelAuthorized: boolean | null;
+  isEditMode?: boolean;
+  editSiteName?: string;
 }) {
   const progressPct = loading ? Math.round(((100 - countdown) / 100) * 100) : 0;
   const style = STYLES.find(s => s.id === data.design.style);
@@ -1961,8 +1963,18 @@ function Step7Review({ data, onEdit, onSubmit, loading, countdown, stageMsg, ver
         </div>
       )}
 
+      {/* ── Edit mode warning ── */}
+      {isEditMode && !loading && (
+        <div style={{ marginBottom: 16, padding: "12px 16px", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 12, display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>🔄</span>
+          <p style={{ margin: 0, fontSize: 13, color: "#1e40af", lineHeight: 1.5 }}>
+            This will <strong>replace the content</strong> of <strong>{editSiteName || "your website"}</strong> with a new version. Your URL and custom domain stay the same.
+          </p>
+        </div>
+      )}
+
       {/* ── Vercel connection status ── */}
-      {!loading && (
+      {!loading && !isEditMode && (
         <div style={{ marginBottom: 16, padding: "14px 16px", borderRadius: 12, border: "1px solid", borderColor: vercelAuthorized ? "#bbf7d0" : "#fed7aa", background: vercelAuthorized ? "#f0fdf4" : "#fff7ed", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
           <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
             <span style={{ fontSize: 20, lineHeight: 1, marginTop: 1 }}>{vercelAuthorized === null ? "⏳" : vercelAuthorized ? "✅" : "⚠️"}</span>
@@ -1986,7 +1998,9 @@ function Step7Review({ data, onEdit, onSubmit, loading, countdown, stageMsg, ver
       )}
 
       <button type="button" onClick={onSubmit} disabled={loading} className="btn-primary rounded-xl py-4 w-full" style={{ fontSize: 16 }}>
-        {loading ? "Generating your website..." : "Generate My Website →"}
+        {loading
+          ? (isEditMode ? "Updating your website..." : "Generating your website...")
+          : (isEditMode ? "Update My Website →" : "Generate My Website →")}
       </button>
       <p style={{ fontSize: 12, color: "#6B7180", textAlign: "center", marginTop: 8 }}>Takes approximately 100 seconds. Free while in beta.</p>
     </div>
@@ -2520,7 +2534,7 @@ const STAGE_MESSAGES: Record<number, string> = {
   0:   "Going live now...",
 };
 
-export default function GenerateWizard() {
+export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) {
   const router = useRouter();
   const [step, setStep]       = useState(1);
   const [data, setData]       = useState<WizardData>(DEFAULT);
@@ -2531,6 +2545,8 @@ export default function GenerateWizard() {
   const [clientSecret, setClientSecret] = useState("");
   const [selectedTier, setSelectedTier] = useState<"website" | "website_5">("website_5");
   const [vercelAuthorized, setVercelAuthorized] = useState<boolean | null>(null);
+  const [editSiteName, setEditSiteName] = useState("");
+  const isEditMode = !!editSiteId;
 
   // Check Vercel auth status once on mount
   useEffect(() => {
@@ -2539,6 +2555,33 @@ export default function GenerateWizard() {
       .then(d => setVercelAuthorized(d.user?.vercelAuthorized ?? false))
       .catch(() => setVercelAuthorized(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load previous form answers when entering edit mode
+  useEffect(() => {
+    if (!editSiteId) return;
+    fetch(`/api/sites/${editSiteId}`)
+      .then(r => r.json())
+      .then(({ site }) => {
+        if (!site) return;
+        setEditSiteName(site.name ?? "");
+        const p = (site.design_preferences ?? {}) as Partial<WizardData>;
+        setData({
+          ...DEFAULT, ...p,
+          business:   { ...DEFAULT.business,   ...p.business,   locationCity: p.business?.locationCity ?? "", locationCountry: p.business?.locationCountry ?? "" },
+          schedule:   { ...DEFAULT.schedule,   ...p.schedule,   hours: { ...DEFAULT_HOURS, ...(p.schedule?.hours ?? {}) } },
+          goals:      { ...DEFAULT.goals,      ...p.goals },
+          services:   { ...DEFAULT.services,   ...p.services },
+          design:     { ...DEFAULT.design,     ...p.design },
+          typography: { ...DEFAULT.typography, ...p.typography },
+          team:       { ...DEFAULT.team,       ...p.team },
+          pages:      { ...DEFAULT.pages,      ...p.pages, pageDescriptions: p.pages?.pageDescriptions ?? {} },
+          logo:       { ...DEFAULT.logo,       ...p.logo, dataUrl: "" }, // images aren't persisted; user re-uploads if needed
+          useEmojis:       p.useEmojis ?? false,
+          websiteLanguage: p.websiteLanguage ?? "English",
+        });
+      })
+      .catch(err => console.error("Failed to load site data for edit:", err));
+  }, [editSiteId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Restore wizard progress — deep-merge with DEFAULT so new fields from
   // schema updates are always present even when older data is in localStorage.
@@ -2640,7 +2683,7 @@ export default function GenerateWizard() {
       const res = await fetch("/api/generate-site", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ formData: data, paymentIntentId, tier: tier ?? selectedTier }),
+        body: JSON.stringify({ formData: data, paymentIntentId, tier: tier ?? selectedTier, ...(isEditMode && editSiteId ? { siteId: editSiteId } : {}) }),
       });
       if (!res.ok) {
         let errMsg = `Server error ${res.status}`;
@@ -2685,6 +2728,18 @@ export default function GenerateWizard() {
       </nav>
 
       <div style={{ maxWidth: 680, margin: "0 auto", padding: "100px 24px 80px" }}>
+
+        {/* Edit mode banner */}
+        {isEditMode && editSiteName && (
+          <div style={{ marginBottom: 24, padding: "11px 16px", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 12, display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 16, lineHeight: 1, flexShrink: 0 }}>🔄</span>
+            <p style={{ margin: 0, fontSize: 13, color: "#1e40af" }}>
+              <strong>Editing:</strong> {editSiteName} — your previous answers are loaded
+            </p>
+            <a href="/dashboard" style={{ marginLeft: "auto", fontSize: 12, color: "#1e40af", textDecoration: "underline", whiteSpace: "nowrap", flexShrink: 0 }}>Cancel</a>
+          </div>
+        )}
+
         {/* Progress */}
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
@@ -2744,11 +2799,13 @@ export default function GenerateWizard() {
             <Step7Review
               data={data}
               onEdit={(s: number) => setStep(s)}
-              onSubmit={handleGoToPayment}
+              onSubmit={isEditMode ? () => handleSubmit() : handleGoToPayment}
               loading={loading}
               countdown={countdown}
               stageMsg={stageMsg}
               vercelAuthorized={vercelAuthorized}
+              isEditMode={isEditMode}
+              editSiteName={editSiteName}
             />
           )}
           {/* Step 9 — Pricing plan selection */}

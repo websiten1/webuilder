@@ -146,39 +146,11 @@ function getSiteColor(site: Site): string {
   return BIZ_COLORS[site.business_type ?? ""] ?? C.six;
 }
 
-// Returns true if the color is perceptually dark (needs white label text)
-function isDark(hex: string): boolean {
-  try {
-    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
-    return (0.299*r + 0.587*g + 0.114*b) < 128;
-  } catch { return true; }
-}
 
-function ColorSwatch({ site, height = 120 }: { site: Site; height?: number }) {
+function ColorSwatch({ site, height = 72 }: { site: Site; height?: number }) {
   const color = getSiteColor(site);
-  const dark = isDark(color);
-  const initials = (site.name ?? "?").split(/\s+/).map(w => w[0]).slice(0,2).join("").toUpperCase();
-
   return (
-    <div style={{
-      width: "100%", height,
-      background: `linear-gradient(135deg, ${color} 0%, ${color}cc 100%)`,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      position: "relative", overflow: "hidden",
-    }}>
-      {/* Subtle diagonal stripe texture */}
-      <div style={{
-        position: "absolute", inset: 0, opacity: 0.06,
-        backgroundImage: "repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%)",
-        backgroundSize: "12px 12px",
-      }}/>
-      {/* Initials */}
-      <span style={{
-        fontFamily: C.font, fontSize: height * 0.28, fontWeight: 800,
-        color: dark ? "rgba(255,255,255,0.22)" : "rgba(0,0,0,0.12)",
-        letterSpacing: -2, userSelect: "none", position: "relative",
-      }}>{initials}</span>
-    </div>
+    <div style={{ width: "100%", height, background: color }}/>
   );
 }
 
@@ -236,7 +208,7 @@ function SiteCard({ site, onDomain, onEdit }: { site: Site; onDomain: () => void
     <article style={{ background: "#fff", border: `1px solid ${C.line}`, borderRadius: 18, boxShadow: "0 1px 0 rgba(255,255,255,0.5) inset, 0 14px 40px rgba(10,14,20,0.04)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
       {/* Preview */}
       <div style={{ position: "relative", overflow: "hidden", borderRadius: "18px 18px 0 0" }}>
-        <ColorSwatch site={site} height={120}/>
+        <ColorSwatch site={site}/>
         <span style={{ position: "absolute", top: 12, right: 12 }}><StatusPill status="live"/></span>
       </div>
 
@@ -611,7 +583,7 @@ export default function DashboardPage() {
                     {visible.map(s => (
                       <SiteCard key={s.id} site={s}
                         onDomain={() => router.push(`/domains/${s.id}`)}
-                        onEdit={() => router.push(`/edit/${s.id}`)}
+                        onEdit={() => router.push(`/generate?edit=${s.id}`)}
                       />
                     ))}
                     <NewSlotCard onClick={() => router.push("/generate")}/>
@@ -621,7 +593,7 @@ export default function DashboardPage() {
                     {visible.map(s => (
                       <SiteRow key={s.id} site={s}
                         onDomain={() => router.push(`/domains/${s.id}`)}
-                        onEdit={() => router.push(`/edit/${s.id}`)}
+                        onEdit={() => router.push(`/generate?edit=${s.id}`)}
                       />
                     ))}
                   </div>

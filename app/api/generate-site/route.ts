@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateWebsiteCode } from "@/lib/anthropic";
 import { deployToVercel } from "@/lib/vercel";
 import { getSession } from "@/lib/session";
-import { getUserById, saveSiteWithVercel } from "@/lib/db";
+import { getUserById, saveSiteWithVercel, getSiteById, updateSiteAfterRegeneration } from "@/lib/db";
 import type { WizardData } from "@/app/components/GenerateWizard";
 import fs from "fs";
 import path from "path";
@@ -304,12 +304,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { formData, tier = "website_5" } = body as {
+    const { formData, tier = "website_5", siteId: editSiteId } = body as {
       formData: WizardData;
       tier?: "website" | "website_5";
+      siteId?: string;          // present when updating an existing site
     };
-
-    // Payment suspended during beta — no payment check
 
     if (!formData) {
       return NextResponse.json({ error: "Missing form data." }, { status: 400 });
@@ -320,32 +319,60 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Business name and description are required." }, { status: 400 });
     }
 
-    // Use user's Vercel token if connected, otherwise fall back to app token
-    const vercelToken = user.vercel_access_token ?? undefined;
-    const vercelTeam = user.vercel_team_id ?? undefined;
-    void vercelToken; void vercelTeam; // used below
-
     const prompt = buildPrompt(formData);
-    console.log("Starting site generation for:", siteName);
 
-    console.log("Calling Claude API...");
+    console.log(`Starting ${editSiteId ? "re-generation" : "generation"} for: ${siteName}`);
     console.log(`🎨 Template: ${formData.templateId || "custom"}`);
     console.log(`🖼️  Logo uploaded: ${formData.logo?.uploaded ? `yes (${formData.logo.fileName})` : "no"}`);
+
     const rawCode = await generateWebsiteCode(prompt);
     console.log("✅ Code generated, post-processing uploads...");
     const websiteCode = embedUploads(rawCode, formData);
     console.log("✅ Uploads embedded");
 
-    // Deploy directly to user's Vercel account — no GitHub needed
+    // ── UPDATE existing site ────────────────────────────────────────────────
+    if (editSiteId) {
+      const existingSite = await getSiteById(editSiteId, session.userId);
+      if (!existingSite) {
+        return NextResponse.json({ error: "Site not found." }, { status: 404 });
+      }
+
+      // Smart token selection — same logic as edits/process to hit the right account
+      const vercelAuthorizedAt = user.vercel_authorized_at ? new Date(user.vercel_authorized_at) : null;
+      const siteCreatedAt = existingSite.created_at ? new Date(existingSite.created_at) : null;
+      const siteOwnedByUser = !!(user.vercel_access_token && vercelAuthorizedAt && siteCreatedAt && vercelAuthorizedAt < siteCreatedAt);
+      const editToken  = siteOwnedByUser ? (user.vercel_access_token ?? undefined) : process.env.VERCEL_API_TOKEN;
+      const editTeamId = siteOwnedByUser ? (user.vercel_team_id ?? undefined) : undefined;
+
+      console.log(`🔁 Updating site ${editSiteId}, project=${existingSite.vercel_project_id}, token=${siteOwnedByUser ? "user" : "app"}`);
+
+      const deployment = await deployToVercel(existingSite.vercel_project_id!, websiteCode, {
+        userToken: editToken,
+        teamId: editTeamId,
+      });
+
+      const siteUrl = `https://${deployment.url}`;
+      const vercelProjectId = deployment.projectId ?? existingSite.vercel_project_id!;
+
+      await updateSiteAfterRegeneration(
+        editSiteId,
+        siteUrl,
+        deployment.id,
+        vercelProjectId,
+        formData as unknown as Record<string, unknown>
+      );
+
+      console.log("✅ Site updated:", siteUrl);
+      return NextResponse.json({ success: true, siteId: editSiteId, siteUrl, message: "Your website has been updated!" });
+    }
+
+    // ── CREATE new site ─────────────────────────────────────────────────────
     const projectName = `${siteName.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").slice(0, 40)}-${Date.now()}`;
     console.log("Deploying to user's Vercel...");
     const deployment = await deployToVercel(projectName, websiteCode, {
       userToken: user.vercel_access_token ?? undefined,
       teamId: user.vercel_team_id ?? undefined,
     });
-    // Use the real Vercel project ID if returned; fall back to the name we supplied.
-    // Storing the real ID prevents "project not found" errors when editing later
-    // with a different token scope.
     const vercelProjectId = deployment.projectId ?? projectName;
     console.log("✅ Deployed:", deployment.url, "| vercel project id:", vercelProjectId);
 

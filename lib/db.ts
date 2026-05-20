@@ -370,6 +370,27 @@ export async function saveSiteWithVercel(
   return rows[0] as Site;
 }
 
+export async function updateSiteAfterRegeneration(
+  siteId: string,
+  vercelUrl: string,
+  vercelDeploymentId: string,
+  vercelProjectId: string,
+  designPreferences: Record<string, unknown>
+): Promise<void> {
+  const sql = getDb();
+  const prefs = JSON.stringify(designPreferences);
+  await sql`
+    UPDATE sites
+    SET vercel_url          = ${vercelUrl},
+        vercel_deployment_id = ${vercelDeploymentId},
+        vercel_project_id   = ${vercelProjectId},
+        design_preferences  = ${prefs}::jsonb,
+        current_version     = current_version + 1,
+        updated_at          = NOW()
+    WHERE id = ${siteId}
+  `;
+}
+
 export async function updateSiteVercelUrl(siteId: string, vercelUrl: string): Promise<void> {
   const sql = getDb();
   await sql`
