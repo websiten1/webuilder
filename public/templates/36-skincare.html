@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Skincare — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f1e8;--ink:#231f1a;--muted:#7a7166;--accent:#1f3a2a;--accent2:#d4a87a;--cream:#fdf8ec;--line:#e9ddc6}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:Inter,sans-serif;font-size:16px;line-height:1.6;font-weight:400}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.wrap{max-width:1280px;margin:0 auto;padding:0 36px}
+.serif{font-family:'Cormorant Garamond',serif}
+nav{position:sticky;top:0;z-index:50;background:rgba(247,241,232,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:72px}
+.logo{font-family:'Cormorant Garamond';font-size:26px;letter-spacing:.04em;text-transform:uppercase;font-weight:500}
+.logo em{font-style:italic;color:var(--accent)}
+.nav-links{display:flex;gap:28px;font-size:13px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-weight:500}
+.nav-links a.active{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:13px 26px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border:none;font-weight:500;border-radius:0}
+.btn-primary{background:var(--accent);color:var(--cream)}.btn-primary:hover{background:#162a1f}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+.page{display:none;padding:48px 0 120px}.page.active{display:block}
+.pre{font-family:'Cormorant Garamond';font-style:italic;color:var(--accent);font-size:22px}
+
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:64px;align-items:center}
+.hero .pre{margin-bottom:14px}
+.hero h1{font-family:'Cormorant Garamond';font-weight:500;font-size:clamp(56px,7vw,108px);line-height:.98;letter-spacing:-.015em;margin-bottom:18px}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero .lede{font-size:18px;color:var(--muted);max-width:480px;margin-bottom:28px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+.hero-list{margin-top:32px;display:grid;gap:8px;font-size:13.5px;color:var(--muted)}
+.hero-list div{padding-left:22px;position:relative}.hero-list div::before{content:"❀";position:absolute;left:0;color:var(--accent)}
+
+.bottle-stage{position:relative;aspect-ratio:1/1;background:linear-gradient(160deg,var(--cream),#eee0c0);border-radius:50%;display:grid;place-items:center}
+.bottle{width:36%;aspect-ratio:1/2.5;background:linear-gradient(180deg,#5a7060,#1f3a2a);border-radius:80px 80px 24px 24px;position:relative;box-shadow:0 30px 80px -20px rgba(0,0,0,.3)}
+.bottle::before{content:"";position:absolute;top:-22px;left:50%;transform:translateX(-50%);width:50%;height:38px;background:#1a1a1a;border-radius:6px 6px 0 0}
+.bottle::after{content:"";position:absolute;top:30%;left:14%;right:14%;height:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:8px}
+.bottle .lbl{position:absolute;top:48%;left:0;right:0;text-align:center;color:var(--cream);font-family:'Cormorant Garamond';font-size:18px;letter-spacing:.04em;line-height:1.05}
+.bottle .lbl small{display:block;font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent2);margin-top:4px;font-family:Inter}
+.tag-tag{position:absolute;background:var(--cream);padding:8px 14px;border-radius:999px;font-family:'Cormorant Garamond';font-style:italic;color:var(--accent);font-size:14px;border:1px solid var(--line)}
+.tag-tag.a{top:18%;right:6%;transform:rotate(8deg)}
+.tag-tag.b{bottom:18%;left:4%;transform:rotate(-8deg)}
+
+.routine{margin-top:120px;padding:64px;background:var(--cream);border:1px solid var(--line);border-radius:0;display:grid;grid-template-columns:1fr 1.4fr;gap:48px;align-items:center}
+.routine h2{font-family:'Cormorant Garamond';font-size:48px;font-weight:500;letter-spacing:-.015em;line-height:1.04;margin-bottom:12px}
+.routine h2 em{font-style:italic;color:var(--accent)}
+.routine p{color:var(--muted)}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line)}
+.st{padding:24px;border-right:1px solid var(--line);background:#fff;text-align:center}
+.st:last-child{border-right:none}
+.st .n{font-family:'Cormorant Garamond';font-style:italic;color:var(--accent2);font-size:24px}
+.st h5{font-family:'Cormorant Garamond';font-size:20px;margin:8px 0 4px}
+.st p{font-size:12px;color:var(--muted);line-height:1.4}
+
+.section-head{margin-top:120px;margin-bottom:32px;text-align:center;max-width:680px;margin-left:auto;margin-right:auto}
+.section-head h2{font-family:'Cormorant Garamond';font-size:clamp(40px,5vw,72px);font-weight:500;letter-spacing:-.02em;line-height:1.02}
+.section-head h2 em{font-style:italic;color:var(--accent)}
+.section-head p{font-size:17px;color:var(--muted);margin-top:14px}
+
+.prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.pr{background:var(--cream);border:1px solid var(--line);transition:.15s;cursor:pointer}
+.pr:hover{transform:translateY(-3px)}
+.pr .img{aspect-ratio:1/1;background:linear-gradient(160deg,#e8dac0,#a8927a);position:relative;display:grid;place-items:center}
+.pr .img.b{background:linear-gradient(160deg,#cee0d2,#1f3a2a)}
+.pr .img.c{background:linear-gradient(160deg,#f3d6c4,#a85a2a)}
+.pr .img.d{background:linear-gradient(160deg,#e0d4f0,#7a4f9a)}
+.pr .img .b-icon{width:36%;aspect-ratio:1/2.5;background:rgba(0,0,0,.2);border-radius:30px 30px 8px 8px}
+.pr .img .tag{position:absolute;top:14px;left:14px;padding:4px 10px;background:var(--cream);color:var(--accent);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+.pr .body{padding:18px}
+.pr .step{font-family:'Cormorant Garamond';font-style:italic;color:var(--accent);font-size:14px;margin-bottom:4px}
+.pr h4{font-family:'Cormorant Garamond';font-size:22px;font-weight:500;letter-spacing:-.01em;line-height:1.1}
+.pr .ds{font-size:13px;color:var(--muted);margin-top:6px}
+.pr .row{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.pr .price{font-family:'Cormorant Garamond';font-size:22px}
+.pr .vol{font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+
+.actives{margin-top:120px;padding:48px;border:1px solid var(--line);background:var(--cream)}
+.actives h2{font-family:'Cormorant Garamond';font-size:42px;font-weight:500;letter-spacing:-.015em;text-align:center;margin-bottom:32px}
+.actives h2 em{font-style:italic;color:var(--accent)}
+.actives-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.ac{padding:24px;background:#fff;border:1px solid var(--line);text-align:center}
+.ac .latin{font-family:'Cormorant Garamond';font-style:italic;color:var(--accent);font-size:14px;margin-bottom:6px}
+.ac h5{font-family:'Cormorant Garamond';font-size:22px;font-weight:500}
+.ac p{font-size:13px;color:var(--muted);margin-top:8px}
+.ac .pct{margin-top:14px;font-family:'Cormorant Garamond';font-style:italic;color:var(--accent2);font-size:18px}
+
+.page-head{margin-bottom:56px;max-width:760px}
+.page-head h2{font-family:'Cormorant Garamond';font-size:clamp(48px,6vw,84px);font-weight:500;letter-spacing:-.02em;line-height:1;margin-top:8px}
+.page-head h2 em{font-style:italic;color:var(--accent)}
+.page-head p{font-family:'Cormorant Garamond';font-style:italic;font-size:22px;color:var(--muted);margin-top:14px}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px}
+.about-text p{margin-bottom:16px;color:#3a342a}
+.about-text p.lead{font-family:'Cormorant Garamond';font-style:italic;font-size:26px;line-height:1.4;color:var(--ink);margin-bottom:24px}
+
+.svc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.svc{padding:36px;background:var(--cream);border:1px solid var(--line)}
+.svc h3{font-family:'Cormorant Garamond';font-size:28px;font-weight:500;letter-spacing:-.015em;margin-bottom:8px}
+.svc h3 em{font-style:italic;color:var(--accent)}
+.svc p{color:var(--muted)}
+.svc ul{list-style:none;display:grid;gap:8px;font-size:14.5px;margin-top:14px}
+.svc li{padding-left:20px;position:relative}.svc li::before{content:"❀";position:absolute;left:0;color:var(--accent);font-size:11px;top:3px}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+form{display:grid;gap:16px}
+.field label{display:block;font-family:'Cormorant Garamond';font-style:italic;color:var(--ink);font-size:18px;margin-bottom:6px}
+input,textarea,select{width:100%;padding:14px 16px;border:1px solid var(--line);background:var(--cream);font:inherit;border-radius:0}
+input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+textarea{min-height:120px;resize:vertical}
+.info-block{padding:40px;background:var(--accent);color:var(--cream)}
+.info-block h3{font-family:'Cormorant Garamond';font-size:32px;font-weight:500;margin-bottom:20px}
+.info-block h3 em{font-style:italic;color:var(--accent2)}
+.info-row{padding:14px 0;border-top:1px solid rgba(255,255,255,.15);font-size:14.5px;color:#cdd5c8}
+.info-row:first-of-type{border-top:none}
+.info-row .lbl{font-family:'Cormorant Garamond';font-style:italic;color:var(--accent2);font-size:16px;margin-bottom:2px}
+
+footer{border-top:1px solid var(--line);padding:32px 0;color:var(--muted);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-links{display:flex;gap:24px;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+@media(max-width:880px){.hero,.routine,.about-grid,.contact-grid{grid-template-columns:1fr}.steps-grid,.actives-grid,.prod-grid{grid-template-columns:1fr 1fr}.svc-grid{grid-template-columns:1fr}.nav-links{display:none}}
+</style></head><body>
+<nav><div class="wrap">
+<a class="logo" onclick="goto('home')">YOUR <em>SKIN</em></a>
+<div class="nav-links"><a data-page="home" class="active">Shop</a><a data-page="services">The ritual</a><a data-page="about">Our story</a><a data-page="contact">Contact</a></div>
+<button class="btn btn-primary" onclick="goto('home')">Bag (2)</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div>
+      <div class="pre">— Quietly active. Slowly made.</div>
+      <h1>A small <em>ritual</em><br/>for everyday skin.</h1>
+      <p class="lede">Six products, formulated with botanical actives. No fragrance, no shortcuts, no twelve-step routines. Replace this with your brand's voice.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary">Shop the ritual →</button>
+        <button class="btn btn-ghost">Find my routine</button>
+      </div>
+      <div class="hero-list">
+        <div>Plant-based, 99% natural ingredients</div>
+        <div>Cruelty-free &amp; certified vegan</div>
+        <div>Free shipping over $80 · 60-day returns</div>
+      </div>
+    </div>
+    <div class="bottle-stage">
+      <span class="tag-tag a">— niacinamide</span>
+      <div class="bottle"><div class="lbl">SERUM<br/>No. 03<small>30ml</small></div></div>
+      <span class="tag-tag b">vitamin C</span>
+    </div>
+  </div>
+
+  <div class="routine">
+    <div>
+      <div class="pre">— The four-step ritual</div>
+      <h2>Less, done <em>well</em>.</h2>
+      <p>Four products, twice a day. Designed to work together. The whole routine takes under five minutes.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="st"><div class="n">i.</div><h5>Cleanse</h5><p>Milky gel, morning &amp; night.</p></div>
+      <div class="st"><div class="n">ii.</div><h5>Treat</h5><p>Active serum. Niacinamide AM, retinol PM.</p></div>
+      <div class="st"><div class="n">iii.</div><h5>Moisturize</h5><p>Light cream, both times.</p></div>
+      <div class="st"><div class="n">iv.</div><h5>Protect</h5><p>Mineral SPF 30, morning only.</p></div>
+    </div>
+  </div>
+
+  <div class="section-head"><h2>The <em>collection</em>.</h2><p>Six products. That's it.</p></div>
+  <div class="prod-grid">
+    <div class="pr"><div class="img"><span class="tag">STEP 01</span><div class="b-icon"></div></div><div class="body"><div class="step">— cleanse</div><h4>Milky gel cleanser</h4><div class="ds">No. 01 — for every skin type</div><div class="row"><span class="price">$36</span><span class="vol">150 ml</span></div></div></div>
+    <div class="pr"><div class="img b"><span class="tag">STEP 02</span><div class="b-icon"></div></div><div class="body"><div class="step">— treat AM</div><h4>Niacinamide serum</h4><div class="ds">No. 02 — brightening &amp; calming</div><div class="row"><span class="price">$54</span><span class="vol">30 ml</span></div></div></div>
+    <div class="pr"><div class="img c"><span class="tag">STEP 02</span><div class="b-icon"></div></div><div class="body"><div class="step">— treat PM</div><h4>Bakuchiol serum</h4><div class="ds">No. 03 — gentle retinol alternative</div><div class="row"><span class="price">$68</span><span class="vol">30 ml</span></div></div></div>
+    <div class="pr"><div class="img d"><span class="tag">STEP 03</span><div class="b-icon"></div></div><div class="body"><div class="step">— moisturize</div><h4>Light day cream</h4><div class="ds">No. 04 — hyaluronic, ceramides</div><div class="row"><span class="price">$48</span><span class="vol">50 ml</span></div></div></div>
+    <div class="pr"><div class="img"><span class="tag">STEP 03</span><div class="b-icon"></div></div><div class="body"><div class="step">— moisturize PM</div><h4>Rich night cream</h4><div class="ds">No. 05 — peptides, squalane</div><div class="row"><span class="price">$56</span><span class="vol">50 ml</span></div></div></div>
+    <div class="pr"><div class="img c"><span class="tag">STEP 04</span><div class="b-icon"></div></div><div class="body"><div class="step">— protect</div><h4>Mineral SPF 30</h4><div class="ds">No. 06 — non-nano zinc</div><div class="row"><span class="price">$42</span><span class="vol">50 ml</span></div></div></div>
+    <div class="pr"><div class="img b"><span class="tag">BUNDLE</span><div class="b-icon"></div></div><div class="body"><div class="step">— the ritual</div><h4>Complete set</h4><div class="ds">All six products, saving 18%</div><div class="row"><span class="price">$248</span><span class="vol">6 pcs</span></div></div></div>
+    <div class="pr"><div class="img d"><span class="tag">TRY</span><div class="b-icon"></div></div><div class="body"><div class="step">— travel size</div><h4>Discovery kit</h4><div class="ds">2-week supply of all six</div><div class="row"><span class="price">$32</span><span class="vol">6 × 5ml</span></div></div></div>
+  </div>
+
+  <div class="actives">
+    <h2>Actives we <em>trust</em>.</h2>
+    <div class="actives-grid">
+      <div class="ac"><div class="latin">— niacinamide</div><h5>Vitamin B3</h5><p>Calms redness, refines pores, evens tone.</p><div class="pct">at 5%</div></div>
+      <div class="ac"><div class="latin">— bakuchiol</div><h5>Plant retinol</h5><p>Gentle alternative — pregnancy-safe.</p><div class="pct">at 1%</div></div>
+      <div class="ac"><div class="latin">— hyaluronic acid</div><h5>Three molecular weights</h5><p>Hydration at every layer of the skin.</p><div class="pct">at 2%</div></div>
+      <div class="ac"><div class="latin">— ceramides</div><h5>NP, AP, EOP</h5><p>The mortar between skin cells. Rebuilt nightly.</p><div class="pct">at 1.2%</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><div class="pre">— Our story</div><h2>A small <em>line</em>,<br/>well made.</h2></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">"We started YOUR SKIN in Year because we'd spent ten years buying twelve products to do the work of four."</p>
+      <p>Replace this with your story. The chemist you partnered with. The first formulation. The day the FDA paperwork cleared.</p>
+      <p>Tell people about your approach. The actives you'll use, the ones you won't. Where you manufacture, and why.</p>
+    </div>
+    <div>
+      <div style="padding:32px;background:var(--cream);border:1px solid var(--line)">
+        <h3 style="font-family:'Cormorant Garamond';font-size:28px;font-weight:500;letter-spacing:-.01em;margin-bottom:14px">Our <em style="color:var(--accent);font-style:italic">promises</em></h3>
+        <ul style="list-style:none;display:grid;gap:14px;font-size:15px">
+          <li style="padding-left:22px;position:relative">❀ 99% natural ingredients, every formula</li>
+          <li style="padding-left:22px;position:relative">❀ Cruelty-free &amp; certified vegan</li>
+          <li style="padding-left:22px;position:relative">❀ Recyclable glass, refillable packaging</li>
+          <li style="padding-left:22px;position:relative">❀ Made in small batches, dated on the bottle</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><div class="pre">— Beyond the bottle</div><h2>The <em>ritual</em>,<br/>extended.</h2></div>
+  <div class="svc-grid">
+    <div class="svc"><h3>Custom <em>routine</em></h3><p>Answer twelve questions. We send a routine, the products, and a calendar reminder when to reorder.</p><ul><li>Free consultation</li><li>Personalized regimen</li><li>10% off first order</li></ul></div>
+    <div class="svc"><h3>Refill <em>service</em></h3><p>Send back the empty bottle. Get a refill at 20% off, no plastic, no shipping fee.</p><ul><li>Save 20% per refill</li><li>Glass bottles, kept for life</li><li>Free return label</li></ul></div>
+    <div class="svc"><h3>Studio <em>facials</em></h3><p>One-hour facials in the studio, with the founder and a small team of estheticians.</p><ul><li>60 / 90 min options</li><li>Wednesdays &amp; Saturdays</li><li>$120 / $180</li></ul></div>
+    <div class="svc"><h3>Subscribe &amp; <em>save</em></h3><p>Set your favorite products on a 2-month rotation. Skip anytime, cancel anytime.</p><ul><li>15% off every order</li><li>Free shipping always</li><li>Move dates in the app</li></ul></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><div class="pre">— Contact</div><h2>Send us a <em>note</em>.</h2></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo')">
+      <div class="field row"><div><label>Name</label><input/></div><div><label>Email</label><input type="email"/></div></div>
+      <div class="field"><label>About</label><select><option>An order I placed</option><option>Returns &amp; refills</option><option>A formulation question</option><option>Press</option><option>Other</option></select></div>
+      <div class="field"><label>Message</label><textarea></textarea></div>
+      <button class="btn btn-primary">Send →</button>
+    </form>
+    <div class="info-block">
+      <h3>The <em>studio</em></h3>
+      <div class="info-row"><div class="lbl">— address</div>123 Your Street, City</div>
+      <div class="info-row"><div class="lbl">— email</div>hello@yourskin.com</div>
+      <div class="info-row"><div class="lbl">— facials</div>Wed &amp; Sat, by appointment</div>
+      <div class="info-row"><div class="lbl">— returns</div>60 days, no questions</div>
+      <div class="info-row"><div class="lbl">— ingredients</div>Every formulation published</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+<footer><div class="wrap"><div>© 2026 YOUR SKIN · Made slowly, dated on the bottle</div><div class="foot-links"><a>INSTAGRAM</a><a>NEWSLETTER</a><a>INGREDIENTS</a><a>REFILLS</a></div></div></footer>
+<script>
+function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script></body></html>

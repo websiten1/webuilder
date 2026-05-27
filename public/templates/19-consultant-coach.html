@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Practice — Consultant</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#0e1623;--muted:#5b6573;--accent:#2253ff;--soft:#f4f6fb;--line:#e5e9f0}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:Inter,sans-serif;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.wrap{max-width:1240px;margin:0 auto;padding:0 36px}
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:600;letter-spacing:-.01em}
+.logo .mk{width:30px;height:30px;border-radius:8px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700}
+.nav-links{display:flex;gap:28px;font-size:14px;color:var(--muted);font-weight:500}
+.nav-links a.active{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:.15s}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#1640d6}
+.btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.page{display:none;padding:80px 0 120px}.page.active{display:block}
+.kicker{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;background:var(--soft);color:var(--accent);font-size:13px;font-weight:500;margin-bottom:24px}
+.kicker .d{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:80px;align-items:center}
+.hero h1{font-size:clamp(48px,5.4vw,76px);line-height:1.04;letter-spacing:-.025em;font-weight:600;margin-bottom:24px}
+.hero h1 .u{background:linear-gradient(180deg,transparent 60%,#cfdbff 60%)}
+.hero .lede{font-size:19px;color:var(--muted);max-width:480px;margin-bottom:28px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+.trust{margin-top:36px;font-size:13px;color:var(--muted)}
+.trust strong{color:var(--ink)}
+
+.profile-card{position:relative;background:linear-gradient(180deg,var(--soft),#fff);border:1px solid var(--line);border-radius:24px;padding:40px;display:grid;gap:20px}
+.profile-card .ph{width:140px;height:140px;border-radius:50%;background:linear-gradient(135deg,#cfdbff,var(--accent));margin:0 auto}
+.profile-card h3{text-align:center;font-size:22px;font-weight:600;letter-spacing:-.01em}
+.profile-card .title{text-align:center;color:var(--accent);font-size:13px;font-weight:500}
+.profile-card .quote{font-size:14.5px;color:#3a4252;text-align:center;font-style:italic;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:18px 0}
+.profile-card .specs{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.profile-card .spec{padding:14px;background:#fff;border:1px solid var(--line);border-radius:12px;text-align:center}
+.profile-card .spec .v{font-size:22px;font-weight:600;color:var(--accent)}
+.profile-card .spec .l{font-size:12px;color:var(--muted);margin-top:2px}
+
+.logos-row{margin-top:96px;padding:32px;background:var(--soft);border-radius:18px;display:grid;grid-template-columns:repeat(6,1fr);gap:24px;align-items:center}
+.logos-row .l{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600;grid-column:1/-1;text-align:center;margin-bottom:8px}
+.logos-row .b{font-weight:600;color:#3a4252;font-size:18px;letter-spacing:-.01em;opacity:.7;text-align:center}
+
+.problem{margin-top:120px}
+.section-head{text-align:center;max-width:680px;margin:0 auto 56px}
+.section-head h2{font-size:clamp(34px,4.4vw,52px);letter-spacing:-.025em;font-weight:600;line-height:1.1}
+.section-head p{font-size:17.5px;color:var(--muted);margin-top:16px}
+.problem-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.col-card{padding:36px;border-radius:18px}
+.col-card.before{background:var(--soft);border:1px solid var(--line)}
+.col-card.after{background:var(--accent);color:#fff}
+.col-card h4{font-size:14px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:18px;font-weight:600}
+.col-card.before h4{color:var(--muted)}
+.col-card ul{list-style:none;display:grid;gap:14px;font-size:15px}
+.col-card li{padding-left:26px;position:relative}
+.col-card.before li::before{content:"✕";position:absolute;left:0;color:#c8503e}
+.col-card.after li::before{content:"✓";position:absolute;left:0;color:#9ec5ff;font-weight:700}
+
+.testimonials{margin-top:120px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tm{padding:36px;background:#fff;border:1px solid var(--line);border-radius:18px}
+.tm .stars{color:#f7b84b;letter-spacing:2px;margin-bottom:14px}
+.tm .q{font-size:16px;color:#1a2334;line-height:1.5;margin-bottom:20px}
+.tm .av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#cfdbff,var(--accent));display:inline-block;vertical-align:middle;margin-right:12px}
+.tm .who{display:inline-block;vertical-align:middle}
+.tm .who strong{display:block;font-weight:600;font-size:14.5px}
+.tm .who span{font-size:13px;color:var(--muted)}
+
+.cta-band{margin-top:120px;padding:64px;background:var(--ink);color:#fff;border-radius:24px;display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:center}
+.cta-band h3{font-size:42px;letter-spacing:-.02em;font-weight:600;line-height:1.05;margin-bottom:14px}
+.cta-band p{color:#a8b2c5}
+.cta-band .form{display:grid;gap:12px;background:rgba(255,255,255,.06);padding:18px;border-radius:14px}
+.cta-band input{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);color:#fff}
+.cta-band input::placeholder{color:#a8b2c5}
+
+.page-head{margin-bottom:56px;max-width:780px}
+.page-head h2{font-size:clamp(40px,5vw,64px);letter-spacing:-.025em;font-weight:600;line-height:1.05;margin-top:14px}
+.page-head p{font-size:18px;color:var(--muted);margin-top:14px}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+.about-text p{margin-bottom:16px;color:#33415a}
+.about-text p.lead{font-size:24px;line-height:1.4;color:var(--ink);font-weight:500;letter-spacing:-.01em;margin-bottom:24px}
+.creds{display:grid;gap:14px}
+.cred{padding:24px;background:var(--soft);border-radius:14px}
+.cred h5{font-size:15px;font-weight:600;margin-bottom:4px}
+.cred p{font-size:13.5px;color:var(--muted)}
+.cred .yr{font-size:12px;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.svc{padding:36px;background:#fff;border:1px solid var(--line);border-radius:18px;position:relative;transition:.2s}
+.svc.featured{border-color:var(--accent);box-shadow:0 12px 32px -16px rgba(34,83,255,.3)}
+.svc.featured::before{content:"Best fit";position:absolute;top:-12px;right:24px;background:var(--accent);color:#fff;font-size:11px;padding:5px 12px;border-radius:999px;font-weight:600;letter-spacing:.04em}
+.svc h3{font-size:22px;font-weight:600;letter-spacing:-.01em;margin-bottom:8px}
+.svc .price{font-size:36px;font-weight:600;margin:12px 0;letter-spacing:-.02em}
+.svc .price small{font-size:14px;color:var(--muted);font-weight:400}
+.svc p{color:var(--muted);font-size:14.5px}
+.svc ul{list-style:none;display:grid;gap:8px;margin:20px 0;font-size:14px;color:#33415a}
+.svc li{padding-left:22px;position:relative}.svc li::before{content:"✓";position:absolute;left:0;color:var(--accent);font-weight:700}
+.svc .btn{width:100%;justify-content:center}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+form{display:grid;gap:16px}
+.field label{display:block;font-size:13px;color:var(--ink);margin-bottom:6px;font-weight:500}
+input,textarea,select{width:100%;padding:13px 16px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+textarea{min-height:120px;resize:vertical}
+.info-block{padding:40px;background:var(--soft);border-radius:18px;border:1px solid var(--line)}
+.info-block h3{font-size:24px;font-weight:600;margin-bottom:20px;letter-spacing:-.01em}
+.info-row{padding:14px 0;border-top:1px solid var(--line);font-size:14.5px}
+.info-row:first-of-type{border-top:none}
+.info-row .lbl{font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+
+footer{border-top:1px solid var(--line);padding:32px 0;color:var(--muted);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-links{display:flex;gap:24px}
+@media(max-width:880px){.hero,.problem-grid,.about-grid,.contact-grid,.cta-band,.logos-row{grid-template-columns:1fr}.svc-grid,.testimonials{grid-template-columns:1fr}.nav-links{display:none}}
+</style></head><body>
+
+<nav><div class="wrap">
+<a class="logo" onclick="goto('home')"><span class="mk">Y</span>Your Practice</a>
+<div class="nav-links">
+<a data-page="home" class="active">Home</a><a data-page="services">Programs</a><a data-page="about">About</a><a data-page="contact">Contact</a>
+</div>
+<button class="btn btn-primary" onclick="goto('contact')">Book a call →</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div>
+      <span class="kicker"><span class="d"></span>Booking July cohort</span>
+      <h1>Leadership coaching for <span class="u">senior operators</span> who'd rather not over-talk it.</h1>
+      <p class="lede">One-on-one coaching and small-group cohorts for executives, founders, and senior managers. Replace this with your practice's voice.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="goto('contact')">Book a free intro call →</button>
+        <button class="btn btn-ghost" onclick="goto('services')">See programs</button>
+      </div>
+      <div class="trust">⭐ <strong>4.9 across 120+ engagements</strong> · ICF-certified · ten years coaching</div>
+    </div>
+    <div class="profile-card">
+      <div class="ph"></div>
+      <h3>Your Name, PCC</h3>
+      <div class="title">Executive coach · founder of the practice</div>
+      <div class="quote">"My job is to ask the question your direct reports won't ask, until you don't need me to."</div>
+      <div class="specs">
+        <div class="spec"><div class="v">120+</div><div class="l">Engagements</div></div>
+        <div class="spec"><div class="v">10yr</div><div class="l">In practice</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="logos-row">
+    <div class="l">Clients have led teams at</div>
+    <div class="b">◆ Linear</div><div class="b">○ Notion</div><div class="b">▲ Stripe</div><div class="b">◇ Vercel</div><div class="b">▢ Figma</div><div class="b">◑ Datadog</div>
+  </div>
+
+  <div class="problem">
+    <div class="section-head"><h2>Most senior leaders aren't stuck on the work.<br/>They're stuck on the conversation about the work.</h2></div>
+    <div class="problem-grid">
+      <div class="col-card before">
+        <h4>— Before we work together</h4>
+        <ul>
+          <li>You're the meeting people leave to talk about</li>
+          <li>Decisions take a week longer than they should</li>
+          <li>You give feedback once, then carry it for months</li>
+          <li>Your calendar runs you, not the other way</li>
+          <li>You don't know how your team really feels</li>
+        </ul>
+      </div>
+      <div class="col-card after">
+        <h4>— After three months</h4>
+        <ul>
+          <li>You name the thing in the room while it's in the room</li>
+          <li>You can pick the right decision in twenty minutes</li>
+          <li>Feedback is regular, specific, and not a big deal</li>
+          <li>You design your week instead of receiving it</li>
+          <li>Your team trusts you with the hard updates</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="testimonials">
+    <div class="tm"><div class="stars">★★★★★</div><div class="q">"Six months in I'm running a team of forty and the meetings are shorter, sharper, and somehow more humane. That's the work."</div><div class="av"></div><div class="who"><strong>Name</strong><span>VP Engineering · series-B startup</span></div></div>
+    <div class="tm"><div class="stars">★★★★★</div><div class="q">"It's the first coaching I've done where I didn't feel like I had to perform. Replace this with a real quote."</div><div class="av" style="background:linear-gradient(135deg,#ffd7c2,#ff8a5b)"></div><div class="who"><strong>Name</strong><span>Founder · 30-person company</span></div></div>
+    <div class="tm"><div class="stars">★★★★★</div><div class="q">"My partner noticed before my team did. That was the moment I knew the work was real."</div><div class="av" style="background:linear-gradient(135deg,#c5e9c8,#2c9a4a)"></div><div class="who"><strong>Name</strong><span>Head of Design · enterprise SaaS</span></div></div>
+  </div>
+
+  <div class="cta-band">
+    <div>
+      <h3>Start with a 30-minute<br/>intro call.</h3>
+      <p>No agenda. We meet, you describe the year, and we decide if we want to work together. Free, no pressure.</p>
+    </div>
+    <form class="form" onsubmit="event.preventDefault();goto('contact')">
+      <input placeholder="Your name"/><input placeholder="Work email" type="email"/>
+      <button class="btn btn-primary">Request intro call →</button>
+    </form>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><span class="kicker"><span class="d"></span>About</span><h2>Coaching that's<br/>less talking, more thinking.</h2><p>Replace this with your story and what makes the practice yours.</p></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">I started coaching senior leaders in Year because I'd spent fifteen years being one — and most of the help I'd received made me sound like a podcast guest.</p>
+      <p>Replace this with the version of your story you tell to qualify a client. Where you led teams. What broke. What you learned. The certifications, when they're useful.</p>
+      <p>Be specific about the kinds of people you do your best work with — and the kinds you decline.</p>
+    </div>
+    <div>
+      <h3 style="font-size:24px;font-weight:600;margin-bottom:18px;letter-spacing:-.01em">Credentials</h3>
+      <div class="creds">
+        <div class="cred"><div class="yr">Year</div><h5>ICF Professional Certified Coach (PCC)</h5><p>250+ hours of coaching education, 500+ hours of practice.</p></div>
+        <div class="cred"><div class="yr">Year — Year</div><h5>Head of Function · Company</h5><p>Led a team of 40. The years that taught me the work.</p></div>
+        <div class="cred"><div class="yr">Year</div><h5>MS / MBA · University</h5><p>One sentence on focus.</p></div>
+        <div class="cred"><div class="yr">Ongoing</div><h5>Supervision &amp; CE</h5><p>Monthly group supervision, annual continuing education.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><span class="kicker"><span class="d"></span>Programs</span><h2>Three ways<br/>to work together.</h2></div>
+  <div class="svc-grid">
+    <div class="svc"><h3>Intro intensive</h3><div class="price">$2,800<small> / one-off</small></div><p>Three 90-minute sessions over two weeks. For one specific question.</p><ul><li>Three 90-minute sessions</li><li>Pre-engagement intake</li><li>Written summary &amp; plan</li><li>One follow-up at 30 days</li></ul><button class="btn btn-ghost" onclick="goto('contact')">Get started</button></div>
+    <div class="svc featured"><h3>Six-month engagement</h3><div class="price">$2,400<small> / month</small></div><p>The core program. Two sessions a month, an open Slack channel, and a fixed end date.</p><ul><li>Two sessions per month</li><li>Async support between sessions</li><li>360 feedback at month two</li><li>Quarterly check-in with a sponsor</li><li>Notes &amp; transcript after every session</li></ul><button class="btn btn-primary" onclick="goto('contact')">Apply →</button></div>
+    <div class="svc"><h3>Small cohort</h3><div class="price">$4,800<small> / 12 weeks</small></div><p>Six leaders, twelve weeks, one curriculum. Confidential and small on purpose.</p><ul><li>Six leaders per cohort</li><li>Weekly two-hour session</li><li>Peer coaching pairs</li><li>Two private 1:1 sessions</li></ul><button class="btn btn-ghost" onclick="goto('contact')">Join waitlist</button></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><span class="kicker"><span class="d"></span>Book a call</span><h2>Start with a<br/>30-minute call.</h2><p>Pick a time that works. We meet, you describe the year, and we decide if we want to work together.</p></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo form.')">
+      <div class="field row"><div><label>First name</label><input/></div><div><label>Last name</label><input/></div></div>
+      <div class="field"><label>Work email</label><input type="email"/></div>
+      <div class="field row"><div><label>Company</label><input/></div><div><label>Role</label><input placeholder="e.g. VP Engineering"/></div></div>
+      <div class="field"><label>Team size</label>
+        <select><option>1 – 10</option><option>11 – 50</option><option>51 – 200</option><option>201+</option></select></div>
+      <div class="field"><label>What's on your mind?</label><textarea placeholder="The version you wouldn't tell a stranger. We'll meet about it."></textarea></div>
+      <button class="btn btn-primary">Request intro call →</button>
+    </form>
+    <div class="info-block">
+      <h3>Reach me directly</h3>
+      <div class="info-row"><div class="lbl">Email</div>hello@yourpractice.com</div>
+      <div class="info-row"><div class="lbl">Based in</div>City, ST · all sessions remote</div>
+      <div class="info-row"><div class="lbl">Time zones</div>I keep hours in PT &amp; ET</div>
+      <div class="info-row"><div class="lbl">Response</div>1 – 2 business days</div>
+      <div class="info-row"><div class="lbl">Wait list</div>Currently 4 weeks for new engagements</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+<footer><div class="wrap"><div>© 2026 Your Practice · ICF-certified coaching</div><div class="foot-links"><a>LinkedIn</a><a>Substack</a><a>Privacy</a></div></div></footer>
+<script>
+function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script></body></html>

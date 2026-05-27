@@ -107,6 +107,19 @@ const TEMPLATE_NAMES: Record<string, string> = {
   "vet-clinic": "Vet Clinic", "yoga-studio": "Yoga Studio",
   "tattoo-studio": "Tattoo Studio", "florist": "Florist",
   "bookstore": "Bookstore", "saas-startup": "SaaS / Tech Startup",
+  "creative-agency": "Creative Agency", "personal-portfolio": "Personal Portfolio",
+  "consultant-coach": "Consultant & Coach", "editorial-blog": "Editorial Blog",
+  "podcast": "Podcast", "conference-event": "Conference & Event",
+  "marketing-landing": "Marketing Landing Page", "online-course": "Online Course",
+  "community": "Community", "ai-product": "AI Product",
+  "mobile-app": "Mobile App", "web3-crypto": "Web3 & Crypto",
+  "job-board": "Job Board", "marketplace": "Marketplace",
+  "nonprofit": "Nonprofit", "coworking": "Coworking Space",
+  "boutique-hotel": "Boutique Hotel", "travel-guide": "Travel Guide",
+  "fashion-label": "Fashion Label", "skincare": "Skincare Brand",
+  "furniture": "Furniture Store", "plants": "Plant Shop",
+  "wine-shop": "Wine Shop", "cleaning-service": "Cleaning Service",
+  "moving-service": "Moving Service", "photography": "Photography Studio",
 };
 
 function buildPrompt(f: WizardData): string {
@@ -123,11 +136,15 @@ function buildPrompt(f: WizardData): string {
   };
 
   const fontMap: Record<string, string> = {
-    "modern-sans":   "Inter / Helvetica Neue style — clean geometric sans-serif",
-    "classic-serif": "Georgia / Playfair Display style — classic serif, elegant and trustworthy",
-    "geo-bold":      "heavy bold display sans-serif, strong visual weight, impactful headlines",
-    "mono":          "JetBrains Mono / Courier style — monospace, technical and precise",
-    "playful":       "rounded friendly typeface, casual and warm, slightly larger letter-spacing",
+    "modern-sans":    "Inter / Helvetica Neue style — clean geometric sans-serif",
+    "classic-serif":  "Georgia / Playfair Display style — classic serif, elegant and trustworthy",
+    "geo-bold":       "heavy bold display sans-serif, strong visual weight, impactful headlines",
+    "mono":           "JetBrains Mono / Courier style — monospace, technical and precise",
+    "playful":        "rounded friendly typeface, casual and warm, slightly larger letter-spacing",
+    "humanist-sans":  "Manrope — warm humanist sans-serif, approachable and modern with subtle personality",
+    "luxury-serif":   "Cormorant Garamond — ultra-thin high-contrast luxury serif, refined and elegant, ideal for fashion and premium brands",
+    "editorial-serif":"Fraunces — optical size serif with literary character, contemporary editorial quality, great for restaurants and culture",
+    "space-grotesk":  "Space Grotesk — geometric grotesque with distinctive quirky details, tech-forward and bold, ideal for Web3 and creative studios",
   };
 
   const imageryMap: Record<string, string> = {

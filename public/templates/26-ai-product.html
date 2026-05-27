@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your AI — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#0a0a0a;--muted:#6b6b6b;--line:#ececec;--accent:#000;--soft:#f6f6f6;--electric:#00ffae}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:Inter,sans-serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.wrap{max-width:1280px;margin:0 auto;padding:0 36px}
+.mono{font-family:'JetBrains Mono',monospace}
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px;letter-spacing:-.02em}
+.logo .mk{width:28px;height:28px;background:var(--ink);color:#fff;border-radius:6px;display:grid;place-items:center;font-weight:700}
+.nav-links{display:flex;gap:28px;font-size:13.5px;color:var(--muted)}
+.nav-links a.active{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:.15s}
+.btn-primary{background:var(--ink);color:#fff}.btn-primary:hover{background:#222}
+.btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.page{display:none;padding:80px 0 120px}.page.active{display:block}
+
+.hero{text-align:center;max-width:920px;margin:0 auto}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:5px 14px 5px 5px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px;color:var(--ink);margin-bottom:24px}
+.pill .t{padding:3px 9px;background:var(--ink);color:var(--electric);border-radius:999px;font-size:10.5px;font-weight:600;letter-spacing:.04em;font-family:'JetBrains Mono'}
+h1.display{font-size:clamp(56px,7.2vw,108px);line-height:.96;letter-spacing:-.045em;font-weight:600}
+h1.display .grad{background:linear-gradient(180deg,#0a0a0a 0%,#5a5a5a 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.lede{font-size:19px;color:var(--muted);max-width:580px;margin:24px auto 32px}
+.hero-cta{display:inline-flex;gap:10px;flex-wrap:wrap}
+.tags-row{margin-top:32px;display:inline-flex;gap:8px;flex-wrap:wrap;justify-content:center;font-family:'JetBrains Mono';font-size:11.5px}
+.tags-row span{padding:5px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted)}
+
+.demo{margin-top:80px;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:#fafafa}
+.demo-top{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;background:#fff}
+.demo-top .dots{display:flex;gap:6px}
+.demo-top .dots div{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.demo-top .url{font-family:'JetBrains Mono';font-size:12px;color:var(--muted)}
+.demo-top .state{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono';font-size:11px;color:var(--ink)}
+.demo-top .state .d{width:8px;height:8px;border-radius:50%;background:#0d9a44;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.chat{padding:48px;display:grid;gap:14px;max-width:760px;margin:0 auto}
+.msg{padding:18px 22px;border-radius:18px;font-size:15.5px;line-height:1.5;max-width:90%}
+.msg.user{align-self:flex-end;background:var(--ink);color:#fff;margin-left:auto}
+.msg.ai{background:#fff;border:1px solid var(--line)}
+.msg.ai .label{font-family:'JetBrains Mono';font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.msg.ai .cite{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-family:'JetBrains Mono';font-size:11.5px;color:var(--muted)}
+.msg.ai .cite span{color:var(--ink);padding:2px 6px;background:var(--soft);border-radius:4px;margin-right:4px}
+.input-mock{margin-top:18px;padding:14px 18px;background:#fff;border:1px solid var(--line);border-radius:14px;display:flex;align-items:center;gap:14px;max-width:760px;margin-left:auto;margin-right:auto;color:var(--muted)}
+.input-mock .ph{flex:1}
+.input-mock .send{width:34px;height:34px;background:var(--ink);color:#fff;border-radius:8px;display:grid;place-items:center}
+.cursor{display:inline-block;width:2px;height:18px;background:var(--ink);vertical-align:middle;animation:blink 1s steps(2) infinite;margin-left:4px}
+@keyframes blink{50%{opacity:0}}
+
+.capabilities{margin-top:120px}
+.section-head{text-align:center;max-width:640px;margin:0 auto 56px}
+.section-head .kick{font-family:'JetBrains Mono';font-size:12px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;margin-bottom:12px}
+.section-head h2{font-size:clamp(36px,4.6vw,56px);letter-spacing:-.035em;font-weight:600;line-height:1.04}
+.section-head p{font-size:17.5px;color:var(--muted);margin-top:14px}
+.cap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.cap{padding:36px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);transition:.15s}
+.cap:hover{background:var(--soft)}
+.cap:nth-child(3n){border-right:none}
+.cap:nth-last-child(-n+3){border-bottom:none}
+.cap .n{font-family:'JetBrains Mono';font-size:12px;color:var(--muted);letter-spacing:.06em}
+.cap h3{font-size:20px;font-weight:600;letter-spacing:-.015em;margin:10px 0 8px}
+.cap p{color:var(--muted);font-size:14.5px}
+
+.bench{margin-top:120px;padding:48px;background:var(--ink);color:#fff;border-radius:20px;display:grid;grid-template-columns:1fr 1.4fr;gap:48px;align-items:center}
+.bench h3{font-size:36px;letter-spacing:-.03em;font-weight:600;margin-bottom:12px}
+.bench h3 .grad{color:var(--electric)}
+.bench p{color:#9c9c9c;font-size:14.5px;max-width:340px}
+.bars{display:grid;gap:14px}
+.bar-row{display:grid;grid-template-columns:140px 1fr 60px;gap:14px;align-items:center;font-family:'JetBrains Mono';font-size:12px}
+.bar-row .lbl{color:#bcbcbc}
+.bar-row .v{color:#fff;font-weight:500;text-align:right;font-size:13px}
+.bar-row .track{height:24px;background:rgba(255,255,255,.08);border-radius:6px;position:relative;overflow:hidden}
+.bar-row .fill{height:100%;background:var(--electric);border-radius:6px}
+.bar-row .fill.dim{background:rgba(255,255,255,.3)}
+
+.devs{margin-top:120px;display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.dev-block{padding:36px;background:var(--soft);border-radius:16px}
+.dev-block h3{font-size:24px;font-weight:600;letter-spacing:-.02em;margin-bottom:8px}
+.dev-block p{color:var(--muted);font-size:14.5px;margin-bottom:18px}
+.dev-block .code{padding:18px;background:#0a0a0a;color:#e5e5e5;border-radius:10px;font-family:'JetBrains Mono';font-size:12.5px;line-height:1.7;overflow:auto}
+.dev-block .code .k{color:var(--electric)}
+.dev-block .code .s{color:#ff9ec4}
+.dev-block .code .c{color:#777}
+
+.page-head{margin-bottom:56px;max-width:720px}
+.page-head h2{font-size:clamp(40px,5vw,68px);letter-spacing:-.035em;font-weight:600;line-height:1.04;margin-top:12px}
+.page-head p{font-size:18px;color:var(--muted);margin-top:14px}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+.about-text p{margin-bottom:16px;color:#333}
+.about-text p.lead{font-size:24px;font-weight:500;line-height:1.4;color:var(--ink);margin-bottom:20px;letter-spacing:-.015em}
+.team{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.tm{padding:24px;background:var(--soft);border-radius:14px}
+.tm .av{width:48px;height:48px;border-radius:50%;background:var(--ink);margin-bottom:12px;position:relative;overflow:hidden}
+.tm .av::after{content:"";position:absolute;inset:30%;background:var(--electric);border-radius:50%}
+.tm h5{font-size:15.5px;font-weight:600;letter-spacing:-.01em}
+.tm .ro{font-size:12px;color:var(--muted);margin:2px 0 8px}
+.tm p{font-size:13px;color:var(--muted)}
+
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.pl{padding:36px;border:1px solid var(--line);border-radius:18px;background:#fff;display:grid;gap:14px;align-content:start}
+.pl.featured{background:var(--ink);color:#fff;border-color:var(--ink)}
+.pl.featured p,.pl.featured ul{color:#9c9c9c}
+.pl h3{font-size:20px;font-weight:600;letter-spacing:-.015em}
+.pl .price{font-size:44px;font-weight:600;letter-spacing:-.03em}
+.pl .price small{font-size:14px;font-weight:400;color:var(--muted)}
+.pl.featured .price small{color:#888}
+.pl ul{list-style:none;display:grid;gap:8px;font-size:14px;color:#333;margin:14px 0}
+.pl li{padding-left:22px;position:relative}.pl li::before{content:"→";position:absolute;left:0;color:var(--ink);font-weight:700}
+.pl.featured li::before{color:var(--electric)}
+.pl .btn{width:100%;justify-content:center}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+form{display:grid;gap:16px}
+.field label{display:block;font-size:12px;color:var(--muted);letter-spacing:.04em;margin-bottom:6px;text-transform:uppercase;font-family:'JetBrains Mono'}
+input,textarea,select{width:100%;padding:13px 16px;border-radius:8px;border:1px solid var(--line);background:#fff;font:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--ink)}
+.field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+textarea{min-height:120px;resize:vertical}
+.info-block{padding:36px;background:var(--soft);border-radius:18px}
+.info-block h3{font-size:22px;font-weight:600;letter-spacing:-.02em;margin-bottom:20px}
+.info-row{padding:14px 0;border-top:1px solid #e0e0e0;font-size:14px;font-family:'JetBrains Mono'}
+.info-row:first-of-type{border-top:none}
+.info-row .lbl{font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+
+footer{border-top:1px solid var(--line);padding:28px 0;font-family:'JetBrains Mono';font-size:12px;color:var(--muted)}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-links{display:flex;gap:24px}
+@media(max-width:880px){.cap-grid,.bench,.devs,.about-grid,.contact-grid,.team,.pricing-grid{grid-template-columns:1fr}.cap:nth-child(3n){border-right:1px solid var(--line)}.cap:nth-last-child(-n+3){border-bottom:1px solid var(--line)}.cap:last-child{border:none}.nav-links{display:none}}
+</style></head><body>
+
+<nav><div class="wrap">
+<a class="logo" onclick="goto('home')"><span class="mk">◆</span>Your AI</a>
+<div class="nav-links">
+<a data-page="home" class="active">Product</a><a data-page="services">Pricing</a><a data-page="about">Company</a><a data-page="contact">Contact</a>
+</div>
+<div style="display:flex;gap:10px"><button class="btn btn-ghost">Docs</button><button class="btn btn-primary" onclick="goto('contact')">Try it →</button></div>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div class="pill"><span class="t">v3.0</span><span>Now with stateful agents &amp; tool use →</span></div>
+    <h1 class="display"><span class="grad">Reasoning, in your<br/>application stack.</span></h1>
+    <p class="lede">Replace this with what your AI actually does. A practical model, a stateful runtime, and the audit log you'd expect from real software.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary">Get an API key →</button>
+      <button class="btn btn-ghost">Read the docs</button>
+    </div>
+    <div class="tags-row">
+      <span>// Reasoning</span><span>// Tools</span><span>// Memory</span><span>// Streaming</span><span>// SOC 2</span><span>// EU residency</span>
+    </div>
+  </div>
+
+  <div class="demo">
+    <div class="demo-top">
+      <div style="display:flex;gap:14px;align-items:center"><div class="dots"><div></div><div></div><div></div></div><div class="url">api.yourai.com / playground</div></div>
+      <div class="state"><span class="d"></span>STREAMING · 142 tok/s</div>
+    </div>
+    <div class="chat">
+      <div class="msg user">Take this CSV of last quarter's invoices and tell me which customers grew the fastest, by ACV.</div>
+      <div class="msg ai">
+        <div class="label">— ◆ assistant · 4.2s · 3 tools used</div>
+        <div>I parsed 1,284 invoices across 312 customers. Top growth (Q-over-Q, ACV):<br/>1. <strong>Northwind Logistics</strong> — +218% ($28k → $89k)<br/>2. <strong>Halftone Co.</strong> — +146% ($14k → $34k)<br/>3. <strong>Tessera</strong> — +94% ($22k → $43k)<br/>I've prepared a sortable table and a one-paragraph summary for your CRM.<span class="cursor"></span></div>
+        <div class="cite"><span>parse_csv</span><span>cluster</span><span>format_table</span> · sources: invoices_q1.csv, invoices_q2.csv</div>
+      </div>
+    </div>
+    <div class="input-mock"><div class="ph">Ask Your AI anything · type / for tools</div><div class="send">↑</div></div>
+  </div>
+
+  <div class="capabilities">
+    <div class="section-head"><div class="kick">— Capabilities</div><h2>One API.<br/>The whole stack.</h2></div>
+    <div class="cap-grid">
+      <div class="cap"><div class="n">// 01</div><h3>Reasoning</h3><p>Multi-step chain-of-thought with verifiable intermediate steps.</p></div>
+      <div class="cap"><div class="n">// 02</div><h3>Tool use</h3><p>Function calls, code, search, and your own tools, defined in OpenAPI.</p></div>
+      <div class="cap"><div class="n">// 03</div><h3>Stateful memory</h3><p>Conversation, project, and org-level memory with TTLs you control.</p></div>
+      <div class="cap"><div class="n">// 04</div><h3>Streaming</h3><p>Token streams with structured deltas — JSON, markdown, tool calls.</p></div>
+      <div class="cap"><div class="n">// 05</div><h3>RAG-ready</h3><p>Bring vectors, or use ours. Hybrid retrieval with citations included.</p></div>
+      <div class="cap"><div class="n">// 06</div><h3>Audit log</h3><p>Every prompt, every tool, every token — retained for seven years.</p></div>
+    </div>
+  </div>
+
+  <div class="bench">
+    <div>
+      <h3>Beats the <span class="grad">benchmarks</span> that<br/>actually matter.</h3>
+      <p>Evals on real-world tasks. Code, retrieval, structured extraction. Run them yourself with our open eval kit.</p>
+    </div>
+    <div class="bars">
+      <div class="bar-row"><span class="lbl">CODE — HumanEval+</span><div class="track"><div class="fill" style="width:94%"></div></div><span class="v">94.2%</span></div>
+      <div class="bar-row"><span class="lbl">RAG — RAGBench</span><div class="track"><div class="fill" style="width:88%"></div></div><span class="v">88.0%</span></div>
+      <div class="bar-row"><span class="lbl">EXTRACT — SQuAD</span><div class="track"><div class="fill" style="width:91%"></div></div><span class="v">91.1%</span></div>
+      <div class="bar-row"><span class="lbl">TOOLS — ToolBench</span><div class="track"><div class="fill" style="width:86%"></div></div><span class="v">86.4%</span></div>
+      <div class="bar-row"><span class="lbl">LATENCY — p50</span><div class="track"><div class="fill dim" style="width:38%"></div></div><span class="v">340ms</span></div>
+      <div class="bar-row"><span class="lbl">CONTEXT</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="v">2M tok</span></div>
+    </div>
+  </div>
+
+  <div class="devs">
+    <div class="dev-block">
+      <h3>Three lines<br/>to your first call.</h3>
+      <p>SDKs for TypeScript, Python, Go, Rust. CLI for the rest.</p>
+      <div class="code"><span class="c">// npm i @yourai/sdk</span><br/>
+<span class="k">import</span> { client } <span class="k">from</span> <span class="s">'@yourai/sdk'</span><br/>
+<span class="k">const</span> res = <span class="k">await</span> client.complete({<br/>
+&nbsp;&nbsp;input: <span class="s">'Summarize this email thread'</span>,<br/>
+&nbsp;&nbsp;tools: [<span class="s">'email.search'</span>]<br/>
+})</div>
+    </div>
+    <div class="dev-block">
+      <h3>Stream from<br/>any runtime.</h3>
+      <p>Edge functions, server actions, server-sent events. Sub-second to first token.</p>
+      <div class="code"><span class="c">// stream tokens with deltas</span><br/>
+<span class="k">for await</span> (<span class="k">const</span> chunk <span class="k">of</span> stream) {<br/>
+&nbsp;&nbsp;<span class="k">if</span> (chunk.type === <span class="s">'text'</span>) write(chunk.delta)<br/>
+&nbsp;&nbsp;<span class="k">if</span> (chunk.type === <span class="s">'tool'</span>) call(chunk.fn)<br/>
+}</div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><div class="mono" style="font-size:12px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase">// Company</div><h2>Building <span class="mono">AI</span> for production,<br/>not demos.</h2></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">We started in Year because every model we tried in production fell apart on Tuesday.</p>
+      <p>Replace this with the research mission. The labs you came from. The decisions you've made about safety, latency, and what to publish.</p>
+      <p>Be specific. The eval suite you open-sourced. The customer who runs ten million calls a day. The week the model didn't ship because it wasn't ready.</p>
+    </div>
+    <div>
+      <h3 style="font-size:20px;font-weight:600;letter-spacing:-.015em;margin-bottom:14px">— founders</h3>
+      <div class="team">
+        <div class="tm"><div class="av"></div><h5>Founder Name</h5><div class="ro">CEO · ML</div><p>Background &amp; research focus.</p></div>
+        <div class="tm"><div class="av"></div><h5>Founder Name</h5><div class="ro">CTO · Systems</div><p>Background &amp; research focus.</p></div>
+        <div class="tm"><div class="av"></div><h5>Researcher Name</h5><div class="ro">Head of Research</div><p>Background &amp; research focus.</p></div>
+        <div class="tm"><div class="av"></div><h5>Leader Name</h5><div class="ro">Head of Safety</div><p>Background &amp; research focus.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><div class="mono" style="font-size:12px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase">// Pricing</div><h2>Usage-based.<br/>Predictable.</h2><p>Pay for tokens, not seats. Volume discounts kick in automatically.</p></div>
+  <div class="pricing-grid">
+    <div class="pl"><h3>Developer</h3><div class="price">$0<small>/month + usage</small></div><p>For prototypes and small projects.</p><ul><li>$0.40 / M input tokens</li><li>$1.20 / M output tokens</li><li>Community Slack</li><li>1M token / day cap</li></ul><button class="btn btn-ghost">Get API key</button></div>
+    <div class="pl featured"><h3>Team</h3><div class="price">$200<small>/mo + usage</small></div><p>The standard plan. Production-ready limits.</p><ul><li>$0.32 / M input tokens</li><li>$0.96 / M output tokens</li><li>20M token / day default</li><li>Priority queue</li><li>Email support · 4hr SLA</li></ul><button class="btn btn-primary">Start with Team →</button></div>
+    <div class="pl"><h3>Enterprise</h3><div class="price">Custom</div><p>For regulated industries and very large volume.</p><ul><li>Custom rates</li><li>EU / US residency</li><li>SAML, SCIM, custom roles</li><li>SOC 2 + ISO + HIPAA</li><li>Dedicated infra option</li></ul><button class="btn btn-ghost">Talk to sales</button></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><div class="mono" style="font-size:12px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase">// Contact</div><h2>Talk to<br/>a human.</h2></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo')">
+      <div class="field row"><div><label>Name</label><input/></div><div><label>Email</label><input type="email"/></div></div>
+      <div class="field"><label>Company</label><input/></div>
+      <div class="field"><label>This is about</label>
+        <select><option>Pricing / enterprise</option><option>Technical question</option><option>Research collaboration</option><option>Partnerships</option><option>Press</option></select></div>
+      <div class="field"><label>Use case</label><textarea placeholder="Volume, latency, constraints — whatever helps us help you."></textarea></div>
+      <button class="btn btn-primary">Send →</button>
+    </form>
+    <div class="info-block">
+      <h3>Reach us</h3>
+      <div class="info-row"><div class="lbl">// sales</div>sales@yourai.com</div>
+      <div class="info-row"><div class="lbl">// support</div>support@yourai.com</div>
+      <div class="info-row"><div class="lbl">// security</div>security@yourai.com</div>
+      <div class="info-row"><div class="lbl">// research</div>research@yourai.com</div>
+      <div class="info-row"><div class="lbl">// status</div><span style="color:#0d9a44">● operational · 99.99% uptime</span></div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+<footer><div class="wrap"><div>// © 2026 Your AI · build with reasoning</div><div class="foot-links"><a>Docs</a><a>Status</a><a>Research</a><a>Privacy</a></div></div></footer>
+<script>
+function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script></body></html>

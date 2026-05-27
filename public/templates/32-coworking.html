@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Coworking — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#15161a;--muted:#646774;--accent:#ff7a00;--soft:#fff4e8;--line:#ececef;--card:#fafafd}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:Manrope,sans-serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.wrap{max-width:1240px;margin:0 auto;padding:0 36px}
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;letter-spacing:-.02em}
+.logo .mk{width:32px;height:32px;border-radius:8px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700}
+.nav-links{display:flex;gap:28px;font-size:14px;color:var(--muted);font-weight:500}
+.nav-links a.active{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:.15s}
+.btn-primary{background:var(--ink);color:#fff}.btn-primary:hover{background:var(--accent)}
+.btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.page{display:none;padding:64px 0 120px}.page.active{display:block}
+.kicker{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;background:var(--soft);color:var(--accent);font-size:13px;font-weight:700;border-radius:999px;margin-bottom:20px}
+.kicker .d{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:end}
+.hero h1{font-size:clamp(48px,5.8vw,84px);line-height:1.04;letter-spacing:-.03em;font-weight:700;margin-bottom:18px}
+.hero h1 em{color:var(--accent);font-style:normal}
+.hero .lede{font-size:18px;color:var(--muted);max-width:480px;margin-bottom:24px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+
+.floorplan{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:24px;aspect-ratio:5/4;position:relative}
+.floorplan .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.floorplan h4{font-size:14px;font-weight:700;letter-spacing:-.01em}
+.floorplan .live{font-size:11px;color:#0d9a44;display:flex;align-items:center;gap:6px;font-weight:600}
+.floorplan .live .d{width:7px;height:7px;border-radius:50%;background:#0d9a44}
+.floor-svg{width:100%;height:calc(100% - 50px);position:relative}
+.room{position:absolute;border-radius:8px;display:grid;place-items:center;font-size:11px;font-weight:600;text-align:center;color:#fff;padding:6px;line-height:1.2}
+.room.work{background:var(--accent);opacity:.95}
+.room.meet{background:#3a8ad6;opacity:.85}
+.room.lounge{background:#2c9a4a;opacity:.85}
+.room.phone{background:#7c4dff;opacity:.85}
+.room.kitchen{background:#fbb040;opacity:.85}
+.room .ct{font-size:9px;opacity:.85;margin-top:2px;font-weight:500}
+
+.amenities-bar{margin-top:80px;display:grid;grid-template-columns:repeat(6,1fr);gap:0;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff}
+.am{padding:20px;border-right:1px solid var(--line);text-align:center}
+.am:last-child{border-right:none}
+.am .ic{font-size:22px;margin-bottom:8px}
+.am h5{font-size:13px;font-weight:600;letter-spacing:-.01em}
+.am p{font-size:11.5px;color:var(--muted);margin-top:2px}
+
+.section-head{margin-top:120px;margin-bottom:32px;display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:20px}
+.section-head h2{font-size:48px;letter-spacing:-.025em;font-weight:700}
+.section-head h2 em{color:var(--accent);font-style:normal}
+
+.spaces-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.sp{padding:32px;background:#fff;border:1px solid var(--line);border-radius:20px;transition:.15s}
+.sp:hover{border-color:var(--accent);transform:translateY(-3px)}
+.sp .preview{aspect-ratio:5/3;border-radius:14px;margin-bottom:18px;position:relative;display:grid;place-items:center;color:#fff}
+.sp .preview.a{background:linear-gradient(160deg,#ffb84a,var(--accent))}
+.sp .preview.b{background:linear-gradient(160deg,#7ec0e8,#3a8ad6)}
+.sp .preview.c{background:linear-gradient(160deg,#a5d8ad,#2c9a4a)}
+.sp .preview svg{width:50%;height:50%;opacity:.6}
+.sp .preview .av{position:absolute;top:14px;right:14px;padding:4px 10px;background:rgba(255,255,255,.9);color:var(--ink);border-radius:999px;font-size:11px;font-weight:700}
+.sp h3{font-size:24px;font-weight:700;letter-spacing:-.015em;margin-bottom:8px}
+.sp p{color:var(--muted);font-size:14.5px;margin-bottom:18px}
+.sp .row{display:flex;justify-content:space-between;align-items:baseline;padding-top:14px;border-top:1px solid var(--line)}
+.sp .price{font-size:24px;font-weight:700;letter-spacing:-.02em}
+.sp .price small{font-size:13px;color:var(--muted);font-weight:500}
+
+.events-block{margin-top:120px;padding:48px;background:var(--ink);color:#fff;border-radius:24px;display:grid;grid-template-columns:1fr 1.4fr;gap:48px;align-items:center}
+.events-block h2{font-size:42px;letter-spacing:-.025em;font-weight:700;line-height:1.05;margin-bottom:14px}
+.events-block h2 em{color:var(--accent);font-style:normal}
+.events-block p{color:#a8aabf}
+.ev-list{display:grid;gap:8px}
+.ev{padding:16px;background:rgba(255,255,255,.06);border-radius:12px;display:grid;grid-template-columns:60px 1fr auto;gap:14px;align-items:center}
+.ev .d{text-align:center}
+.ev .d .day{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1}
+.ev .d .mo{font-size:11px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.ev h5{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.ev .desc{font-size:12.5px;color:#a8aabf;margin-top:2px}
+.ev .free{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:.06em}
+
+.page-head{margin-bottom:56px;max-width:760px}
+.page-head h2{font-size:clamp(40px,5vw,68px);letter-spacing:-.03em;font-weight:700;line-height:1.04;margin-top:10px}
+.page-head h2 em{color:var(--accent);font-style:normal}
+.page-head p{font-size:18px;color:var(--muted);margin-top:14px}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+.about-text p{margin-bottom:16px;color:#33384a}
+.about-text p.lead{font-size:22px;font-weight:600;line-height:1.4;color:var(--ink);margin-bottom:20px;letter-spacing:-.015em}
+.numbers{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.num-card{padding:24px;background:var(--soft);border-radius:14px}
+.num-card .v{font-size:36px;font-weight:700;letter-spacing:-.025em;color:var(--accent);line-height:1}
+.num-card .l{font-size:13px;color:var(--muted);margin-top:6px}
+
+.plans-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.pl{padding:28px;background:#fff;border:1px solid var(--line);border-radius:18px;display:grid;gap:14px;align-content:start}
+.pl.featured{background:var(--accent);color:#fff;border-color:var(--accent)}
+.pl.featured p,.pl.featured ul{color:#ffe1c2}
+.pl h3{font-size:20px;font-weight:700;letter-spacing:-.015em}
+.pl .price{font-size:36px;font-weight:700;letter-spacing:-.025em}
+.pl .price small{font-size:13px;color:var(--muted);font-weight:500}
+.pl.featured .price small{color:#ffd6a5}
+.pl ul{list-style:none;display:grid;gap:6px;font-size:13.5px;color:#33384a}
+.pl li{padding-left:18px;position:relative}.pl li::before{content:"✓";position:absolute;left:0;color:var(--accent);font-weight:700}
+.pl.featured li::before{color:#fff}
+.pl .btn{width:100%;justify-content:center;font-size:13.5px;padding:10px}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+form{display:grid;gap:16px}
+.field label{display:block;font-size:13px;color:var(--ink);margin-bottom:6px;font-weight:600}
+input,textarea,select{width:100%;padding:13px 16px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+textarea{min-height:120px;resize:vertical}
+.info-block{padding:40px;background:var(--soft);border-radius:18px}
+.info-block h3{font-size:24px;font-weight:700;letter-spacing:-.02em;margin-bottom:18px}
+.info-row{padding:14px 0;border-top:1px solid #ffd6a5;font-size:14.5px}
+.info-row:first-of-type{border-top:none}
+.info-row .lbl{font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+
+footer{border-top:1px solid var(--line);padding:32px 0;color:var(--muted);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-links{display:flex;gap:24px}
+@media(max-width:880px){.hero,.about-grid,.events-block,.contact-grid{grid-template-columns:1fr}.amenities-bar{grid-template-columns:1fr 1fr 1fr}.spaces-grid{grid-template-columns:1fr}.plans-grid{grid-template-columns:1fr 1fr}.numbers{grid-template-columns:1fr}.nav-links{display:none}}
+</style></head><body>
+
+<nav><div class="wrap">
+<a class="logo" onclick="goto('home')"><span class="mk">⌬</span>Your Space</a>
+<div class="nav-links">
+<a data-page="home" class="active">Home</a><a data-page="services">Plans</a><a data-page="about">The space</a><a data-page="contact">Tour</a>
+</div>
+<button class="btn btn-primary" onclick="goto('contact')">Book a tour →</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div>
+      <span class="kicker"><span class="d"></span>Currently 84 people working from here</span>
+      <h1>A coworking space for <em>real work</em>.</h1>
+      <p class="lede">Quiet rooms, fast wifi, real espresso, and a community of senior people who'd rather not work from a café. Replace this with your space's voice.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="goto('contact')">Book a free tour →</button>
+        <button class="btn btn-ghost" onclick="goto('services')">See plans</button>
+      </div>
+    </div>
+    <div class="floorplan">
+      <div class="top"><h4>// 2nd floor · live availability</h4><div class="live"><span class="d"></span>UPDATED 2 MIN AGO</div></div>
+      <div class="floor-svg">
+        <div class="room work" style="top:4%;left:0;width:38%;height:48%">Open desks<div class="ct">22 / 30 open</div></div>
+        <div class="room meet" style="top:4%;left:40%;width:28%;height:24%">Meeting · A<div class="ct">free until 11</div></div>
+        <div class="room meet" style="top:30%;left:40%;width:28%;height:22%">Meeting · B<div class="ct">booked</div></div>
+        <div class="room phone" style="top:4%;right:0;width:30%;height:14%">Phone · 1</div>
+        <div class="room phone" style="top:20%;right:0;width:30%;height:14%">Phone · 2</div>
+        <div class="room kitchen" style="top:36%;right:0;width:30%;height:16%">Kitchen</div>
+        <div class="room lounge" style="bottom:4%;left:0;width:60%;height:42%">Lounge<div class="ct">8 people · quiet</div></div>
+        <div class="room work" style="bottom:4%;right:0;width:38%;height:42%">Private offices<div class="ct">2 / 6 open</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="amenities-bar">
+    <div class="am"><div class="ic">⚡</div><h5>Gig fiber</h5><p>1 Gbps · backup line</p></div>
+    <div class="am"><div class="ic">☕</div><h5>Real espresso</h5><p>Roasted weekly</p></div>
+    <div class="am"><div class="ic">📞</div><h5>Phone booths</h5><p>Four, sound-proofed</p></div>
+    <div class="am"><div class="ic">🔒</div><h5>24/7 access</h5><p>Members anytime</p></div>
+    <div class="am"><div class="ic">🚲</div><h5>Bike room</h5><p>Showers too</p></div>
+    <div class="am"><div class="ic">🐕</div><h5>Dog friendly</h5><p>Members welcome</p></div>
+  </div>
+
+  <div class="section-head"><h2>Three <em>kinds</em> of space.</h2><a class="btn btn-ghost">Book a tour →</a></div>
+  <div class="spaces-grid">
+    <div class="sp">
+      <div class="preview a"><span class="av">12 OPEN</span>
+        <svg viewBox="0 0 100 60" fill="none" stroke="#fff" stroke-width="1.6"><rect x="10" y="20" width="20" height="14"/><rect x="40" y="20" width="20" height="14"/><rect x="70" y="20" width="20" height="14"/><circle cx="20" cy="14" r="3" fill="#fff"/><circle cx="50" cy="14" r="3" fill="#fff"/><circle cx="80" cy="14" r="3" fill="#fff"/></svg>
+      </div>
+      <h3>Open desks</h3><p>Hot-desk in the main hall. Show up, sit anywhere, plug in.</p>
+      <div class="row"><span class="price">$320<small>/month</small></span><button class="btn btn-ghost">Choose</button></div>
+    </div>
+    <div class="sp">
+      <div class="preview b"><span class="av">3 OPEN</span>
+        <svg viewBox="0 0 100 60" fill="none" stroke="#fff" stroke-width="1.6"><rect x="20" y="10" width="60" height="44"/><circle cx="35" cy="32" r="4" fill="#fff"/><circle cx="50" cy="32" r="4" fill="#fff"/><circle cx="65" cy="32" r="4" fill="#fff"/></svg>
+      </div>
+      <h3>Dedicated desk</h3><p>Your own desk, always. Monitor, drawer, the plant you bought last week.</p>
+      <div class="row"><span class="price">$540<small>/month</small></span><button class="btn btn-ghost">Choose</button></div>
+    </div>
+    <div class="sp">
+      <div class="preview c"><span class="av">2 OPEN</span>
+        <svg viewBox="0 0 100 60" fill="none" stroke="#fff" stroke-width="1.6"><rect x="10" y="10" width="80" height="40"/><line x1="50" y1="10" x2="50" y2="50"/></svg>
+      </div>
+      <h3>Private office</h3><p>Two to six person rooms. Whiteboards, a door that closes, and your team's wifi.</p>
+      <div class="row"><span class="price">$1,200<small>/month</small></span><button class="btn btn-ghost">Choose</button></div>
+    </div>
+  </div>
+
+  <div class="events-block">
+    <div>
+      <h2>Members-only<br/><em>events</em>.</h2>
+      <p>Monthly talks, weekly lunch club, quarterly retreat. Bring a friend — guests are free.</p>
+    </div>
+    <div class="ev-list">
+      <div class="ev"><div class="d"><div class="day">04</div><div class="mo">Jun</div></div><div><h5>Founder talks: scaling a small team</h5><div class="desc">— 19:00 · main hall · free for members</div></div><div class="free">FREE</div></div>
+      <div class="ev"><div class="d"><div class="day">11</div><div class="mo">Jun</div></div><div><h5>Member lunch club — Italian</h5><div class="desc">— 13:00 · kitchen · $18 / member</div></div><div class="free">$18</div></div>
+      <div class="ev"><div class="d"><div class="day">18</div><div class="mo">Jun</div></div><div><h5>Design crit night</h5><div class="desc">— 18:30 · lounge · bring something to show</div></div><div class="free">FREE</div></div>
+      <div class="ev"><div class="d"><div class="day">28</div><div class="mo">Jun</div></div><div><h5>Quarterly retreat — day trip</h5><div class="desc">— 8:00 · bus from the front door · $40</div></div><div class="free">$40</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><span class="kicker">About</span><h2>A quieter <em>third</em><br/>place.</h2></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">We opened in Year because the café was loud, the home office was lonely, and the big coworking chains weren't built for the kind of work we wanted to do.</p>
+      <p>Replace this with your story. The neighborhood. The decisions about light, sound, and the espresso machine you spent too much on.</p>
+      <p>Tell people who's in the room. Designers, founders, writers, the occasional therapist. Specifics make a coworking space feel like a community, not a SaaS subscription.</p>
+    </div>
+    <div>
+      <h3 style="font-size:24px;font-weight:700;letter-spacing:-.015em;margin-bottom:18px">By the numbers</h3>
+      <div class="numbers">
+        <div class="num-card"><div class="v">4,200</div><div class="l">sq ft across two floors</div></div>
+        <div class="num-card"><div class="v">128</div><div class="l">members at capacity</div></div>
+        <div class="num-card"><div class="v">12</div><div class="l">meeting rooms &amp; offices</div></div>
+        <div class="num-card"><div class="v">4 yr</div><div class="l">at this address</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><span class="kicker">Plans</span><h2>Four <em>plans</em>,<br/>one community.</h2></div>
+  <div class="plans-grid">
+    <div class="pl"><h3>Day pass</h3><div class="price">$35<small>/day</small></div><p>Try the space, no commitment.</p><ul><li>Open desks</li><li>Wifi, coffee, snacks</li><li>One meeting hour</li></ul><button class="btn btn-ghost">Book a day</button></div>
+    <div class="pl"><h3>Flex</h3><div class="price">$220<small>/month</small></div><p>Eight days a month — perfect for a few days in.</p><ul><li>8 days included</li><li>Open desks</li><li>Three meeting hours / mo</li><li>Member events</li></ul><button class="btn btn-ghost">Get flex</button></div>
+    <div class="pl featured"><h3>Member</h3><div class="price">$320<small>/month</small></div><p>Unlimited access to the open hall. Most popular.</p><ul><li>Unlimited days</li><li>24/7 access</li><li>10 meeting hours / mo</li><li>Member events &amp; perks</li><li>Mail / package handling</li></ul><button class="btn btn-primary">Join →</button></div>
+    <div class="pl"><h3>Office</h3><div class="price">$1,200<small>/month</small></div><p>Private rooms for 2–6 people teams.</p><ul><li>Lockable office</li><li>Up to 6 members included</li><li>20 meeting hours / mo</li><li>Branded door plate</li><li>Static IP, if you need it</li></ul><button class="btn btn-ghost">Get office</button></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><span class="kicker">Tour the space</span><h2>Come <em>see</em><br/>the rooms.</h2><p>Tours every weekday at 11 and 4. We answer every message within a few hours during work hours.</p></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo')">
+      <div class="field row"><div><label>First name</label><input/></div><div><label>Last name</label><input/></div></div>
+      <div class="field"><label>Email</label><input type="email"/></div>
+      <div class="field row"><div><label>Plan you'd like to try</label>
+        <select><option>Open desks</option><option>Dedicated desk</option><option>Private office</option><option>Not sure yet</option></select></div><div><label>Team size</label>
+        <select><option>Just me</option><option>2–3</option><option>4–6</option><option>7+</option></select></div></div>
+      <div class="field"><label>Anything we should know?</label><textarea></textarea></div>
+      <button class="btn btn-primary">Book a tour →</button>
+    </form>
+    <div class="info-block">
+      <h3>Come visit</h3>
+      <div class="info-row"><div class="lbl">— address</div>123 Your Street, 2nd floor<br/>City, ST 00000</div>
+      <div class="info-row"><div class="lbl">— phone</div>(555) 000-0000</div>
+      <div class="info-row"><div class="lbl">— email</div>hello@yourspace.com</div>
+      <div class="info-row"><div class="lbl">— tours</div>Weekdays at 11:00 and 16:00</div>
+      <div class="info-row"><div class="lbl">— access</div>Members: 24 / 7 with key fob</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+<footer><div class="wrap"><div>© 2026 Your Space · A third place</div><div class="foot-links"><a>Instagram</a><a>Newsletter</a><a>Member directory</a><a>Press</a></div></div></footer>
+<script>
+function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script></body></html>

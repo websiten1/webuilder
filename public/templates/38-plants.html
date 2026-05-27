@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Plants — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f1ea;--ink:#16201a;--muted:#5e6a5b;--accent:#3d6e3a;--clay:#c47b4a;--cream:#fdfbf2;--line:#dfdcc8}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:Inter,sans-serif;font-size:16px;line-height:1.6}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.wrap{max-width:1280px;margin:0 auto;padding:0 36px}
+.serif{font-family:Fraunces,serif}
+nav{position:sticky;top:0;z-index:50;background:rgba(243,241,234,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:72px}
+.logo{display:flex;align-items:center;gap:10px;font-family:Fraunces;font-size:22px;font-weight:500;letter-spacing:-.01em}
+.logo .mk{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:500;font-size:16px}
+.nav-links{display:flex;gap:28px;font-size:14px;color:var(--muted)}
+.nav-links a.active{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:999px;font-size:14px;font-weight:500;cursor:pointer;border:none}
+.btn-primary{background:var(--ink);color:var(--cream)}.btn-primary:hover{background:var(--accent)}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+.page{display:none;padding:48px 0 120px}.page.active{display:block}
+.pre{font-family:Fraunces;color:var(--clay);font-size:18px;font-style:italic;font-weight:500}
+
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:64px;align-items:center}
+.hero h1{font-family:Fraunces;font-weight:500;font-size:clamp(56px,7vw,108px);line-height:.96;letter-spacing:-.02em;margin:14px 0 20px}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.lede{font-size:18px;color:var(--muted);max-width:480px;margin-bottom:28px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+.qz{margin-top:28px;padding:18px 22px;background:var(--cream);border:1px solid var(--line);border-radius:14px;display:flex;align-items:center;gap:14px;font-size:13.5px}
+.qz .ic{width:36px;height:36px;background:var(--accent);color:#fff;border-radius:50%;display:grid;place-items:center;font-weight:500}
+.qz strong{color:var(--ink);font-weight:600}
+.qz a{color:var(--clay);font-weight:600;margin-left:auto}
+
+.pot-stage{position:relative;aspect-ratio:1/1;background:linear-gradient(160deg,var(--cream),#e5dfc4);border-radius:32px;display:grid;place-items:end center;padding-bottom:14%;overflow:hidden}
+.pot-stage::before{content:"";position:absolute;top:18%;left:50%;transform:translateX(-50%);width:50%;aspect-ratio:1/1;background:radial-gradient(circle,#3d6e3a 0%,transparent 65%);opacity:.3;border-radius:50%}
+.pot{width:30%;aspect-ratio:5/4;background:linear-gradient(180deg,#c47b4a,#8a4f2a);border-radius:0 0 18px 18px;position:relative;z-index:2}
+.pot::before{content:"";position:absolute;top:-8px;left:-8px;right:-8px;height:14px;background:#c47b4a;border-radius:4px}
+.plant{position:absolute;left:50%;bottom:18%;transform:translateX(-50%);width:50%;height:60%;z-index:1}
+.plant svg{width:100%;height:100%}
+.tag-pill{position:absolute;background:var(--cream);padding:8px 14px;border-radius:999px;font-family:Fraunces;font-style:italic;color:var(--accent);font-size:14px;border:1px solid var(--line)}
+.tag-pill.a{top:8%;left:6%;transform:rotate(-8deg)}
+.tag-pill.b{top:18%;right:4%;transform:rotate(8deg);color:var(--clay)}
+.tag-pill.c{bottom:14%;right:8%;transform:rotate(4deg)}
+
+.section-head{margin-top:96px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:20px}
+.section-head h2{font-family:Fraunces;font-size:48px;letter-spacing:-.02em;font-weight:500}
+.section-head h2 em{font-style:italic;color:var(--accent)}
+
+.light-bar{margin:0 0 24px;display:flex;gap:8px;flex-wrap:wrap}
+.lt{padding:8px 16px;background:var(--cream);border:1px solid var(--line);border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;color:var(--muted)}
+.lt.active{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+
+.plant-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.pl{background:var(--cream);border:1px solid var(--line);border-radius:18px;overflow:hidden;cursor:pointer;transition:.15s}
+.pl:hover{transform:translateY(-3px)}
+.pl .img{aspect-ratio:1/1;background:linear-gradient(160deg,#cfdfc8,#3d6e3a);position:relative;display:grid;place-items:center}
+.pl .img.b{background:linear-gradient(160deg,#e5d4b8,#a87a3a)}
+.pl .img.c{background:linear-gradient(160deg,#d4e8d0,#5a8a4a)}
+.pl .img.d{background:linear-gradient(160deg,#c8e0e0,#3a6a6a)}
+.pl .img.e{background:linear-gradient(160deg,#e8d0e0,#9a4a7a)}
+.pl .img.f{background:linear-gradient(160deg,#f0e5c8,#a89a3a)}
+.pl .img.g{background:linear-gradient(160deg,#bedfcc,#3a8a5a)}
+.pl .img.h{background:linear-gradient(160deg,#dcd0e8,#7a4a9a)}
+.pl .img svg{width:50%;height:50%;opacity:.7}
+.pl .img .lvl{position:absolute;top:14px;left:14px;padding:4px 10px;background:rgba(255,255,255,.9);color:var(--ink);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-radius:999px}
+.pl .img .save{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.9);color:var(--ink);display:grid;place-items:center}
+.pl .body{padding:18px}
+.pl .latin{font-family:Fraunces;font-style:italic;color:var(--clay);font-size:13px}
+.pl h4{font-family:Fraunces;font-size:20px;letter-spacing:-.01em;margin-top:2px;font-weight:500}
+.pl .row{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.pl .price{font-family:Fraunces;font-size:18px;font-weight:500}
+.pl .meta{font-size:12px;color:var(--muted)}
+
+.care-band{margin-top:120px;padding:64px;background:var(--ink);color:var(--cream);border-radius:24px;display:grid;grid-template-columns:1fr 1.4fr;gap:48px;align-items:center}
+.care-band h3{font-family:Fraunces;font-size:42px;letter-spacing:-.02em;line-height:1.04;margin-bottom:14px}
+.care-band h3 em{font-style:italic;color:#a8d4a4}
+.care-band p{color:#a8b0a6}
+.care-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cc{padding:24px;background:rgba(255,255,255,.04);border:1px solid #2a3a2c;border-radius:14px;display:grid;grid-template-columns:36px 1fr;gap:14px}
+.cc .ic{width:36px;height:36px;border-radius:50%;background:var(--accent);display:grid;place-items:center;color:#fff;font-weight:500}
+.cc h5{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.cc p{font-size:13px;color:#a8b0a6;margin-top:2px}
+
+.page-head{margin-bottom:56px;max-width:760px}
+.page-head h2{font-family:Fraunces;font-size:clamp(48px,6vw,84px);font-weight:500;letter-spacing:-.025em;line-height:1;margin-top:8px}
+.page-head h2 em{font-style:italic;color:var(--accent)}
+.page-head p{font-size:18px;color:var(--muted);margin-top:14px}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+.about-text p{margin-bottom:16px;color:#33403a}
+.about-text p.lead{font-family:Fraunces;font-size:26px;line-height:1.4;color:var(--ink);font-style:italic;margin-bottom:24px}
+
+.svc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.svc{padding:36px;background:var(--cream);border:1px solid var(--line);border-radius:18px}
+.svc h3{font-family:Fraunces;font-size:28px;letter-spacing:-.015em;margin-bottom:8px;font-weight:500}
+.svc h3 em{font-style:italic;color:var(--accent)}
+.svc p{color:var(--muted);margin-bottom:14px}
+.svc ul{list-style:none;display:grid;gap:8px;font-size:14.5px}
+.svc li{padding-left:20px;position:relative}.svc li::before{content:"❀";position:absolute;left:0;color:var(--accent);font-size:11px;top:5px}
+.svc .from{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-family:Fraunces;font-style:italic;color:var(--clay);font-size:18px}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+form{display:grid;gap:16px}
+.field label{display:block;font-size:13px;color:var(--ink);margin-bottom:6px;font-weight:500}
+input,textarea,select{width:100%;padding:13px 16px;border-radius:10px;border:1px solid var(--line);background:var(--cream);font:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+textarea{min-height:120px;resize:vertical}
+.info-block{padding:40px;background:var(--accent);color:var(--cream);border-radius:18px}
+.info-block h3{font-family:Fraunces;font-size:30px;letter-spacing:-.01em;margin-bottom:18px;font-weight:500}
+.info-row{padding:14px 0;border-top:1px solid rgba(255,255,255,.18);font-size:14.5px;color:#cce0c8}
+.info-row:first-of-type{border-top:none}
+.info-row .lbl{font-family:Fraunces;font-style:italic;color:#a8d4a4;margin-bottom:2px}
+
+footer{border-top:1px solid var(--line);padding:32px 0;color:var(--muted);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-links{display:flex;gap:24px}
+@media(max-width:880px){.hero,.care-band,.about-grid,.contact-grid{grid-template-columns:1fr}.plant-grid{grid-template-columns:1fr 1fr}.care-grid,.svc-grid{grid-template-columns:1fr}.nav-links{display:none}}
+</style></head><body>
+<nav><div class="wrap">
+<a class="logo" onclick="goto('home')"><span class="mk">❀</span>Your Plants</a>
+<div class="nav-links"><a data-page="home" class="active">Shop</a><a data-page="services">Services</a><a data-page="about">About</a><a data-page="contact">Visit</a></div>
+<button class="btn btn-primary" onclick="goto('home')">Bag · 1</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div>
+      <div class="pre">— Indoor plants, delivered locally</div>
+      <h1>Plants that <em>want</em><br/>to live with you.</h1>
+      <p class="lede">A small plant shop with a real greenhouse, a heated van for the cold months, and a 30-day promise. Replace this with your shop's voice.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary">Shop the greenhouse →</button>
+        <button class="btn btn-ghost">Find a plant for me</button>
+      </div>
+      <div class="qz">
+        <div class="ic">?</div>
+        <div><strong>Not sure where to start?</strong> Take our 6-question plant quiz.</div>
+        <a>Start →</a>
+      </div>
+    </div>
+    <div class="pot-stage">
+      <span class="tag-pill a">— bright</span>
+      <span class="tag-pill b">low water</span>
+      <span class="tag-pill c">pet-safe</span>
+      <div class="plant">
+        <svg viewBox="0 0 100 140" fill="none"><path d="M50 130 Q35 90 50 50 M50 130 Q65 100 50 60 M50 110 Q40 80 50 60" stroke="#3d6e3a" stroke-width="3"/><ellipse cx="50" cy="50" rx="18" ry="32" fill="#3d6e3a"/><ellipse cx="35" cy="70" rx="14" ry="22" fill="#5a8a4a" transform="rotate(-30 35 70)"/><ellipse cx="65" cy="70" rx="14" ry="22" fill="#5a8a4a" transform="rotate(30 65 70)"/><ellipse cx="32" cy="92" rx="12" ry="18" fill="#3d6e3a" transform="rotate(-45 32 92)"/><ellipse cx="68" cy="92" rx="12" ry="18" fill="#3d6e3a" transform="rotate(45 68 92)"/></svg>
+      </div>
+      <div class="pot"></div>
+    </div>
+  </div>
+
+  <div class="section-head"><h2>This week, in the <em>greenhouse</em>.</h2></div>
+  <div class="light-bar">
+    <div class="lt active">All light levels</div>
+    <div class="lt">☀ Bright</div>
+    <div class="lt">◐ Medium</div>
+    <div class="lt">◯ Low light</div>
+    <div class="lt">🐱 Pet-safe</div>
+    <div class="lt">💧 Low water</div>
+  </div>
+  <div class="plant-grid">
+    <div class="pl"><div class="img"><span class="lvl">easy</span><span class="save">♡</span><svg viewBox="0 0 60 60" fill="#fff"><path d="M30 50 Q15 35 22 14 Q30 30 30 50" /><path d="M30 50 Q45 35 38 14 Q30 30 30 50"/></svg></div><div class="body"><div class="latin">Sansevieria zeylanica</div><h4>Snake plant</h4><div class="row"><span class="price">$38</span><span class="meta">— 6" pot</span></div></div></div>
+    <div class="pl"><div class="img b"><span class="lvl">easy</span><span class="save">♡</span><svg viewBox="0 0 60 60" fill="#fff"><path d="M30 50 Q40 30 50 20 Q35 22 30 50 Q25 22 10 20 Q20 30 30 50"/></svg></div><div class="body"><div class="latin">Zamioculcas zamiifolia</div><h4>ZZ plant</h4><div class="row"><span class="price">$48</span><span class="meta">— 6" pot</span></div></div></div>
+    <div class="pl"><div class="img c"><span class="lvl">moderate</span><span class="save">♡</span><svg viewBox="0 0 60 60" fill="#fff"><circle cx="30" cy="20" r="10"/><circle cx="20" cy="35" r="8"/><circle cx="40" cy="35" r="8"/><circle cx="30" cy="45" r="7"/></svg></div><div class="body"><div class="latin">Monstera deliciosa</div><h4>Monstera</h4><div class="row"><span class="price">$72</span><span class="meta">— 8" pot</span></div></div></div>
+    <div class="pl"><div class="img d"><span class="lvl">easy</span><span class="save">♡</span><svg viewBox="0 0 60 60" fill="#fff"><ellipse cx="30" cy="30" rx="22" ry="14"/><path d="M30 30 L30 50" stroke="#fff" stroke-width="2"/></svg></div><div class="body"><div class="latin">Pilea peperomioides</div><h4>Chinese money plant</h4><div class="row"><span class="price">$32</span><span class="meta">— 4" pot</span></div></div></div>
+    <div class="pl"><div class="img e"><span class="lvl">tricky</span><span class="save">♡</span><svg viewBox="0 0 60 60" fill="#fff"><circle cx="30" cy="25" r="12"/><circle cx="20" cy="38" r="8"/><circle cx="40" cy="38" r="8"/></svg></div><div class="body"><div class="latin">Ficus lyrata</div><h4>Fiddle leaf fig</h4><div class="row"><span class="price">$120</span><span class="meta">— 10" pot</span></div></div></div>
+    <div class="pl"><div class="img f"><span class="lvl">easy</span><span class="save">♡</span><svg viewBox="0 0 60 60" fill="#fff"><path d="M30 50 L24 20 L30 25 L36 20 L30 50"/></svg></div><div class="body"><div class="latin">Aloe vera</div><h4>Aloe vera</h4><div class="row"><span class="price">$28</span><span class="meta">— 4" pot</span></div></div></div>
+    <div class="pl"><div class="img g"><span class="lvl">easy</span><span class="save">♡</span><svg viewBox="0 0 60 60" fill="#fff"><path d="M10 30 Q30 8 50 30 Q30 22 10 30 M10 30 Q30 52 50 30 Q30 38 10 30"/></svg></div><div class="body"><div class="latin">Epipremnum aureum</div><h4>Pothos · golden</h4><div class="row"><span class="price">$24</span><span class="meta">— 4" pot</span></div></div></div>
+    <div class="pl"><div class="img h"><span class="lvl">moderate</span><span class="save">♡</span><svg viewBox="0 0 60 60" fill="#fff"><circle cx="30" cy="30" r="20"/><circle cx="30" cy="30" r="10" fill="#7a4a9a"/></svg></div><div class="body"><div class="latin">Calathea orbifolia</div><h4>Calathea</h4><div class="row"><span class="price">$58</span><span class="meta">— 6" pot</span></div></div></div>
+  </div>
+
+  <div class="care-band">
+    <div>
+      <div class="pre" style="color:#a8d4a4">— after the delivery</div>
+      <h3>We don't <em>ghost you</em><br/>after checkout.</h3>
+      <p>Every order comes with a care card. Every customer gets WhatsApp access to our plant nurse for the first 30 days.</p>
+    </div>
+    <div class="care-grid">
+      <div class="cc"><div class="ic">💧</div><div><h5>30-day promise</h5><p>If it doesn't make it, we replace it free.</p></div></div>
+      <div class="cc"><div class="ic">📞</div><div><h5>Plant nurse</h5><p>WhatsApp with a real grower, any question.</p></div></div>
+      <div class="cc"><div class="ic">🪴</div><div><h5>Repotting service</h5><p>Bring it in, we'll do it while you wait.</p></div></div>
+      <div class="cc"><div class="ic">🚚</div><div><h5>Heated delivery</h5><p>For tropicals, all winter long.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><div class="pre">— Our greenhouse</div><h2>A small <em>shop</em>,<br/>a real greenhouse.</h2></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">"We started growing in Year because the box-store plants kept dying within a month and we got tired of mailing condolences."</p>
+      <p>Replace this with your founding story. The greenhouse. The first delivery van. The team that grew with the shop.</p>
+      <p>Tell people where you source. The 80% you grow yourself, the 20% from three regional growers you've known for years.</p>
+    </div>
+    <div>
+      <div style="padding:32px;background:var(--cream);border:1px solid var(--line);border-radius:18px">
+        <h3 style="font-family:Fraunces;font-size:28px;font-weight:500;letter-spacing:-.01em;margin-bottom:14px">Our <em style="color:var(--accent);font-style:italic">promises</em></h3>
+        <ul style="list-style:none;display:grid;gap:14px;font-size:15px;color:#33403a">
+          <li style="padding-left:22px;position:relative">❀ Grown locally · 80% in our own greenhouse</li>
+          <li style="padding-left:22px;position:relative">❀ Heated delivery for tropicals, winter long</li>
+          <li style="padding-left:22px;position:relative">❀ 30-day plant guarantee</li>
+          <li style="padding-left:22px;position:relative">❀ Free repotting for life with any plant</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><div class="pre">— Beyond plants</div><h2>Services for<br/><em>green spaces</em>.</h2></div>
+  <div class="svc-grid">
+    <div class="svc"><h3>Plant <em>subscription</em></h3><p>A new plant on your doorstep every quarter, matched to your light.</p><ul><li>Quarterly delivery</li><li>Skip or swap any time</li><li>Includes pot</li></ul><div class="from">— from $42 / quarter</div></div>
+    <div class="svc"><h3>Office <em>plantscaping</em></h3><p>We install &amp; maintain plants for offices, hotels, and restaurants.</p><ul><li>Design consultation</li><li>Weekly maintenance</li><li>Plant warranty</li></ul><div class="from">— from $120 / month</div></div>
+    <div class="svc"><h3>House <em>calls</em></h3><p>A plant nurse comes to your house for a 90-min consult and rescue.</p><ul><li>90 min in-home</li><li>Re-pot, prune, treat pests</li><li>Care plan, printed</li></ul><div class="from">— from $180 / visit</div></div>
+    <div class="svc"><h3>Workshops</h3><p>Monthly workshops — terrariums, propagation, repotting.</p><ul><li>Two-hour sessions</li><li>All materials</li><li>Take a plant home</li></ul><div class="from">— from $65 / person</div></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><div class="pre">— Visit</div><h2>Come to the<br/><em>greenhouse</em>.</h2></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo')">
+      <div class="field row"><div><label>Name</label><input/></div><div><label>Email</label><input type="email"/></div></div>
+      <div class="field"><label>About</label><select><option>An order I placed</option><option>Plant rescue</option><option>Subscription</option><option>Office plantscaping</option><option>Other</option></select></div>
+      <div class="field"><label>Message</label><textarea></textarea></div>
+      <button class="btn btn-primary">Send →</button>
+    </form>
+    <div class="info-block">
+      <h3>The greenhouse</h3>
+      <div class="info-row"><div class="lbl">— address</div>123 Your Street, City</div>
+      <div class="info-row"><div class="lbl">— phone</div>(555) 000-0000</div>
+      <div class="info-row"><div class="lbl">— email</div>hello@yourplants.com</div>
+      <div class="info-row"><div class="lbl">— hours</div>Wed–Sun · 10:00–18:00</div>
+      <div class="info-row"><div class="lbl">— delivery</div>Within 30 mi · same week</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+<footer><div class="wrap"><div>© 2026 Your Plants · Grown nearby</div><div class="foot-links"><a>Instagram</a><a>Care guides</a><a>Workshops</a><a>Newsletter</a></div></div></footer>
+<script>
+function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+document.querySelectorAll('.lt').forEach(l=>l.addEventListener('click',()=>{document.querySelectorAll('.lt').forEach(x=>x.classList.remove('active'));l.classList.add('active')}));
+</script></body></html>

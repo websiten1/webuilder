@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your App — Mobile</title>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#0a0a14;--muted:#646980;--accent:#ff4d6d;--accent2:#7c4dff;--soft:#fff0f4;--line:#eeeef4}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:Onest,sans-serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.wrap{max-width:1280px;margin:0 auto;padding:0 36px}
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;letter-spacing:-.02em}
+.logo .mk{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;color:#fff;font-weight:700}
+.nav-links{display:flex;gap:28px;font-size:14px;color:var(--muted);font-weight:500}
+.nav-links a.active{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:999px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:.15s}
+.btn-primary{background:var(--ink);color:#fff}.btn-primary:hover{background:var(--accent)}
+.btn-store{background:var(--ink);color:#fff;padding:12px 22px;border-radius:14px;display:inline-flex;align-items:center;gap:12px}
+.btn-store .ic{font-size:22px}
+.btn-store .col{text-align:left;line-height:1.1}
+.btn-store .col small{font-size:10px;color:#a8a9b8;letter-spacing:.04em}
+.btn-store .col strong{font-size:15px;font-weight:600;display:block}
+.btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.page{display:none;padding:64px 0 120px}.page.active{display:block}
+
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;background:var(--soft);color:var(--accent);font-size:13px;font-weight:600;border-radius:999px;margin-bottom:24px}
+h1.display{font-size:clamp(48px,6vw,84px);line-height:1;letter-spacing:-.035em;font-weight:700;margin-bottom:18px}
+h1.display .grad{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.lede{font-size:19px;color:var(--muted);max-width:480px;margin-bottom:28px}
+.app-stores{display:flex;gap:12px;flex-wrap:wrap}
+.rating{margin-top:28px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.rating .stars{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600}
+.rating .stars .s{color:#fbb040}
+.rating .stars span{color:var(--muted);font-weight:500}
+.rating .div{width:1px;height:18px;background:var(--line)}
+
+.phone-stage{position:relative;height:560px;display:grid;place-items:center}
+.phone{width:280px;height:560px;background:#0a0a14;border-radius:42px;padding:12px;box-shadow:0 50px 100px -30px rgba(255,77,109,.4),0 0 0 12px #1a1a24;position:relative;z-index:2}
+.phone::before{content:"";position:absolute;top:14px;left:50%;transform:translateX(-50%);width:90px;height:24px;background:#0a0a14;border-radius:14px;z-index:3}
+.phone-screen{width:100%;height:100%;background:linear-gradient(160deg,#fff0f4,#ede8ff);border-radius:32px;overflow:hidden;position:relative;padding:48px 18px 18px}
+.ph-greeting{font-size:13px;color:var(--muted);font-weight:500}
+.ph-greeting strong{color:var(--ink);font-weight:700}
+.ph-title{font-size:24px;font-weight:700;letter-spacing:-.02em;margin-top:4px;margin-bottom:18px;line-height:1.1}
+.ph-card{padding:16px;background:#fff;border-radius:16px;box-shadow:0 8px 24px -16px rgba(0,0,0,.2);margin-bottom:12px}
+.ph-card .l{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.ph-card .v{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-top:4px}
+.ph-card .d{font-size:11px;color:#0d9a44;margin-top:2px;font-weight:600}
+.ph-card.accent{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.ph-card.accent .l{color:#ffd0db}
+.ph-card.accent .d{color:#fff;opacity:.8}
+.ph-tabs{position:absolute;bottom:18px;left:18px;right:18px;background:#fff;border-radius:18px;padding:10px;display:flex;justify-content:space-around;box-shadow:0 12px 24px -16px rgba(0,0,0,.2)}
+.ph-tab{width:36px;height:36px;border-radius:50%;background:var(--soft);display:grid;place-items:center;color:var(--accent)}
+.ph-tab.active{background:var(--ink);color:#fff}
+.float-card{position:absolute;background:#fff;border-radius:18px;padding:14px;box-shadow:0 20px 40px -20px rgba(124,77,255,.4);z-index:3;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600}
+.float-card .ico{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#7c4dff,#ff4d6d);color:#fff;display:grid;place-items:center;font-size:14px}
+.float-card.a{top:60px;right:0;transform:rotate(6deg);animation:floatA 4s ease-in-out infinite}
+.float-card.b{bottom:80px;left:0;transform:rotate(-6deg);animation:floatA 4s ease-in-out infinite -2s}
+@keyframes floatA{0%,100%{transform:translateY(0) rotate(6deg)}50%{transform:translateY(-12px) rotate(6deg)}}
+
+.section-head{margin-top:120px;text-align:center;max-width:640px;margin-left:auto;margin-right:auto;margin-bottom:48px}
+.section-head h2{font-size:clamp(36px,4.6vw,56px);letter-spacing:-.03em;font-weight:700;line-height:1.06}
+.section-head h2 .grad{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.section-head p{font-size:17.5px;color:var(--muted);margin-top:14px}
+
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.feat{padding:32px;background:#fff;border:1px solid var(--line);border-radius:20px;transition:.15s}
+.feat:hover{transform:translateY(-3px);border-color:var(--accent)}
+.feat .ico{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--soft),#ede8ff);display:grid;place-items:center;color:var(--accent);margin-bottom:16px;font-size:22px}
+.feat h3{font-size:18px;font-weight:700;letter-spacing:-.015em;margin-bottom:8px}
+.feat p{color:var(--muted);font-size:14px}
+
+.screens{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:48px}
+.scr{aspect-ratio:9/19;background:linear-gradient(160deg,var(--soft),#ede8ff);border-radius:24px;padding:24px 14px;position:relative;border:1px solid var(--line)}
+.scr.dark{background:linear-gradient(160deg,#0a0a14,#1a1a24);color:#fff}
+.scr .h{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px}
+.scr.dark .h{color:#a8a9b8}
+.scr .ti{font-size:17px;font-weight:700;letter-spacing:-.015em;line-height:1.15;margin-bottom:14px}
+.scr .pc{padding:10px;background:#fff;border-radius:10px;margin-bottom:6px;font-size:11px;font-weight:600;display:flex;justify-content:space-between;color:var(--ink)}
+.scr.dark .pc{background:rgba(255,255,255,.08);color:#fff}
+.scr .pc .v{color:var(--accent)}
+.scr.dark .pc .v{color:#ff4d6d}
+
+.reviews{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:48px}
+.rv{padding:28px;background:#fff;border:1px solid var(--line);border-radius:16px}
+.rv .stars{color:#fbb040;font-size:14px;margin-bottom:12px;letter-spacing:1px}
+.rv .q{font-size:15px;line-height:1.5;margin-bottom:14px}
+.rv .by{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.rv .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.rv .by strong{display:block;color:var(--ink);font-weight:700}
+
+.cta-band{margin-top:120px;padding:64px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:32px;text-align:center;position:relative;overflow:hidden}
+.cta-band h2{font-size:48px;font-weight:700;letter-spacing:-.025em;line-height:1.05;margin-bottom:16px}
+.cta-band p{font-size:18px;color:#ffe2eb;max-width:480px;margin:0 auto 28px}
+.cta-band .app-stores{justify-content:center}
+
+.page-head{margin-bottom:56px;max-width:780px}
+.page-head h2{font-size:clamp(40px,5vw,68px);letter-spacing:-.035em;font-weight:700;line-height:1.04;margin-top:12px}
+.page-head h2 .grad{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.page-head p{font-size:18px;color:var(--muted);margin-top:14px}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+.about-text p{margin-bottom:16px;color:#33384a}
+.about-text p.lead{font-size:22px;font-weight:600;line-height:1.4;color:var(--ink);margin-bottom:20px;letter-spacing:-.015em}
+
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tier{padding:32px;background:#fff;border:1px solid var(--line);border-radius:20px}
+.tier.featured{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tier h3{font-size:20px;font-weight:700;letter-spacing:-.015em}
+.tier .price{font-size:44px;font-weight:700;margin:10px 0;letter-spacing:-.03em}
+.tier .price small{font-size:14px;color:var(--muted);font-weight:400}
+.tier.featured .price small{color:#a8a9b8}
+.tier p{color:var(--muted);font-size:14.5px}
+.tier.featured p,.tier.featured ul{color:#a8a9b8}
+.tier ul{list-style:none;display:grid;gap:8px;margin:14px 0;font-size:14px}
+.tier li{padding-left:22px;position:relative}.tier li::before{content:"♥";position:absolute;left:0;color:var(--accent)}
+.tier .btn{width:100%;justify-content:center}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+form{display:grid;gap:16px}
+.field label{display:block;font-size:13px;color:var(--ink);margin-bottom:6px;font-weight:600}
+input,textarea,select{width:100%;padding:13px 16px;border-radius:12px;border:1px solid var(--line);background:#fff;font:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+textarea{min-height:120px;resize:vertical}
+.info-block{padding:40px;background:linear-gradient(135deg,var(--soft),#ede8ff);border-radius:20px}
+.info-block h3{font-size:24px;font-weight:700;letter-spacing:-.02em;margin-bottom:20px}
+.info-row{padding:14px 0;border-top:1px solid rgba(255,255,255,.5);font-size:14.5px}
+.info-row:first-of-type{border-top:none}
+.info-row .lbl{font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
+
+footer{border-top:1px solid var(--line);padding:32px 0;color:var(--muted);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-links{display:flex;gap:24px}
+@media(max-width:880px){.hero,.about-grid,.contact-grid{grid-template-columns:1fr}.feat-grid,.reviews,.tiers{grid-template-columns:1fr}.screens{grid-template-columns:1fr 1fr}.nav-links{display:none}}
+</style></head><body>
+
+<nav><div class="wrap">
+<a class="logo" onclick="goto('home')"><span class="mk">♥</span>Your App</a>
+<div class="nav-links">
+<a data-page="home" class="active">Home</a><a data-page="services">Plans</a><a data-page="about">About</a><a data-page="contact">Support</a>
+</div>
+<button class="btn btn-primary" onclick="goto('services')">Download</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div>
+      <span class="pill">♥ Editor's choice · App Store</span>
+      <h1 class="display">The <span class="grad">habit app</span><br/>that actually sticks.</h1>
+      <p class="lede">Replace this with what your app does in one sentence. Beautifully designed, kind to use, free of guilt. Free to download.</p>
+      <div class="app-stores">
+        <a class="btn-store"><span class="ic">🍎</span><span class="col"><small>Download on</small><strong>App Store</strong></span></a>
+        <a class="btn-store"><span class="ic">▶</span><span class="col"><small>Get it on</small><strong>Google Play</strong></span></a>
+      </div>
+      <div class="rating">
+        <div class="stars"><span class="s">★★★★★</span><span>4.9 · 12k reviews</span></div>
+        <div class="div"></div>
+        <div class="stars">📱 <span>1M+ downloads</span></div>
+      </div>
+    </div>
+    <div class="phone-stage">
+      <div class="float-card a"><div class="ico">✓</div>Streak: 14 days</div>
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="ph-greeting"><strong>Hey, Iris.</strong></div>
+          <div class="ph-title">Tuesday, 8:42 AM</div>
+          <div class="ph-card accent">
+            <div class="l">— TODAY'S FOCUS</div>
+            <div class="v">Write for 30 min</div>
+            <div class="d">↑ 6th day in a row</div>
+          </div>
+          <div class="ph-card"><div class="l">— STREAK</div><div class="v">14 days</div><div class="d">↑ longest yet</div></div>
+          <div class="ph-card"><div class="l">— HABITS DONE</div><div class="v">3 of 5</div><div class="d">↑ on pace for the week</div></div>
+          <div class="ph-tabs"><div class="ph-tab active">●</div><div class="ph-tab">◐</div><div class="ph-tab">◇</div><div class="ph-tab">◯</div></div>
+        </div>
+      </div>
+      <div class="float-card b"><div class="ico">★</div>You hit your goal</div>
+    </div>
+  </div>
+
+  <div class="section-head"><h2>Built around <span class="grad">small wins</span>.<br/>Not relentless reminders.</h2><p>Six features that respect your time.</p></div>
+  <div class="feat-grid">
+    <div class="feat"><div class="ico">○</div><h3>Two-tap check-ins</h3><p>One tap to mark done. Two to log a note. Zero friction.</p></div>
+    <div class="feat"><div class="ico">◐</div><h3>Soft reminders</h3><p>Notifications that disappear after one minute, not three.</p></div>
+    <div class="feat"><div class="ico">★</div><h3>Honest streaks</h3><p>One missed day doesn't erase the month. Streaks pause, not reset.</p></div>
+    <div class="feat"><div class="ico">▲</div><h3>Weekly review</h3><p>A two-minute summary every Sunday. Email, app, or both.</p></div>
+    <div class="feat"><div class="ico">◆</div><h3>Privacy by default</h3><p>Local-first. End-to-end encrypted when you sync.</p></div>
+    <div class="feat"><div class="ico">●</div><h3>Widgets that work</h3><p>Lock-screen and home-screen widgets that update in real time.</p></div>
+  </div>
+
+  <div class="screens">
+    <div class="scr"><div class="h">— home</div><div class="ti">Today's focus, at a glance.</div><div class="pc"><span>Write</span><span class="v">↑ 6 days</span></div><div class="pc"><span>Read</span><span class="v">↑ 3 days</span></div><div class="pc"><span>Walk</span><span class="v">◯ today</span></div></div>
+    <div class="scr dark"><div class="h">— review</div><div class="ti">Sunday in two minutes.</div><div class="pc"><span>Weekly score</span><span class="v">81%</span></div><div class="pc"><span>Longest streak</span><span class="v">14 days</span></div><div class="pc"><span>One to drop</span><span class="v">→ ?</span></div></div>
+    <div class="scr"><div class="h">— habits</div><div class="ti">Five habits is the cap.</div><div class="pc"><span>1.  Write</span><span class="v">●</span></div><div class="pc"><span>2.  Read</span><span class="v">●</span></div><div class="pc"><span>3.  Walk</span><span class="v">◯</span></div><div class="pc"><span>4.  Sleep</span><span class="v">●</span></div></div>
+    <div class="scr dark"><div class="h">— widgets</div><div class="ti">On your lock screen.</div><div class="pc"><span>Focus</span><span class="v">Write</span></div><div class="pc"><span>Streak</span><span class="v">14d</span></div><div class="pc"><span>This week</span><span class="v">81%</span></div></div>
+  </div>
+
+  <div class="section-head"><h2><span class="grad">12,000</span> reviews,<br/>and counting.</h2></div>
+  <div class="reviews">
+    <div class="rv"><div class="stars">★★★★★</div><div class="q">"The first habit app I haven't deleted within two weeks. Replace with a real review."</div><div class="by"><div class="av"></div><div><strong>— A user</strong>via App Store</div></div></div>
+    <div class="rv"><div class="stars">★★★★★</div><div class="q">"It feels like the developers actually use this. Three months in and I'm still opening it daily."</div><div class="by"><div class="av" style="background:linear-gradient(135deg,#7c4dff,#3a8ad6)"></div><div><strong>— A user</strong>via Play Store</div></div></div>
+    <div class="rv"><div class="stars">★★★★★</div><div class="q">"Quiet, kind, doesn't shame me when I miss a day."</div><div class="by"><div class="av" style="background:linear-gradient(135deg,#fbb040,#ff4d6d)"></div><div><strong>— A user</strong>via App Store</div></div></div>
+  </div>
+
+  <div class="cta-band">
+    <h2>Download.<br/>Open it tomorrow morning.</h2>
+    <p>Free forever. Pro for a coffee a month. No card to start.</p>
+    <div class="app-stores"><a class="btn-store"><span class="ic">🍎</span><span class="col"><small>Download on</small><strong>App Store</strong></span></a><a class="btn-store"><span class="ic">▶</span><span class="col"><small>Get it on</small><strong>Google Play</strong></span></a></div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><span class="pill">About</span><h2>Built by two<br/>people who <span class="grad">forget things</span>.</h2></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">We made the app because every other habit app made us feel a little worse.</p>
+      <p>Replace this with the founding story. The first version. The week the design clicked. The first thousand users.</p>
+      <p>Tell people how you build. Indie, sustainable, not chasing acquisition. The decisions you've made about ads (none), data (theirs), and notifications (rare).</p>
+    </div>
+    <div>
+      <div style="padding:32px;background:linear-gradient(135deg,var(--soft),#ede8ff);border-radius:20px">
+        <h3 style="font-size:22px;font-weight:700;letter-spacing:-.015em;margin-bottom:14px">Our promise</h3>
+        <ul style="list-style:none;display:grid;gap:14px;font-size:15px">
+          <li style="padding-left:28px;position:relative">♥ <strong>No ads, ever.</strong> Free tier supported by Pro.</li>
+          <li style="padding-left:28px;position:relative">♥ <strong>No data sold.</strong> Local-first, opt-in sync.</li>
+          <li style="padding-left:28px;position:relative">♥ <strong>No streak shaming.</strong> Pause, don't reset.</li>
+          <li style="padding-left:28px;position:relative">♥ <strong>One update a month.</strong> Slow, on purpose.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><span class="pill">Plans</span><h2>Free forever.<br/><span class="grad">Pro for a coffee</span> a month.</h2></div>
+  <div class="tiers">
+    <div class="tier"><h3>Free</h3><div class="price">$0<small>/forever</small></div><p>Everything most people need.</p><ul><li>Five habits</li><li>One reminder per habit</li><li>Weekly review</li><li>One device</li></ul><button class="btn btn-ghost">Download</button></div>
+    <div class="tier featured"><h3>Pro</h3><div class="price">$4<small>/month</small></div><p>For people who really run on this thing.</p><ul><li>Unlimited habits</li><li>iCloud sync, all devices</li><li>Soft custom reminders</li><li>Widgets &amp; Apple Watch</li><li>Detailed insights</li><li>Support indie devs</li></ul><button class="btn btn-primary">Try Pro free for 14 days</button></div>
+    <div class="tier"><h3>Lifetime</h3><div class="price">$79<small>/once</small></div><p>Pay once, keep forever.</p><ul><li>All Pro features</li><li>Lifetime updates</li><li>Founder badge</li><li>Direct line for feedback</li></ul><button class="btn btn-ghost">Buy lifetime</button></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><span class="pill">Support</span><h2>Got a <span class="grad">question</span>?</h2><p>The two of us answer everything. Usually within a day.</p></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo')">
+      <div class="field row"><div><label>Name</label><input/></div><div><label>Email</label><input type="email"/></div></div>
+      <div class="field"><label>What's this about?</label>
+        <select><option>Help with the app</option><option>Bug report</option><option>Feature request</option><option>Billing</option><option>Just saying hi</option></select></div>
+      <div class="field row"><div><label>Device</label>
+        <select><option>iPhone</option><option>iPad</option><option>Android</option><option>Apple Watch</option></select></div><div><label>App version</label><input placeholder="3.4.1"/></div></div>
+      <div class="field"><label>Message</label><textarea></textarea></div>
+      <button class="btn btn-primary">Send →</button>
+    </form>
+    <div class="info-block">
+      <h3>We answer everything.</h3>
+      <div class="info-row"><div class="lbl">— support</div>hello@yourapp.com</div>
+      <div class="info-row"><div class="lbl">— press</div>press@yourapp.com</div>
+      <div class="info-row"><div class="lbl">— privacy</div>privacy@yourapp.com</div>
+      <div class="info-row"><div class="lbl">— made by</div>Two humans, City, ST</div>
+      <div class="info-row"><div class="lbl">— response</div>Within 1 business day</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+<footer><div class="wrap"><div>© 2026 Your App · Built by two humans</div><div class="foot-links"><a>Privacy</a><a>Terms</a><a>Press</a><a>Status</a></div></div></footer>
+<script>
+function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script></body></html>

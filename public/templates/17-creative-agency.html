@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Agency — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#0a0a0a;--muted:#6e6e6e;--line:#e8e8e8;--accent:#ff5630;--soft:#f7f6f3}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:Inter,sans-serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.wrap{max-width:1320px;margin:0 auto;padding:0 40px}
+.serif{font-family:'Instrument Serif',serif;font-weight:400}
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:72px}
+.logo{font-family:'Instrument Serif';font-size:24px;letter-spacing:-.01em}
+.logo em{font-style:italic;color:var(--accent)}
+.nav-links{display:flex;gap:32px;font-size:14px;color:var(--muted)}
+.nav-links a.active{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:.15s}
+.btn-primary{background:var(--ink);color:#fff}.btn-primary:hover{background:var(--accent)}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+.page{display:none;padding:80px 0 120px}.page.active{display:block}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}.eyebrow::before{content:"";width:24px;height:1px;background:var(--accent)}
+
+.hero h1{font-family:'Instrument Serif';font-size:clamp(72px,11vw,200px);line-height:.92;letter-spacing:-.025em;margin:24px 0}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero-row{display:grid;grid-template-columns:1.4fr 1fr;gap:80px;align-items:end;margin-top:32px}
+.hero-row p{font-size:19px;color:var(--muted);max-width:420px}
+.hero-cta{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+
+.marquee{margin-top:80px;padding:32px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;white-space:nowrap;font-family:'Instrument Serif';font-size:64px;letter-spacing:-.02em}
+.marquee span{display:inline-block;animation:scroll 32s linear infinite;padding-right:60px}
+.marquee em{font-style:italic;color:var(--accent)}
+.marquee .dot{font-size:32px;vertical-align:middle;margin:0 32px;color:var(--muted)}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.work{margin-top:96px}
+.work-head{display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:24px;margin-bottom:32px}
+.work-head h2{font-family:'Instrument Serif';font-size:64px;letter-spacing:-.02em}
+.case-list{display:grid;gap:0;border-top:1px solid var(--line)}
+.case{display:grid;grid-template-columns:80px 2fr 1.4fr 1fr auto;gap:32px;padding:28px 0;border-bottom:1px solid var(--line);align-items:center;transition:.15s;cursor:pointer}
+.case:hover{padding-left:16px}
+.case .n{font-family:'Instrument Serif';font-style:italic;color:var(--accent);font-size:24px}
+.case .nm{font-family:'Instrument Serif';font-size:28px;letter-spacing:-.01em}
+.case .nm em{font-style:italic;color:var(--muted);font-size:18px;display:block;margin-top:2px}
+.case .client{color:var(--muted);font-size:14px}
+.case .year{font-family:'Instrument Serif';font-size:18px;color:var(--muted)}
+.case .arr{font-size:20px;color:var(--accent);opacity:0;transition:.15s}
+.case:hover .arr{opacity:1}
+
+.philosophy{margin-top:120px;padding:80px;background:var(--soft);border-radius:24px;display:grid;grid-template-columns:1fr 1.4fr;gap:80px;align-items:start}
+.philosophy h2{font-family:'Instrument Serif';font-size:72px;letter-spacing:-.025em;line-height:.96}
+.philosophy h2 em{font-style:italic;color:var(--accent)}
+.principles{display:grid;gap:0}
+.pr{padding:24px 0;border-top:1px solid #ddd9cf;display:grid;grid-template-columns:60px 1fr;gap:24px;align-items:start}
+.pr:first-child{border-top:none}
+.pr .n{font-family:'Instrument Serif';font-style:italic;color:var(--accent);font-size:22px}
+.pr h4{font-family:'Instrument Serif';font-size:24px;margin-bottom:4px}
+.pr p{font-size:14.5px;color:var(--muted)}
+
+.page-head{margin-bottom:64px;max-width:820px}
+.page-head h2{font-family:'Instrument Serif';font-size:clamp(56px,7vw,108px);letter-spacing:-.025em;line-height:.96;margin-top:14px}
+.page-head h2 em{font-style:italic;color:var(--accent)}
+.page-head p{font-size:18px;color:var(--muted);margin-top:18px;max-width:560px}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px}
+.about-text p{margin-bottom:18px;color:#3a3a3a}
+.about-text p.lead{font-family:'Instrument Serif';font-size:32px;line-height:1.2;color:var(--ink);letter-spacing:-.015em;margin-bottom:28px}
+.about-text p.lead em{font-style:italic;color:var(--accent)}
+.team{margin-top:64px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.member{padding:28px;background:var(--soft);border-radius:18px}
+.member .av{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#ffb59c,var(--accent));margin-bottom:18px}
+.member h4{font-family:'Instrument Serif';font-size:24px}
+.member .role{font-style:italic;color:var(--accent);font-size:14px;margin:2px 0 10px;font-family:'Instrument Serif'}
+.member p{font-size:13.5px;color:var(--muted)}
+
+.svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.svc{padding:48px;border:1px solid var(--line);border-radius:24px;background:var(--bg);transition:.2s}
+.svc:hover{background:var(--soft);border-color:transparent}
+.svc .n{font-family:'Instrument Serif';font-style:italic;color:var(--accent);font-size:20px}
+.svc h3{font-family:'Instrument Serif';font-size:42px;margin:10px 0 14px;letter-spacing:-.02em;line-height:1}
+.svc p{color:var(--muted);font-size:15px;margin-bottom:24px}
+.svc ul{list-style:none;display:grid;gap:8px;font-size:14.5px}
+.svc li{padding-left:18px;position:relative}.svc li::before{content:"—";position:absolute;left:0;color:var(--accent)}
+.svc .from{margin-top:24px;padding-top:24px;border-top:1px solid var(--line);font-family:'Instrument Serif';font-style:italic;font-size:18px;color:var(--ink)}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px}
+form{display:grid;gap:16px}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+input,textarea,select{width:100%;padding:14px 16px;border-radius:12px;border:1px solid var(--line);background:#fff;font:inherit;color:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--ink)}
+.field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+textarea{min-height:120px;resize:vertical}
+.info-block{padding:48px;background:var(--ink);color:#fff;border-radius:24px}
+.info-block h3{font-family:'Instrument Serif';font-size:42px;margin-bottom:24px;letter-spacing:-.02em}
+.info-block h3 em{font-style:italic;color:var(--accent)}
+.info-row{padding:16px 0;border-top:1px solid #2a2a2a;font-size:14.5px}
+.info-row:first-of-type{border-top:none}
+.info-row .lbl{font-family:'Instrument Serif';font-style:italic;color:var(--accent);font-size:16px;margin-bottom:2px}
+
+footer{border-top:1px solid var(--line);padding:32px 0;color:var(--muted);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-links{display:flex;gap:24px}
+@media(max-width:880px){.hero-row,.philosophy,.about-grid,.contact-grid,.svc-grid{grid-template-columns:1fr;gap:40px}.case{grid-template-columns:1fr;gap:6px}.case .n,.case .year,.case .arr{display:none}.team{grid-template-columns:1fr}.nav-links{display:none}}
+</style></head>
+<body>
+
+<nav><div class="wrap">
+<a class="logo" onclick="goto('home')">Your<em> Agency</em></a>
+<div class="nav-links">
+<a data-page="home" class="active">Index</a><a data-page="services">Services</a><a data-page="about">Studio</a><a data-page="contact">Contact</a>
+</div>
+<button class="btn btn-primary" onclick="goto('contact')">Start a project →</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="eyebrow">A creative studio — based in your city</div>
+  <h1 class="serif" style="font-size:clamp(72px,11vw,200px);line-height:.92;letter-spacing:-.025em;margin:24px 0">Strategy, brand &amp; <em>digital craft.</em></h1>
+  <div class="hero-row">
+    <p>An independent studio working with founders and small teams on identity, websites, and the marketing systems that come after. Replace this with your studio's voice.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary" onclick="goto('contact')">Book an intro →</button>
+      <button class="btn btn-ghost" onclick="goto('services')">Services</button>
+    </div>
+  </div>
+
+  <div class="marquee"><span>
+    Identity <em>·</em> Websites <em>·</em> Editorial <em>·</em> <span class="dot">●</span> Motion <em>·</em> Packaging <em>·</em> Naming <em>·</em>
+    <span class="dot">●</span> Identity <em>·</em> Websites <em>·</em> Editorial <em>·</em> <span class="dot">●</span> Motion <em>·</em> Packaging <em>·</em> Naming <em>·</em>
+  </span></div>
+
+  <div class="work">
+    <div class="work-head"><h2>Selected <em class="serif" style="font-style:italic;color:var(--accent)">work</em>.</h2><a class="eyebrow" style="cursor:pointer">— see archive →</a></div>
+    <div class="case-list">
+      <div class="case"><div class="n">— 01</div><div><div class="nm serif">Northwind <em>—  identity, web</em></div></div><div class="client">Logistics startup</div><div class="year">'26</div><div class="arr">→</div></div>
+      <div class="case"><div class="n">— 02</div><div><div class="nm serif">Field Notes <em>—  editorial, brand</em></div></div><div class="client">Independent magazine</div><div class="year">'26</div><div class="arr">→</div></div>
+      <div class="case"><div class="n">— 03</div><div><div class="nm serif">Halftone <em>—  packaging, naming</em></div></div><div class="client">DTC pantry brand</div><div class="year">'25</div><div class="arr">→</div></div>
+      <div class="case"><div class="n">— 04</div><div><div class="nm serif">Ember &amp; Co <em>—  hospitality, web</em></div></div><div class="client">Restaurant group</div><div class="year">'25</div><div class="arr">→</div></div>
+      <div class="case"><div class="n">— 05</div><div><div class="nm serif">Tessera <em>—  marketing site</em></div></div><div class="client">B2B SaaS</div><div class="year">'25</div><div class="arr">→</div></div>
+      <div class="case"><div class="n">— 06</div><div><div class="nm serif">Linden Press <em>—  identity, type</em></div></div><div class="client">Independent publisher</div><div class="year">'24</div><div class="arr">→</div></div>
+    </div>
+  </div>
+
+  <div class="philosophy">
+    <h2>How we <em>work</em>.</h2>
+    <div class="principles">
+      <div class="pr"><div class="n">01</div><div><h4>Strategy first</h4><p>Before the visual, the positioning. We earn the brief before we open the file.</p></div></div>
+      <div class="pr"><div class="n">02</div><div><h4>Small teams</h4><p>Two or three of us on a project, not a deck of producers.</p></div></div>
+      <div class="pr"><div class="n">03</div><div><h4>Documented systems</h4><p>You leave with the work — and the manual for using it.</p></div></div>
+      <div class="pr"><div class="n">04</div><div><h4>Honest timelines</h4><p>Phases quoted before kickoff. We hit dates because we plan dates.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><div class="eyebrow">Studio</div><h2>An independent studio of <em>three or four</em>, depending on the week.</h2><p>Replace this with the studio's origin and what makes it yours.</p></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead serif">We started in Year because we wanted to work on <em>fewer, better things</em>, with people we'd hire ourselves.</p>
+      <p>Tell people who you are. Where you trained. The roles you left behind. The first client who paid the invoice on time.</p>
+      <p>Describe how you work. Two-week sprints. Open Figma files. Friday reviews. Whatever's actually yours.</p>
+      <p>Close with the kind of work you turn down. Specificity sells better than universal claims.</p>
+    </div>
+    <div>
+      <h3 class="serif" style="font-size:32px;letter-spacing:-.015em;margin-bottom:24px">The team</h3>
+      <div class="team">
+        <div class="member"><div class="av"></div><h4 class="serif">Name</h4><div class="role">Founder · Strategy</div><p>One sentence on background.</p></div>
+        <div class="member"><div class="av" style="background:linear-gradient(135deg,#cbe0ff,#5b86ff)"></div><h4 class="serif">Name</h4><div class="role">Design Director</div><p>One sentence on background.</p></div>
+        <div class="member"><div class="av" style="background:linear-gradient(135deg,#c8eed0,#3a8a5a)"></div><h4 class="serif">Name</h4><div class="role">Lead Developer</div><p>One sentence on background.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><div class="eyebrow">Services</div><h2>Four ways<br/>we can <em>help</em>.</h2></div>
+  <div class="svc-grid">
+    <div class="svc"><div class="n">— 01</div><h3>Brand identity</h3><p>Naming, logo system, type, color, voice. The full kit, documented for everyone who'll touch it after us.</p><ul><li>Positioning &amp; brief</li><li>Logo &amp; identity system</li><li>Guidelines document</li><li>Templates for the team</li></ul><div class="from">From $24,000 · 6–8 weeks</div></div>
+    <div class="svc"><div class="n">— 02</div><h3>Websites</h3><p>Marketing sites and product surfaces. Designed, built, and handed over running.</p><ul><li>Design system</li><li>Build in Webflow or Next.js</li><li>CMS &amp; analytics setup</li><li>Launch &amp; support</li></ul><div class="from">From $32,000 · 8–12 weeks</div></div>
+    <div class="svc"><div class="n">— 03</div><h3>Editorial &amp; print</h3><p>Reports, books, decks, and the things still printed on paper.</p><ul><li>Editorial design</li><li>Print direction</li><li>Press &amp; production</li></ul><div class="from">From $14,000 · 4–6 weeks</div></div>
+    <div class="svc"><div class="n">— 04</div><h3>Retainer</h3><p>Embedded design for teams without a head of design (yet). Two weeks on, two weeks off.</p><ul><li>Sprint-based engagement</li><li>Async + weekly call</li><li>One designer + producer</li></ul><div class="from">From $12,000/month</div></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><div class="eyebrow">Contact</div><h2>Tell us<br/>about the <em>project</em>.</h2><p>We reply within two business days. If we're a poor fit, we'll say so and recommend two studios who'd be better.</p></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo form.')">
+      <div class="field row"><div><label>Name</label><input/></div><div><label>Company</label><input/></div></div>
+      <div class="field"><label>Email</label><input type="email"/></div>
+      <div class="field"><label>I'm interested in</label>
+        <select><option>Brand identity</option><option>Website</option><option>Editorial / print</option><option>Retainer</option><option>Not sure yet</option></select></div>
+      <div class="field"><label>Budget</label>
+        <select><option>$15k – $35k</option><option>$35k – $75k</option><option>$75k – $150k</option><option>$150k+</option></select></div>
+      <div class="field"><label>Tell us about it</label><textarea placeholder="Timeline, links, references — anything that helps."></textarea></div>
+      <button class="btn btn-primary">Send →</button>
+    </form>
+    <div class="info-block">
+      <h3>The <em>studio</em></h3>
+      <div class="info-row"><div class="lbl">— address</div>123 Your Street, City</div>
+      <div class="info-row"><div class="lbl">— email</div>hello@youragency.com</div>
+      <div class="info-row"><div class="lbl">— hours</div>Mon — Fri · 10:00 — 19:00</div>
+      <div class="info-row"><div class="lbl">— social</div>Instagram · Are.na · Read.cv</div>
+      <div class="info-row"><div class="lbl">— newsletter</div>Once a month, when we have something to say.</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+<footer><div class="wrap"><div>© 2026 Your Agency · Made with intention</div><div class="foot-links"><a>Instagram</a><a>Are.na</a><a>Read.cv</a></div></div></footer>
+
+<script>
+function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script></body></html>

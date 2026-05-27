@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Community — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#111421;--muted:#5b6275;--accent:#0066ff;--soft:#eef3ff;--warm:#fff4e0;--line:#e8eaf2}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;line-height:1.6}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.wrap{max-width:1240px;margin:0 auto;padding:0 36px}
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;letter-spacing:-.02em}
+.logo .mk{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700}
+.nav-links{display:flex;gap:28px;font-size:14px;color:var(--muted);font-weight:500}
+.nav-links a.active{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:.15s}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#0050cc}
+.btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.page{display:none;padding:64px 0 120px}.page.active{display:block}
+.kicker{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;background:var(--soft);color:var(--accent);font-size:13px;font-weight:600;border-radius:999px;margin-bottom:20px}
+
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:64px;align-items:center}
+.hero h1{font-size:clamp(48px,5.6vw,80px);line-height:1.05;letter-spacing:-.025em;font-weight:700;margin-bottom:18px}
+.hero h1 em{color:var(--accent);font-style:normal}
+.hero .lede{font-size:18px;color:var(--muted);max-width:480px;margin-bottom:28px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+.live-bar{margin-top:24px;display:inline-flex;align-items:center;gap:10px;padding:8px 14px;background:#e9f7ed;color:#0d6e30;border-radius:999px;font-size:13px;font-weight:600}
+.live-bar .d{width:8px;height:8px;border-radius:50%;background:#0d9a44;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.community-card{background:linear-gradient(160deg,var(--soft),#fff);border:1px solid var(--line);border-radius:24px;padding:32px;display:grid;gap:18px}
+.cc-head{display:flex;justify-content:space-between;align-items:center}
+.cc-head h4{font-size:17px;font-weight:700;letter-spacing:-.01em}
+.cc-head .ct{font-size:12px;color:var(--muted)}
+.feed{display:grid;gap:10px}
+.post{padding:14px;background:#fff;border:1px solid var(--line);border-radius:12px;display:grid;grid-template-columns:36px 1fr;gap:12px}
+.post .av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#cfdbff,var(--accent))}
+.post .who{font-size:13.5px;font-weight:600;letter-spacing:-.01em}
+.post .who span{font-weight:400;color:var(--muted);font-size:12.5px;margin-left:6px}
+.post .msg{font-size:13.5px;color:#33384a;margin-top:2px;line-height:1.4}
+.post .react{display:flex;gap:10px;margin-top:8px;font-size:12px;color:var(--muted)}
+.post .react span{display:flex;gap:4px;align-items:center}
+.member-strip{display:flex;align-items:center;gap:10px;padding-top:14px;border-top:1px solid var(--line)}
+.member-strip .avs{display:flex}
+.member-strip .avs div{width:28px;height:28px;border-radius:50%;border:2px solid #fff;margin-left:-8px;background:linear-gradient(135deg,#cfdbff,var(--accent))}
+.member-strip .avs div:first-child{margin-left:0}
+.member-strip span{font-size:13px;color:var(--muted)}
+.member-strip strong{color:var(--ink)}
+
+.channels{margin-top:120px}
+.section-head{margin-bottom:32px;text-align:center;max-width:680px;margin-left:auto;margin-right:auto}
+.section-head h2{font-size:clamp(36px,4.6vw,56px);letter-spacing:-.025em;font-weight:700;line-height:1.06}
+.section-head p{font-size:17.5px;color:var(--muted);margin-top:14px}
+.channel-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;text-align:left}
+.ch{padding:24px;border:1px solid var(--line);border-radius:16px;background:#fff;transition:.15s;cursor:pointer}
+.ch:hover{border-color:var(--accent);transform:translateY(-2px)}
+.ch .hash{font-family:monospace;color:var(--accent);font-size:13px;font-weight:700}
+.ch h4{font-size:17px;font-weight:700;letter-spacing:-.01em;margin:6px 0}
+.ch p{font-size:13.5px;color:var(--muted)}
+.ch .ct{margin-top:14px;font-size:12px;color:var(--muted)}
+.ch .ct strong{color:var(--ink)}
+
+.events-block{margin-top:120px;background:var(--ink);color:#fff;border-radius:24px;padding:64px;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.events-block h2{font-size:48px;letter-spacing:-.025em;font-weight:700;line-height:1.04;margin-bottom:12px}
+.events-block h2 em{color:#9cdaff;font-style:normal}
+.events-block p{color:#a8aebd}
+.events-list{display:grid;gap:8px}
+.ev{padding:18px;background:rgba(255,255,255,.05);border-radius:12px;display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center}
+.ev .d{text-align:center}
+.ev .d .day{font-size:24px;font-weight:700;letter-spacing:-.02em;line-height:1}
+.ev .d .mo{font-size:11px;color:#9cdaff;letter-spacing:.06em;text-transform:uppercase}
+.ev h5{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.ev .desc{font-size:12.5px;color:#a8aebd;margin-top:2px}
+.ev .who{font-size:11px;color:#9cdaff;text-align:right}
+
+.stats-row{margin-top:120px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.stats-row .s{padding:36px;border-right:1px solid var(--line);text-align:center}
+.stats-row .s:last-child{border-right:none}
+.stats-row .v{font-size:48px;font-weight:700;letter-spacing:-.025em;color:var(--accent);line-height:1}
+.stats-row .l{font-size:13px;color:var(--muted);margin-top:6px}
+
+.page-head{margin-bottom:56px;max-width:760px}
+.page-head h2{font-size:clamp(40px,5vw,68px);letter-spacing:-.025em;font-weight:700;line-height:1.04;margin-top:12px}
+.page-head h2 em{color:var(--accent);font-style:normal}
+.page-head p{font-size:18px;color:var(--muted);margin-top:14px}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+.about-text p{margin-bottom:16px;color:#33384a}
+.about-text p.lead{font-size:22px;font-weight:500;line-height:1.4;color:var(--ink);margin-bottom:20px;letter-spacing:-.01em}
+.mods{display:grid;gap:14px}
+.mod{padding:24px;background:var(--soft);border-radius:14px;display:grid;grid-template-columns:60px 1fr;gap:18px;align-items:center}
+.mod .av{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#cfdbff,var(--accent))}
+.mod h5{font-size:17px;font-weight:700;letter-spacing:-.01em}
+.mod .role{font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin:2px 0 6px}
+.mod p{font-size:13px;color:var(--muted)}
+
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.pl{padding:36px;border:1px solid var(--line);border-radius:18px;background:#fff;display:grid;gap:14px;align-content:start}
+.pl.featured{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 24px 60px -30px rgba(0,102,255,.5)}
+.pl.featured p,.pl.featured ul{color:#cfdbff}
+.pl h3{font-size:22px;font-weight:700;letter-spacing:-.015em}
+.pl .price{font-size:48px;font-weight:700;letter-spacing:-.025em}
+.pl .price small{font-size:14px;font-weight:500;color:var(--muted)}
+.pl.featured .price small{color:#9cb8ff}
+.pl p{color:var(--muted);font-size:14.5px}
+.pl ul{list-style:none;display:grid;gap:8px;font-size:14px;color:#33384a;margin:14px 0}
+.pl li{padding-left:22px;position:relative}.pl li::before{content:"✓";position:absolute;left:0;color:var(--accent);font-weight:700}
+.pl.featured li::before{color:#fff}
+.pl .btn{width:100%;justify-content:center}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+form{display:grid;gap:16px}
+.field label{display:block;font-size:13px;color:var(--ink);margin-bottom:6px;font-weight:600}
+input,textarea,select{width:100%;padding:13px 16px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+textarea{min-height:120px;resize:vertical}
+.info-block{padding:40px;background:var(--soft);border-radius:18px}
+.info-block h3{font-size:24px;font-weight:700;letter-spacing:-.02em;margin-bottom:20px}
+.info-row{padding:14px 0;border-top:1px solid #d8e0f5;font-size:14.5px}
+.info-row:first-of-type{border-top:none}
+.info-row .lbl{font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+
+footer{border-top:1px solid var(--line);padding:32px 0;color:var(--muted);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-links{display:flex;gap:24px}
+@media(max-width:880px){.hero,.events-block,.about-grid,.contact-grid{grid-template-columns:1fr}.channel-grid{grid-template-columns:1fr 1fr}.plans,.stats-row{grid-template-columns:1fr}.nav-links{display:none}}
+</style></head><body>
+
+<nav><div class="wrap">
+<a class="logo" onclick="goto('home')"><span class="mk">⌬</span>Your Community</a>
+<div class="nav-links">
+<a data-page="home" class="active">Home</a><a data-page="services">Plans</a><a data-page="about">About</a><a data-page="contact">Contact</a>
+</div>
+<button class="btn btn-primary" onclick="goto('services')">Join the community →</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div>
+      <span class="kicker">⌬ 2,400 members · invite required</span>
+      <h1>A small, private community for <em>people who ship</em>.</h1>
+      <p class="lede">A members-only space for senior operators, founders, and serious side-projects. Quiet by design. Replace this with your community's voice.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="goto('services')">Apply to join →</button>
+        <button class="btn btn-ghost" onclick="goto('about')">About us</button>
+      </div>
+      <div class="live-bar"><span class="d"></span>184 members online right now</div>
+    </div>
+    <div class="community-card">
+      <div class="cc-head"><h4># general</h4><div class="ct">— live feed</div></div>
+      <div class="feed">
+        <div class="post"><div class="av"></div><div><div class="who">Iris<span>· 2m ago</span></div><div class="msg">Just shipped the new pricing page — would love feedback before I tweet it.</div><div class="react"><span>♥ 14</span><span>💬 6</span></div></div></div>
+        <div class="post"><div class="av" style="background:linear-gradient(135deg,#ffd09c,#ff5a3c)"></div><div><div class="who">Theo<span>· 8m ago</span></div><div class="msg">Anyone in NYC for the meetup next Thursday? Bringing two friends.</div><div class="react"><span>♥ 22</span><span>💬 11</span></div></div></div>
+        <div class="post"><div class="av" style="background:linear-gradient(135deg,#c5e9c8,#2c9a4a)"></div><div><div class="who">Maya<span>· 14m ago</span></div><div class="msg">Hiring a senior PM. Remote, $190k+. Reply for the doc.</div><div class="react"><span>♥ 8</span><span>💬 3</span></div></div></div>
+      </div>
+      <div class="member-strip">
+        <div class="avs">
+          <div></div><div style="background:linear-gradient(135deg,#ffd09c,#ff5a3c)"></div><div style="background:linear-gradient(135deg,#c5e9c8,#2c9a4a)"></div><div style="background:linear-gradient(135deg,#e0c4f2,#7a4fb0)"></div><div style="background:linear-gradient(135deg,#9cdaff,#3a8ad6)"></div>
+        </div>
+        <span><strong>+184</strong> online · 2,400 total members</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="channels">
+    <div class="section-head"><h2>Twelve channels.<br/>One <em style="color:var(--accent)">quieter</em> place.</h2><p>Most communities are noise. This one is curated.</p></div>
+    <div class="channel-grid">
+      <div class="ch"><div class="hash"># general</div><h4>The main room</h4><p>Where the day starts. Slow, polite, alive.</p><div class="ct"><strong>184</strong> online · <strong>2.4k</strong> members</div></div>
+      <div class="ch"><div class="hash"># show-and-tell</div><h4>What you shipped</h4><p>For things that took longer than a weekend.</p><div class="ct"><strong>32</strong> online · <strong>1.8k</strong> members</div></div>
+      <div class="ch"><div class="hash"># jobs</div><h4>Real hiring posts</h4><p>Companies our members vouch for.</p><div class="ct"><strong>14</strong> online · <strong>980</strong> members</div></div>
+      <div class="ch"><div class="hash"># reading</div><h4>What's worth reading</h4><p>Slow link-sharing, with annotations.</p><div class="ct"><strong>22</strong> online · <strong>1.2k</strong> members</div></div>
+      <div class="ch"><div class="hash"># founders</div><h4>The harder questions</h4><p>For people running things. Real numbers.</p><div class="ct"><strong>40</strong> online · <strong>720</strong> members</div></div>
+      <div class="ch"><div class="hash"># design</div><h4>Crit &amp; craft</h4><p>Files, screenshots, opinions, kindness.</p><div class="ct"><strong>28</strong> online · <strong>880</strong> members</div></div>
+      <div class="ch"><div class="hash"># meetups</div><h4>In-person</h4><p>Cities our members are in this month.</p><div class="ct"><strong>9</strong> online · <strong>1.5k</strong> members</div></div>
+      <div class="ch"><div class="hash"># slow</div><h4>The long thread</h4><p>One topic a week. Replies only.</p><div class="ct"><strong>16</strong> online · <strong>640</strong> members</div></div>
+    </div>
+  </div>
+
+  <div class="events-block">
+    <div>
+      <h2>Quiet <em>meetups</em>.<br/>Real conversations.</h2>
+      <p>Two or three times a month, in different cities. Small rooms. No name tags. RSVP open to all members.</p>
+    </div>
+    <div class="events-list">
+      <div class="ev"><div class="d"><div class="day">04</div><div class="mo">Jun</div></div><div><h5>NYC dinner — 10 seats</h5><div class="desc">A long table at a quiet restaurant</div></div><div class="who">2 spots left</div></div>
+      <div class="ev"><div class="d"><div class="day">12</div><div class="mo">Jun</div></div><div><h5>London coffee — open invite</h5><div class="desc">An espresso bar in Soho, 9am</div></div><div class="who">23 going</div></div>
+      <div class="ev"><div class="d"><div class="day">20</div><div class="mo">Jun</div></div><div><h5>SF walk &amp; talk</h5><div class="desc">An hour through Golden Gate Park</div></div><div class="who">14 going</div></div>
+      <div class="ev"><div class="d"><div class="day">28</div><div class="mo">Jun</div></div><div><h5>Berlin community day</h5><div class="desc">A full afternoon at a coworking space</div></div><div class="who">RSVP open</div></div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="s"><div class="v">2.4k</div><div class="l">Members worldwide</div></div>
+    <div class="s"><div class="v">62</div><div class="l">In-person events / year</div></div>
+    <div class="s"><div class="v">$0</div><div class="l">In ads, ever</div></div>
+    <div class="s"><div class="v">94%</div><div class="l">Annual retention</div></div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><span class="kicker">About</span><h2>A community of <em>peers</em>,<br/>not an audience.</h2></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">We started this in Year because every "community" we joined either disappeared in a month or grew so fast it stopped being a community at all.</p>
+      <p>Replace this with the founding story. The first hundred members. The decisions that protect the room — application required, no DM blasts, three-strike kindness policy.</p>
+      <p>Tell people what's expected — and what isn't. Most of the people who like this place tell their friend rather than tweet about it.</p>
+    </div>
+    <div>
+      <h3 style="font-size:24px;font-weight:700;letter-spacing:-.015em;margin-bottom:18px">The team</h3>
+      <div class="mods">
+        <div class="mod"><div class="av"></div><div><h5>Founder Name</h5><div class="role">Steward · Founder</div><p>Background and the corner they protect.</p></div></div>
+        <div class="mod"><div class="av" style="background:linear-gradient(135deg,#ffd09c,#ff5a3c)"></div><div><h5>Moderator Name</h5><div class="role">Lead moderator</div><p>Background and the corner they protect.</p></div></div>
+        <div class="mod"><div class="av" style="background:linear-gradient(135deg,#c5e9c8,#2c9a4a)"></div><div><h5>Moderator Name</h5><div class="role">Events</div><p>Background and the corner they protect.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><span class="kicker">Plans</span><h2>Three ways<br/>to <em>belong</em>.</h2><p>Most members pick the annual plan. All plans renew at the same rate they joined at.</p></div>
+  <div class="plans">
+    <div class="pl"><h3>Visitor</h3><div class="price">Free</div><p>Read-only access to public channels and the newsletter.</p><ul><li>Five public channels</li><li>Monthly newsletter</li><li>Past event recaps</li></ul><button class="btn btn-ghost">Get visitor access</button></div>
+    <div class="pl featured"><h3>Member · annual</h3><div class="price">$240<small>/year</small></div><p>The full community, all channels, every event.</p><ul><li>All 12 channels</li><li>RSVP to every meetup</li><li>Members-only essays</li><li>Quarterly group call</li><li>Apply once, member forever</li></ul><button class="btn btn-primary">Apply to join →</button></div>
+    <div class="pl"><h3>Patron</h3><div class="price">$960<small>/year</small></div><p>For members who want to fund the next year of the community.</p><ul><li>Everything in Member</li><li>Private patron channel</li><li>One gift membership</li><li>Quarterly steward call</li></ul><button class="btn btn-ghost">Become a patron</button></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><span class="kicker">Contact</span><h2>Ask us<br/><em>anything</em>.</h2></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo')">
+      <div class="field row"><div><label>Name</label><input/></div><div><label>Email</label><input type="email"/></div></div>
+      <div class="field"><label>I'm writing about</label>
+        <select><option>Applying to join</option><option>A member question</option><option>Partnerships / events</option><option>Press</option><option>Something else</option></select></div>
+      <div class="field"><label>Message</label><textarea></textarea></div>
+      <button class="btn btn-primary">Send →</button>
+    </form>
+    <div class="info-block">
+      <h3>Reach us</h3>
+      <div class="info-row"><div class="lbl">applications</div>apply@yourcommunity.com</div>
+      <div class="info-row"><div class="lbl">members</div>members@yourcommunity.com</div>
+      <div class="info-row"><div class="lbl">partnerships</div>partner@yourcommunity.com</div>
+      <div class="info-row"><div class="lbl">based in</div>City, ST · members worldwide</div>
+      <div class="info-row"><div class="lbl">response</div>1 – 3 business days</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+<footer><div class="wrap"><div>© 2026 Your Community · A quieter room</div><div class="foot-links"><a>Newsletter</a><a>Privacy</a><a>Code of conduct</a></div></div></footer>
+<script>
+function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script></body></html>

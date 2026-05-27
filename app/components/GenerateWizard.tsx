@@ -155,11 +155,15 @@ const STYLES = [
 ];
 
 const FONTS = [
-  { id: "modern-sans",   name: "Modern Sans-Serif", desc: "Clean & contemporary", best: "Tech, modern services",  sample: "Aa",  style: {fontFamily:"ui-sans-serif,system-ui,sans-serif",      fontWeight:400} },
-  { id: "classic-serif", name: "Classic Serif",     desc: "Trustworthy & elegant", best: "Law, finance, editorial",sample: "Aa",  style: {fontFamily:"Georgia,'Times New Roman',serif",         fontWeight:400} },
-  { id: "geo-bold",      name: "Geometric & Bold",  desc: "Striking & impactful",  best: "Creative, design, startups", sample: "Aa", style: {fontFamily:"ui-sans-serif,system-ui,sans-serif",   fontWeight:900} },
-  { id: "mono",          name: "Monospace",         desc: "Technical & precise",   best: "Tech, developer-focused",sample: "Aa",  style: {fontFamily:"ui-monospace,'Cascadia Code',monospace", fontWeight:400} },
-  { id: "playful",       name: "Playful & Rounded", desc: "Friendly & casual",     best: "Kids, lifestyle, community", sample: "Aa", style: {fontFamily:"Georgia,sans-serif",                 fontWeight:700, letterSpacing:"0.02em"} },
+  { id: "modern-sans",    name: "Modern Sans",     desc: "Clean & contemporary",    best: "Tech, modern services",       sample: "Aa", style: {fontFamily:"ui-sans-serif,system-ui,sans-serif",                                fontWeight:400} },
+  { id: "classic-serif",  name: "Classic Serif",   desc: "Trustworthy & elegant",   best: "Law, finance, editorial",      sample: "Aa", style: {fontFamily:"Georgia,'Times New Roman',serif",                                  fontWeight:400} },
+  { id: "geo-bold",       name: "Geometric Bold",  desc: "Striking & impactful",    best: "Creative, design, startups",   sample: "Aa", style: {fontFamily:"ui-sans-serif,system-ui,sans-serif",                               fontWeight:900} },
+  { id: "mono",           name: "Monospace",        desc: "Technical & precise",    best: "Tech, developer-focused",      sample: "Aa", style: {fontFamily:"ui-monospace,'Cascadia Code',monospace",                          fontWeight:400} },
+  { id: "playful",        name: "Playful Rounded",  desc: "Friendly & casual",      best: "Kids, lifestyle, community",   sample: "Aa", style: {fontFamily:"Georgia,sans-serif",                                               fontWeight:700, letterSpacing:"0.02em"} },
+  { id: "humanist-sans",  name: "Humanist Sans",    desc: "Warm & approachable",    best: "Wellness, beauty, lifestyle",  sample: "Aa", style: {fontFamily:"'Manrope',ui-sans-serif,sans-serif",                               fontWeight:400} },
+  { id: "luxury-serif",   name: "Luxury Serif",     desc: "Ultra-elegant & refined",best: "Fashion, fine dining, beauty", sample: "Aa", style: {fontFamily:"'Cormorant Garamond','Palatino Linotype',serif",                  fontWeight:400, fontStyle:"italic" as const} },
+  { id: "editorial-serif",name: "Editorial Serif",  desc: "Literary & editorial",   best: "Publishing, restaurants",      sample: "Aa", style: {fontFamily:"'Fraunces',Georgia,serif",                                         fontWeight:500} },
+  { id: "space-grotesk",  name: "Space Grotesk",    desc: "Geometric with character",best: "Tech, Web3, creative studios",sample: "Aa", style: {fontFamily:"'Space Grotesk',ui-sans-serif,sans-serif",                        fontWeight:500} },
 ];
 
 const IMAGERY = [
@@ -1585,9 +1589,13 @@ function Step4Typography({ data, onChange, logo, onLogoChange }: {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Space+Grotesk:wght@400;500;700&display=swap"
+      />
       <div>
         <SectionLabel label="Typography style" />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
           {FONTS.map(f => {
             const on = data.fontFamily === f.id;
             return (

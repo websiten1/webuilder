@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Photography — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#0d0d0d;--muted:#7c7c7c;--accent:#000;--line:#ececec}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:Inter,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.wrap{max-width:1400px;margin:0 auto;padding:0 36px}
+.serif{font-family:Cormorant,serif}
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:72px}
+.logo{font-family:Cormorant;font-size:24px;font-style:italic}
+.nav-links{display:flex;gap:32px;font-size:13px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.nav-links a.active{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border:none;font-weight:500;border-radius:0}
+.btn-primary{background:var(--ink);color:#fff}.btn-primary:hover{opacity:.85}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+.page{display:none;padding:48px 0 120px}.page.active{display:block}
+
+.hero{text-align:center;padding:48px 0 64px}
+.pre{font-family:Cormorant;font-style:italic;font-size:24px;color:var(--muted)}
+.hero h1{font-family:Cormorant;font-weight:400;font-size:clamp(80px,12vw,200px);line-height:.94;letter-spacing:-.025em;margin-top:14px}
+.hero h1 em{font-style:italic}
+.hero .deck{font-family:Cormorant;font-style:italic;font-size:24px;color:var(--muted);margin-top:18px;max-width:520px;margin-left:auto;margin-right:auto}
+
+.gallery{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:200px;gap:6px}
+.fr{background:var(--ink);position:relative;overflow:hidden;cursor:pointer;transition:.25s}
+.fr:hover{transform:scale(.99)}
+.fr.tall{grid-row:span 2}
+.fr.wide{grid-column:span 2}
+.fr.big{grid-column:span 2;grid-row:span 2}
+.fr .label{position:absolute;bottom:14px;left:14px;color:#fff;font-family:Cormorant;font-style:italic;font-size:16px}
+.fr.a{background:linear-gradient(180deg,#1a1a1a,#4a4a4a)}
+.fr.b{background:linear-gradient(180deg,#dccdb8,#7a6248)}
+.fr.c{background:linear-gradient(180deg,#0a0a0a,#2a2a2a)}
+.fr.d{background:linear-gradient(180deg,#e5dac8,#a89a82)}
+.fr.e{background:linear-gradient(180deg,#3a3328,#6a5e48)}
+.fr.f{background:linear-gradient(180deg,#cdc4b5,#5a4838)}
+.fr.g{background:linear-gradient(180deg,#1a1a14,#3c3528)}
+.fr.h{background:linear-gradient(180deg,#e8e0d0,#aaa090)}
+
+.section-head{margin-top:120px;margin-bottom:32px;text-align:center}
+.section-head .pre{font-size:20px}
+.section-head h2{font-family:Cormorant;font-size:clamp(48px,6vw,84px);font-weight:400;letter-spacing:-.02em;margin-top:8px}
+.section-head h2 em{font-style:italic}
+
+.series{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px}
+.ss{cursor:pointer}
+.ss .cover{aspect-ratio:4/5;background:#1a1a1a;margin-bottom:18px;position:relative;overflow:hidden;transition:.25s}
+.ss:hover .cover{transform:scale(.98)}
+.ss .cover.a{background:linear-gradient(180deg,#0d0d0d,#3a3a3a)}
+.ss .cover.b{background:linear-gradient(180deg,#e5d4b8,#8a6a4a)}
+.ss .cover.c{background:linear-gradient(180deg,#cdc4b5,#3a3329)}
+.ss .cover .nm{position:absolute;top:14px;left:14px;color:#fff;font-family:Cormorant;font-style:italic;font-size:16px}
+.ss h3{font-family:Cormorant;font-size:32px;letter-spacing:-.01em;margin-bottom:4px}
+.ss h3 em{font-style:italic}
+.ss .meta{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.ss p{font-family:Cormorant;font-style:italic;color:var(--muted);font-size:16px;margin-top:10px}
+
+.quote-band{margin-top:120px;padding:120px 36px;text-align:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.quote-band h3{font-family:Cormorant;font-size:48px;font-style:italic;line-height:1.3;max-width:780px;margin:0 auto;letter-spacing:-.01em}
+.quote-band .by{margin-top:18px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+
+.tear-sheet{margin-top:120px;display:grid;grid-template-columns:repeat(8,1fr);gap:20px;align-items:center}
+.tear-sheet .pre{grid-column:span 8;text-align:center;font-size:12px;letter-spacing:.22em;text-transform:uppercase;font-family:Inter;font-style:normal;color:var(--muted);font-weight:500;margin-bottom:12px}
+.tear{font-family:Cormorant;font-size:18px;text-align:center;font-style:italic;color:var(--ink);opacity:.7}
+
+.page-head{margin-bottom:48px;max-width:760px;text-align:center;margin-left:auto;margin-right:auto}
+.page-head h2{font-family:Cormorant;font-size:clamp(56px,7vw,108px);font-weight:400;letter-spacing:-.02em;line-height:1;margin-top:10px}
+.page-head h2 em{font-style:italic}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;text-align:left}
+.about-text p{margin-bottom:16px;color:#333}
+.about-text p.lead{font-family:Cormorant;font-style:italic;font-size:28px;line-height:1.4;color:var(--ink);margin-bottom:24px}
+.about-img{aspect-ratio:4/5;background:linear-gradient(180deg,#1a1a1a,#3a3a3a)}
+
+.svc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--ink);border:1px solid var(--ink)}
+.svc{padding:48px;background:#fff}
+.svc h3{font-family:Cormorant;font-size:36px;letter-spacing:-.015em;margin-bottom:8px}
+.svc h3 em{font-style:italic}
+.svc p{color:var(--muted);margin-bottom:14px}
+.svc ul{list-style:none;display:grid;gap:8px;font-size:14.5px;margin-top:14px}
+.svc li{padding-left:18px;position:relative}.svc li::before{content:"—";position:absolute;left:0}
+.svc .from{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-family:Cormorant;font-style:italic;font-size:20px}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px}
+form{display:grid;gap:18px}
+.field label{display:block;font-family:Cormorant;font-style:italic;font-size:18px;margin-bottom:4px}
+input,textarea,select{width:100%;padding:14px 0;background:transparent;border:none;border-bottom:1px solid var(--line);font:inherit;color:var(--ink)}
+input:focus,textarea:focus{outline:none;border-bottom-color:var(--ink)}
+.field.row{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+textarea{min-height:100px;resize:vertical}
+.info-block{padding:48px;border:1px solid var(--ink)}
+.info-block h3{font-family:Cormorant;font-size:36px;margin-bottom:24px;font-weight:400}
+.info-block h3 em{font-style:italic}
+.info-row{padding:16px 0;border-top:1px solid var(--line);font-size:14.5px}
+.info-row:first-of-type{border-top:none}
+.info-row .lbl{font-family:Cormorant;font-style:italic;color:var(--muted);font-size:16px;margin-bottom:2px}
+
+footer{border-top:1px solid var(--line);padding:36px 0;font-family:Cormorant;font-style:italic;font-size:15px;color:var(--muted)}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-links{display:flex;gap:24px;font-family:Inter;font-style:normal;font-size:12px;letter-spacing:.16em;text-transform:uppercase}
+@media(max-width:880px){.gallery{grid-template-columns:1fr 1fr;grid-auto-rows:160px}.series,.about-grid,.contact-grid,.svc-grid{grid-template-columns:1fr}.tear-sheet{grid-template-columns:repeat(2,1fr)}.tear-sheet .pre{grid-column:span 2}.nav-links{display:none}}
+</style></head><body>
+<nav><div class="wrap">
+<a class="logo" onclick="goto('home')">Your <em>Photography</em></a>
+<div class="nav-links"><a data-page="home" class="active">Work</a><a data-page="services">Commissions</a><a data-page="about">About</a><a data-page="contact">Contact</a></div>
+<button class="btn btn-primary" onclick="goto('contact')">Book a shoot</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div class="pre">— editorial &amp; portrait, since Year</div>
+    <h1>The <em>quiet</em><br/>image.</h1>
+    <div class="deck">— A studio working in soft light and longer shutter speeds —</div>
+  </div>
+
+  <div class="gallery">
+    <div class="fr a big"><span class="label">— No. 14 · portrait</span></div>
+    <div class="fr b tall"><span class="label">— No. 22</span></div>
+    <div class="fr c"><span class="label">— No. 08</span></div>
+    <div class="fr d"><span class="label">— No. 11</span></div>
+    <div class="fr e wide"><span class="label">— No. 17 · interior</span></div>
+    <div class="fr f"><span class="label">— No. 05</span></div>
+    <div class="fr g"><span class="label">— No. 09</span></div>
+    <div class="fr h tall"><span class="label">— No. 24</span></div>
+    <div class="fr a"><span class="label">— No. 31</span></div>
+    <div class="fr d"><span class="label">— No. 27</span></div>
+  </div>
+
+  <div class="section-head"><div class="pre">— current series</div><h2>Working <em>now</em>.</h2></div>
+  <div class="series">
+    <div class="ss"><div class="cover a"><span class="nm">— No. 01</span></div><h3>The <em>kitchen</em> series</h3><div class="meta">— PORTRAITS · 2024 — 2026</div><p>Twenty-four cooks, photographed at home, before service.</p></div>
+    <div class="ss"><div class="cover b"><span class="nm">— No. 02</span></div><h3>Quiet <em>interiors</em></h3><div class="meta">— ARCHITECTURE · 2025</div><p>Empty rooms in twelve houses. One hour each, on a Sunday morning.</p></div>
+    <div class="ss"><div class="cover c"><span class="nm">— No. 03</span></div><h3>The <em>commute</em></h3><div class="meta">— STREET · ONGOING</div><p>The same five minutes of the same walk, every Tuesday for a year.</p></div>
+  </div>
+
+  <div class="quote-band">
+    <h3>"Photographs help people to see."<br/>— A photographer, attributed often</h3>
+    <div class="by">— ON THE WALL OF THE STUDIO</div>
+  </div>
+
+  <div class="tear-sheet">
+    <div class="pre">— SELECTED PUBLICATIONS &amp; CLIENTS</div>
+    <div class="tear">The New York Times</div>
+    <div class="tear">Apartamento</div>
+    <div class="tear">Cereal</div>
+    <div class="tear">Kinfolk</div>
+    <div class="tear">Vogue Italia</div>
+    <div class="tear">Aperture</div>
+    <div class="tear">It's Nice That</div>
+    <div class="tear">Magnum</div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><div class="pre">— about</div><h2>A studio of <em>two</em>.</h2></div>
+  <div class="about-grid">
+    <div class="about-img"></div>
+    <div class="about-text">
+      <p class="lead">"We work mostly with available light, mostly on assignment, and almost always slowly."</p>
+      <p>Replace this with your story. Where you studied. The teacher who shaped your eye. The first publication that took a chance on the work.</p>
+      <p>Tell people what kind of work you say yes to — and what you turn down. Specificity is the only marketing copy a photographer should write.</p>
+      <p>Mention the studio. The chair by the window. The seamless paper you've been using since Year. The cup of tea you offer every subject before the first frame.</p>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><div class="pre">— commissions</div><h2>What I <em>shoot</em>.</h2></div>
+  <div class="svc-grid">
+    <div class="svc"><h3>Editorial <em>portraits</em></h3><p>For magazines &amp; brands. Subject-led, on location or in the studio.</p><ul><li>Half-day or full-day rate</li><li>Two-week turnaround</li><li>Editorial license included</li></ul><div class="from">— from $3,200 / half day</div></div>
+    <div class="svc"><h3>Interior &amp; <em>architecture</em></h3><p>Houses, hotels, restaurants. Available light when possible.</p><ul><li>Full day on location</li><li>10–15 finished images</li><li>Tear sheets for press</li></ul><div class="from">— from $4,200 / day</div></div>
+    <div class="svc"><h3>Personal <em>portraits</em></h3><p>For families, individuals, and one-off projects. Three hours, in your space.</p><ul><li>3-hour session</li><li>20 finished images</li><li>One framed print included</li></ul><div class="from">— from $1,400</div></div>
+    <div class="svc"><h3>Print <em>sales</em></h3><p>Limited-edition prints from the archive, signed &amp; numbered.</p><ul><li>Editions of 25</li><li>Three sizes available</li><li>Free framing locally</li></ul><div class="from">— from $480 / print</div></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><div class="pre">— inquiries</div><h2>Send a <em>note</em>.</h2></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo')">
+      <div class="field row"><div><label>Name</label><input/></div><div><label>Email</label><input type="email"/></div></div>
+      <div class="field"><label>This is about</label><select><option>Editorial commission</option><option>Interior / architecture</option><option>Personal portraits</option><option>Print sale</option><option>Press</option></select></div>
+      <div class="field"><label>Tell me about the project</label><textarea></textarea></div>
+      <button class="btn btn-primary">Send →</button>
+    </form>
+    <div class="info-block">
+      <h3>The <em>studio</em></h3>
+      <div class="info-row"><div class="lbl">— studio</div>123 Your Street, City</div>
+      <div class="info-row"><div class="lbl">— email</div>hello@yourphotography.com</div>
+      <div class="info-row"><div class="lbl">— phone</div>(555) 000-0000</div>
+      <div class="info-row"><div class="lbl">— rep</div>Agent Name · agent@studio.com</div>
+      <div class="info-row"><div class="lbl">— response</div>1 — 3 business days</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+<footer><div class="wrap"><div>— Your Photography · A small studio, since Year —</div><div class="foot-links"><a>Instagram</a><a>Are.na</a><a>Prints</a></div></div></footer>
+<script>
+function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script></body></html>

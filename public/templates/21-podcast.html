@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Podcast — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#0d0d0d;--muted:#6b6b6b;--line:#ebebeb;--accent:#ff5a3c;--soft:#fff3ee}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:'Bricolage Grotesque','Inter',sans-serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.wrap{max-width:1240px;margin:0 auto;padding:0 36px}
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:600;letter-spacing:-.01em}
+.logo .mk{width:30px;height:30px;border-radius:50%;background:var(--accent);position:relative}
+.logo .mk::after{content:"";position:absolute;inset:8px;border-radius:50%;background:#fff}
+.nav-links{display:flex;gap:28px;font-size:14px;color:var(--muted);font-weight:500}
+.nav-links a.active{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:999px;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:.15s}
+.btn-primary{background:var(--ink);color:#fff}.btn-primary:hover{background:var(--accent)}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.page{display:none;padding:64px 0 120px}.page.active{display:block}
+
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:80px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;color:var(--accent);font-weight:600;font-size:14px;margin-bottom:24px}
+.eyebrow::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--accent);animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.4}}
+.hero h1{font-size:clamp(56px,7vw,108px);line-height:.96;letter-spacing:-.03em;font-weight:700;margin-bottom:24px}
+.hero h1 em{color:var(--accent);font-style:normal}
+.hero .lede{font-size:19px;color:var(--muted);max-width:480px;margin-bottom:28px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+.platforms{margin-top:32px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.platforms .l{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.platforms .p{padding:6px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;font-weight:500;color:#333}
+
+.cover{aspect-ratio:1/1;background:linear-gradient(135deg,var(--accent),#ffd09c);border-radius:24px;padding:32px;display:grid;align-content:space-between;color:#1a0a08;position:relative;overflow:hidden;box-shadow:0 40px 80px -40px rgba(255,90,60,.5)}
+.cover::before{content:"";position:absolute;inset:20px;border:1px dashed rgba(0,0,0,.18);border-radius:18px;pointer-events:none}
+.cover .ep{font-size:13px;letter-spacing:.18em;text-transform:uppercase;font-weight:600}
+.cover h3{font-size:36px;line-height:1.05;letter-spacing:-.02em;font-weight:700}
+.cover .player{background:rgba(0,0,0,.85);color:#fff;border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:14px}
+.cover .player .play{width:42px;height:42px;border-radius:50%;background:var(--accent);display:grid;place-items:center;flex-shrink:0;font-size:14px}
+.cover .player .wave{flex:1;display:flex;gap:2px;align-items:center;height:24px}
+.cover .player .wave span{width:3px;background:#fff;border-radius:2px;animation:wave 1.4s ease-in-out infinite}
+@keyframes wave{0%,100%{height:6px}50%{height:18px}}
+.cover .player .wave span:nth-child(1){animation-delay:0s}.cover .player .wave span:nth-child(2){animation-delay:.1s;height:12px}.cover .player .wave span:nth-child(3){animation-delay:.2s;height:20px}.cover .player .wave span:nth-child(4){animation-delay:.3s;height:8px}.cover .player .wave span:nth-child(5){animation-delay:.4s;height:14px}.cover .player .wave span:nth-child(6){animation-delay:.5s;height:18px}.cover .player .wave span:nth-child(7){animation-delay:.6s;height:10px}.cover .player .wave span:nth-child(8){animation-delay:.7s;height:16px}.cover .player .wave span:nth-child(9){animation-delay:.8s;height:8px}.cover .player .wave span:nth-child(10){animation-delay:.9s;height:14px}.cover .player .wave span:nth-child(11){animation-delay:1s;height:6px}.cover .player .wave span:nth-child(12){animation-delay:1.1s;height:18px}
+.cover .player .time{font-size:12px;color:#999;font-variant-numeric:tabular-nums}
+
+.episodes{margin-top:120px}
+.section-head{display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:20px;margin-bottom:24px}
+.section-head h2{font-size:48px;letter-spacing:-.025em;font-weight:700}
+.ep-list{display:grid;gap:14px}
+.ep-card{padding:24px;background:#fff;border:1px solid var(--line);border-radius:18px;display:grid;grid-template-columns:80px 60px 1fr 100px 80px;gap:20px;align-items:center;transition:.15s;cursor:pointer}
+.ep-card:hover{border-color:var(--accent);background:var(--soft)}
+.ep-card .num{font-size:32px;font-weight:700;color:var(--accent);letter-spacing:-.02em}
+.ep-card .play-mini{width:48px;height:48px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;flex-shrink:0}
+.ep-card h4{font-size:18px;font-weight:600;letter-spacing:-.01em;margin-bottom:4px}
+.ep-card .guest{font-size:13.5px;color:var(--muted)}
+.ep-card .dur{font-size:13.5px;color:var(--muted);font-weight:500}
+.ep-card .date{font-size:13px;color:var(--muted)}
+
+.guests-strip{margin-top:96px;padding:48px;background:var(--soft);border-radius:24px}
+.guests-strip h3{font-size:32px;letter-spacing:-.02em;font-weight:700;margin-bottom:24px}
+.guests-strip h3 em{color:var(--accent);font-style:normal}
+.guests-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.gst{padding:18px;background:#fff;border-radius:14px;text-align:center}
+.gst .av{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#ffd09c,var(--accent));margin:0 auto 10px}
+.gst .nm{font-size:14px;font-weight:600;letter-spacing:-.01em}
+.gst .ro{font-size:12px;color:var(--muted)}
+
+.reviews{margin-top:96px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.rev{padding:32px;border:1px solid var(--line);border-radius:18px}
+.rev .stars{color:var(--accent);letter-spacing:1px;margin-bottom:14px}
+.rev .q{font-size:16px;line-height:1.5;font-weight:500}
+.rev .by{margin-top:18px;font-size:13px;color:var(--muted)}
+.rev .by strong{color:var(--ink);font-weight:600}
+
+.page-head{margin-bottom:56px;max-width:760px}
+.page-head h2{font-size:clamp(40px,5vw,72px);letter-spacing:-.03em;font-weight:700;line-height:1;margin-top:10px}
+.page-head h2 em{color:var(--accent);font-style:normal}
+.page-head p{font-size:18px;color:var(--muted);margin-top:14px}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px}
+.about-text p{margin-bottom:16px;color:#333}
+.about-text p.lead{font-size:24px;font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.35;margin-bottom:24px}
+.hosts{display:grid;gap:14px}
+.host{padding:24px;background:var(--soft);border-radius:14px;display:grid;grid-template-columns:64px 1fr;gap:18px;align-items:center}
+.host .av{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#ffd09c,var(--accent))}
+.host h5{font-size:18px;font-weight:600;letter-spacing:-.01em}
+.host .role{font-size:12px;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin:2px 0 6px}
+.host p{font-size:13.5px;color:var(--muted)}
+
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.svc{padding:32px;border:1px solid var(--line);border-radius:18px}
+.svc.featured{background:var(--ink);color:#fff;border-color:var(--ink)}
+.svc.featured ul{color:#bcbcbc}
+.svc h3{font-size:22px;font-weight:600;letter-spacing:-.01em}
+.svc .price{font-size:42px;font-weight:700;margin:10px 0;letter-spacing:-.02em}
+.svc .price small{font-size:14px;color:var(--muted);font-weight:400}
+.svc.featured .price small{color:#999}
+.svc p{font-size:14.5px;color:var(--muted)}
+.svc.featured p{color:#bcbcbc}
+.svc ul{list-style:none;display:grid;gap:8px;margin:20px 0;font-size:14px;color:#333}
+.svc li{padding-left:22px;position:relative}.svc li::before{content:"→";position:absolute;left:0;color:var(--accent)}
+.svc .btn{width:100%;justify-content:center}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+form{display:grid;gap:16px}
+.field label{display:block;font-size:13px;color:var(--ink);margin-bottom:6px;font-weight:500}
+input,textarea,select{width:100%;padding:13px 16px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+textarea{min-height:120px;resize:vertical}
+.info-block{padding:40px;background:var(--soft);border-radius:18px}
+.info-block h3{font-size:24px;font-weight:700;letter-spacing:-.01em;margin-bottom:20px}
+.info-row{padding:14px 0;border-top:1px solid #f3dccf;font-size:14.5px}
+.info-row:first-of-type{border-top:none}
+.info-row .lbl{font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+
+footer{border-top:1px solid var(--line);padding:32px 0;color:var(--muted);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-links{display:flex;gap:24px}
+@media(max-width:880px){.hero,.about-grid,.contact-grid{grid-template-columns:1fr}.ep-card{grid-template-columns:1fr;gap:8px}.guests-grid{grid-template-columns:repeat(3,1fr)}.svc-grid,.reviews{grid-template-columns:1fr}.nav-links{display:none}}
+</style></head><body>
+
+<nav><div class="wrap">
+<a class="logo" onclick="goto('home')"><span class="mk"></span>Your Podcast</a>
+<div class="nav-links">
+<a data-page="home" class="active">Home</a><a data-page="services">Episodes</a><a data-page="about">Hosts</a><a data-page="contact">Be a guest</a>
+</div>
+<button class="btn btn-primary" onclick="goto('contact')">Subscribe →</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div>
+      <span class="eyebrow">New episode every Tuesday</span>
+      <h1>Long conversations <em>with</em> people who built something.</h1>
+      <p class="lede">A weekly podcast about craft, business, and the long shape of careers. Replace this with your show's tagline.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary">▶ Listen to the latest →</button>
+        <button class="btn btn-ghost">All episodes</button>
+      </div>
+      <div class="platforms"><span class="l">— available on</span><span class="p">Apple</span><span class="p">Spotify</span><span class="p">Overcast</span><span class="p">YouTube</span><span class="p">RSS</span></div>
+    </div>
+    <div class="cover">
+      <div class="ep">— Episode 84 · 1h 12m</div>
+      <h3>On selling a company you didn't want to sell.</h3>
+      <div class="player">
+        <div class="play">▶</div>
+        <div class="wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="time">42:18</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="episodes">
+    <div class="section-head"><h2>Recent <em style="color:var(--accent);font-style:normal">episodes</em>.</h2><a class="btn btn-ghost">View all →</a></div>
+    <div class="ep-list">
+      <div class="ep-card"><div class="num">84</div><div class="play-mini">▶</div><div><h4>On selling a company you didn't want to sell.</h4><div class="guest">— with Guest Name, founder of Company</div></div><div class="dur">1h 12m</div><div class="date">May 26</div></div>
+      <div class="ep-card"><div class="num">83</div><div class="play-mini">▶</div><div><h4>The long, quiet work of running a small studio.</h4><div class="guest">— with Guest Name, designer</div></div><div class="dur">58m</div><div class="date">May 19</div></div>
+      <div class="ep-card"><div class="num">82</div><div class="play-mini">▶</div><div><h4>Building a magazine in the age of the algorithm.</h4><div class="guest">— with Guest Name, editor</div></div><div class="dur">1h 24m</div><div class="date">May 12</div></div>
+      <div class="ep-card"><div class="num">81</div><div class="play-mini">▶</div><div><h4>Why I left the company I founded twice.</h4><div class="guest">— with Guest Name, twice-founder</div></div><div class="dur">1h 03m</div><div class="date">May 5</div></div>
+      <div class="ep-card"><div class="num">80</div><div class="play-mini">▶</div><div><h4>Forty years of practicing law as a sole practitioner.</h4><div class="guest">— with Guest Name, attorney</div></div><div class="dur">52m</div><div class="date">Apr 28</div></div>
+    </div>
+  </div>
+
+  <div class="guests-strip">
+    <h3>Past <em>guests</em> include —</h3>
+    <div class="guests-grid">
+      <div class="gst"><div class="av"></div><div class="nm">Name</div><div class="ro">Founder</div></div>
+      <div class="gst"><div class="av" style="background:linear-gradient(135deg,#9cdaff,#3a8ad6)"></div><div class="nm">Name</div><div class="ro">Designer</div></div>
+      <div class="gst"><div class="av" style="background:linear-gradient(135deg,#c5e9c8,#2c9a4a)"></div><div class="nm">Name</div><div class="ro">Editor</div></div>
+      <div class="gst"><div class="av" style="background:linear-gradient(135deg,#ffd7c2,#ff8a5b)"></div><div class="nm">Name</div><div class="ro">Author</div></div>
+      <div class="gst"><div class="av" style="background:linear-gradient(135deg,#e0c4f2,#7a4fb0)"></div><div class="nm">Name</div><div class="ro">Engineer</div></div>
+      <div class="gst"><div class="av" style="background:linear-gradient(135deg,#f3d6a8,#a87a3a)"></div><div class="nm">Name</div><div class="ro">Architect</div></div>
+    </div>
+  </div>
+
+  <div class="reviews">
+    <div class="rev"><div class="stars">★★★★★</div><div class="q">"The only podcast I queue on Tuesday mornings."</div><div class="by"><strong>— A listener</strong><br/>via Apple Podcasts</div></div>
+    <div class="rev"><div class="stars">★★★★★</div><div class="q">"Long, slow, smart. Replace this with a real review."</div><div class="by"><strong>— Another listener</strong><br/>via Spotify</div></div>
+    <div class="rev"><div class="stars">★★★★★</div><div class="q">"The kind of show that respects its guests and its audience."</div><div class="by"><strong>— A third listener</strong><br/>via Overcast</div></div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><span class="eyebrow">About the show</span><h2>A long-form podcast<br/>about <em>doing the work</em>.</h2><p>Replace this with your show's story and what makes it yours.</p></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">We started the show in Year because we wanted the long, slow conversations no one was making anymore.</p>
+      <p>Replace this with the founding story. The first episode, the first guest, the moment you realized people were actually listening.</p>
+      <p>Describe the production. How long you spend pre-interviewing. Why you don't edit out the silences. Why every guest gets a printed transcript afterward.</p>
+    </div>
+    <div>
+      <h3 style="font-size:24px;font-weight:700;letter-spacing:-.01em;margin-bottom:18px">The hosts</h3>
+      <div class="hosts">
+        <div class="host"><div class="av"></div><div><h5>Host Name</h5><div class="role">— Co-host · Founder</div><p>One sentence on background and the corner they cover.</p></div></div>
+        <div class="host"><div class="av" style="background:linear-gradient(135deg,#9cdaff,#3a8ad6)"></div><div><h5>Host Name</h5><div class="role">— Co-host · Producer</div><p>One sentence on background and the corner they cover.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><span class="eyebrow">Listen + support</span><h2>Three ways to <em>tune in</em>.</h2></div>
+  <div class="svc-grid">
+    <div class="svc"><h3>Free</h3><div class="price">$0<small>/forever</small></div><p>The full show, ad-supported, on every platform.</p><ul><li>Weekly episodes</li><li>Full back catalog</li><li>Show notes &amp; links</li><li>RSS for any player</li></ul><button class="btn btn-ghost">Subscribe</button></div>
+    <div class="svc featured"><h3>Member</h3><div class="price">$7<small>/month</small></div><p>Ad-free shows, members-only episodes, and a printed transcript book.</p><ul><li>Everything in Free</li><li>Ad-free feed</li><li>Bonus members-only episodes</li><li>Searchable transcripts</li><li>Annual printed book</li></ul><button class="btn btn-primary">Become a member</button></div>
+    <div class="svc"><h3>Sponsor</h3><div class="price">Custom</div><p>For brands who want to support the show.</p><ul><li>Host-read ads, by us</li><li>Quarterly sponsorship</li><li>Newsletter cross-post</li><li>Live event tie-in</li></ul><button class="btn btn-ghost">Get media kit</button></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><span class="eyebrow">Pitch a guest</span><h2>Want to <em>be on</em> the show?</h2><p>We read every pitch. Most guests come through this form.</p></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo')">
+      <div class="field row"><div><label>Guest name</label><input/></div><div><label>Pitching for</label>
+        <select><option>Myself</option><option>A client</option><option>A colleague</option></select></div></div>
+      <div class="field"><label>Email</label><input type="email"/></div>
+      <div class="field"><label>What do they do?</label><input placeholder="e.g. CEO at Company"/></div>
+      <div class="field"><label>One paragraph pitch</label><textarea placeholder="What's their story? What would the conversation cover?"></textarea></div>
+      <button class="btn btn-primary">Send pitch →</button>
+    </form>
+    <div class="info-block">
+      <h3>Get in touch</h3>
+      <div class="info-row"><div class="lbl">guest pitches</div>guests@yourpodcast.com</div>
+      <div class="info-row"><div class="lbl">sponsorship</div>sponsor@yourpodcast.com</div>
+      <div class="info-row"><div class="lbl">press</div>press@yourpodcast.com</div>
+      <div class="info-row"><div class="lbl">listener mail</div>hello@yourpodcast.com</div>
+      <div class="info-row"><div class="lbl">new episode</div>Every Tuesday · 6 AM ET</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+<footer><div class="wrap"><div>© 2026 Your Podcast · A reading life in audio</div><div class="foot-links"><a>RSS</a><a>Apple</a><a>Spotify</a><a>Newsletter</a></div></div></footer>
+<script>
+function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script></body></html>

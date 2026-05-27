@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Furniture — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fafaf7;--ink:#1a1a1a;--muted:#6c6c66;--accent:#9c5a2a;--cream:#fff;--line:#e5e3dc}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:Inter,sans-serif;font-size:16px;line-height:1.55}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.wrap{max-width:1320px;margin:0 auto;padding:0 36px}
+.serif{font-family:Fraunces,serif}
+nav{position:sticky;top:0;z-index:50;background:rgba(250,250,247,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:72px}
+.logo{font-family:Fraunces;font-size:22px;font-weight:500;letter-spacing:-.01em}
+.nav-links{display:flex;gap:32px;font-size:14px;color:var(--muted)}
+.nav-links a.active{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;font-size:14px;font-weight:500;cursor:pointer;border:none;border-radius:0}
+.btn-primary{background:var(--ink);color:#fff}.btn-primary:hover{background:var(--accent)}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+.page{display:none;padding:48px 0 120px}.page.active{display:block}
+.pre{font-family:Fraunces;font-style:italic;color:var(--accent);font-size:18px}
+
+.hero{display:grid;grid-template-columns:1fr 1.4fr;gap:64px;align-items:end;padding-bottom:48px;border-bottom:1px solid var(--line)}
+.hero h1{font-family:Fraunces;font-weight:400;font-size:clamp(56px,7vw,108px);line-height:.98;letter-spacing:-.02em;margin:16px 0 20px}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.lede{font-size:18px;color:var(--muted);max-width:420px;margin-bottom:28px}
+.hero-img{aspect-ratio:5/4;background:linear-gradient(160deg,#e5dccf,#8a6a4a);position:relative;display:grid;place-items:end center;padding:32px}
+.hero-img .chair{width:50%;aspect-ratio:1/1.4;background:linear-gradient(180deg,#5a3a22,#2a1812);border-radius:8px 8px 0 0;position:relative}
+.hero-img .chair::before{content:"";position:absolute;left:-12px;right:-12px;bottom:-8px;height:14px;background:#3a2818;border-radius:2px}
+.hero-img .chair::after{content:"";position:absolute;left:14px;right:14px;top:42%;height:30%;background:rgba(0,0,0,.15);border-radius:4px}
+.hero-tags{position:absolute;top:20px;left:20px;display:grid;gap:8px}
+.hero-tags span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--cream);padding:5px 10px;background:rgba(0,0,0,.3);backdrop-filter:blur(4px)}
+
+.cat-bar{margin-top:48px;display:grid;grid-template-columns:repeat(7,1fr);gap:14px}
+.cat{aspect-ratio:1/1;background:var(--cream);border:1px solid var(--line);padding:14px;text-align:center;display:grid;place-content:center;cursor:pointer;transition:.15s}
+.cat:hover{background:var(--ink);color:var(--cream)}
+.cat .ic{font-size:24px;margin-bottom:6px}
+.cat .nm{font-family:Fraunces;font-size:13px}
+.cat .ct{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:.06em;text-transform:uppercase}
+.cat:hover .ct{color:#cdc8b8}
+
+.section-head{margin-top:96px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:20px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.section-head h2{font-family:Fraunces;font-size:48px;letter-spacing:-.02em;font-weight:400}
+.section-head h2 em{font-style:italic;color:var(--accent)}
+.section-head .filter{display:flex;gap:6px}
+.fl{padding:6px 14px;border:1px solid var(--line);background:var(--cream);font:inherit;font-size:13px;cursor:pointer}
+.fl.active{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+
+.prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.pr{cursor:pointer;display:grid;gap:12px}
+.pr .img{aspect-ratio:1/1;background:var(--cream);border:1px solid var(--line);position:relative;overflow:hidden;display:grid;place-items:center}
+.pr .img.a{background:linear-gradient(160deg,#e5d4b8,#8a6a4a)}
+.pr .img.b{background:linear-gradient(160deg,#cdc4b5,#3a3329)}
+.pr .img.c{background:linear-gradient(160deg,#e8d8c0,#a87a3a)}
+.pr .img.d{background:linear-gradient(160deg,#dcd4c5,#5a4a36)}
+.pr .img.e{background:linear-gradient(160deg,#1a1a1a,#3a3a3a)}
+.pr .img.f{background:linear-gradient(160deg,#c8b89a,#7a6048)}
+.pr .img.g{background:linear-gradient(160deg,#e0d5c0,#9c8868)}
+.pr .img.h{background:linear-gradient(160deg,#cfd5cc,#4a5a48)}
+.pr .img .nm{position:absolute;top:14px;left:14px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--cream)}
+.pr .img .save{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.85);color:var(--ink);display:grid;place-items:center;font-size:13px}
+.pr .body .cat-tag{font-family:Fraunces;font-style:italic;color:var(--accent);font-size:13px;margin-bottom:2px}
+.pr h4{font-family:Fraunces;font-size:18px;letter-spacing:-.01em;font-weight:500}
+.pr .row{display:flex;justify-content:space-between;align-items:baseline;margin-top:6px;font-size:14px;color:var(--muted)}
+.pr .price{font-family:Fraunces;font-size:18px;color:var(--ink);font-weight:500}
+.pr .lead-time{font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+
+.craft{margin-top:120px;padding:64px;background:var(--ink);color:var(--cream);display:grid;grid-template-columns:1fr 1.2fr;gap:64px;align-items:center}
+.craft h3{font-family:Fraunces;font-size:48px;letter-spacing:-.02em;line-height:1.04;margin-bottom:14px}
+.craft h3 em{font-style:italic;color:#d4a87a}
+.craft p{color:#b5ad9a;margin-bottom:14px}
+.craft-stats{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cs{padding:24px;background:rgba(255,255,255,.05);border:1px solid #2a2a26}
+.cs .v{font-family:Fraunces;font-size:42px;color:#d4a87a;line-height:1;letter-spacing:-.02em}
+.cs .l{font-size:12px;color:#b5ad9a;margin-top:6px}
+
+.process{margin-top:120px}
+.process-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--ink);border-left:1px solid var(--ink)}
+.ps{padding:32px;border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);background:var(--cream)}
+.ps .n{font-family:Fraunces;font-style:italic;color:var(--accent);font-size:24px;margin-bottom:8px}
+.ps h4{font-family:Fraunces;font-size:22px;margin-bottom:6px;letter-spacing:-.01em}
+.ps p{font-size:13.5px;color:var(--muted)}
+
+.page-head{margin-bottom:56px;max-width:780px}
+.page-head h2{font-family:Fraunces;font-size:clamp(48px,6vw,84px);font-weight:400;letter-spacing:-.025em;line-height:1;margin-top:8px}
+.page-head h2 em{font-style:italic;color:var(--accent)}
+.page-head p{font-size:18px;color:var(--muted);margin-top:14px}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px}
+.about-text p{margin-bottom:16px;color:#33312a}
+.about-text p.lead{font-family:Fraunces;font-size:26px;line-height:1.4;color:var(--ink);font-style:italic;margin-bottom:24px}
+
+.svc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.svc{padding:36px;background:var(--cream);border:1px solid var(--line)}
+.svc h3{font-family:Fraunces;font-size:28px;letter-spacing:-.015em;margin-bottom:8px;font-weight:500}
+.svc h3 em{font-style:italic;color:var(--accent)}
+.svc p{color:var(--muted);margin-bottom:14px}
+.svc ul{list-style:none;display:grid;gap:8px;font-size:14.5px}
+.svc li{padding-left:20px;position:relative}.svc li::before{content:"—";position:absolute;left:0;color:var(--accent)}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+form{display:grid;gap:16px}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+input,textarea,select{width:100%;padding:13px 16px;border:1px solid var(--line);background:var(--cream);font:inherit;border-radius:0}
+input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+textarea{min-height:120px;resize:vertical}
+.info-block{padding:40px;background:var(--cream);border:1px solid var(--line)}
+.info-block h3{font-family:Fraunces;font-size:30px;font-weight:500;letter-spacing:-.01em;margin-bottom:18px}
+.info-row{padding:14px 0;border-top:1px solid var(--line);font-size:14.5px}
+.info-row:first-of-type{border-top:none}
+.info-row .lbl{font-family:Fraunces;font-style:italic;color:var(--accent);margin-bottom:2px}
+
+footer{border-top:1px solid var(--line);padding:32px 0;color:var(--muted);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-links{display:flex;gap:24px}
+@media(max-width:880px){.hero,.craft,.about-grid,.contact-grid{grid-template-columns:1fr}.cat-bar{grid-template-columns:repeat(3,1fr)}.prod-grid{grid-template-columns:1fr 1fr}.svc-grid,.process-grid{grid-template-columns:1fr 1fr}.nav-links{display:none}}
+</style></head><body>
+<nav><div class="wrap">
+<a class="logo" onclick="goto('home')">Your Furniture</a>
+<div class="nav-links"><a data-page="home" class="active">Shop</a><a data-page="services">Custom</a><a data-page="about">Workshop</a><a data-page="contact">Contact</a></div>
+<button class="btn btn-primary" onclick="goto('home')">Bag · 0</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div>
+      <div class="pre">— Solid wood, since Year</div>
+      <h1>Furniture<br/>that <em>outlasts</em><br/>the room.</h1>
+      <p class="lede">A small workshop making solid-wood furniture from FSC-certified American hardwoods. Replace this with your shop's voice.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn btn-primary">Shop the collection →</button><button class="btn btn-ghost">Book a studio visit</button></div>
+    </div>
+    <div class="hero-img">
+      <div class="hero-tags"><span>— No. 04 · the slim chair</span><span>— solid white oak</span></div>
+      <div class="chair"></div>
+    </div>
+  </div>
+
+  <div class="cat-bar">
+    <div class="cat"><div class="ic">⊏</div><div class="nm">Tables</div><div class="ct">— 14</div></div>
+    <div class="cat"><div class="ic">⌧</div><div class="nm">Chairs</div><div class="ct">— 22</div></div>
+    <div class="cat"><div class="ic">▭</div><div class="nm">Sofas</div><div class="ct">— 8</div></div>
+    <div class="cat"><div class="ic">▤</div><div class="nm">Storage</div><div class="ct">— 16</div></div>
+    <div class="cat"><div class="ic">⬚</div><div class="nm">Beds</div><div class="ct">— 6</div></div>
+    <div class="cat"><div class="ic">◐</div><div class="nm">Lighting</div><div class="ct">— 12</div></div>
+    <div class="cat"><div class="ic">▱</div><div class="nm">Objects</div><div class="ct">— 28</div></div>
+  </div>
+
+  <div class="section-head"><h2>New <em>arrivals</em>.</h2>
+    <div class="filter"><button class="fl active">All</button><button class="fl">In stock</button><button class="fl">Made to order</button></div>
+  </div>
+  <div class="prod-grid">
+    <div class="pr"><div class="img a"><span class="nm">— No. 04</span><span class="save">♡</span></div><div class="body"><div class="cat-tag">— chair</div><h4>The slim chair</h4><div class="row"><span class="price">$840</span><span class="lead-time">In stock</span></div></div></div>
+    <div class="pr"><div class="img b"><span class="nm">— No. 12</span><span class="save">♡</span></div><div class="body"><div class="cat-tag">— table</div><h4>The trestle table</h4><div class="row"><span class="price">$2,200</span><span class="lead-time">8–10 wk</span></div></div></div>
+    <div class="pr"><div class="img c"><span class="nm">— No. 18</span><span class="save">♡</span></div><div class="body"><div class="cat-tag">— shelf</div><h4>The reading shelf</h4><div class="row"><span class="price">$1,640</span><span class="lead-time">In stock</span></div></div></div>
+    <div class="pr"><div class="img d"><span class="nm">— No. 03</span><span class="save">♡</span></div><div class="body"><div class="cat-tag">— stool</div><h4>The workbench stool</h4><div class="row"><span class="price">$420</span><span class="lead-time">In stock</span></div></div></div>
+    <div class="pr"><div class="img e"><span class="nm">— No. 09</span><span class="save">♡</span></div><div class="body"><div class="cat-tag">— bed</div><h4>The platform bed</h4><div class="row"><span class="price">$3,800</span><span class="lead-time">10–14 wk</span></div></div></div>
+    <div class="pr"><div class="img f"><span class="nm">— No. 07</span><span class="save">♡</span></div><div class="body"><div class="cat-tag">— sofa</div><h4>The long sofa</h4><div class="row"><span class="price">$4,800</span><span class="lead-time">12 wk</span></div></div></div>
+    <div class="pr"><div class="img g"><span class="nm">— No. 02</span><span class="save">♡</span></div><div class="body"><div class="cat-tag">— object</div><h4>Bowl, hand-turned</h4><div class="row"><span class="price">$180</span><span class="lead-time">In stock</span></div></div></div>
+    <div class="pr"><div class="img h"><span class="nm">— No. 14</span><span class="save">♡</span></div><div class="body"><div class="cat-tag">— lighting</div><h4>The arc floor lamp</h4><div class="row"><span class="price">$1,100</span><span class="lead-time">6 wk</span></div></div></div>
+  </div>
+
+  <div class="craft">
+    <div>
+      <div class="pre" style="color:#d4a87a">— our workshop</div>
+      <h3>Cut, joined,<br/>finished by <em>hand</em>.</h3>
+      <p>Every piece is made in our 4,000 sqft workshop by a team of seven. We use hand-cut joinery, no nails, and only FSC-certified American hardwoods.</p>
+      <p>Replace this with the workshop's voice.</p>
+    </div>
+    <div class="craft-stats">
+      <div class="cs"><div class="v">7</div><div class="l">Makers in the shop</div></div>
+      <div class="cs"><div class="v">100%</div><div class="l">FSC-certified wood</div></div>
+      <div class="cs"><div class="v">50yr</div><div class="l">Repair guarantee</div></div>
+      <div class="cs"><div class="v">Year</div><div class="l">Workshop opened</div></div>
+    </div>
+  </div>
+
+  <div class="process">
+    <div class="section-head"><h2>How we <em>make</em>.</h2></div>
+    <div class="process-grid">
+      <div class="ps"><div class="n">i.</div><h4>Source</h4><p>Hardwood from one mill we've worked with for 12 years.</p></div>
+      <div class="ps"><div class="n">ii.</div><h4>Cut</h4><p>Boards rested, then milled to spec by hand.</p></div>
+      <div class="ps"><div class="n">iii.</div><h4>Join</h4><p>Hand-cut mortise and tenon. No metal hardware in the joints.</p></div>
+      <div class="ps"><div class="n">iv.</div><h4>Finish</h4><p>Hard wax oil — three coats, hand-rubbed.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><div class="pre">— The workshop</div><h2>A small <em>workshop</em>,<br/>built on long horizons.</h2></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">"We opened the workshop in Year on the idea that a piece of furniture should last as long as the tree it came from."</p>
+      <p>Replace this with your story. The first chair. The first commission. The fire — every workshop has the story of the fire.</p>
+      <p>Tell people who's at the bench. Apprenticeship is part of the shop. So is the lunch we make every Friday.</p>
+    </div>
+    <div>
+      <div style="padding:32px;background:var(--cream);border:1px solid var(--line)">
+        <h3 style="font-family:Fraunces;font-size:28px;font-weight:500;letter-spacing:-.01em;margin-bottom:14px">What we <em style="color:var(--accent);font-style:italic">stand for</em></h3>
+        <ul style="list-style:none;display:grid;gap:14px;font-size:15px">
+          <li style="padding-left:22px;position:relative">— Solid wood only. No veneer, ever.</li>
+          <li style="padding-left:22px;position:relative">— FSC-certified hardwood, single source.</li>
+          <li style="padding-left:22px;position:relative">— 50-year repair guarantee, transferable.</li>
+          <li style="padding-left:22px;position:relative">— Made within 50 miles of the studio.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><div class="pre">— Beyond the collection</div><h2>Custom &amp;<br/><em>commissions</em>.</h2></div>
+  <div class="svc-grid">
+    <div class="svc"><h3>Custom <em>builds</em></h3><p>Brief us with dimensions, materials, and a sketch. We come back with drawings and a quote within a week.</p><ul><li>Free consultation</li><li>50% deposit</li><li>12–16 week lead</li></ul></div>
+    <div class="svc"><h3>Repair &amp; <em>refinish</em></h3><p>Anything we made, fixed for life. Anything we didn't, often, on a quote.</p><ul><li>Free for original owner</li><li>Pickup &amp; delivery</li><li>4–6 week turnaround</li></ul></div>
+    <div class="svc"><h3>Trade <em>program</em></h3><p>For architects and designers — 15% off list, dedicated account manager.</p><ul><li>15% off list price</li><li>Trade pricing on customs</li><li>CAD &amp; spec sheets</li></ul></div>
+    <div class="svc"><h3>Workshop <em>tours</em></h3><p>Saturdays at 11:00. Walk through the shop, see the machines, ask the makers.</p><ul><li>Free, RSVP required</li><li>One hour</li><li>Kid-friendly</li></ul></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><div class="pre">— Get in touch</div><h2>Send us a <em>note</em>.</h2></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo')">
+      <div class="field row"><div><label>Name</label><input/></div><div><label>Email</label><input type="email"/></div></div>
+      <div class="field"><label>About</label><select><option>An order</option><option>Custom commission</option><option>Repair / refinish</option><option>Trade program</option><option>Other</option></select></div>
+      <div class="field"><label>Message</label><textarea></textarea></div>
+      <button class="btn btn-primary">Send →</button>
+    </form>
+    <div class="info-block">
+      <h3>The <em style="color:var(--accent);font-style:italic">workshop</em></h3>
+      <div class="info-row"><div class="lbl">— address</div>123 Your Street, City</div>
+      <div class="info-row"><div class="lbl">— email</div>hello@yourfurniture.com</div>
+      <div class="info-row"><div class="lbl">— showroom</div>Open Wed–Sat, 11:00–18:00</div>
+      <div class="info-row"><div class="lbl">— workshop tours</div>Saturdays at 11:00</div>
+      <div class="info-row"><div class="lbl">— delivery</div>White glove, within 200 mi</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+<footer><div class="wrap"><div>© 2026 Your Furniture · 50-year guarantee</div><div class="foot-links"><a>Instagram</a><a>Trade</a><a>Care guides</a><a>Newsletter</a></div></div></footer>
+<script>
+function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+document.querySelectorAll('.fl').forEach(f=>f.addEventListener('click',()=>{document.querySelectorAll('.fl').forEach(x=>x.classList.remove('active'));f.classList.add('active')}));
+</script></body></html>

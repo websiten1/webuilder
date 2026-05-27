@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Cleaning — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#0d1e2b;--muted:#5a6675;--accent:#1ea7c5;--accent2:#fff7e6;--soft:#eaf7fb;--line:#e4e8ee}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.wrap{max-width:1240px;margin:0 auto;padding:0 36px}
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:-.02em}
+.logo .mk{width:32px;height:32px;border-radius:10px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700}
+.nav-links{display:flex;gap:28px;font-size:14px;color:var(--muted);font-weight:500}
+.nav-links a.active{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:999px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:.15s}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#157e96}
+.btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.page{display:none;padding:64px 0 120px}.page.active{display:block}
+.kicker{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;background:var(--soft);color:var(--accent);font-size:13px;font-weight:700;border-radius:999px;margin-bottom:20px}
+
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:64px;align-items:center}
+.hero h1{font-size:clamp(48px,5.8vw,84px);line-height:1.04;letter-spacing:-.025em;font-weight:800;margin-bottom:18px}
+.hero h1 em{color:var(--accent);font-style:normal}
+.hero .lede{font-size:18px;color:var(--muted);max-width:480px;margin-bottom:28px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+.trust-row{margin-top:32px;display:flex;gap:24px;flex-wrap:wrap;font-size:13.5px;color:var(--muted);font-weight:500}
+.trust-row span{display:flex;gap:6px;align-items:center}
+.trust-row .c{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:12px}
+
+.quote-card{background:linear-gradient(180deg,var(--soft),#fff);border:1px solid var(--line);border-radius:24px;padding:28px;box-shadow:0 24px 60px -32px rgba(30,167,197,.3)}
+.quote-card h3{font-size:20px;font-weight:700;letter-spacing:-.015em;margin-bottom:16px}
+.quote-card h3 span{color:var(--accent)}
+.qf{display:grid;gap:12px}
+.qf-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.qf-cell{padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:12px}
+.qf-cell .l{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.qf-cell select,.qf-cell input{width:100%;border:none;background:transparent;font:inherit;font-weight:500}
+.qf-cell select:focus,.qf-cell input:focus{outline:none}
+.qf-result{padding:18px;background:var(--ink);color:#fff;border-radius:12px;display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.qf-result .l{font-size:12px;color:#a8b3c2;letter-spacing:.04em;text-transform:uppercase;font-weight:600}
+.qf-result .v{font-size:28px;font-weight:800;letter-spacing:-.02em}
+.qf-result .v small{font-size:13px;color:#a8b3c2;font-weight:500}
+
+.svc-cards{margin-top:96px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.sc{padding:32px;background:#fff;border:1px solid var(--line);border-radius:20px;transition:.15s;cursor:pointer}
+.sc:hover{border-color:var(--accent);transform:translateY(-3px)}
+.sc .ic{width:48px;height:48px;border-radius:14px;background:var(--soft);display:grid;place-items:center;font-size:22px;margin-bottom:18px}
+.sc:nth-child(2) .ic{background:#fef3e3}
+.sc:nth-child(3) .ic{background:#e8f7e9}
+.sc:nth-child(4) .ic{background:#fbe5f0}
+.sc h3{font-size:18px;font-weight:700;letter-spacing:-.01em;margin-bottom:6px}
+.sc p{color:var(--muted);font-size:13.5px;margin-bottom:18px}
+.sc .pr{font-size:18px;font-weight:700;color:var(--accent)}
+.sc .pr small{font-size:12px;color:var(--muted);font-weight:500}
+
+.process{margin-top:120px;padding:64px;background:linear-gradient(135deg,var(--accent),#0a8da8);color:#fff;border-radius:24px}
+.process h2{font-size:42px;letter-spacing:-.025em;font-weight:800;line-height:1.05;margin-bottom:38px;text-align:center}
+.process h2 em{color:#fff;font-style:normal;background:rgba(255,255,255,.2);padding:0 12px;border-radius:8px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.st .n{font-size:48px;font-weight:800;letter-spacing:-.04em;line-height:1;color:rgba(255,255,255,.4)}
+.st h4{font-size:20px;font-weight:700;letter-spacing:-.015em;margin:8px 0 6px}
+.st p{font-size:13.5px;color:#cce8ee}
+
+.testimonials{margin-top:120px}
+.section-head{text-align:center;max-width:680px;margin:0 auto 40px}
+.section-head h2{font-size:clamp(32px,4.4vw,52px);letter-spacing:-.025em;font-weight:800;line-height:1.06}
+.section-head h2 em{color:var(--accent);font-style:normal}
+.section-head p{font-size:17px;color:var(--muted);margin-top:12px}
+.tm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tm{padding:32px;border:1px solid var(--line);border-radius:18px;background:#fff}
+.tm .stars{color:#fbb040;letter-spacing:1px;margin-bottom:14px}
+.tm .q{font-size:15.5px;line-height:1.5;margin-bottom:18px}
+.tm .by{display:flex;align-items:center;gap:12px}
+.tm .av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#7cd0e0,var(--accent))}
+.tm .by strong{font-size:14px;font-weight:700;display:block}
+.tm .by span{font-size:12.5px;color:var(--muted)}
+
+.cta-final{margin-top:120px;padding:48px 64px;background:var(--ink);color:#fff;border-radius:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:24px}
+.cta-final h3{font-size:32px;letter-spacing:-.02em;font-weight:800;line-height:1.1}
+.cta-final h3 span{color:var(--accent)}
+.cta-final p{color:#a8b3c2;margin-top:6px}
+
+.page-head{margin-bottom:48px;max-width:760px}
+.page-head h2{font-size:clamp(40px,5vw,68px);letter-spacing:-.03em;font-weight:800;line-height:1.04;margin-top:10px}
+.page-head h2 em{color:var(--accent);font-style:normal}
+.page-head p{font-size:18px;color:var(--muted);margin-top:14px}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+.about-text p{margin-bottom:16px;color:#33415a}
+.about-text p.lead{font-size:22px;font-weight:600;line-height:1.4;color:var(--ink);margin-bottom:20px;letter-spacing:-.015em}
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tm-c{padding:24px;background:var(--soft);border-radius:14px}
+.tm-c .av{width:48px;height:48px;border-radius:50%;background:var(--accent);margin-bottom:12px}
+.tm-c h5{font-size:16px;font-weight:700}
+.tm-c .ro{font-size:12px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin:2px 0 6px}
+.tm-c p{font-size:13px;color:var(--muted)}
+
+.svc-grid-page{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.svc-page{padding:36px;background:#fff;border:1px solid var(--line);border-radius:18px}
+.svc-page h3{font-size:24px;font-weight:800;letter-spacing:-.015em;margin-bottom:8px}
+.svc-page h3 em{color:var(--accent);font-style:normal}
+.svc-page p{color:var(--muted);margin-bottom:14px}
+.svc-page ul{list-style:none;display:grid;gap:8px;font-size:14.5px}
+.svc-page li{padding-left:22px;position:relative}.svc-page li::before{content:"✓";position:absolute;left:0;color:var(--accent);font-weight:700}
+.svc-page .from{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:18px;font-weight:700;color:var(--accent)}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+form{display:grid;gap:16px}
+.field label{display:block;font-size:13px;color:var(--ink);margin-bottom:6px;font-weight:600}
+input,textarea,select{width:100%;padding:13px 16px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+textarea{min-height:120px;resize:vertical}
+.info-block{padding:40px;background:var(--soft);border-radius:18px}
+.info-block h3{font-size:24px;font-weight:800;letter-spacing:-.02em;margin-bottom:18px}
+.info-row{padding:14px 0;border-top:1px solid #cde5ec;font-size:14.5px}
+.info-row:first-of-type{border-top:none}
+.info-row .lbl{font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+
+footer{border-top:1px solid var(--line);padding:32px 0;color:var(--muted);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-links{display:flex;gap:24px}
+@media(max-width:880px){.hero,.about-grid,.contact-grid,.team-grid{grid-template-columns:1fr}.svc-cards,.steps,.tm-grid,.svc-grid-page{grid-template-columns:1fr}.cta-final{flex-direction:column;align-items:flex-start}.nav-links{display:none}}
+</style></head><body>
+<nav><div class="wrap">
+<a class="logo" onclick="goto('home')"><span class="mk">♢</span>Your Cleaning</a>
+<div class="nav-links"><a data-page="home" class="active">Home</a><a data-page="services">Services</a><a data-page="about">About</a><a data-page="contact">Book</a></div>
+<button class="btn btn-primary" onclick="goto('contact')">Book a clean →</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div>
+      <span class="kicker">⭐ 4.9 · 2,400+ cleanings completed</span>
+      <h1>A cleaning <em>you don't have</em> to clean for.</h1>
+      <p class="lede">A small, vetted team of cleaners — same people every visit, eco-friendly products, and a 100% redo guarantee.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary">Get an instant quote →</button>
+        <button class="btn btn-ghost">Call (555) 000-0000</button>
+      </div>
+      <div class="trust-row">
+        <span><span class="c">✓</span>Insured &amp; bonded</span>
+        <span><span class="c">✓</span>Background-checked</span>
+        <span><span class="c">✓</span>100% redo guarantee</span>
+      </div>
+    </div>
+    <div class="quote-card">
+      <h3>Get a <span>5-second quote</span></h3>
+      <div class="qf">
+        <div class="qf-row"><div class="qf-cell"><div class="l">Home size</div><select><option>Studio</option><option>1 bedroom</option><option>2 bedrooms</option><option>3 bedrooms</option><option>4+ bedrooms</option></select></div><div class="qf-cell"><div class="l">Bathrooms</div><select><option>1</option><option>2</option><option>3+</option></select></div></div>
+        <div class="qf-row"><div class="qf-cell"><div class="l">Frequency</div><select><option>One-time</option><option>Weekly</option><option>Bi-weekly</option><option>Monthly</option></select></div><div class="qf-cell"><div class="l">Type</div><select><option>Standard</option><option>Deep clean</option><option>Move-out</option></select></div></div>
+        <div class="qf-row"><div class="qf-cell"><div class="l">Zip code</div><input value="00000"/></div><div class="qf-cell"><div class="l">Date</div><input type="date"/></div></div>
+        <div class="qf-result"><div><div class="l">— estimated total</div><div class="v">$148<small>/visit</small></div></div><button class="btn btn-primary">Book →</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="svc-cards">
+    <div class="sc"><div class="ic">🏡</div><h3>Standard clean</h3><p>Top to bottom of every room. Best for weekly &amp; bi-weekly.</p><div class="pr">$108<small>/visit</small></div></div>
+    <div class="sc"><div class="ic">✨</div><h3>Deep clean</h3><p>Inside cabinets, baseboards, fridge. First-visit favorite.</p><div class="pr">$248<small>/visit</small></div></div>
+    <div class="sc"><div class="ic">📦</div><h3>Move in/out</h3><p>Empty home, top-to-bottom, photo report at the end.</p><div class="pr">$320<small>/flat</small></div></div>
+    <div class="sc"><div class="ic">🏢</div><h3>Office</h3><p>Evenings &amp; weekends. Recurring, billed monthly.</p><div class="pr">From $180<small>/visit</small></div></div>
+  </div>
+
+  <div class="process">
+    <h2>Four steps. <em>That's it.</em></h2>
+    <div class="steps">
+      <div class="st"><div class="n">01</div><h4>Quote in 30 seconds</h4><p>Tell us the size &amp; frequency. We quote, no email gate.</p></div>
+      <div class="st"><div class="n">02</div><h4>Pick a date</h4><p>Slots updated live. Same week is usually open.</p></div>
+      <div class="st"><div class="n">03</div><h4>We clean</h4><p>Same team every visit. Bring our own supplies.</p></div>
+      <div class="st"><div class="n">04</div><h4>Smile or call us</h4><p>100% redo if something's off. Within 48 hours.</p></div>
+    </div>
+  </div>
+
+  <div class="testimonials">
+    <div class="section-head"><h2>Loved by <em>2,400+</em> homes.</h2></div>
+    <div class="tm-grid">
+      <div class="tm"><div class="stars">★★★★★</div><div class="q">"Same two people every two weeks for the past year. They know my house better than I do."</div><div class="by"><div class="av"></div><div><strong>A customer</strong><span>Bi-weekly, since '24</span></div></div></div>
+      <div class="tm"><div class="stars">★★★★★</div><div class="q">"Replace this with a real quote. They were fast, careful, and didn't oversell us."</div><div class="by"><div class="av" style="background:linear-gradient(135deg,#fbcd9a,#f59c4a)"></div><div><strong>A customer</strong><span>Deep clean</span></div></div></div>
+      <div class="tm"><div class="stars">★★★★★</div><div class="q">"Move-out cleaning that got my full deposit back. Worth every dollar."</div><div class="by"><div class="av" style="background:linear-gradient(135deg,#a8e2b4,#2c9a4a)"></div><div><strong>A customer</strong><span>Move-out</span></div></div></div>
+    </div>
+  </div>
+
+  <div class="cta-final">
+    <div>
+      <h3>Book your <span>first clean</span> today.</h3>
+      <p>Same-week availability. No contracts. $25 off your first visit.</p>
+    </div>
+    <button class="btn btn-primary">Book now →</button>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><span class="kicker">About</span><h2>A small team,<br/>your home <em>treated right</em>.</h2></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">"We started in Year because cleaning, done well, is a craft — and most franchises treat it like a job."</p>
+      <p>Replace this with your story. Where you started. The cleaners you hired in the first month and still work with today. The bonus pool that comes out of every job.</p>
+      <p>Tell people how you train and pay. Background checks, liability insurance, and fair wages — verifiable, not a slogan.</p>
+    </div>
+    <div>
+      <h3 style="font-size:22px;font-weight:800;letter-spacing:-.015em;margin-bottom:14px">Our cleaners</h3>
+      <div class="team-grid">
+        <div class="tm-c"><div class="av"></div><h5>Cleaner Name</h5><div class="ro">Lead · 4 years</div><p>One-line bio.</p></div>
+        <div class="tm-c"><div class="av" style="background:#f59c4a"></div><h5>Cleaner Name</h5><div class="ro">Senior · 3 years</div><p>One-line bio.</p></div>
+        <div class="tm-c"><div class="av" style="background:#2c9a4a"></div><h5>Cleaner Name</h5><div class="ro">Senior · 2 years</div><p>One-line bio.</p></div>
+        <div class="tm-c"><div class="av" style="background:#c44a82"></div><h5>Cleaner Name</h5><div class="ro">Cleaner · 1 year</div><p>One-line bio.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><span class="kicker">Services</span><h2>Cleaning, <em>itemized</em>.</h2></div>
+  <div class="svc-grid-page">
+    <div class="svc-page"><h3>Standard <em>clean</em></h3><p>What you'd expect, done well. Best for weekly or bi-weekly.</p><ul><li>Dust &amp; wipe all surfaces</li><li>Vacuum &amp; mop all floors</li><li>Bathrooms · tubs, sinks, toilets</li><li>Kitchen · counters, stovetop, sink</li><li>Beds made, trash out</li></ul><div class="from">From $108 / visit</div></div>
+    <div class="svc-page"><h3>Deep <em>clean</em></h3><p>The reset. We recommend on the first visit.</p><ul><li>Everything in standard</li><li>Inside cabinets &amp; drawers</li><li>Baseboards, doors, switches</li><li>Inside fridge &amp; oven</li><li>Window sills &amp; tracks</li></ul><div class="from">From $248 / visit</div></div>
+    <div class="svc-page"><h3>Move in / <em>out</em></h3><p>Empty home, top to bottom. Photo report on completion.</p><ul><li>Full deep clean</li><li>All appliances inside</li><li>Wall spot-treatment</li><li>Cabinet interior &amp; tops</li><li>Photo proof for landlord</li></ul><div class="from">From $320 / flat</div></div>
+    <div class="svc-page"><h3>Office <em>cleaning</em></h3><p>Evenings &amp; weekends. Monthly billing, recurring service.</p><ul><li>Up to 5,000 sqft</li><li>Recurring, contract-free</li><li>Eco supplies optional</li><li>Same team every visit</li></ul><div class="from">From $180 / visit</div></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><span class="kicker">Book a clean</span><h2>Book in <em>5 minutes</em>.</h2><p>We confirm by text within an hour of your booking. Same-week slots usually available.</p></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo')">
+      <div class="field row"><div><label>Name</label><input/></div><div><label>Phone</label><input type="tel"/></div></div>
+      <div class="field"><label>Email</label><input type="email"/></div>
+      <div class="field row"><div><label>Address</label><input/></div><div><label>Zip code</label><input value="00000"/></div></div>
+      <div class="field row"><div><label>Service</label>
+        <select><option>Standard clean</option><option>Deep clean</option><option>Move-out</option><option>Office</option></select></div><div><label>Frequency</label>
+        <select><option>One-time</option><option>Weekly</option><option>Bi-weekly</option><option>Monthly</option></select></div></div>
+      <div class="field"><label>Preferred date</label><input type="date"/></div>
+      <div class="field"><label>Anything we should know? (pets, allergies, alarm code)</label><textarea></textarea></div>
+      <button class="btn btn-primary">Book a clean →</button>
+    </form>
+    <div class="info-block">
+      <h3>Get in touch</h3>
+      <div class="info-row"><div class="lbl">— phone</div>(555) 000-0000 · text us</div>
+      <div class="info-row"><div class="lbl">— email</div>hello@yourcleaning.com</div>
+      <div class="info-row"><div class="lbl">— hours</div>Mon–Sat · 7:00–20:00</div>
+      <div class="info-row"><div class="lbl">— area</div>Within 25 miles of City</div>
+      <div class="info-row"><div class="lbl">— guarantee</div>100% redo within 48 hours</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+<footer><div class="wrap"><div>© 2026 Your Cleaning · Insured &amp; bonded · License #00000</div><div class="foot-links"><a>Reviews</a><a>FAQ</a><a>Gift cards</a><a>Careers</a></div></div></footer>
+<script>
+function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script></body></html>

@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Wine — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Italiana&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1a1410;--bg2:#231a14;--ink:#f4ecd8;--muted:#8a8068;--accent:#c89758;--burgundy:#7a2424;--line:#2e2620}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:Inter,sans-serif;font-size:16px;line-height:1.55;font-weight:300}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.wrap{max-width:1280px;margin:0 auto;padding:0 36px}
+.serif{font-family:Italiana,serif}
+nav{position:sticky;top:0;z-index:50;background:rgba(26,20,16,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:84px}
+.logo{font-family:Italiana;font-size:30px;letter-spacing:.05em}
+.nav-links{display:flex;gap:32px;font-size:12px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase}
+.nav-links a.active{color:var(--accent)}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:13px 28px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;border:none;font-weight:400}
+.btn-primary{background:var(--accent);color:#1a1410}.btn-primary:hover{background:#d4a86a}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--muted)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.page{display:none;padding:48px 0 120px}.page.active{display:block}
+.pre{font-family:Italiana;color:var(--accent);font-size:22px;letter-spacing:.04em}
+
+.hero{text-align:center;padding:32px 0 48px}
+.hero .pre{margin-bottom:20px}
+.hero h1{font-family:Italiana;font-size:clamp(72px,11vw,200px);line-height:.9;letter-spacing:-.01em}
+.hero h1 em{font-style:italic}
+.hero .deck{font-family:Italiana;font-style:italic;font-size:24px;color:var(--muted);margin-top:18px;max-width:560px;margin-left:auto;margin-right:auto}
+.hero-cta{margin-top:36px;display:inline-flex;gap:12px;flex-wrap:wrap}
+
+.bottles-stage{margin-top:80px;display:grid;grid-template-columns:repeat(5,1fr);gap:14px;align-items:end}
+.bot{aspect-ratio:1/2.2;background:var(--bg2);border-radius:6px 6px 0 0;position:relative;display:grid;align-content:end;padding:18px;color:var(--accent)}
+.bot::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:30%;height:18%;background:#0a0805;border-radius:4px 4px 0 0}
+.bot::after{content:"";position:absolute;top:14%;left:0;right:0;height:1px;background:var(--accent);opacity:.4}
+.bot.a{background:linear-gradient(180deg,#3a0a0a,#7a2424)}
+.bot.b{background:linear-gradient(180deg,#2a3a1a,#4a5a2a)}
+.bot.c{background:linear-gradient(180deg,#4a2a0a,#7a4a1a)}
+.bot.d{background:linear-gradient(180deg,#6a4a2a,#8a6a3a)}
+.bot.e{background:linear-gradient(180deg,#1a1a3a,#2a2a5a)}
+.bot .nm{font-family:Italiana;font-size:14px;line-height:1.05;border-top:1px solid var(--accent);padding-top:8px}
+.bot .nm small{display:block;font-family:Inter;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+
+.collection{margin-top:120px}
+.section-head{margin-bottom:32px;display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:20px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.section-head h2{font-family:Italiana;font-size:64px;letter-spacing:-.01em}
+.section-head h2 em{font-style:italic;color:var(--accent)}
+.section-head .filter{display:flex;gap:6px}
+.fl{padding:7px 14px;border:1px solid var(--line);background:transparent;font:inherit;font-size:12px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;color:var(--muted)}
+.fl.active{background:var(--accent);color:#1a1410;border-color:var(--accent)}
+
+.wines{display:grid;gap:0;border-top:1px solid var(--line)}
+.wine{display:grid;grid-template-columns:80px 1.4fr 1fr 1fr 80px 110px;gap:24px;padding:24px 0;border-bottom:1px solid var(--line);align-items:center;cursor:pointer;transition:.15s}
+.wine:hover{background:rgba(255,255,255,.02);padding-left:14px}
+.wine .yr{font-family:Italiana;font-style:italic;color:var(--accent);font-size:24px}
+.wine h4{font-family:Italiana;font-size:22px;letter-spacing:-.01em;line-height:1.1}
+.wine .region{font-size:13px;color:var(--muted);margin-top:2px;font-style:italic;font-family:Italiana}
+.wine .grape{font-size:13.5px;color:var(--muted)}
+.wine .notes{font-size:13px;color:var(--muted);font-style:italic;font-family:Italiana}
+.wine .stock{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.wine .stock.low{color:#d47e5a}
+.wine .price{font-family:Italiana;font-size:24px;color:var(--accent);text-align:right}
+
+.tasting-band{margin-top:120px;padding:64px;background:var(--bg2);border:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.tasting-band h3{font-family:Italiana;font-size:48px;letter-spacing:-.01em;line-height:1.04;margin-bottom:14px}
+.tasting-band h3 em{font-style:italic;color:var(--accent)}
+.tasting-band p{color:var(--muted)}
+.flight-list{display:grid;gap:8px}
+.fl-row{padding:18px 22px;background:rgba(0,0,0,.2);border:1px solid var(--line);display:grid;grid-template-columns:36px 1fr auto;gap:14px;align-items:center}
+.fl-row .n{font-family:Italiana;font-style:italic;color:var(--accent);font-size:22px}
+.fl-row h5{font-family:Italiana;font-size:18px}
+.fl-row .ds{font-size:12.5px;color:var(--muted);font-style:italic;font-family:Italiana}
+.fl-row .pr{font-family:Italiana;color:var(--accent);font-size:18px}
+
+.club-band{margin-top:120px;padding:64px;background:linear-gradient(160deg,var(--burgundy),#3a0a0a);text-align:center}
+.club-band .pre{color:var(--accent);font-size:24px;margin-bottom:14px}
+.club-band h3{font-family:Italiana;font-size:64px;letter-spacing:-.01em;line-height:1}
+.club-band h3 em{font-style:italic}
+.club-band p{color:#cfb89c;max-width:560px;margin:18px auto 28px}
+
+.page-head{margin-bottom:56px;max-width:760px;text-align:center;margin-left:auto;margin-right:auto}
+.page-head h2{font-family:Italiana;font-size:clamp(56px,7vw,108px);letter-spacing:-.015em;line-height:1;margin-top:8px}
+.page-head h2 em{font-style:italic;color:var(--accent)}
+.page-head p{font-family:Italiana;font-style:italic;font-size:22px;color:var(--muted);margin-top:14px}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;text-align:left}
+.about-text p{margin-bottom:16px;color:#bcb09a}
+.about-text p.lead{font-family:Italiana;font-style:italic;font-size:28px;line-height:1.4;color:var(--ink);margin-bottom:24px}
+
+.svc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.svc{padding:48px;background:var(--bg2);border:1px solid var(--line)}
+.svc h3{font-family:Italiana;font-size:32px;letter-spacing:-.01em;margin-bottom:8px}
+.svc h3 em{font-style:italic;color:var(--accent)}
+.svc p{color:var(--muted)}
+.svc ul{list-style:none;display:grid;gap:8px;margin-top:14px;font-size:14.5px}
+.svc li{padding-left:20px;position:relative}.svc li::before{content:"·";position:absolute;left:0;color:var(--accent);font-size:22px;line-height:1}
+.svc .from{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-family:Italiana;font-style:italic;color:var(--accent);font-size:20px}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+form{display:grid;gap:16px}
+.field label{display:block;font-family:Italiana;font-style:italic;color:var(--ink);font-size:18px;margin-bottom:4px}
+input,textarea,select{width:100%;padding:14px 0;border:none;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);font:inherit}
+input:focus,textarea:focus{outline:none;border-bottom-color:var(--accent)}
+.field.row{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+textarea{min-height:80px;resize:vertical}
+.info-block{padding:48px;background:var(--bg2);border:1px solid var(--accent)}
+.info-block h3{font-family:Italiana;font-size:36px;margin-bottom:24px}
+.info-block h3 em{font-style:italic;color:var(--accent)}
+.info-row{padding:16px 0;border-top:1px solid var(--line);font-size:14.5px;color:#bcb09a}
+.info-row:first-of-type{border-top:none}
+.info-row .lbl{font-family:Italiana;font-style:italic;color:var(--accent);font-size:16px;margin-bottom:2px}
+
+footer{border-top:1px solid var(--line);padding:36px 0;font-family:Italiana;font-style:italic;color:var(--muted);font-size:15px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-links{display:flex;gap:28px;font-family:Inter;font-style:normal;font-size:12px;letter-spacing:.16em;text-transform:uppercase}
+@media(max-width:880px){.bottles-stage{grid-template-columns:repeat(3,1fr)}.tasting-band,.about-grid,.contact-grid{grid-template-columns:1fr}.svc-grid{grid-template-columns:1fr}.wine{grid-template-columns:60px 1fr 100px;gap:14px}.wine .grape,.wine .notes,.wine .stock{display:none}.nav-links{display:none}}
+</style></head><body>
+<nav><div class="wrap">
+<a class="logo" onclick="goto('home')">— YOUR <em style="font-style:italic;color:var(--accent)">CELLAR</em> —</a>
+<div class="nav-links"><a data-page="home" class="active">Cellar</a><a data-page="services">Tastings</a><a data-page="about">The makers</a><a data-page="contact">Contact</a></div>
+<button class="btn btn-primary" onclick="goto('home')">Shop now</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div class="pre">— Wines from small producers, since Year</div>
+    <h1>A <em>cellar</em><br/>for the long evenings.</h1>
+    <div class="deck">— Four hundred bottles, all from growers we've shaken hands with. Most under $40, none over $200 —</div>
+    <div class="hero-cta">
+      <button class="btn btn-primary">Browse the cellar →</button>
+      <button class="btn btn-ghost">Join the club</button>
+    </div>
+  </div>
+
+  <div class="bottles-stage">
+    <div class="bot a"><div class="nm"><small>— BURGUNDY</small>Côte de Beaune<br/>'22</div></div>
+    <div class="bot b"><div class="nm"><small>— LOIRE</small>Sancerre<br/>'23</div></div>
+    <div class="bot c"><div class="nm"><small>— RHÔNE</small>Côte-Rôtie<br/>'21</div></div>
+    <div class="bot d"><div class="nm"><small>— TUSCANY</small>Brunello<br/>'19</div></div>
+    <div class="bot e"><div class="nm"><small>— GERMANY</small>Riesling<br/>'22</div></div>
+  </div>
+
+  <div class="collection">
+    <div class="section-head"><h2>The <em>cellar</em></h2>
+      <div class="filter"><button class="fl active">All</button><button class="fl">Red</button><button class="fl">White</button><button class="fl">Orange</button><button class="fl">Sparkling</button></div>
+    </div>
+    <div class="wines">
+      <div class="wine"><div class="yr">'22</div><div><h4>Domaine Soleil — Côte de Beaune</h4><div class="region">Burgundy, France</div></div><div class="grape">100% Pinot Noir</div><div class="notes">— cherry, cedar, soft tannin</div><div class="stock">12 left</div><div class="price">$92</div></div>
+      <div class="wine"><div class="yr">'23</div><div><h4>Bertin &amp; Fils — Sancerre</h4><div class="region">Loire Valley, France</div></div><div class="grape">100% Sauvignon Blanc</div><div class="notes">— flint, lemon, briny finish</div><div class="stock low">4 left</div><div class="price">$48</div></div>
+      <div class="wine"><div class="yr">'21</div><div><h4>Côte-Rôtie · Tradition</h4><div class="region">Northern Rhône, France</div></div><div class="grape">Syrah · 5% Viognier</div><div class="notes">— pepper, violet, dark berry</div><div class="stock">8 left</div><div class="price">$185</div></div>
+      <div class="wine"><div class="yr">'19</div><div><h4>Caterina — Brunello di Montalcino</h4><div class="region">Tuscany, Italy</div></div><div class="grape">100% Sangiovese</div><div class="notes">— leather, plum, long finish</div><div class="stock">14 left</div><div class="price">$120</div></div>
+      <div class="wine"><div class="yr">'22</div><div><h4>Karthäuserhof — Eitelsbacher</h4><div class="region">Mosel, Germany</div></div><div class="grape">Riesling Kabinett</div><div class="notes">— peach, slate, off-dry</div><div class="stock">22 left</div><div class="price">$38</div></div>
+      <div class="wine"><div class="yr">'23</div><div><h4>Movia — Lunar</h4><div class="region">Brda, Slovenia</div></div><div class="grape">Rebula · skin-contact</div><div class="notes">— dried apricot, tannic, alive</div><div class="stock low">3 left</div><div class="price">$72</div></div>
+      <div class="wine"><div class="yr">'20</div><div><h4>Maison Henri — Champagne</h4><div class="region">Vallée de la Marne, France</div></div><div class="grape">60% Pinot Meunier · 40% Chardonnay</div><div class="notes">— brioche, lemon zest, brut</div><div class="stock">18 left</div><div class="price">$68</div></div>
+      <div class="wine"><div class="yr">'22</div><div><h4>Bodega Chacra — Pinot Noir</h4><div class="region">Patagonia, Argentina</div></div><div class="grape">100% Pinot Noir</div><div class="notes">— wild raspberry, rose, fresh</div><div class="stock">9 left</div><div class="price">$54</div></div>
+    </div>
+  </div>
+
+  <div class="tasting-band">
+    <div>
+      <div class="pre" style="font-size:18px">— in the shop</div>
+      <h3>Friday tasting <em>flights</em>.</h3>
+      <p>Every Friday from 17:00. Three flights, walk-ins welcome, no reservations except for groups over four.</p>
+    </div>
+    <div class="flight-list">
+      <div class="fl-row"><div class="n">i.</div><div><h5>Three Burgundies, three terroirs</h5><div class="ds">— each from a different village, all from '22</div></div><div class="pr">$28</div></div>
+      <div class="fl-row"><div class="n">ii.</div><div><h5>Around the Mediterranean</h5><div class="ds">— Sicily, Languedoc, Catalonia</div></div><div class="pr">$24</div></div>
+      <div class="fl-row"><div class="n">iii.</div><div><h5>Orange wines, an introduction</h5><div class="ds">— skin-contact whites from Slovenia &amp; Friuli</div></div><div class="pr">$32</div></div>
+    </div>
+  </div>
+
+  <div class="club-band">
+    <div class="pre">— THE CLUB</div>
+    <h3>Three <em>bottles</em>, every month.</h3>
+    <p>Hand-picked by us. Always a story behind each producer. Always something you wouldn't have found yourself.</p>
+    <button class="btn btn-primary">Join the club →</button>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><div class="pre">— THE CELLAR</div><h2>Wines from people<br/>we <em>know</em>.</h2></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">"We opened in Year because the wine list at every restaurant in the neighborhood was getting shorter, not longer."</p>
+      <p>Replace this with the founding story. The first trip to Burgundy. The producer who shook hands on a case before you had the funds for it.</p>
+      <p>Tell people how you choose. Tasting twice a week. No more than five bottles per producer in the shop. The Tuesday cellar tasting that decides what stays.</p>
+    </div>
+    <div>
+      <div style="padding:32px;background:var(--bg2);border:1px solid var(--line)">
+        <h3 style="font-family:Italiana;font-size:30px;margin-bottom:18px">Our <em style="font-style:italic;color:var(--accent)">criteria</em></h3>
+        <ul style="list-style:none;display:grid;gap:14px;font-size:15px;color:#bcb09a">
+          <li style="padding-left:22px;position:relative">· Small producers only. Under 50,000 bottles / year.</li>
+          <li style="padding-left:22px;position:relative">· Mostly organic or biodynamic.</li>
+          <li style="padding-left:22px;position:relative">· At least one of us has visited the cellar.</li>
+          <li style="padding-left:22px;position:relative">· Fair prices to the grower and to you.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><div class="pre">— TASTINGS &amp; EVENTS</div><h2>In the <em>shop</em>,<br/>in your house.</h2></div>
+  <div class="svc-grid">
+    <div class="svc"><h3>Friday <em>flights</em></h3><p>Three flights every Friday, 17:00 to closing. Walk-ins welcome.</p><ul><li>Three rotating flights</li><li>$24–32 per flight</li><li>Charcuterie available</li></ul><div class="from">— from $24 / flight</div></div>
+    <div class="svc"><h3>Private <em>tastings</em></h3><p>Six to twelve guests, two hours, six wines, in the shop or your home.</p><ul><li>6–12 guests</li><li>Sommelier-led</li><li>Wines included</li></ul><div class="from">— from $85 / guest</div></div>
+    <div class="svc"><h3>The <em>club</em></h3><p>Three bottles a month, curated, with tasting notes &amp; producer stories.</p><ul><li>3 bottles / month</li><li>$98 — most under $40 retail</li><li>Skip a month anytime</li></ul><div class="from">— from $98 / month</div></div>
+    <div class="svc"><h3>Restaurant &amp; <em>wholesale</em></h3><p>Curated lists for restaurants &amp; bars, with quarterly tasting tours of our cellar.</p><ul><li>Trade pricing</li><li>Quarterly tour</li><li>Custom case selection</li></ul><div class="from">— by application</div></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><div class="pre">— CONTACT</div><h2>Come <em>by</em>,<br/>or send a note.</h2></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo')">
+      <div class="field row"><div><label>Name</label><input/></div><div><label>Email</label><input type="email"/></div></div>
+      <div class="field"><label>About</label><select><option>An order</option><option>Private tasting</option><option>Wine club</option><option>Restaurant / wholesale</option><option>Press</option></select></div>
+      <div class="field"><label>Message</label><textarea></textarea></div>
+      <button class="btn btn-primary">Send →</button>
+    </form>
+    <div class="info-block">
+      <h3>The <em>cellar</em></h3>
+      <div class="info-row"><div class="lbl">— address</div>123 Your Street, City</div>
+      <div class="info-row"><div class="lbl">— phone</div>(555) 000-0000</div>
+      <div class="info-row"><div class="lbl">— email</div>cellar@yourwine.com</div>
+      <div class="info-row"><div class="lbl">— hours</div>Tue–Sat · 14:00–22:00</div>
+      <div class="info-row"><div class="lbl">— delivery</div>Within the city, same week</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+<footer><div class="wrap"><div>— Your Cellar · From small producers, with care —</div><div class="foot-links"><a>Instagram</a><a>Newsletter</a><a>Trade</a></div></div></footer>
+<script>
+function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+document.querySelectorAll('.fl').forEach(f=>f.addEventListener('click',()=>{document.querySelectorAll('.fl').forEach(x=>x.classList.remove('active'));f.classList.add('active')}));
+</script></body></html>

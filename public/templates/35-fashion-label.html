@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Label — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#0a0a0a;--muted:#7a7a7a;--accent:#000;--soft:#f4f4f0;--line:#ececec}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:Archivo,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.wrap{max-width:1400px;margin:0 auto;padding:0 32px}
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{font-size:22px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.nav-links{display:flex;gap:32px;font-size:13px;color:var(--ink);letter-spacing:.06em;text-transform:uppercase;font-weight:500}
+.nav-links a.active{font-weight:800}
+.nav-right{display:flex;gap:18px;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.page{display:none}.page.active{display:block}
+
+.banner{padding:8px 0;background:var(--ink);color:#fff;text-align:center;font-size:11px;letter-spacing:.22em;text-transform:uppercase}
+
+.hero{position:relative;padding:0;background:var(--soft);overflow:hidden;border-bottom:1px solid var(--line)}
+.hero .wrap{display:grid;grid-template-columns:1fr 1fr;align-items:end;min-height:560px;padding-top:0;padding-bottom:0;gap:0}
+.hero .left{padding:80px 0}
+.hero .tag{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:24px}
+.hero h1{font-size:clamp(64px,9vw,160px);line-height:.86;letter-spacing:-.04em;font-weight:800;text-transform:uppercase}
+.hero h1 .out{-webkit-text-stroke:1.5px var(--ink);color:transparent}
+.hero .deck{font-size:18px;color:var(--muted);max-width:380px;margin:28px 0 28px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 28px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;cursor:pointer;border:none}
+.btn-primary{background:var(--ink);color:#fff}.btn-primary:hover{background:#222}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+.hero .imgs{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:48px 0 48px 32px;height:100%}
+.hero .imgs .ph{background:linear-gradient(180deg,#cdc6b8,#7a7060);position:relative}
+.hero .imgs .ph.b{background:linear-gradient(180deg,#e2dccf,#9c9580)}
+.hero .imgs .ph.c{background:linear-gradient(180deg,#3a3329,#1a1612);grid-column:span 2;height:160px}
+.hero .imgs .ph .lbl{position:absolute;bottom:14px;left:14px;color:#fff;font-size:10px;letter-spacing:.18em;text-transform:uppercase}
+
+.section-head{margin-top:96px;margin-bottom:24px;padding:0 32px;max-width:1400px;margin-left:auto;margin-right:auto;display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:20px}
+.section-head h2{font-size:40px;letter-spacing:-.03em;font-weight:800;text-transform:uppercase}
+.section-head a{font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-weight:600}
+
+.prod-grid{padding:0 32px;display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.prod{cursor:pointer;display:grid;gap:12px}
+.prod:hover .img{transform:scale(.98)}
+.img{aspect-ratio:3/4;background:var(--soft);position:relative;transition:.2s;overflow:hidden;display:grid;place-items:center}
+.img.p1{background:linear-gradient(180deg,#dbd2c0,#8a7e6a)}
+.img.p2{background:linear-gradient(180deg,#1a1612,#3c3528)}
+.img.p3{background:linear-gradient(180deg,#e8dac8,#a8927a)}
+.img.p4{background:linear-gradient(180deg,#cdc4b5,#5e5648)}
+.img.p5{background:linear-gradient(180deg,#3a3a3a,#0a0a0a)}
+.img.p6{background:linear-gradient(180deg,#d4c6a8,#988358)}
+.img.p7{background:linear-gradient(180deg,#a8a09a,#4a4540)}
+.img.p8{background:linear-gradient(180deg,#e5e0d4,#9e9686)}
+.img .tag{position:absolute;top:14px;left:14px;padding:4px 10px;background:#fff;color:var(--ink);font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+.img .tag.sale{background:#ff2d20;color:#fff}
+.img .heart{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.9);display:grid;place-items:center;color:var(--ink)}
+.img svg{width:55%;height:55%;opacity:.5}
+.prod .name{font-size:13px;font-weight:600;letter-spacing:-.01em}
+.prod .desc{font-size:12px;color:var(--muted)}
+.prod .row{display:flex;justify-content:space-between;align-items:center}
+.prod .price{font-size:14px;font-weight:600}
+.prod .price small{color:var(--muted);text-decoration:line-through;margin-left:6px;font-weight:400}
+.prod .swatches{display:flex;gap:4px}
+.prod .swatch{width:14px;height:14px;border-radius:50%;border:1px solid var(--line)}
+.prod .swatch.s1{background:#a8927a}.prod .swatch.s2{background:#1a1612}.prod .swatch.s3{background:#dbd2c0}.prod .swatch.s4{background:#3a5d4a}
+
+.lookbook{margin-top:120px;background:var(--ink);color:#fff;padding:80px 0;overflow:hidden}
+.lookbook .head{text-align:center;margin-bottom:48px}
+.lookbook .tag{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#999}
+.lookbook h2{font-size:clamp(48px,6vw,84px);letter-spacing:-.03em;font-weight:800;text-transform:uppercase;margin-top:14px}
+.lookbook h2 .out{-webkit-text-stroke:1.5px #fff;color:transparent}
+.look-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;padding:0 32px}
+.look{aspect-ratio:3/4;position:relative;overflow:hidden}
+.look.l1{background:linear-gradient(180deg,#3a3a3a,#0a0a0a)}
+.look.l2{background:linear-gradient(180deg,#a8927a,#5a4a36);grid-row:span 2;aspect-ratio:3/8.2}
+.look.l3{background:linear-gradient(180deg,#cdc4b5,#5e5648)}
+.look.l4{background:linear-gradient(180deg,#d4c6a8,#988358)}
+.look.l5{background:linear-gradient(180deg,#1a1612,#3c3528);grid-column:span 2;aspect-ratio:6/4}
+.look.l6{background:linear-gradient(180deg,#e8dac8,#a8927a)}
+.look .nm{position:absolute;bottom:14px;left:14px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#fff}
+
+.story-band{margin-top:120px;padding:0 32px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.story-band .ph{aspect-ratio:1/1;background:linear-gradient(180deg,#cdc4b5,#3a3329);position:relative}
+.story-band h2{font-size:64px;font-weight:800;letter-spacing:-.035em;text-transform:uppercase;line-height:.9;margin-bottom:20px}
+.story-band h2 .out{-webkit-text-stroke:1.5px var(--ink);color:transparent}
+.story-band p{color:var(--muted);margin-bottom:14px;font-size:15.5px}
+
+.page-padding{padding:80px 32px 120px}
+.page-head{margin-bottom:56px;max-width:780px}
+.page-head h2{font-size:clamp(48px,6vw,84px);letter-spacing:-.035em;font-weight:800;text-transform:uppercase;line-height:.95;margin-top:10px}
+.page-head h2 .out{-webkit-text-stroke:1.5px var(--ink);color:transparent}
+.page-head p{font-size:17px;color:var(--muted);margin-top:14px}
+.tag{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted)}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+.about-text p{margin-bottom:16px;color:#333}
+.about-text p.lead{font-size:24px;font-weight:600;line-height:1.3;color:var(--ink);margin-bottom:24px;letter-spacing:-.02em}
+
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--ink);border-left:1px solid var(--ink)}
+.svc{padding:36px;border-right:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+.svc h3{font-size:24px;font-weight:800;letter-spacing:-.02em;text-transform:uppercase;margin-bottom:8px}
+.svc p{color:var(--muted)}
+.svc ul{list-style:none;margin-top:14px;display:grid;gap:6px;font-size:13px}
+.svc li{padding-left:18px;position:relative}.svc li::before{content:"+";position:absolute;left:0}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+form{display:grid;gap:16px}
+.field label{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:600}
+input,textarea,select{width:100%;padding:13px 16px;border:1px solid var(--line);background:#fff;font:inherit;border-radius:0}
+input:focus,textarea:focus{outline:none;border-color:var(--ink)}
+.field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+textarea{min-height:120px;resize:vertical}
+.info-block{padding:40px;background:var(--soft)}
+.info-block h3{font-size:28px;font-weight:800;text-transform:uppercase;letter-spacing:-.02em;margin-bottom:20px}
+.info-row{padding:14px 0;border-top:1px solid #ddd5c4;font-size:14.5px}
+.info-row:first-of-type{border-top:none}
+.info-row .lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:4px}
+
+footer{border-top:1px solid var(--ink);padding:32px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-links{display:flex;gap:24px}
+@media(max-width:880px){.hero .wrap,.story-band,.about-grid,.contact-grid{grid-template-columns:1fr}.hero .imgs{padding-left:0;padding-top:0}.prod-grid{grid-template-columns:1fr 1fr}.look-grid,.svc-grid{grid-template-columns:1fr 1fr}.nav-links{display:none}}
+</style></head><body>
+<div class="banner">— FREE WORLDWIDE SHIPPING OVER $200 · NEW SS26 DROPPED MONDAY —</div>
+<nav><div class="wrap">
+<a class="logo" onclick="goto('home')">YOUR LABEL</a>
+<div class="nav-links"><a data-page="home" class="active">SHOP</a><a data-page="services">LOOKBOOK</a><a data-page="about">ABOUT</a><a data-page="contact">CONTACT</a></div>
+<div class="nav-right"><a>Search</a><a>Account</a><a>Bag <strong>(2)</strong></a></div>
+</div></nav>
+
+<main>
+
+<section class="page active" id="home">
+  <div class="hero"><div class="wrap">
+    <div class="left">
+      <div class="tag">— SS26 · ARRIVING NOW</div>
+      <h1>SOFT<br/>STRUCTURE<br/><span class="out">SS·26</span></h1>
+      <p class="deck">A small collection — 28 pieces of natural, hand-finished apparel for the long warm months.</p>
+      <button class="btn btn-primary">Shop SS26 →</button>
+      <button class="btn btn-ghost" style="margin-left:8px">Lookbook</button>
+    </div>
+    <div class="imgs">
+      <div class="ph"><span class="lbl">— No. 04</span></div>
+      <div class="ph b"><span class="lbl">— No. 07</span></div>
+      <div class="ph c"><span class="lbl">— No. 12</span></div>
+    </div>
+  </div></div>
+
+  <div class="section-head"><h2>JUST ARRIVED.</h2><a>View all 28 →</a></div>
+  <div class="prod-grid">
+    <div class="prod"><div class="img p1"><span class="tag">NEW</span><span class="heart">♡</span></div><div class="name">Linen overshirt, oat</div><div class="row"><div class="price">$340</div><div class="swatches"><span class="swatch s1"></span><span class="swatch s2"></span><span class="swatch s3"></span></div></div></div>
+    <div class="prod"><div class="img p2"><span class="tag">NEW</span><span class="heart">♡</span></div><div class="name">Wide trouser, charcoal</div><div class="row"><div class="price">$280</div><div class="swatches"><span class="swatch s2"></span><span class="swatch s1"></span></div></div></div>
+    <div class="prod"><div class="img p3"><span class="heart">♡</span></div><div class="name">Cotton tee, sand</div><div class="row"><div class="price">$98</div><div class="swatches"><span class="swatch s3"></span><span class="swatch s1"></span><span class="swatch s2"></span><span class="swatch s4"></span></div></div></div>
+    <div class="prod"><div class="img p4"><span class="tag">NEW</span><span class="heart">♡</span></div><div class="name">Linen short, stone</div><div class="row"><div class="price">$180</div><div class="swatches"><span class="swatch s1"></span><span class="swatch s2"></span></div></div></div>
+    <div class="prod"><div class="img p5"><span class="tag sale">SALE</span><span class="heart">♡</span></div><div class="name">Wool blazer, black</div><div class="row"><div class="price">$420 <small>$540</small></div><div class="swatches"><span class="swatch s2"></span></div></div></div>
+    <div class="prod"><div class="img p6"><span class="heart">♡</span></div><div class="name">Twill jacket, camel</div><div class="row"><div class="price">$520</div><div class="swatches"><span class="swatch s1"></span><span class="swatch s2"></span></div></div></div>
+    <div class="prod"><div class="img p7"><span class="heart">♡</span></div><div class="name">Cashmere knit, stone</div><div class="row"><div class="price">$380</div><div class="swatches"><span class="swatch s3"></span><span class="swatch s2"></span></div></div></div>
+    <div class="prod"><div class="img p8"><span class="tag">NEW</span><span class="heart">♡</span></div><div class="name">Cotton dress, ivory</div><div class="row"><div class="price">$260</div><div class="swatches"><span class="swatch s3"></span><span class="swatch s4"></span></div></div></div>
+  </div>
+
+  <div class="lookbook">
+    <div class="head">
+      <div class="tag">— SS26 · LOOKBOOK</div>
+      <h2>WORN<br/>FROM <span class="out">MORNING</span></h2>
+    </div>
+    <div class="look-grid">
+      <div class="look l1"><span class="nm">— Look 01</span></div>
+      <div class="look l2"><span class="nm">— Look 02</span></div>
+      <div class="look l3"><span class="nm">— Look 03</span></div>
+      <div class="look l4"><span class="nm">— Look 04</span></div>
+      <div class="look l5"><span class="nm">— Look 05</span></div>
+      <div class="look l6"><span class="nm">— Look 06</span></div>
+    </div>
+  </div>
+
+  <div class="story-band">
+    <div class="ph"></div>
+    <div>
+      <div class="tag">— MADE</div>
+      <h2>MADE<br/>SLOWLY,<br/><span class="out">CLOSE</span><br/>BY.</h2>
+      <p>Every piece is cut and sewn in three small workshops within 50 km of the studio. Fabrics from Portugal, Japan, and Italy.</p>
+      <p>We make twice a year — and only what we can sell. Replace this with your maker story.</p>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-padding">
+    <div class="page-head"><div class="tag">— ABOUT</div><h2>YOUR <span class="out">LABEL</span></h2><p>Replace this with your story and how the brand started.</p></div>
+    <div class="about-grid">
+      <div class="about-text">
+        <p class="lead">"We started YOUR LABEL in Year because the wardrobe we wanted was nowhere on the shelf."</p>
+        <p>Replace this with your founding story. The first capsule. The fabric mill that took a chance on a tiny order. The night the website went live.</p>
+        <p>Tell people how you make: where, with whom, and why your prices are what they are.</p>
+      </div>
+      <div>
+        <div style="padding:32px;background:var(--soft)">
+          <h3 style="font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:-.02em;margin-bottom:14px">— OUR PROMISES</h3>
+          <ul style="list-style:none;display:grid;gap:14px;font-size:15px">
+            <li style="padding-left:24px;position:relative">+ <strong>NATURAL FIBERS</strong>, always</li>
+            <li style="padding-left:24px;position:relative">+ <strong>MADE WITHIN 50KM</strong> of the studio</li>
+            <li style="padding-left:24px;position:relative">+ <strong>TWO DROPS / YEAR</strong>, not weekly</li>
+            <li style="padding-left:24px;position:relative">+ <strong>30-DAY RETURNS</strong>, free</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-padding">
+    <div class="page-head"><div class="tag">— LOOKBOOK &amp; SERVICES</div><h2>BEYOND THE <span class="out">DROP</span></h2></div>
+    <div class="svc-grid">
+      <div class="svc"><h3>Made-to-measure</h3><p>Six pieces from the collection cut to your measurements.</p><ul><li>Fittings in studio</li><li>4–6 weeks turnaround</li><li>10% off list price</li></ul></div>
+      <div class="svc"><h3>Repair forever</h3><p>Anything we made, repaired for the life of the garment.</p><ul><li>Free for first owner</li><li>Pay shipping only</li><li>Average 2 weeks</li></ul></div>
+      <div class="svc"><h3>Resale</h3><p>Send your old pieces back. We refurbish &amp; resell, you get credit.</p><ul><li>Up to 40% of original</li><li>Credit toward new orders</li><li>Quarterly drops</li></ul></div>
+      <div class="svc"><h3>Wholesale</h3><p>Selected boutiques worldwide. New accounts open in Sep &amp; Mar.</p><ul><li>Min order 18 pieces</li><li>Net 30 terms</li><li>Apply via email</li></ul></div>
+      <div class="svc"><h3>Private studio</h3><p>Book a fitting in the showroom. Coffee included.</p><ul><li>One hour, one stylist</li><li>By appointment only</li><li>City, ST</li></ul></div>
+      <div class="svc"><h3>Newsletter</h3><p>Sent four times a year. Two drops, one essay, one sale.</p><ul><li>Members-first drops</li><li>Behind-the-scenes</li><li>No spam, ever</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-padding">
+    <div class="page-head"><div class="tag">— CONTACT</div><h2>SAY <span class="out">HI</span></h2></div>
+    <div class="contact-grid">
+      <form onsubmit="event.preventDefault();alert('Demo')">
+        <div class="field row"><div><label>NAME</label><input/></div><div><label>EMAIL</label><input type="email"/></div></div>
+        <div class="field"><label>ABOUT</label>
+          <select><option>Help with an order</option><option>Returns / exchanges</option><option>Made-to-measure</option><option>Wholesale</option><option>Press</option><option>Other</option></select></div>
+        <div class="field"><label>ORDER # (IF APPLICABLE)</label><input/></div>
+        <div class="field"><label>MESSAGE</label><textarea></textarea></div>
+        <button class="btn btn-primary">SEND →</button>
+      </form>
+      <div class="info-block">
+        <h3>STUDIO</h3>
+        <div class="info-row"><div class="lbl">— ADDRESS</div>123 Your Street, City</div>
+        <div class="info-row"><div class="lbl">— EMAIL</div>hello@yourlabel.com</div>
+        <div class="info-row"><div class="lbl">— STUDIO HOURS</div>Tue–Fri 11:00–19:00 · by appointment</div>
+        <div class="info-row"><div class="lbl">— RETURNS</div>30 days, free worldwide</div>
+        <div class="info-row"><div class="lbl">— PRESS</div>press@yourlabel.com</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer><div class="wrap"><div>© 2026 YOUR LABEL · MADE WITHIN 50KM</div><div class="foot-links"><a>INSTAGRAM</a><a>NEWSLETTER</a><a>RETURNS</a><a>STOCKISTS</a></div></div></footer>
+<script>
+function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script></body></html>

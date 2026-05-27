@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Conference — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fffced;--ink:#0e0e0e;--muted:#5a5a52;--line:#e4e0c8;--accent:#2c40ff;--soft:#fff8d4}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',sans-serif;font-size:16px;line-height:1.55}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.wrap{max-width:1280px;margin:0 auto;padding:0 36px}
+.mono{font-family:'Space Mono',monospace}
+nav{position:sticky;top:0;z-index:50;background:rgba(255,252,237,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--ink)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-weight:700;font-size:18px;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+.logo .dot{width:12px;height:12px;background:var(--accent);border-radius:2px}
+.nav-links{display:flex;gap:28px;font-size:13px;font-family:'Space Mono';color:var(--muted)}
+.nav-links a.active{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;font-family:'Space Mono';font-size:13px;cursor:pointer;border:1px solid var(--ink);background:#fff;color:var(--ink)}
+.btn-primary{background:var(--ink);color:var(--bg)}
+.btn-primary:hover{background:var(--accent);border-color:var(--accent)}
+.btn-ghost:hover{background:var(--ink);color:var(--bg)}
+.page{display:none;padding:64px 0 96px}.page.active{display:block}
+
+.hero{text-align:center;padding:32px 0}
+.tag{display:inline-flex;align-items:center;gap:10px;font-family:'Space Mono';font-size:13px;padding:4px 14px;background:var(--accent);color:#fff;margin-bottom:24px}
+h1.display{font-size:clamp(72px,12vw,200px);line-height:.86;letter-spacing:-.04em;font-weight:700;text-transform:uppercase}
+h1.display em{color:var(--accent);font-style:normal}
+.deck{font-size:22px;color:#333;max-width:560px;margin:24px auto 0}
+.hero-meta{margin-top:36px;display:inline-flex;align-items:center;gap:32px;flex-wrap:wrap;padding:16px 28px;background:#fff;border:1px solid var(--ink);font-family:'Space Mono';font-size:14px}
+.hero-meta span{display:flex;gap:8px;align-items:center}
+.hero-meta .l{color:var(--muted)}
+.hero-cta{margin-top:32px;display:inline-flex;gap:12px;flex-wrap:wrap}
+
+.countdown{margin-top:64px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:760px;margin-left:auto;margin-right:auto}
+.cd{padding:24px;background:var(--ink);color:var(--bg);text-align:center}
+.cd .v{font-size:64px;font-weight:700;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.cd .l{font-family:'Space Mono';font-size:12px;color:var(--accent);margin-top:6px;text-transform:uppercase;letter-spacing:.16em}
+
+.section-head{margin-top:120px;margin-bottom:32px;display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:20px;border-bottom:2px solid var(--ink);padding-bottom:18px}
+.section-head h2{font-size:56px;letter-spacing:-.03em;font-weight:700}
+.section-head h2 em{color:var(--accent);font-style:normal}
+.section-head .meta{font-family:'Space Mono';font-size:13px;color:var(--muted)}
+
+.speakers{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.spk{padding:24px;background:#fff;border:1px solid var(--ink);transition:.15s;cursor:pointer}
+.spk:hover{background:var(--accent);color:#fff}
+.spk:hover .role,.spk:hover .ctry{color:#cfd6ff}
+.spk .num{font-family:'Space Mono';font-size:12px;color:var(--muted);letter-spacing:.06em}
+.spk:hover .num{color:#cfd6ff}
+.spk .av{aspect-ratio:1/1;background:linear-gradient(135deg,#cfd6ff,var(--accent));margin:14px 0;border:1px solid var(--ink)}
+.spk h4{font-size:22px;font-weight:600;letter-spacing:-.015em;line-height:1.05}
+.spk .role{font-family:'Space Mono';font-size:12px;color:var(--muted);margin-top:4px}
+.spk .ctry{font-family:'Space Mono';font-size:11px;color:var(--accent);margin-top:14px;display:flex;justify-content:space-between}
+
+.schedule{margin-top:40px;background:#fff;border:1px solid var(--ink)}
+.day-tabs{display:flex;border-bottom:1px solid var(--ink)}
+.day-tabs button{flex:1;padding:18px;font:inherit;font-weight:600;border:none;background:transparent;cursor:pointer;border-right:1px solid var(--ink);font-family:'Space Mono';font-size:13px;color:var(--muted)}
+.day-tabs button:last-child{border-right:none}
+.day-tabs button.active{background:var(--ink);color:var(--bg)}
+.slot{display:grid;grid-template-columns:120px 1fr 200px 80px;gap:24px;padding:20px 28px;border-bottom:1px solid var(--line);align-items:center}
+.slot:last-child{border-bottom:none}
+.slot.break{background:var(--soft)}
+.slot .time{font-family:'Space Mono';font-size:14px;font-weight:700}
+.slot .title{font-size:17px;font-weight:600;letter-spacing:-.01em}
+.slot .desc{font-size:13px;color:var(--muted);margin-top:2px;font-family:'Space Mono'}
+.slot .who{font-family:'Space Mono';font-size:12px;color:var(--accent)}
+.slot .room{font-family:'Space Mono';font-size:11px;padding:3px 8px;border:1px solid var(--ink);text-align:center}
+
+.venue{margin-top:80px;padding:48px;background:var(--ink);color:var(--bg);display:grid;grid-template-columns:1fr 1.4fr;gap:48px;align-items:center}
+.venue h3{font-size:48px;letter-spacing:-.025em;font-weight:700;margin-bottom:14px}
+.venue h3 em{color:var(--accent);font-style:normal}
+.venue p{color:#a8a89e;max-width:340px}
+.venue .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid #2a2a26}
+.venue .s{padding:20px;border-right:1px solid #2a2a26;text-align:center}
+.venue .s:last-child{border-right:none}
+.venue .s .v{font-size:32px;font-weight:700;letter-spacing:-.02em;color:var(--accent)}
+.venue .s .l{font-family:'Space Mono';font-size:11px;color:#a8a89e;margin-top:4px;letter-spacing:.06em;text-transform:uppercase}
+
+.sponsors{margin-top:80px;padding:32px;border:1px solid var(--ink);text-align:center}
+.sponsors .l{font-family:'Space Mono';font-size:12px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;margin-bottom:20px}
+.sponsor-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:14px;align-items:center}
+.sp{padding:18px;border:1px solid var(--line);font-weight:600;font-size:16px;letter-spacing:-.01em;color:#555}
+.sp.headline{grid-column:span 2;font-size:20px;border-color:var(--ink)}
+
+.page-head{margin-bottom:48px;max-width:760px}
+.page-head h2{font-size:clamp(48px,6vw,84px);letter-spacing:-.03em;font-weight:700;text-transform:uppercase;line-height:.94;margin-top:10px}
+.page-head h2 em{color:var(--accent);font-style:normal}
+.page-head p{font-size:18px;color:var(--muted);margin-top:14px;max-width:520px}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+.about-text p{margin-bottom:14px;color:#333}
+.about-text p.lead{font-size:22px;font-weight:500;line-height:1.4;color:var(--ink);margin-bottom:20px;letter-spacing:-.01em}
+.year-list{display:grid;gap:8px}
+.yr-row{padding:16px;background:#fff;border:1px solid var(--ink);display:grid;grid-template-columns:80px 1fr 100px;gap:18px;align-items:center;font-family:'Space Mono';font-size:13px}
+.yr-row .y{font-weight:700;font-size:18px;color:var(--accent);font-family:'Space Grotesk'}
+.yr-row .t{font-family:'Space Grotesk';font-weight:500;font-size:15px}
+.yr-row .a{color:var(--muted)}
+
+.tickets{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tk{padding:36px;border:1px solid var(--ink);background:#fff;display:grid;gap:14px;align-content:start}
+.tk.featured{background:var(--ink);color:var(--bg)}
+.tk.featured ul{color:#bcbcb0}
+.tk h3{font-size:24px;font-weight:700;letter-spacing:-.015em}
+.tk .price{font-size:48px;font-weight:700;letter-spacing:-.03em}
+.tk .price small{font-family:'Space Mono';font-size:13px;font-weight:400;color:var(--muted)}
+.tk.featured .price small{color:#a8a89e}
+.tk ul{list-style:none;display:grid;gap:8px;font-size:14px;color:#333}
+.tk li{padding-left:20px;position:relative}.tk li::before{content:"+";position:absolute;left:0;color:var(--accent);font-weight:700}
+.tk .btn{width:100%;justify-content:center}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+form{display:grid;gap:14px}
+.field label{display:block;font-family:'Space Mono';font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+input,textarea,select{width:100%;padding:13px 16px;border:1px solid var(--ink);background:#fff;font:inherit;border-radius:0}
+input:focus,textarea:focus{outline:none;border-color:var(--accent);border-width:2px}
+.field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+textarea{min-height:120px;resize:vertical}
+.info-block{padding:36px;background:#fff;border:1px solid var(--ink)}
+.info-block h3{font-size:28px;font-weight:700;letter-spacing:-.02em;margin-bottom:18px;text-transform:uppercase}
+.info-row{padding:14px 0;border-top:1px solid var(--line);font-size:14.5px;font-family:'Space Mono'}
+.info-row:first-of-type{border-top:none}
+.info-row .lbl{font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+
+footer{border-top:2px solid var(--ink);padding:32px 0;font-family:'Space Mono';font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-links{display:flex;gap:24px}
+@media(max-width:880px){.speakers,.sponsor-grid{grid-template-columns:1fr 1fr}.venue,.about-grid,.contact-grid{grid-template-columns:1fr}.tickets{grid-template-columns:1fr}.slot{grid-template-columns:1fr}.slot .room,.slot .who{display:none}.nav-links{display:none}}
+</style></head><body>
+
+<nav><div class="wrap">
+<a class="logo" onclick="goto('home')"><span class="dot"></span>YOUR /CONF</a>
+<div class="nav-links">
+<a data-page="home" class="active">_home</a><a data-page="services">_speakers</a><a data-page="about">_about</a><a data-page="contact">_tickets</a>
+</div>
+<button class="btn btn-primary" onclick="goto('contact')">Get tickets →</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div class="tag">⬤ EDITION 06 — TICKETS LIVE</div>
+    <h1 class="display">A two-day<br/>conference for<br/><em>builders</em>.</h1>
+    <div class="deck">Three stages, forty speakers, one industrial loft in your city. Replace this with your event's pitch.</div>
+    <div class="hero-meta">
+      <span><span class="l">When</span>Oct 16 — 17, 2026</span>
+      <span><span class="l">Where</span>The Foundry, your city</span>
+      <span><span class="l">Capacity</span>800 humans</span>
+    </div>
+    <div class="hero-cta">
+      <button class="btn btn-primary">Get a ticket →</button>
+      <button class="btn btn-ghost">View speakers</button>
+    </div>
+  </div>
+
+  <div class="countdown">
+    <div class="cd"><div class="v">143</div><div class="l">— days</div></div>
+    <div class="cd"><div class="v">12</div><div class="l">— hours</div></div>
+    <div class="cd"><div class="v">48</div><div class="l">— minutes</div></div>
+    <div class="cd"><div class="v">26</div><div class="l">— seconds</div></div>
+  </div>
+
+  <div class="section-head"><h2>The <em>speakers</em>.</h2><div class="meta">— 40 confirmed · 4 keynotes</div></div>
+  <div class="speakers">
+    <div class="spk"><div class="num">/01 KEYNOTE</div><div class="av"></div><h4>Speaker Name</h4><div class="role">— CEO, Company</div><div class="ctry"><span>→ TALK</span><span>Tue · 10:00</span></div></div>
+    <div class="spk"><div class="num">/02 KEYNOTE</div><div class="av" style="background:linear-gradient(135deg,#ffd09c,#ff5a3c)"></div><h4>Speaker Name</h4><div class="role">— Founder, Studio</div><div class="ctry"><span>→ TALK</span><span>Tue · 14:00</span></div></div>
+    <div class="spk"><div class="num">/03</div><div class="av" style="background:linear-gradient(135deg,#c5e9c8,#2c9a4a)"></div><h4>Speaker Name</h4><div class="role">— Director, Org</div><div class="ctry"><span>→ TALK</span><span>Wed · 09:30</span></div></div>
+    <div class="spk"><div class="num">/04</div><div class="av" style="background:linear-gradient(135deg,#e0c4f2,#7a4fb0)"></div><h4>Speaker Name</h4><div class="role">— Designer</div><div class="ctry"><span>→ TALK</span><span>Wed · 11:00</span></div></div>
+    <div class="spk"><div class="num">/05</div><div class="av" style="background:linear-gradient(135deg,#f3d6a8,#a87a3a)"></div><h4>Speaker Name</h4><div class="role">— Engineer</div><div class="ctry"><span>→ TALK</span><span>Tue · 11:30</span></div></div>
+    <div class="spk"><div class="num">/06</div><div class="av" style="background:linear-gradient(135deg,#ffb7d4,#c44a82)"></div><h4>Speaker Name</h4><div class="role">— Author</div><div class="ctry"><span>→ TALK</span><span>Tue · 16:00</span></div></div>
+    <div class="spk"><div class="num">/07</div><div class="av" style="background:linear-gradient(135deg,#9cdaff,#3a8ad6)"></div><h4>Speaker Name</h4><div class="role">— Researcher</div><div class="ctry"><span>→ TALK</span><span>Wed · 13:00</span></div></div>
+    <div class="spk"><div class="num">/08</div><div class="av" style="background:linear-gradient(135deg,#cfd6ff,#2c40ff)"></div><h4>Speaker Name</h4><div class="role">— Operator</div><div class="ctry"><span>→ TALK</span><span>Wed · 15:30</span></div></div>
+  </div>
+
+  <div class="section-head"><h2>Two days, <em>three</em> stages.</h2><div class="meta">— preview · full schedule on tickets page</div></div>
+  <div class="schedule">
+    <div class="day-tabs"><button class="active">Tuesday — Oct 16</button><button>Wednesday — Oct 17</button></div>
+    <div class="slot"><div class="time">08:30</div><div><div class="title">Doors &amp; coffee</div><div class="desc">— Main hall · sponsored by Roastery</div></div><div class="who">—</div><div class="room">MAIN</div></div>
+    <div class="slot"><div class="time">10:00</div><div><div class="title">Opening keynote</div><div class="desc">— On building things you can finish.</div></div><div class="who">→ Speaker Name</div><div class="room">A</div></div>
+    <div class="slot"><div class="time">11:30</div><div><div class="title">The five-year company</div><div class="desc">— A track on running small for a long time.</div></div><div class="who">→ Panel of three</div><div class="room">B</div></div>
+    <div class="slot break"><div class="time">13:00</div><div><div class="title">Lunch &amp; lobby</div><div class="desc">— Plant-forward, on the loading dock.</div></div><div class="who">—</div><div class="room">DOCK</div></div>
+    <div class="slot"><div class="time">14:00</div><div><div class="title">Afternoon keynote</div><div class="desc">— Notes from the field.</div></div><div class="who">→ Speaker Name</div><div class="room">A</div></div>
+    <div class="slot"><div class="time">16:00</div><div><div class="title">Workshop sessions</div><div class="desc">— Three concurrent, sign-up required.</div></div><div class="who">→ Three facilitators</div><div class="room">C</div></div>
+    <div class="slot break"><div class="time">19:00</div><div><div class="title">Opening party</div><div class="desc">— Rooftop, live set, until midnight.</div></div><div class="who">—</div><div class="room">ROOF</div></div>
+  </div>
+
+  <div class="venue">
+    <div>
+      <h3>The Foundry,<br/>your <em>city</em>.</h3>
+      <p>A turn-of-the-century print works on the river. Two stages, three workshop rooms, one rooftop. Twelve minutes from the central station.</p>
+    </div>
+    <div class="stats">
+      <div class="s"><div class="v">800</div><div class="l">— attendees</div></div>
+      <div class="s"><div class="v">40</div><div class="l">— speakers</div></div>
+      <div class="s"><div class="v">3</div><div class="l">— stages</div></div>
+      <div class="s"><div class="v">2</div><div class="l">— days</div></div>
+    </div>
+  </div>
+
+  <div class="sponsors">
+    <div class="l">— supported by —</div>
+    <div class="sponsor-grid">
+      <div class="sp headline">◆ HEADLINE</div>
+      <div class="sp">○ MAJOR</div><div class="sp">▲ MAJOR</div><div class="sp">◇ MEDIA</div><div class="sp">▢ HOST</div><div class="sp">◑ DRINKS</div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><div class="mono" style="font-size:12px;color:var(--accent);letter-spacing:.16em">/ ABOUT</div><h2>A small conference,<br/><em>since</em> Year.</h2><p>Replace this with the story of the event and what makes it yours.</p></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">We started this in Year because every conference we went to was either too big to talk in or too small to learn from.</p>
+      <p>Replace this with your founding story. The first hundred tickets. The first speaker who said yes. The year you almost didn't run it.</p>
+      <p>Tell people what's different. Single track. No paid talks. Captions on every session. The food's actually good. Specifics matter.</p>
+    </div>
+    <div>
+      <h3 class="mono" style="font-size:14px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px">— previous editions</h3>
+      <div class="year-list">
+        <div class="yr-row"><div class="y">'25</div><div class="t">Edition 05 — On working slowly in fast industries</div><div class="a">— 720 attended</div></div>
+        <div class="yr-row"><div class="y">'24</div><div class="t">Edition 04 — On telling the truth at work</div><div class="a">— 680 attended</div></div>
+        <div class="yr-row"><div class="y">'23</div><div class="t">Edition 03 — On building for the long horizon</div><div class="a">— 540 attended</div></div>
+        <div class="yr-row"><div class="y">'22</div><div class="t">Edition 02 — On what's worth maintaining</div><div class="a">— 420 attended</div></div>
+        <div class="yr-row"><div class="y">'21</div><div class="t">Edition 01 — On the years after the pitch</div><div class="a">— 200 attended</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><div class="mono" style="font-size:12px;color:var(--accent);letter-spacing:.16em">/ TICKETS</div><h2>Three ways<br/>to <em>attend</em>.</h2></div>
+  <div class="tickets">
+    <div class="tk"><h3>EARLY</h3><div class="price">$340<small> · ends Jun 30</small></div><p>The full conference, two days, all talks and workshops.</p><ul><li>Both days, all tracks</li><li>All workshops (subject to sign-up)</li><li>Opening party</li><li>Lunches &amp; coffee</li><li>Printed program</li></ul><button class="btn">Get this ticket →</button></div>
+    <div class="tk featured"><h3>STANDARD</h3><div class="price">$480<small> · most popular</small></div><p>Same access as Early — buy after the early window.</p><ul><li>Both days, all tracks</li><li>All workshops</li><li>Opening party</li><li>Lunches &amp; coffee</li><li>Printed program</li></ul><button class="btn btn-primary">Get this ticket →</button></div>
+    <div class="tk"><h3>PATRON</h3><div class="price">$880<small> · supports the event</small></div><p>The full pass — plus reserved seating and the patron dinner.</p><ul><li>Everything in Standard</li><li>Reserved seating</li><li>Patron dinner, Mon night</li><li>Signed program</li><li>Recordings, early access</li></ul><button class="btn">Get this ticket →</button></div>
+  </div>
+  <p class="mono" style="text-align:center;margin-top:32px;font-size:13px;color:var(--muted)">— Students &amp; community: ask us about discounted &amp; comp tickets at hello@yourconf.com —</p>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><div class="mono" style="font-size:12px;color:var(--accent);letter-spacing:.16em">/ CONTACT</div><h2>Ask us<br/><em>anything</em>.</h2><p>Tickets, sponsorship, press, accessibility — we route quickly.</p></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo')">
+      <div class="field row"><div><label>Name</label><input/></div><div><label>Email</label><input type="email"/></div></div>
+      <div class="field"><label>This is about</label>
+        <select><option>Tickets</option><option>Sponsorship</option><option>Speaking</option><option>Press</option><option>Accessibility</option><option>Something else</option></select></div>
+      <div class="field"><label>Message</label><textarea></textarea></div>
+      <button class="btn btn-primary">Send →</button>
+    </form>
+    <div class="info-block">
+      <h3>The /Conf</h3>
+      <div class="info-row"><div class="lbl">— TICKETS</div>tickets@yourconf.com</div>
+      <div class="info-row"><div class="lbl">— SPONSORSHIP</div>sponsor@yourconf.com</div>
+      <div class="info-row"><div class="lbl">— PRESS</div>press@yourconf.com</div>
+      <div class="info-row"><div class="lbl">— ACCESSIBILITY</div>access@yourconf.com</div>
+      <div class="info-row"><div class="lbl">— VENUE</div>The Foundry · 123 Your Street</div>
+      <div class="info-row"><div class="lbl">— SOCIAL</div>@yourconf — everywhere</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+<footer><div class="wrap"><div>// YOUR /CONF — EDITION 06 — OCT 2026</div><div class="foot-links"><a>Twitter</a><a>Newsletter</a><a>Past videos</a><a>Code of conduct</a></div></div></footer>
+<script>
+function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+document.querySelectorAll('.day-tabs button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.day-tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active')}));
+// Tick countdown
+let d=143,h=12,m=48,s=26;const cds=document.querySelectorAll('.cd .v');setInterval(()=>{s--;if(s<0){s=59;m--;if(m<0){m=59;h--;if(h<0){h=23;d--}}}cds[0].textContent=String(d).padStart(3,'0');cds[1].textContent=String(h).padStart(2,'0');cds[2].textContent=String(m).padStart(2,'0');cds[3].textContent=String(s).padStart(2,'0')},1000);
+</script></body></html>

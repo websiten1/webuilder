@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Marketplace — Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--ink:#15161a;--muted:#6b6e76;--accent:#ff5a4a;--accent2:#ffb74a;--soft:#fff4f0;--line:#eaeaef;--card:#fafafd}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:Inter,sans-serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:-.02em}
+.logo .mk{width:30px;height:30px;border-radius:9px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800}
+.nav-links{display:flex;gap:28px;font-size:14px;color:var(--muted);font-weight:500}
+.nav-links a.active{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:.15s}
+.btn-primary{background:var(--ink);color:#fff}.btn-primary:hover{background:var(--accent)}
+.btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.page{display:none;padding:64px 0 120px}.page.active{display:block}
+.kicker{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;background:var(--soft);color:var(--accent);font-size:13px;font-weight:700;border-radius:999px;margin-bottom:20px}
+
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:center}
+.hero h1{font-size:clamp(48px,5.8vw,84px);line-height:1.02;letter-spacing:-.03em;font-weight:800;margin-bottom:16px}
+.hero h1 em{color:var(--accent);font-style:normal}
+.hero .lede{font-size:18px;color:var(--muted);max-width:480px;margin-bottom:28px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+.stats-inline{margin-top:36px;display:flex;gap:32px;flex-wrap:wrap}
+.si .v{font-size:32px;font-weight:800;letter-spacing:-.025em;color:var(--accent)}
+.si .l{font-size:13px;color:var(--muted);margin-top:2px}
+
+.mosaic{position:relative;aspect-ratio:1/1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px}
+.tile{border-radius:18px;padding:20px;color:#fff;display:grid;align-content:space-between;position:relative;overflow:hidden;font-weight:600}
+.tile.a{background:linear-gradient(135deg,#ff5a4a,#ffb74a)}
+.tile.b{background:linear-gradient(160deg,#3a8ad6,#62a4e3)}
+.tile.c{background:linear-gradient(160deg,#2c9a4a,#7ed68f);grid-column:span 2}
+.tile.d{background:linear-gradient(160deg,#7c4dff,#c44a82);grid-column:span 2;grid-row:2}
+.tile .cat{font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
+.tile .nm{font-size:24px;letter-spacing:-.02em;line-height:1.05;font-weight:800}
+.tile .pr{font-size:14px;opacity:.9;margin-top:auto;display:flex;justify-content:space-between;align-items:center}
+.tile .pr .v{font-size:20px;font-weight:800}
+
+.cat-bar{margin-top:80px;padding:18px;background:var(--card);border:1px solid var(--line);border-radius:18px;display:flex;gap:10px;overflow-x:auto;align-items:center}
+.cat-pill{padding:10px 18px;background:#fff;border:1px solid var(--line);border-radius:999px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.cat-pill.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.cat-pill .ic{font-size:14px}
+
+.section-head{margin-top:80px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:20px}
+.section-head h2{font-size:36px;letter-spacing:-.025em;font-weight:800}
+.section-head h2 em{color:var(--accent);font-style:normal}
+
+.prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.prod{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:.15s;cursor:pointer}
+.prod:hover{transform:translateY(-3px);box-shadow:0 20px 40px -24px rgba(20,22,26,.16)}
+.prod .img{aspect-ratio:1/1;position:relative;display:grid;place-items:center;color:#fff;font-weight:700;font-size:36px;letter-spacing:-.02em}
+.prod .img.p1{background:linear-gradient(160deg,#ffd6a0,#ff8a4d)}
+.prod .img.p2{background:linear-gradient(160deg,#c8e4ff,#5b86ff)}
+.prod .img.p3{background:linear-gradient(160deg,#d4f0d8,#3a8a5a)}
+.prod .img.p4{background:linear-gradient(160deg,#f3d8ff,#a058ff)}
+.prod .img.p5{background:linear-gradient(160deg,#ffd0db,#ff5a4a)}
+.prod .img.p6{background:linear-gradient(160deg,#ffe3a0,#fbb040)}
+.prod .img.p7{background:linear-gradient(160deg,#cfeae8,#3a8a78)}
+.prod .img.p8{background:linear-gradient(160deg,#e0d4f0,#7a4fb0)}
+.prod .img .save{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.9);color:var(--ink);display:grid;place-items:center;font-size:14px}
+.prod .img .tag{position:absolute;top:12px;left:12px;padding:4px 10px;background:#fff;color:var(--accent);font-size:11px;font-weight:700;border-radius:6px;letter-spacing:.04em}
+.prod .body{padding:14px}
+.prod .seller{font-size:12px;color:var(--muted);margin-bottom:4px}
+.prod .nm{font-size:15px;font-weight:600;letter-spacing:-.01em;margin-bottom:6px;line-height:1.3}
+.prod .row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.prod .pr{font-size:17px;font-weight:800;letter-spacing:-.015em}
+.prod .rating{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:3px}
+.prod .rating .s{color:#fbb040}
+
+.sellers-band{margin-top:120px;padding:64px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:28px;display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:center}
+.sellers-band h3{font-size:48px;letter-spacing:-.03em;font-weight:800;line-height:1.04;margin-bottom:14px}
+.sellers-band p{color:#fff;opacity:.9;max-width:440px;margin-bottom:24px}
+.sellers-band .stat-card{padding:32px;background:rgba(255,255,255,.15);border-radius:20px;backdrop-filter:blur(8px)}
+.sellers-band .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.sellers-band .stat-row .v{font-size:32px;font-weight:800;letter-spacing:-.025em}
+.sellers-band .stat-row .l{font-size:12px;opacity:.85;margin-top:4px}
+
+.how{margin-top:120px}
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.how-card{padding:36px;background:var(--card);border:1px solid var(--line);border-radius:18px}
+.how-card .n{font-size:48px;font-weight:800;letter-spacing:-.04em;color:var(--accent);line-height:1}
+.how-card h4{font-size:22px;font-weight:700;letter-spacing:-.015em;margin:10px 0 6px}
+.how-card p{color:var(--muted);font-size:14.5px}
+
+.page-head{margin-bottom:56px;max-width:780px}
+.page-head h2{font-size:clamp(40px,5vw,68px);letter-spacing:-.03em;font-weight:800;line-height:1.04;margin-top:12px}
+.page-head h2 em{color:var(--accent);font-style:normal}
+.page-head p{font-size:18px;color:var(--muted);margin-top:14px}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+.about-text p{margin-bottom:16px;color:#33384a}
+.about-text p.lead{font-size:22px;font-weight:600;line-height:1.4;color:var(--ink);margin-bottom:20px;letter-spacing:-.015em}
+
+.uc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.uc{padding:32px;background:#fff;border:1px solid var(--line);border-radius:18px}
+.uc .ic{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;display:grid;place-items:center;margin-bottom:16px;font-weight:700;font-size:18px}
+.uc h3{font-size:22px;font-weight:700;letter-spacing:-.015em;margin-bottom:8px}
+.uc p{color:var(--muted);font-size:14.5px;margin-bottom:18px}
+.uc ul{list-style:none;display:grid;gap:8px;font-size:14px}
+.uc li{padding-left:22px;position:relative}.uc li::before{content:"♥";position:absolute;left:0;color:var(--accent)}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+form{display:grid;gap:16px}
+.field label{display:block;font-size:13px;color:var(--ink);margin-bottom:6px;font-weight:600}
+input,textarea,select{width:100%;padding:13px 16px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+textarea{min-height:120px;resize:vertical}
+.info-block{padding:40px;background:var(--soft);border-radius:20px}
+.info-block h3{font-size:24px;font-weight:800;letter-spacing:-.02em;margin-bottom:18px}
+.info-row{padding:14px 0;border-top:1px solid #f5d8d0;font-size:14.5px}
+.info-row:first-of-type{border-top:none}
+.info-row .lbl{font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+
+footer{border-top:1px solid var(--line);padding:32px 0;color:var(--muted);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-links{display:flex;gap:24px}
+@media(max-width:880px){.hero,.sellers-band,.about-grid,.contact-grid,.uc-grid{grid-template-columns:1fr}.prod-grid{grid-template-columns:1fr 1fr}.how-grid{grid-template-columns:1fr}.nav-links{display:none}}
+</style></head><body>
+
+<nav><div class="wrap">
+<a class="logo" onclick="goto('home')"><span class="mk">◆</span>Your Market</a>
+<div class="nav-links">
+<a data-page="home" class="active">Shop</a><a data-page="services">Sell</a><a data-page="about">About</a><a data-page="contact">Help</a>
+</div>
+<div style="display:flex;gap:10px"><button class="btn btn-ghost">♥ 2</button><button class="btn btn-primary" onclick="goto('services')">Become a seller →</button></div>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="hero">
+    <div>
+      <span class="kicker">◆ Free shipping over $40 — this week</span>
+      <h1>Beautiful things from <em>real makers</em>.</h1>
+      <p class="lede">A curated marketplace for independent makers — ceramics, prints, textiles, candles, and the kind of objects you actually want in your house.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary">Shop the marketplace →</button>
+        <button class="btn btn-ghost">Become a seller</button>
+      </div>
+      <div class="stats-inline">
+        <div class="si"><div class="v">2,400+</div><div class="l">Makers</div></div>
+        <div class="si"><div class="v">38k</div><div class="l">Products</div></div>
+        <div class="si"><div class="v">4.9★</div><div class="l">Average review</div></div>
+      </div>
+    </div>
+    <div class="mosaic">
+      <div class="tile a"><div class="cat">— ceramics</div><div class="nm">Hand-thrown<br/>everyday</div><div class="pr"><span>184 items</span><span class="v">→</span></div></div>
+      <div class="tile b"><div class="cat">— textiles</div><div class="nm">Hand-loomed</div><div class="pr"><span>92 items</span><span class="v">→</span></div></div>
+      <div class="tile c"><div class="cat">— prints &amp; paper</div><div class="nm">Small runs from independent printmakers.</div><div class="pr"><span>340 items · from $24</span><span class="v">→</span></div></div>
+      <div class="tile d"><div class="cat">— home goods</div><div class="nm">Candles, soap, wood, glass.</div><div class="pr"><span>620 items · from $18</span><span class="v">→</span></div></div>
+    </div>
+  </div>
+
+  <div class="cat-bar">
+    <span class="cat-pill active"><span class="ic">◆</span>All</span>
+    <span class="cat-pill"><span class="ic">○</span>Ceramics</span>
+    <span class="cat-pill"><span class="ic">▲</span>Prints</span>
+    <span class="cat-pill"><span class="ic">◇</span>Textiles</span>
+    <span class="cat-pill"><span class="ic">▢</span>Candles</span>
+    <span class="cat-pill"><span class="ic">●</span>Jewelry</span>
+    <span class="cat-pill"><span class="ic">◐</span>Bags</span>
+    <span class="cat-pill"><span class="ic">⬡</span>Stationery</span>
+    <span class="cat-pill"><span class="ic">♥</span>Gifts under $50</span>
+  </div>
+
+  <div class="section-head"><h2>Just <em>landed</em>.</h2><a class="btn btn-ghost">View all →</a></div>
+  <div class="prod-grid">
+    <div class="prod"><div class="img p1"><span class="tag">NEW</span><span class="save">♥</span>◐</div><div class="body"><div class="seller">By Sienna Pottery</div><div class="nm">Stoneware mug, slate</div><div class="row"><span class="pr">$38</span><span class="rating"><span class="s">★</span>4.9 · 124</span></div></div></div>
+    <div class="prod"><div class="img p2"><span class="save">♥</span>▲</div><div class="body"><div class="seller">By Linden Studio</div><div class="nm">Block print, no. 14</div><div class="row"><span class="pr">$48</span><span class="rating"><span class="s">★</span>4.9 · 82</span></div></div></div>
+    <div class="prod"><div class="img p3"><span class="tag" style="color:#2c9a4a">SALE</span><span class="save">♥</span>◇</div><div class="body"><div class="seller">By Field Weavers</div><div class="nm">Throw, oat &amp; sage</div><div class="row"><span class="pr">$124<span style="color:var(--muted);font-weight:500;font-size:13px;text-decoration:line-through;margin-left:6px">$160</span></span><span class="rating"><span class="s">★</span>4.8 · 64</span></div></div></div>
+    <div class="prod"><div class="img p4"><span class="save">♥</span>▢</div><div class="body"><div class="seller">By Smoke &amp; Cedar</div><div class="nm">Hand-poured candle, fig</div><div class="row"><span class="pr">$34</span><span class="rating"><span class="s">★</span>5.0 · 240</span></div></div></div>
+    <div class="prod"><div class="img p5"><span class="save">♥</span>●</div><div class="body"><div class="seller">By Orris &amp; Co.</div><div class="nm">Brass pendant, no. 03</div><div class="row"><span class="pr">$88</span><span class="rating"><span class="s">★</span>4.9 · 96</span></div></div></div>
+    <div class="prod"><div class="img p6"><span class="tag">HOT</span><span class="save">♥</span>◐</div><div class="body"><div class="seller">By Halftone Paper</div><div class="nm">Notebook, lined, A5</div><div class="row"><span class="pr">$22</span><span class="rating"><span class="s">★</span>4.9 · 180</span></div></div></div>
+    <div class="prod"><div class="img p7"><span class="save">♥</span>○</div><div class="body"><div class="seller">By Sienna Pottery</div><div class="nm">Vase, hand-thrown</div><div class="row"><span class="pr">$96</span><span class="rating"><span class="s">★</span>5.0 · 54</span></div></div></div>
+    <div class="prod"><div class="img p8"><span class="save">♥</span>⬡</div><div class="body"><div class="seller">By Linden Studio</div><div class="nm">Letterpress card set</div><div class="row"><span class="pr">$28</span><span class="rating"><span class="s">★</span>4.8 · 112</span></div></div></div>
+  </div>
+
+  <div class="sellers-band">
+    <div>
+      <h3>Become a seller<br/>on the <em style="font-style:normal">marketplace</em>.</h3>
+      <p>2,400+ makers ship from their studios through us. No listing fees. 8% commission, flat. You set the shipping rates.</p>
+      <button class="btn" style="background:#fff;color:var(--accent)" onclick="goto('services')">Apply to sell →</button>
+    </div>
+    <div class="stat-card">
+      <div class="stat-row">
+        <div><div class="v">$84M</div><div class="l">Paid to makers · last 12 months</div></div>
+        <div><div class="v">8%</div><div class="l">Commission · no listing fee</div></div>
+        <div><div class="v">3.4d</div><div class="l">Avg. shipping time</div></div>
+        <div><div class="v">96%</div><div class="l">Reorder rate</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="how">
+    <div class="section-head"><h2>How <em>it works</em>.</h2></div>
+    <div class="how-grid">
+      <div class="how-card"><div class="n">01</div><h4>Find it</h4><p>Browse by maker, by material, or by the room you're filling.</p></div>
+      <div class="how-card"><div class="n">02</div><h4>Order it</h4><p>One checkout for any number of sellers. Combined shipping where we can.</p></div>
+      <div class="how-card"><div class="n">03</div><h4>Love it</h4><p>30-day no-questions returns. Sellers we trust. A team that picks up the phone.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><span class="kicker">About</span><h2>A marketplace<br/>that <em>actually</em> curates.</h2></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">We started in Year because most "marketplaces" felt like Costco for craft.</p>
+      <p>Replace this with the founding story. The first ten sellers. The way you review every applicant. The kinds of products you decline — and why.</p>
+      <p>Talk about logistics, payments, and how you protect sellers and buyers. Specifics build trust faster than slogans.</p>
+    </div>
+    <div>
+      <div style="padding:32px;background:var(--soft);border-radius:20px">
+        <h3 style="font-size:22px;font-weight:800;letter-spacing:-.015em;margin-bottom:14px">Our promises</h3>
+        <ul style="list-style:none;display:grid;gap:14px;font-size:15px;color:#33384a">
+          <li style="padding-left:28px;position:relative">♥ <strong>Real humans.</strong> Every seller is a real maker, vetted.</li>
+          <li style="padding-left:28px;position:relative">♥ <strong>Real returns.</strong> 30 days, no question. We cover return shipping.</li>
+          <li style="padding-left:28px;position:relative">♥ <strong>Real prices.</strong> What sellers earn is published.</li>
+          <li style="padding-left:28px;position:relative">♥ <strong>Real planet.</strong> Recycled packaging on every order.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><span class="kicker">Sell with us</span><h2>Open a <em>shop</em>.<br/>We handle the rest.</h2><p>Four reasons makers move their shop here.</p></div>
+  <div class="uc-grid">
+    <div class="uc"><div class="ic">$</div><h3>Flat 8% commission</h3><p>No listing fees. No subscription. Pay only when you sell.</p><ul><li>Daily payouts via Stripe</li><li>Net pricing dashboard</li><li>Multi-currency, automatic</li></ul></div>
+    <div class="uc"><div class="ic">📦</div><h3>Shipping you control</h3><p>Set your own rates and timeframes. We integrate with the big carriers.</p><ul><li>Carrier-rate calculators</li><li>Combined shipping discounts</li><li>Built-in label printing</li></ul></div>
+    <div class="uc"><div class="ic">◐</div><h3>Marketing that's real</h3><p>Newsletter features, social campaigns, and editorial pages by our team.</p><ul><li>Weekly newsletter to 220k</li><li>Quarterly editorial features</li><li>Holiday gift guide</li></ul></div>
+    <div class="uc"><div class="ic">⚙</div><h3>Tools, not headaches</h3><p>The dashboard a maker would design for themselves.</p><ul><li>Inventory across channels</li><li>Tax handled on Etsy-imports too</li><li>Real-time support</li></ul></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><span class="kicker">Help &amp; contact</span><h2>How can we<br/><em>help</em>?</h2></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo')">
+      <div class="field row"><div><label>Name</label><input/></div><div><label>Email</label><input type="email"/></div></div>
+      <div class="field"><label>I need help with</label>
+        <select><option>An order I placed</option><option>A return / refund</option><option>Becoming a seller</option><option>An item / listing</option><option>Press / partnerships</option><option>Something else</option></select></div>
+      <div class="field"><label>Order # (if applicable)</label><input placeholder="YM-00000"/></div>
+      <div class="field"><label>Message</label><textarea></textarea></div>
+      <button class="btn btn-primary">Send →</button>
+    </form>
+    <div class="info-block">
+      <h3>Reach <em style="color:var(--accent);font-style:normal">us</em></h3>
+      <div class="info-row"><div class="lbl">order help</div>orders@yourmarket.com · 24h response</div>
+      <div class="info-row"><div class="lbl">sellers</div>sellers@yourmarket.com</div>
+      <div class="info-row"><div class="lbl">press</div>press@yourmarket.com</div>
+      <div class="info-row"><div class="lbl">based in</div>City, ST · ships worldwide</div>
+      <div class="info-row"><div class="lbl">returns</div>Free returns within 30 days</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+<footer><div class="wrap"><div>© 2026 Your Market · Made by real makers</div><div class="foot-links"><a>Sell with us</a><a>Newsletter</a><a>Returns</a><a>Help</a></div></div></footer>
+<script>
+function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+document.querySelectorAll('.cat-pill').forEach(p=>p.addEventListener('click',()=>{document.querySelectorAll('.cat-pill').forEach(x=>x.classList.remove('active'));p.classList.add('active')}));
+</script></body></html>

@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Protocol — Web3</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#06070b;--bg2:#0d0f15;--ink:#f5f5fa;--muted:#8a8da0;--accent:#62ffae;--accent2:#a586ff;--line:#1a1d28;--card:#0f1219}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',sans-serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.wrap{max-width:1280px;margin:0 auto;padding:0 36px}
+.mono{font-family:'Space Mono',monospace}
+nav{position:sticky;top:0;z-index:50;background:rgba(6,7,11,.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:17px;letter-spacing:-.02em}
+.logo .hex{width:28px;height:28px;background:conic-gradient(from 0deg,var(--accent),var(--accent2),var(--accent));clip-path:polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%)}
+.nav-links{display:flex;gap:28px;font-size:13.5px;color:var(--muted);font-family:'Space Mono'}
+.nav-links a.active{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;font-size:13.5px;font-weight:500;cursor:pointer;border:none;border-radius:6px;transition:.15s;font-family:'Space Grotesk'}
+.btn-primary{background:var(--accent);color:#0a0a0a}.btn-primary:hover{background:#3ce594}
+.btn-ghost{background:rgba(255,255,255,.05);color:var(--ink);border:1px solid var(--line)}
+.btn-wallet{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0a0a0a;padding:10px 16px;border-radius:6px;font-weight:600;font-family:'Space Mono';font-size:12.5px}
+.page{display:none;padding:80px 0 120px;position:relative}.page.active{display:block}
+
+.glow{position:absolute;width:600px;height:600px;border-radius:50%;filter:blur(120px);opacity:.25;pointer-events:none;z-index:0}
+.glow.a{background:var(--accent);top:-100px;left:-200px}
+.glow.b{background:var(--accent2);top:200px;right:-200px}
+
+.hero{position:relative;z-index:1;text-align:center;max-width:920px;margin:0 auto}
+.tag{display:inline-flex;align-items:center;gap:8px;padding:5px 16px 5px 5px;border-radius:999px;background:rgba(98,255,174,.08);border:1px solid rgba(98,255,174,.2);font-family:'Space Mono';font-size:11.5px;color:var(--accent);margin-bottom:28px}
+.tag .t{padding:3px 9px;background:var(--accent);color:#0a0a0a;border-radius:999px;font-weight:700;letter-spacing:.04em}
+h1.display{font-size:clamp(56px,7.5vw,116px);line-height:.94;letter-spacing:-.045em;font-weight:600}
+h1.display .grad{background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 50%,#ff86d4 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.lede{font-size:19px;color:var(--muted);max-width:600px;margin:24px auto 32px}
+.hero-cta{display:inline-flex;gap:10px;flex-wrap:wrap}
+
+.live-bar{margin-top:40px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card)}
+.live-bar .l{padding:18px;border-right:1px solid var(--line);font-family:'Space Mono'}
+.live-bar .l:last-child{border-right:none}
+.live-bar .lbl{font-size:11px;color:var(--muted);letter-spacing:.06em;margin-bottom:6px}
+.live-bar .v{font-size:24px;font-weight:600;letter-spacing:-.02em;color:var(--accent)}
+.live-bar .v.dn{color:#ff7a7a}
+
+.dashboard{margin-top:96px;position:relative;z-index:1;background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.dash-top{padding:18px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.dash-top h3{font-family:'Space Mono';font-size:13px;letter-spacing:.04em;color:var(--muted)}
+.dash-top h3 strong{color:var(--ink)}
+.dash-top .stats{display:flex;gap:14px;font-family:'Space Mono';font-size:11px;color:var(--muted)}
+.dash-top .stats span{padding:4px 10px;border:1px solid var(--line);border-radius:4px}
+.dash-grid{padding:24px;display:grid;grid-template-columns:1.6fr 1fr;gap:18px}
+.chart-block{padding:18px;background:var(--bg);border:1px solid var(--line);border-radius:12px}
+.chart-block .h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.chart-block .h .ti{font-size:13px;font-weight:600;color:var(--muted)}
+.chart-block .h .ti strong{color:var(--ink);margin-right:6px;font-size:18px}
+.chart-block .h .ch{font-family:'Space Mono';font-size:11px;color:var(--accent);padding:3px 8px;background:rgba(98,255,174,.1);border-radius:4px}
+.chart-block svg{width:100%;height:200px}
+.pool-list{display:grid;gap:6px}
+.pool{padding:14px;background:var(--bg);border:1px solid var(--line);border-radius:12px;display:grid;grid-template-columns:1fr 80px 80px;gap:14px;align-items:center;font-family:'Space Mono';font-size:12.5px}
+.pool .nm{color:var(--ink);font-family:'Space Grotesk';font-weight:600;font-size:14px}
+.pool .nm small{font-family:'Space Mono';color:var(--muted);font-size:11px;display:block;margin-top:2px}
+.pool .apy{color:var(--accent);font-weight:600;text-align:right}
+.pool .tvl{color:var(--muted);text-align:right}
+
+.features{margin-top:120px;position:relative;z-index:1}
+.section-head{text-align:center;max-width:640px;margin:0 auto 56px}
+.section-head .kick{font-family:'Space Mono';font-size:12px;color:var(--accent);letter-spacing:.16em;text-transform:uppercase;margin-bottom:12px}
+.section-head h2{font-size:clamp(36px,4.8vw,64px);letter-spacing:-.035em;font-weight:600;line-height:1.04}
+.section-head h2 .grad{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.section-head p{font-size:17.5px;color:var(--muted);margin-top:14px}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.feat{padding:32px;background:var(--card);border:1px solid var(--line);border-radius:18px;transition:.15s}
+.feat:hover{border-color:var(--accent)}
+.feat .ico{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,rgba(98,255,174,.15),rgba(165,134,255,.15));display:grid;place-items:center;color:var(--accent);margin-bottom:16px;font-family:'Space Mono';font-weight:700}
+.feat h3{font-size:19px;font-weight:600;letter-spacing:-.015em;margin-bottom:8px}
+.feat p{color:var(--muted);font-size:14.5px}
+
+.security-strip{margin-top:120px;padding:48px;background:linear-gradient(135deg,rgba(98,255,174,.08),rgba(165,134,255,.08));border:1px solid var(--line);border-radius:20px;display:grid;grid-template-columns:1fr 1.4fr;gap:48px;align-items:center;position:relative;z-index:1}
+.security-strip h3{font-size:40px;letter-spacing:-.025em;font-weight:600;margin-bottom:12px;line-height:1.04}
+.security-strip h3 .grad{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.security-strip p{color:var(--muted);max-width:340px}
+.audit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.audit{padding:18px;background:var(--bg);border:1px solid var(--line);border-radius:10px;font-family:'Space Mono';font-size:12px}
+.audit .by{color:var(--muted);font-size:11px;letter-spacing:.04em;margin-bottom:6px}
+.audit .nm{color:var(--ink);font-size:14px;font-weight:600;font-family:'Space Grotesk';margin-bottom:8px}
+.audit .stat{color:var(--accent);font-size:11px;display:flex;align-items:center;gap:6px}
+.audit .stat::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+.page-head{margin-bottom:56px;max-width:780px;position:relative;z-index:1}
+.page-head h2{font-size:clamp(40px,5vw,72px);letter-spacing:-.035em;font-weight:600;line-height:1.04;margin-top:12px}
+.page-head h2 .grad{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.page-head p{font-size:18px;color:var(--muted);margin-top:14px}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;position:relative;z-index:1}
+.about-text p{margin-bottom:16px;color:#bcc0d0}
+.about-text p.lead{font-size:22px;font-weight:500;line-height:1.4;color:var(--ink);margin-bottom:20px;letter-spacing:-.01em}
+.tokenomics{padding:32px;background:var(--card);border:1px solid var(--line);border-radius:18px;font-family:'Space Mono';font-size:13px}
+.tokenomics h4{font-family:'Space Grotesk';font-size:20px;font-weight:600;letter-spacing:-.015em;margin-bottom:18px}
+.tk-row{display:grid;grid-template-columns:1fr auto auto;gap:14px;padding:12px 0;border-top:1px solid var(--line);align-items:center}
+.tk-row:first-of-type{border-top:none}
+.tk-row .l{color:var(--muted)}
+.tk-row .b{width:120px;height:6px;background:rgba(255,255,255,.05);border-radius:3px;position:relative;overflow:hidden}
+.tk-row .b::after{content:"";position:absolute;left:0;top:0;bottom:0;width:var(--w);background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px}
+.tk-row .v{color:var(--ink);font-weight:500}
+
+.products{display:grid;grid-template-columns:1fr 1fr;gap:14px;position:relative;z-index:1}
+.pr{padding:36px;background:var(--card);border:1px solid var(--line);border-radius:18px;transition:.15s}
+.pr:hover{border-color:var(--accent)}
+.pr .ic{font-family:'Space Mono';font-size:12px;color:var(--accent);letter-spacing:.06em}
+.pr h3{font-size:24px;font-weight:600;letter-spacing:-.015em;margin:10px 0 12px}
+.pr p{color:var(--muted);font-size:15px;margin-bottom:20px}
+.pr ul{list-style:none;display:grid;gap:8px;font-size:14px}
+.pr li{padding-left:22px;position:relative;color:#bcc0d0}.pr li::before{content:"▸";position:absolute;left:0;color:var(--accent)}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;position:relative;z-index:1}
+form{display:grid;gap:16px}
+.field label{display:block;font-family:'Space Mono';font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+input,textarea,select{width:100%;padding:13px 16px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+textarea{min-height:120px;resize:vertical}
+.info-block{padding:36px;background:var(--card);border:1px solid var(--line);border-radius:18px}
+.info-block h3{font-size:22px;font-weight:600;letter-spacing:-.02em;margin-bottom:18px}
+.info-row{padding:14px 0;border-top:1px solid var(--line);font-family:'Space Mono';font-size:13px}
+.info-row:first-of-type{border-top:none}
+.info-row .lbl{font-size:10px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+
+footer{border-top:1px solid var(--line);padding:28px 0;font-family:'Space Mono';font-size:11.5px;color:var(--muted)}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-links{display:flex;gap:24px}
+@media(max-width:880px){.dash-grid,.security-strip,.about-grid,.contact-grid,.products{grid-template-columns:1fr}.live-bar,.feat-grid{grid-template-columns:1fr 1fr}.nav-links{display:none}}
+</style></head><body>
+
+<nav><div class="wrap">
+<a class="logo" onclick="goto('home')"><span class="hex"></span>Your Protocol</a>
+<div class="nav-links">
+<a data-page="home" class="active">_app</a><a data-page="services">_products</a><a data-page="about">_about</a><a data-page="contact">_contact</a>
+</div>
+<button class="btn-wallet">◆ Connect wallet</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="glow a"></div><div class="glow b"></div>
+  <div class="hero">
+    <div class="tag"><span class="t">V2 LIVE</span><span>mainnet · Ethereum + Base + Arbitrum →</span></div>
+    <h1 class="display"><span class="grad">DeFi infrastructure</span><br/>built for the long haul.</h1>
+    <p class="lede">Replace this with what your protocol does. Battle-tested smart contracts, transparent governance, audited four times over.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary">Launch app →</button>
+      <button class="btn btn-ghost">Read whitepaper</button>
+    </div>
+  </div>
+
+  <div class="live-bar">
+    <div class="l"><div class="lbl">TOTAL VALUE LOCKED</div><div class="v">$2.4B</div></div>
+    <div class="l"><div class="lbl">VOLUME · 24H</div><div class="v">$84M</div></div>
+    <div class="l"><div class="lbl">USERS · 24H</div><div class="v">12.4k</div></div>
+    <div class="l"><div class="lbl">CHAINS · LIVE</div><div class="v">12</div></div>
+  </div>
+
+  <div class="dashboard">
+    <div class="dash-top">
+      <h3>// <strong>Protocol</strong> dashboard · live</h3>
+      <div class="stats"><span>● MAINNET</span><span>BLOCK · 19,284,612</span><span>GAS · 24 GWEI</span></div>
+    </div>
+    <div class="dash-grid">
+      <div class="chart-block">
+        <div class="h"><div class="ti">TVL · <strong>$2.4B</strong></div><div class="ch">↑ 12.4% / 30d</div></div>
+        <svg viewBox="0 0 600 200" preserveAspectRatio="none">
+          <defs><linearGradient id="g3" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#62ffae" stop-opacity=".35"/><stop offset="100%" stop-color="#62ffae" stop-opacity="0"/></linearGradient></defs>
+          <path d="M0 160 L60 150 L120 155 L180 130 L240 135 L300 110 L360 115 L420 80 L480 85 L540 50 L600 38 L600 200 L0 200Z" fill="url(#g3)"/>
+          <path d="M0 160 L60 150 L120 155 L180 130 L240 135 L300 110 L360 115 L420 80 L480 85 L540 50 L600 38" stroke="#62ffae" stroke-width="2" fill="none"/>
+        </svg>
+      </div>
+      <div>
+        <div style="font-family:'Space Mono';font-size:12px;color:var(--muted);margin-bottom:10px;letter-spacing:.06em">// TOP POOLS</div>
+        <div class="pool-list">
+          <div class="pool"><div class="nm">USDC / ETH<small>0.05% · concentrated</small></div><div class="apy">+14.2%</div><div class="tvl">$184M</div></div>
+          <div class="pool"><div class="nm">stETH / ETH<small>0.01% · stable</small></div><div class="apy">+8.4%</div><div class="tvl">$240M</div></div>
+          <div class="pool"><div class="nm">WBTC / USDC<small>0.30% · volatile</small></div><div class="apy">+22.1%</div><div class="tvl">$96M</div></div>
+          <div class="pool"><div class="nm">DAI / USDC<small>0.01% · stable</small></div><div class="apy">+4.2%</div><div class="tvl">$320M</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="section-head"><div class="kick">// CORE PRIMITIVES</div><h2>Four <span class="grad">primitives</span>,<br/>composable by design.</h2></div>
+    <div class="feat-grid">
+      <div class="feat"><div class="ico">01</div><h3>Concentrated liquidity</h3><p>Capital-efficient AMM with custom fee tiers and price ranges per LP position.</p></div>
+      <div class="feat"><div class="ico">02</div><h3>Lending markets</h3><p>Permissionless markets. Isolated risk. Liquidations handled atomically.</p></div>
+      <div class="feat"><div class="ico">03</div><h3>Bridging</h3><p>Cross-chain transfers via canonical messaging. 12 chains supported.</p></div>
+      <div class="feat"><div class="ico">04</div><h3>Yield routing</h3><p>One-call deposits routed across the highest-quality strategies.</p></div>
+      <div class="feat"><div class="ico">05</div><h3>Governance</h3><p>On-chain voting with delegation, vote-locking, and timelocks on every change.</p></div>
+      <div class="feat"><div class="ico">06</div><h3>Open SDKs</h3><p>TS, Python, Rust. Indexed subgraph. No paid tiers.</p></div>
+    </div>
+  </div>
+
+  <div class="security-strip">
+    <div>
+      <h3>Security is <span class="grad">priced in</span>.</h3>
+      <p>Four independent audits. A $5M bug bounty. Formal verification on every critical contract.</p>
+    </div>
+    <div class="audit-grid">
+      <div class="audit"><div class="by">// AUDITED BY</div><div class="nm">Trail of Bits</div><div class="stat">Passed · 2025</div></div>
+      <div class="audit"><div class="by">// AUDITED BY</div><div class="nm">OpenZeppelin</div><div class="stat">Passed · 2025</div></div>
+      <div class="audit"><div class="by">// AUDITED BY</div><div class="nm">Spearbit</div><div class="stat">Passed · 2025</div></div>
+      <div class="audit"><div class="by">// BUG BOUNTY</div><div class="nm">Immunefi</div><div class="stat">$5M active</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="glow a" style="opacity:.12"></div>
+  <div class="page-head"><div class="mono" style="font-size:12px;color:var(--accent);letter-spacing:.16em">// ABOUT</div><h2>Building <span class="grad">durable</span><br/>onchain infrastructure.</h2></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead">We started in Year because most of the protocols we used weren't built to outlast the cycle.</p>
+      <p>Replace this with your story. The contributors. The DAO. The governance decisions that shaped what's onchain today.</p>
+      <p>Be specific. How treasury is held. How decisions are made. The contracts you've never had to upgrade.</p>
+    </div>
+    <div class="tokenomics">
+      <h4>// Token allocation</h4>
+      <div class="tk-row"><span class="l">Community</span><span class="b" style="--w:50%"></span><span class="v">50%</span></div>
+      <div class="tk-row"><span class="l">Team · 4yr vest</span><span class="b" style="--w:20%"></span><span class="v">20%</span></div>
+      <div class="tk-row"><span class="l">Treasury · DAO</span><span class="b" style="--w:18%"></span><span class="v">18%</span></div>
+      <div class="tk-row"><span class="l">Investors · 4yr vest</span><span class="b" style="--w:8%"></span><span class="v">8%</span></div>
+      <div class="tk-row"><span class="l">Liquidity</span><span class="b" style="--w:4%"></span><span class="v">4%</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><div class="mono" style="font-size:12px;color:var(--accent);letter-spacing:.16em">// PRODUCTS</div><h2>One protocol.<br/><span class="grad">Four products</span>.</h2></div>
+  <div class="products">
+    <div class="pr"><div class="ic">// 01</div><h3>Swap</h3><p>Spot trading across 4,000+ assets. MEV-protected by default.</p><ul><li>Concentrated liquidity</li><li>Custom slippage &amp; deadline</li><li>Limit orders</li><li>Aggregated routing</li></ul></div>
+    <div class="pr"><div class="ic">// 02</div><h3>Earn</h3><p>One-click yield, audited strategies, real-time APY.</p><ul><li>Stablecoin vaults</li><li>ETH liquid staking</li><li>Risk-rated portfolios</li><li>No lock-up</li></ul></div>
+    <div class="pr"><div class="ic">// 03</div><h3>Borrow</h3><p>Permissionless lending markets with isolated risk.</p><ul><li>Variable &amp; fixed rates</li><li>Health-factor alerts</li><li>Flash loans</li><li>120+ markets</li></ul></div>
+    <div class="pr"><div class="ic">// 04</div><h3>Bridge</h3><p>Cross-chain transfers across 12 networks.</p><ul><li>Canonical messaging</li><li>~3 min confirmations</li><li>No wrapped tokens</li><li>Audited routes</li></ul></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><div class="mono" style="font-size:12px;color:var(--accent);letter-spacing:.16em">// CONTACT</div><h2>Reach out<br/>onchain or <span class="grad">off</span>.</h2></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo')">
+      <div class="field row"><div><label>Name / handle</label><input/></div><div><label>Email</label><input type="email"/></div></div>
+      <div class="field"><label>This is about</label>
+        <select><option>Builders / integration</option><option>Security report</option><option>Governance</option><option>Press</option><option>Investors</option></select></div>
+      <div class="field"><label>Message</label><textarea></textarea></div>
+      <button class="btn btn-primary">Send →</button>
+    </form>
+    <div class="info-block">
+      <h3>// Reach us</h3>
+      <div class="info-row"><div class="lbl">— BUILDERS</div>build@yourprotocol.xyz</div>
+      <div class="info-row"><div class="lbl">— SECURITY</div>security@yourprotocol.xyz · PGP available</div>
+      <div class="info-row"><div class="lbl">— GOVERNANCE</div>forum.yourprotocol.xyz</div>
+      <div class="info-row"><div class="lbl">— DISCORD</div>discord.gg/yourprotocol · 48k members</div>
+      <div class="info-row"><div class="lbl">— STATUS</div><span style="color:var(--accent)">● operational · 99.99% uptime</span></div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+<footer><div class="wrap"><div>// © 2026 YOUR PROTOCOL · BUILT BY THE COMMUNITY</div><div class="foot-links"><a>Docs</a><a>Forum</a><a>Discord</a><a>Audits</a></div></div></footer>
+<script>
+function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script></body></html>

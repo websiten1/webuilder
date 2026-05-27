@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Name — Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fafaf7;--ink:#111;--muted:#777;--line:#ececea;--accent:#1f1fbf;--card:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:Inter,sans-serif;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none;cursor:pointer}
+.wrap{max-width:1180px;margin:0 auto;padding:0 36px}
+.serif{font-family:Newsreader,Georgia,serif;font-weight:400}
+nav{position:sticky;top:0;z-index:50;background:rgba(250,250,247,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{font-family:Newsreader;font-weight:500;font-size:20px;display:flex;align-items:center;gap:10px}
+.logo .dot{width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.nav-links{display:flex;gap:28px;font-size:14px;color:var(--muted)}
+.nav-links a.active{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:8px;font-size:14px;cursor:pointer;border:none;font-weight:500}
+.btn-primary{background:var(--ink);color:#fff}.btn-primary:hover{background:var(--accent)}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.page{display:none;padding:64px 0 96px}.page.active{display:block}
+
+.intro{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;padding-bottom:64px;border-bottom:1px solid var(--line)}
+.intro h1{font-family:Newsreader;font-weight:400;font-size:clamp(48px,5.6vw,80px);line-height:1.04;letter-spacing:-.02em}
+.intro h1 em{font-style:italic;color:var(--accent)}
+.intro .now{padding-top:8px}
+.intro .now .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+.intro .now-list{display:grid;gap:14px;font-size:15px;color:#333}
+.intro .now-list div{display:grid;grid-template-columns:80px 1fr;gap:14px}
+.intro .now-list .k{color:var(--muted);font-style:italic;font-family:Newsreader}
+.lede{margin-top:24px;font-size:18px;color:#444;max-width:520px}
+.hero-cta{display:flex;gap:12px;margin-top:24px}
+
+.section-title{font-family:Newsreader;font-size:36px;letter-spacing:-.01em;margin-bottom:24px;display:flex;align-items:baseline;gap:14px}
+.section-title em{color:var(--accent);font-style:italic}
+.section-title .meta{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-family:Inter}
+
+.projects{margin-top:80px;display:grid;gap:14px}
+.proj{padding:32px;background:var(--card);border:1px solid var(--line);border-radius:18px;display:grid;grid-template-columns:120px 1fr 160px auto;gap:32px;align-items:center;transition:.15s;cursor:pointer}
+.proj:hover{border-color:var(--accent)}
+.proj .yr{font-family:Newsreader;font-style:italic;color:var(--accent);font-size:22px}
+.proj h3{font-family:Newsreader;font-size:24px;margin-bottom:4px}
+.proj .ds{font-size:14px;color:var(--muted)}
+.proj .tag{font-size:12px;letter-spacing:.06em;color:var(--muted)}
+.proj .arr{font-size:18px;color:var(--accent)}
+
+.notes{margin-top:80px}
+.note-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.note{padding:28px;background:var(--card);border:1px solid var(--line);border-radius:14px;display:grid;gap:10px;transition:.15s}
+.note:hover{transform:translateY(-2px)}
+.note .meta{font-size:12px;color:var(--muted);display:flex;justify-content:space-between}
+.note h4{font-family:Newsreader;font-size:22px;line-height:1.2;letter-spacing:-.01em}
+.note p{font-size:13.5px;color:var(--muted)}
+
+.bookshelf{margin-top:80px;padding:48px;background:var(--card);border:1px solid var(--line);border-radius:18px;display:grid;grid-template-columns:1fr 1fr;gap:48px}
+.bookshelf h3{font-family:Newsreader;font-size:32px;letter-spacing:-.01em;margin-bottom:8px}
+.bookshelf h3 em{color:var(--accent);font-style:italic}
+.bookshelf .stack{display:grid;gap:10px;font-size:14.5px}
+.bookshelf .stack div{display:grid;grid-template-columns:24px 1fr auto;gap:12px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.bookshelf .stack div:last-child{border-bottom:none}
+.bookshelf .stack .n{font-family:Newsreader;font-style:italic;color:var(--accent)}
+.bookshelf .stack .by{color:var(--muted);font-size:13px;font-style:italic;font-family:Newsreader}
+
+.page-head{margin-bottom:56px;max-width:680px}
+.page-head h2{font-family:Newsreader;font-size:clamp(40px,5vw,68px);letter-spacing:-.02em;line-height:1.05;margin-top:8px}
+.page-head h2 em{font-style:italic;color:var(--accent)}
+.page-head p{font-size:17px;color:var(--muted);margin-top:14px}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px}
+.about-text p{margin-bottom:16px;color:#333}
+.about-text p.lead{font-family:Newsreader;font-size:28px;line-height:1.3;color:var(--ink);letter-spacing:-.01em;margin-bottom:24px}
+.about-text p.lead em{font-style:italic;color:var(--accent)}
+.timeline{display:grid;gap:0}
+.tl{padding:18px 0;border-top:1px solid var(--line);display:grid;grid-template-columns:80px 1fr;gap:24px}
+.tl:first-child{border-top:none}
+.tl .yr{font-family:Newsreader;font-style:italic;color:var(--accent)}
+.tl h5{font-family:Newsreader;font-size:18px;margin-bottom:2px}
+.tl p{font-size:13.5px;color:var(--muted)}
+
+.svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.svc{padding:36px;background:var(--card);border:1px solid var(--line);border-radius:18px}
+.svc h3{font-family:Newsreader;font-size:28px;letter-spacing:-.01em;margin-bottom:8px}
+.svc h3 em{color:var(--accent);font-style:italic}
+.svc p{color:var(--muted);font-size:14.5px;margin-bottom:18px}
+.svc ul{list-style:none;display:grid;gap:6px;font-size:14px;color:#333}
+.svc li{padding-left:18px;position:relative}.svc li::before{content:"→";position:absolute;left:0;color:var(--accent)}
+.svc .from{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-family:Newsreader;font-style:italic;color:var(--ink)}
+
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+form{display:grid;gap:16px}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+input,textarea,select{width:100%;padding:14px 16px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.field.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+textarea{min-height:120px;resize:vertical}
+.info-block{padding:40px;background:var(--card);border:1px solid var(--line);border-radius:18px}
+.info-block h3{font-family:Newsreader;font-size:28px;margin-bottom:20px;letter-spacing:-.01em}
+.info-row{padding:14px 0;border-top:1px solid var(--line);font-size:14.5px}
+.info-row:first-of-type{border-top:none}
+.info-row .lbl{font-family:Newsreader;font-style:italic;color:var(--accent);margin-bottom:2px}
+
+footer{border-top:1px solid var(--line);padding:32px 0;color:var(--muted);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.foot-links{display:flex;gap:24px}
+@media(max-width:880px){.intro,.about-grid,.contact-grid,.bookshelf,.svc-grid{grid-template-columns:1fr;gap:40px}.note-grid{grid-template-columns:1fr}.proj{grid-template-columns:1fr;gap:6px}.proj .yr,.proj .tag,.proj .arr{display:none}.nav-links{display:none}}
+</style></head><body>
+
+<nav><div class="wrap">
+<a class="logo" onclick="goto('home')"><span class="dot"></span>Your Name</a>
+<div class="nav-links">
+<a data-page="home" class="active">Index</a><a data-page="about">About</a><a data-page="services">Services</a><a data-page="contact">Contact</a>
+</div>
+<button class="btn btn-primary" onclick="goto('contact')">Get in touch</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<section class="page active" id="home">
+  <div class="intro">
+    <div>
+      <h1>I'm a <em>designer</em> &amp; engineer building<br/>quiet products on the web.</h1>
+      <p class="lede">Currently independent, working with founders and small teams on product design, brand systems, and front-end engineering. Replace this with what you actually do.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="goto('contact')">Work with me →</button>
+        <button class="btn btn-ghost" onclick="goto('about')">About</button>
+      </div>
+    </div>
+    <div class="now">
+      <div class="lbl">— Now</div>
+      <div class="now-list">
+        <div><span class="k">Working</span><span>Three projects in flight · taking new work for fall</span></div>
+        <div><span class="k">Reading</span><span>An anthology of architectural essays</span></div>
+        <div><span class="k">Learning</span><span>Glassblowing, badly</span></div>
+        <div><span class="k">Where</span><span>City, ST · open to remote</span></div>
+        <div><span class="k">Status</span><span style="color:#2a8a5a">● open for work · response in 1–2 days</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="projects">
+    <div class="section-title">Selected <em>projects</em>.<span class="meta">— 2024 — 2026</span></div>
+    <div class="proj"><div class="yr serif">2026</div><div><h3 class="serif">Northwind</h3><div class="ds">Brand system, marketing site, internal tools.</div></div><div class="tag">— Identity · Web · Engineering</div><div class="arr">→</div></div>
+    <div class="proj"><div class="yr serif">2026</div><div><h3 class="serif">Halftone Pantry</h3><div class="ds">Packaging direction and an ecommerce build.</div></div><div class="tag">— Packaging · Shopify</div><div class="arr">→</div></div>
+    <div class="proj"><div class="yr serif">2025</div><div><h3 class="serif">Field Notes</h3><div class="ds">Independent journal — print and digital editions.</div></div><div class="tag">— Editorial · Type</div><div class="arr">→</div></div>
+    <div class="proj"><div class="yr serif">2025</div><div><h3 class="serif">Tessera</h3><div class="ds">Marketing site for a B2B platform.</div></div><div class="tag">— Web · Next.js</div><div class="arr">→</div></div>
+    <div class="proj"><div class="yr serif">2024</div><div><h3 class="serif">Linden Press</h3><div class="ds">Identity for an independent book publisher.</div></div><div class="tag">— Identity</div><div class="arr">→</div></div>
+  </div>
+
+  <div class="notes">
+    <div class="section-title">Notes &amp; <em>writing</em>.<span class="meta">— Posted monthly-ish</span></div>
+    <div class="note-grid">
+      <div class="note"><div class="meta"><span>Essay</span><span>— 8 min read</span></div><h4 class="serif">On the long way to a homepage</h4><p>Notes on writing the line you start everything else with.</p></div>
+      <div class="note"><div class="meta"><span>Notes</span><span>— 3 min read</span></div><h4 class="serif">Five things I learned shipping a small CMS</h4><p>The shape of the editor matters more than the schema.</p></div>
+      <div class="note"><div class="meta"><span>Process</span><span>— 6 min read</span></div><h4 class="serif">How I price independent work</h4><p>A note for designers who'd rather not haggle.</p></div>
+    </div>
+  </div>
+
+  <div class="bookshelf">
+    <div>
+      <h3>Reading <em>shelf</em>.</h3>
+      <p class="serif" style="color:var(--muted);font-style:italic">— a slow, public list</p>
+    </div>
+    <div class="stack">
+      <div><span class="n">i</span><span><strong>An Atlas of Lost Rivers</strong><br/><span class="by">Author Name</span></span><span class="serif">$30</span></div>
+      <div><span class="n">ii</span><span><strong>Notes on the Quiet Hour</strong><br/><span class="by">Author Name</span></span><span class="serif">$22</span></div>
+      <div><span class="n">iii</span><span><strong>On Looking</strong><br/><span class="by">Author Name</span></span><span class="serif">$25</span></div>
+      <div><span class="n">iv</span><span><strong>The Lighthouse Keepers</strong><br/><span class="by">Author Name</span></span><span class="serif">$32</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="about">
+  <div class="page-head"><div style="font-family:Newsreader;font-style:italic;color:var(--accent);font-size:20px">— a short bio</div><h2>I make <em>websites</em>, brand systems, and the occasional book.</h2></div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="lead serif">Replace this with the version of your story you'd tell at <em>dinner</em>.</p>
+      <p>Where you grew up. Where you trained. The role you held that taught you the most. The two months you spent in a country where you didn't speak the language.</p>
+      <p>Tell people how you work and who you work with. Founders, in-house teams, the occasional museum. Specifics first.</p>
+      <p>End with the kind of project you say no to — that's where the brief actually lives.</p>
+    </div>
+    <div>
+      <h3 class="serif" style="font-size:28px;margin-bottom:18px">— a timeline</h3>
+      <div class="timeline">
+        <div class="tl"><div class="yr">Now</div><div><h5 class="serif">Independent practice</h5><p>Working with three clients at a time, max.</p></div></div>
+        <div class="tl"><div class="yr">2024</div><div><h5 class="serif">Senior Designer · Company</h5><p>Led the brand system rebuild.</p></div></div>
+        <div class="tl"><div class="yr">2022</div><div><h5 class="serif">Design lead · Studio</h5><p>Half a dozen identities a year.</p></div></div>
+        <div class="tl"><div class="yr">2020</div><div><h5 class="serif">Senior · Studio</h5><p>Web work for cultural institutions.</p></div></div>
+        <div class="tl"><div class="yr">2018</div><div><h5 class="serif">BFA · University</h5><p>Visual communication.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="services">
+  <div class="page-head"><div style="font-family:Newsreader;font-style:italic;color:var(--accent);font-size:20px">— working together</div><h2>Four things I'm <em>good at</em>.</h2></div>
+  <div class="svc-grid">
+    <div class="svc"><h3 class="serif">Product <em>design</em></h3><p>Discovery, IA, screens, and the prototypes that move the work along.</p><ul><li>Discovery &amp; research</li><li>Information architecture</li><li>Hi-fi screens &amp; prototypes</li><li>Design QA at build</li></ul><div class="from">From $14k · 2–8 weeks</div></div>
+    <div class="svc"><h3 class="serif">Brand <em>systems</em></h3><p>Naming, identity, type, color, and the document that holds it all together.</p><ul><li>Strategy &amp; positioning</li><li>Identity &amp; system</li><li>Brand guidelines</li></ul><div class="from">From $18k · 4–8 weeks</div></div>
+    <div class="svc"><h3 class="serif">Front-end <em>build</em></h3><p>Marketing sites in Next.js, Astro, or Webflow. CMS optional.</p><ul><li>Design system in code</li><li>Headless CMS setup</li><li>Analytics &amp; deploy</li></ul><div class="from">From $12k · 3–6 weeks</div></div>
+    <div class="svc"><h3 class="serif">Editorial &amp; <em>print</em></h3><p>Books, reports, decks, and the things still printed on paper.</p><ul><li>Editorial design</li><li>Print direction</li><li>Press &amp; production</li></ul><div class="from">From $8k · 3–6 weeks</div></div>
+  </div>
+</section>
+
+<section class="page" id="contact">
+  <div class="page-head"><div style="font-family:Newsreader;font-style:italic;color:var(--accent);font-size:20px">— say hi</div><h2>Send a <em>note</em>.</h2><p>I read every message and respond within two business days.</p></div>
+  <div class="contact-grid">
+    <form onsubmit="event.preventDefault();alert('Demo form.')">
+      <div class="field row"><div><label>Name</label><input/></div><div><label>Company</label><input/></div></div>
+      <div class="field"><label>Email</label><input type="email"/></div>
+      <div class="field"><label>I'd like to talk about</label>
+        <select><option>A product</option><option>A brand</option><option>A website</option><option>A book / report</option><option>Just saying hi</option></select></div>
+      <div class="field"><label>Tell me more</label><textarea placeholder="Goals, timeline, links — anything that helps."></textarea></div>
+      <button class="btn btn-primary">Send →</button>
+    </form>
+    <div class="info-block">
+      <h3>Reach <span class="serif" style="font-style:italic;color:var(--accent)">me</span></h3>
+      <div class="info-row"><div class="lbl">email</div>hello@yourname.com</div>
+      <div class="info-row"><div class="lbl">based in</div>City, ST · UTC-?</div>
+      <div class="info-row"><div class="lbl">response time</div>1–2 business days</div>
+      <div class="info-row"><div class="lbl">also on</div>Are.na · Read.cv · Instagram</div>
+      <div class="info-row"><div class="lbl">availability</div>Open for fall projects</div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+<footer><div class="wrap"><div>© 2026 Your Name · A small site</div><div class="foot-links"><a>Are.na</a><a>Read.cv</a><a>Instagram</a><a>RSS</a></div></div></footer>
+<script>
+function goto(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>goto(el.dataset.page)));
+</script></body></html>
