@@ -206,16 +206,13 @@ function buildPrompt(f: WizardData): string {
     "ai-decide":                "the tone that best suits the business type and chosen style",
   };
 
-  const allPages = f.pages.selected.map(id => {
-    const labels: Record<string, string> = {
-      home:"Home", services:"Services/Products", about:"About Us", contact:"Contact",
-      portfolio:"Portfolio/Gallery", pricing:"Pricing/Plans", team:"Team/Staff",
-      faq:"FAQ", blog:"Blog/News", testimonials:"Testimonials",
-      privacy:"Privacy Policy", terms:"Terms of Service", careers:"Careers",
-      booking:"Booking", newsletter:"Newsletter Signup",
-    };
-    return labels[id] || id;
-  });
+  const pageLabels: Record<string, string> = {
+    home:"Home", services:"Services/Products", about:"About Us", contact:"Contact",
+    portfolio:"Portfolio/Gallery", pricing:"Pricing/Plans", team:"Team/Staff",
+    faq:"FAQ", blog:"Blog/News", testimonials:"Testimonials",
+    privacy:"Privacy Policy", terms:"Terms of Service", careers:"Careers",
+    booking:"Booking", newsletter:"Newsletter Signup",
+  };
 
   const featureLabels: Record<string, string> = {
     testimonials:  "customer testimonials section",
@@ -293,13 +290,13 @@ ${(() => {
 PAGES & CONTENT
 ════════════════════════════════════════════════
 Pages to include (create dedicated sections or full pages for each):
-${allPages.map(p => {
-  const desc = f.pages.pageDescriptions?.[p.toLowerCase().replace(/[^a-z]/g,"")];
-  if (desc?.description) {
-    const text = desc.aiRephrase ? `AI may rephrase: "${desc.description}"` : `Use verbatim: "${desc.description}"`;
-    return `• ${p} — ${text}`;
-  }
-  return `• ${p}`;
+${f.pages.selected.map(id => {
+  const label = pageLabels[id] || id;
+  const desc = f.pages.pageDescriptions?.[id];
+  const parts: string[] = [];
+  if (desc?.description) parts.push(desc.aiRephrase ? `AI may rephrase: "${desc.description}"` : `Use verbatim: "${desc.description}"`);
+  if (desc?.image) parts.push(`User provided a photo — use exactly src="/section-image-${id}" on the main <img> for this section; it will be swapped with the real photo automatically. Do NOT use picsum for this section.`);
+  return parts.length > 0 ? `• ${label} — ${parts.join(" ")}` : `• ${label}`;
 }).join("\n")}
 
 Primary call-to-action: ${ctaMap[f.pages.primaryCTA] || f.pages.primaryCTA}

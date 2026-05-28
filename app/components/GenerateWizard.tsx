@@ -929,11 +929,208 @@ const IMG_MAX_MB = 10; // validated before compression; after compression will b
 
 type ImgValue = { dataUrl: string; fileName: string } | null;
 
+// ─── Pexels photo picker ───────────────────────────────────────────────────────
+
+type PexelsPhoto = {
+  id: number;
+  photographer: string;
+  photographer_url: string;
+  src: { large: string; medium: string; small: string };
+  alt: string;
+};
+
+function PexelsPickerModal({ onSelect, onClose }: {
+  onSelect: (photo: PexelsPhoto) => void;
+  onClose: () => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [inputVal, setInputVal] = useState("");
+  const [photos, setPhotos] = useState<PexelsPhoto[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalResults, setTotalResults] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  const search = async (q: string, p: number, append = false) => {
+    if (!q.trim()) return;
+    setLoading(true);
+    setErr("");
+    try {
+      const res = await fetch(`/api/pexels?query=${encodeURIComponent(q)}&page=${p}&per_page=24`);
+      if (!res.ok) throw new Error("Search failed");
+      const data = await res.json();
+      setPhotos(prev => append ? [...prev, ...data.photos] : data.photos);
+      setTotalResults(data.total_results ?? 0);
+    } catch {
+      setErr("Could not load photos. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setPage(1);
+    setPhotos([]);
+    setQuery(inputVal);
+    search(inputVal, 1, false);
+  };
+
+  const loadMore = () => {
+    const next = page + 1;
+    setPage(next);
+    search(query, next, true);
+  };
+
+  const hasMore = photos.length < totalResults;
+
+  return (
+    <div
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+      style={{
+        position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)",
+        zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center",
+        padding: 16,
+      }}
+    >
+      <div style={{
+        background: "#fff", borderRadius: 16, width: "100%", maxWidth: 760,
+        maxHeight: "90vh", display: "flex", flexDirection: "column",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+      }}>
+        {/* Header */}
+        <div style={{ padding: "18px 20px 14px", borderBottom: "1px solid #e5e7eb", display: "flex", alignItems: "center", gap: 12 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+            <rect x="2" y="2" width="9" height="9" rx="2" fill="#05A081"/>
+            <rect x="13" y="2" width="9" height="9" rx="2" fill="#05A081" opacity="0.5"/>
+            <rect x="2" y="13" width="9" height="9" rx="2" fill="#05A081" opacity="0.5"/>
+            <rect x="13" y="13" width="9" height="9" rx="2" fill="#05A081"/>
+          </svg>
+          <span style={{ fontWeight: 700, fontSize: 15, color: "#111827", flex: 1 }}>Browse Pexels Photos</span>
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: "#6b7280", lineHeight: 1 }}>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 2l14 14M16 2L2 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+          </button>
+        </div>
+
+        {/* Search */}
+        <div style={{ padding: "14px 20px 10px" }}>
+          <form onSubmit={handleSearch} style={{ display: "flex", gap: 8 }}>
+            <input
+              ref={inputRef}
+              value={inputVal}
+              onChange={e => setInputVal(e.target.value)}
+              placeholder="Search free photos (e.g. coffee shop interior, modern office…)"
+              className="inp"
+              style={{ flex: 1, fontSize: 13 }}
+            />
+            <button type="submit" disabled={loading || !inputVal.trim()} style={{
+              padding: "0 18px", borderRadius: 8, background: "#05A081", color: "#fff",
+              border: "none", cursor: "pointer", fontWeight: 600, fontSize: 13,
+              opacity: (!inputVal.trim()) ? 0.5 : 1,
+            }}>Search</button>
+          </form>
+        </div>
+
+        {/* Results */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "4px 20px 16px" }}>
+          {err && <p style={{ color: "#ef4444", fontSize: 13, margin: "12px 0" }}>{err}</p>}
+          {!loading && !err && photos.length === 0 && query && (
+            <p style={{ color: "#6b7280", fontSize: 13, textAlign: "center", padding: "40px 0" }}>No photos found. Try a different search term.</p>
+          )}
+          {!query && !loading && (
+            <p style={{ color: "#9ca3af", fontSize: 13, textAlign: "center", padding: "40px 0" }}>
+              Search for photos above — results from <strong>Pexels</strong> (free, high-quality stock photos)
+            </p>
+          )}
+
+          {photos.length > 0 && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginTop: 4 }}>
+              {photos.map(photo => (
+                <PexelsPhotoCard key={photo.id} photo={photo} onSelect={onSelect} />
+              ))}
+            </div>
+          )}
+
+          {loading && (
+            <div style={{ display: "flex", justifyContent: "center", padding: 32 }}>
+              <svg width="28" height="28" viewBox="0 0 28 28" style={{ animation: "spin 0.8s linear infinite" }}>
+                <circle cx="14" cy="14" r="11" fill="none" stroke="#e5e7eb" strokeWidth="3"/>
+                <path d="M14 3a11 11 0 0111 11" fill="none" stroke="#05A081" strokeWidth="3" strokeLinecap="round"/>
+              </svg>
+            </div>
+          )}
+
+          {!loading && hasMore && photos.length > 0 && (
+            <div style={{ textAlign: "center", marginTop: 16 }}>
+              <button onClick={loadMore} style={{
+                padding: "8px 22px", borderRadius: 8, border: "1.5px solid #d1d5db",
+                background: "#fff", cursor: "pointer", fontSize: 13, color: "#374151", fontWeight: 600,
+              }}>Load more</button>
+            </div>
+          )}
+        </div>
+
+        {/* Footer attribution */}
+        <div style={{ padding: "10px 20px", borderTop: "1px solid #f3f4f6", display: "flex", alignItems: "center", gap: 6 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="2" width="9" height="9" rx="2" fill="#05A081"/>
+            <rect x="13" y="2" width="9" height="9" rx="2" fill="#05A081" opacity="0.5"/>
+            <rect x="2" y="13" width="9" height="9" rx="2" fill="#05A081" opacity="0.5"/>
+            <rect x="13" y="13" width="9" height="9" rx="2" fill="#05A081"/>
+          </svg>
+          <span style={{ fontSize: 11, color: "#9ca3af" }}>Photos provided by <strong style={{ color: "#6b7280" }}>Pexels</strong> — free to use, no attribution required</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PexelsPhotoCard({ photo, onSelect }: { photo: PexelsPhoto; onSelect: (p: PexelsPhoto) => void }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ position: "relative", borderRadius: 8, overflow: "hidden", aspectRatio: "4/3", cursor: "pointer", background: "#f3f4f6" }}
+      onClick={() => onSelect(photo)}
+    >
+      <img
+        src={photo.src.small}
+        alt={photo.alt || `Photo by ${photo.photographer}`}
+        loading="lazy"
+        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+      />
+      {hovered && (
+        <div style={{
+          position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)",
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8,
+        }}>
+          <button
+            onClick={e => { e.stopPropagation(); onSelect(photo); }}
+            style={{
+              padding: "7px 16px", borderRadius: 8, background: "#fff", border: "none",
+              fontWeight: 700, fontSize: 12, cursor: "pointer", color: "#111827",
+            }}
+          >Select photo</button>
+          <p style={{ margin: 0, fontSize: 10, color: "rgba(255,255,255,0.85)", textAlign: "center", padding: "0 8px" }}>
+            by {photo.photographer}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Image upload / Pexels picker ─────────────────────────────────────────────
+
 // Compress an image data URL using the browser Canvas API.
 // Resizes to maxDim on the longest side and re-encodes.
-// SVGs are returned as-is (text-based, already small).
+// SVGs and external URLs are returned as-is.
 function compressImage(dataUrl: string, maxDim = 1200, quality = 0.78): Promise<string> {
-  if (dataUrl.startsWith("data:image/svg")) return Promise.resolve(dataUrl);
+  if (dataUrl.startsWith("data:image/svg") || dataUrl.startsWith("http")) return Promise.resolve(dataUrl);
   return new Promise(resolve => {
     const img = new Image();
     img.onload = () => {
@@ -960,14 +1157,17 @@ function compressImage(dataUrl: string, maxDim = 1200, quality = 0.78): Promise<
 function ImageUploader({
   id, value, onChange, label = "Upload image",
   shape = "square", previewW = 56, previewH = 56,
+  showPexels = false,
 }: {
   id: string; value: ImgValue;
   onChange: (v: ImgValue) => void;
   label?: string; shape?: "square" | "circle";
   previewW?: number; previewH?: number;
+  showPexels?: boolean;
 }) {
   const [err, setErr] = useState("");
   const [compressing, setCompressing] = useState(false);
+  const [pexelsOpen, setPexelsOpen] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
@@ -997,10 +1197,16 @@ function ImageUploader({
     reader.readAsDataURL(file);
   };
 
+  const handlePexelsSelect = (photo: PexelsPhoto) => {
+    onChange({ dataUrl: photo.src.large, fileName: `Photo by ${photo.photographer} on Pexels` });
+    setPexelsOpen(false);
+  };
+
   const borderRadius = shape === "circle" ? "50%" : 8;
 
   return (
     <div style={{ display: "inline-flex", flexDirection: "column", gap: 6 }}>
+      {pexelsOpen && <PexelsPickerModal onSelect={handlePexelsSelect} onClose={() => setPexelsOpen(false)} />}
       {compressing && (
         <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#6B7180" }}>
           <svg width="14" height="14" viewBox="0 0 14 14" style={{ animation: "spin 0.7s linear infinite", flexShrink: 0 }}>
@@ -1016,8 +1222,14 @@ function ImageUploader({
             style={{ width: previewW, height: previewH, objectFit: "cover", borderRadius, border: "1px solid var(--border)", flexShrink: 0 }}/>
           <div>
             <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: "#374151", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{value.fileName}</p>
-            <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+            <div style={{ display: "flex", gap: 10, marginTop: 4, flexWrap: "wrap" }}>
               <label htmlFor={id} style={{ fontSize: 11, color: "var(--accent)", cursor: "pointer", textDecoration: "underline" }}>Replace</label>
+              {showPexels && (
+                <button type="button" onClick={() => setPexelsOpen(true)}
+                  style={{ fontSize: 11, color: "#05A081", background: "none", border: "none", cursor: "pointer", padding: 0, textDecoration: "underline" }}>
+                  Browse Pexels
+                </button>
+              )}
               <button type="button" onClick={() => { onChange(null); setErr(""); }}
                 style={{ fontSize: 11, color: "#ef4444", background: "none", border: "none", cursor: "pointer", padding: 0 }}>Remove</button>
             </div>
@@ -1025,20 +1237,43 @@ function ImageUploader({
         </div>
       )}
       {!compressing && !value && (
-        <label htmlFor={id} style={{
-          display: "inline-flex", alignItems: "center", gap: 6,
-          padding: "6px 13px", borderRadius: 8, cursor: "pointer",
-          border: "1.5px dashed var(--border)",
-          fontSize: 12, color: "#6B7180", fontFamily: "var(--font)",
-          transition: "border-color 0.15s, color 0.15s",
-          userSelect: "none",
-        }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = "#374151"; e.currentTarget.style.color = "#374151"; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "#6B7180"; }}
-        >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
-          {label}
-        </label>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <label htmlFor={id} style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            padding: "6px 13px", borderRadius: 8, cursor: "pointer",
+            border: "1.5px dashed var(--border)",
+            fontSize: 12, color: "#6B7180", fontFamily: "var(--font)",
+            transition: "border-color 0.15s, color 0.15s",
+            userSelect: "none",
+          }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = "#374151"; e.currentTarget.style.color = "#374151"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "#6B7180"; }}
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+            {label}
+          </label>
+          {showPexels && (
+            <button type="button" onClick={() => setPexelsOpen(true)} style={{
+              display: "inline-flex", alignItems: "center", gap: 5,
+              padding: "6px 13px", borderRadius: 8, cursor: "pointer",
+              border: "1.5px solid #05A081",
+              fontSize: 12, color: "#05A081", fontFamily: "var(--font)",
+              background: "none", fontWeight: 600,
+              transition: "background 0.15s",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.background = "#f0fdf9"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "none"; }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                <rect x="2" y="2" width="9" height="9" rx="2" fill="#05A081"/>
+                <rect x="13" y="2" width="9" height="9" rx="2" fill="#05A081" opacity="0.5"/>
+                <rect x="2" y="13" width="9" height="9" rx="2" fill="#05A081" opacity="0.5"/>
+                <rect x="13" y="13" width="9" height="9" rx="2" fill="#05A081"/>
+              </svg>
+              Pexels
+            </button>
+          )}
+        </div>
       )}
       {err && <p style={{ margin: 0, fontSize: 11, color: "#ef4444" }}>{err}</p>}
       {/* Hidden input — label triggers it via htmlFor, no JS click needed */}
@@ -1631,6 +1866,7 @@ function Step4Typography({ data, onChange, logo, onLogoChange }: {
           onChange={v => onLogoChange(v ? { uploaded: true, dataUrl: v.dataUrl, fileName: v.fileName } : { uploaded: false, dataUrl: "", fileName: "" })}
           label="Upload your logo"
           previewW={80} previewH={80}
+          showPexels
         />
       </div>
 
@@ -1663,6 +1899,7 @@ function PageDescBlock({ pageId, pageName, desc, onChange }: {
         onChange={v => onChange({ ...desc, image: v?.dataUrl ?? "", imageName: v?.fileName ?? "" })}
         label="+ Add image for this section"
         previewW={72} previewH={52}
+        showPexels
       />
     </div>
   );
@@ -1805,9 +2042,10 @@ function Step5Pages({ data, team, useEmojis, websiteLanguage, onChange, onTeamCh
                     <p style={{ fontSize: 11, color: "#6B7180", margin: "2px 0 0" }}>{p.desc}</p>
                   </div>
                 </button>
-                {on && !isHome && (
+                {on && (
                   <PageDescBlock
-                    pageId={p.id} pageName={p.label}
+                    pageId={p.id}
+                    pageName={isHome ? "Home — hero section" : p.label}
                     desc={getDesc(p.id)}
                     onChange={d => setPageDesc(p.id, d)}
                   />
