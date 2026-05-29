@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 
 /* ─── Types ─────────────────────────────────────────────────────────────────── */
 export type TemplateMapTo = {
@@ -325,27 +325,54 @@ const CATEGORIES = ["All", "Healthcare", "Fitness", "Wellness", "Education", "Fo
 const DESIGN_W = 1280;
 const DESIGN_H = 820;
 
+// Only render an iframe once the card enters the viewport — prevents loading
+// 42 simultaneous iframes which crashes Safari (web process OOM killed).
+function useInView(ref: React.RefObject<HTMLDivElement | null>, rootMargin = "300px") {
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    if (!ref.current) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); obs.disconnect(); } },
+      { rootMargin }
+    );
+    obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, [ref, rootMargin]);
+  return inView;
+}
+
 function CardPreview({ template, cardWidth }: { template: Template; cardWidth: number }) {
   const scale = cardWidth / DESIGN_W;
   const displayH = Math.round(DESIGN_H * scale);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(containerRef);
 
   return (
-    <div style={{ width: cardWidth, height: displayH, overflow: "hidden", position: "relative", background: template.dark ? "#0a0a0a" : "#fafafa" }}>
-      <iframe
-        src={`/templates/${template.file}`}
-        scrolling="no"
-        style={{
-          width: DESIGN_W,
-          height: DESIGN_H,
-          border: "none",
-          transformOrigin: "top left",
-          transform: `scale(${scale})`,
-          pointerEvents: "none",
-          display: "block",
-        }}
-        title={template.name}
-        loading="lazy"
-      />
+    <div ref={containerRef} style={{ width: cardWidth, height: displayH, overflow: "hidden", position: "relative", background: template.dark ? "#0a0a0a" : "#fafafa" }}>
+      {inView ? (
+        <iframe
+          src={`/templates/${template.file}`}
+          scrolling="no"
+          style={{
+            width: DESIGN_W,
+            height: DESIGN_H,
+            border: "none",
+            transformOrigin: "top left",
+            transform: `scale(${scale})`,
+            pointerEvents: "none",
+            display: "block",
+          }}
+          title={template.name}
+        />
+      ) : (
+        <div style={{
+          position: "absolute", inset: 0,
+          background: `linear-gradient(150deg, ${template.accent}33 0%, ${template.dark ? "#111" : "#f5f3ef"} 100%)`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <div style={{ width: 28, height: 28, borderRadius: "50%", background: template.accent, opacity: 0.5 }} />
+        </div>
+      )}
     </div>
   );
 }
