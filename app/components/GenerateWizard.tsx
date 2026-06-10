@@ -53,7 +53,7 @@ const DEFAULT: WizardData = {
   logo: { uploaded: false, dataUrl: "", fileName: "" },
 };
 
-const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/test_aFa3cncHh946fBcgZ81B600";
+const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/bJeeV5dFPc6TdqAaG600000";
 const PRICE = 59.99;
 
 type TemplateMapTo = { businessType: string; style: string; primaryColor: string; secondaryColor: string; darkMode: boolean; fontFamily: string };
