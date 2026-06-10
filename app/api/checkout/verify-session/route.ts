@@ -29,9 +29,15 @@ export async function POST(request: NextRequest) {
     const stripe = getStripe();
     const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
 
+    // Payment Links use client_reference_id; Checkout Sessions use metadata.userId
+    const sessionUserId =
+      checkoutSession.metadata?.userId ||
+      checkoutSession.client_reference_id ||
+      null;
+
     if (
       checkoutSession.payment_status !== "paid" ||
-      checkoutSession.metadata?.userId !== authSession.userId
+      sessionUserId !== authSession.userId
     ) {
       return NextResponse.json(
         { error: "Payment could not be verified." },

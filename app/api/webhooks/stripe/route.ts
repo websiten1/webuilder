@@ -36,12 +36,11 @@ export async function POST(request: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    if (
-      session.payment_status === "paid" &&
-      session.metadata?.userId
-    ) {
+    // Support both Checkout Sessions (metadata.userId) and Payment Links (client_reference_id)
+    const userId = session.metadata?.userId || session.client_reference_id;
+    if (session.payment_status === "paid" && userId) {
       await markUserPaid(
-        session.metadata.userId,
+        userId,
         session.id,
         session.customer as string | null
       );
