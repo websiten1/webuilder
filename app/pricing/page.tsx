@@ -4,26 +4,6 @@ import SiteFooter from "@/app/components/SiteFooter";
 import { PageHero, FinalCTA, Section, Container, Eyebrow, H2, Lead, Btn, ArrowR, Check, XIcon, PLANS, PlanCard } from "@/app/components/ui";
 import { P, T } from "@/lib/design";
 
-const CHANGE_DOES = [
-  "Updating text or copy",
-  "Changing colors or fonts",
-  "Replacing or reordering sections",
-  "Adding a new service or page",
-  "Adjusting layout details",
-  "Updating contact information",
-  "Reworking design direction",
-];
-
-const CHANGE_DOESNT = [
-  "Custom backend systems",
-  "Complex booking systems",
-  "E-commerce checkout flows",
-  "Custom third-party integrations",
-  "Manual developer work beyond AI generation",
-  "Logo design or copywriting strategy",
-  "Domain purchase cost",
-];
-
 export default function PricingPage() {
   return (
     <>
@@ -35,57 +15,40 @@ export default function PricingPage() {
         dark
         eyebrow="// no monthly rent"
         title={<>Transparent pricing.<br/><span style={{ color: T.green }}>No website subscriptions.</span></>}
-        sub="Professional websites from €49.99. One-time payment. Full ownership. No subscriptions. Custom domains are purchased separately and usually cost €12–30/year."
+        sub="€59.99. One-time payment. Full ownership. No subscriptions. No edits included — regenerate anytime. Custom domains are purchased separately on Vercel (usually €12–30/year)."
       />
 
       {/* Plan cards */}
       <Section paddingY={64}>
         <Container>
-          <div className="pricing-cards" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20, alignItems: "stretch" }}>
+          <div style={{ maxWidth: 440, margin: "0 auto" }}>
             {PLANS.map(p => <PlanCard key={p.id} plan={p}/>)}
           </div>
         </Container>
       </Section>
 
-      {/* What counts as a change */}
+      {/* What's included */}
       <Section paddingY={88} style={{ background: P.bg2 }}>
-        <Container>
-          <Eyebrow>// edits</Eyebrow>
-          <H2>What counts as a change?</H2>
-          <Lead>The short answer: most copy, design, and layout tweaks. Custom backends are out of scope.</Lead>
-
-          <div className="change-grid" style={{ marginTop: 40, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-            <div style={{ padding: 28, borderRadius: 16, background: "#fff", border: `1px solid ${P.line}` }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 14, background: P.emSoft, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Check size={13} color={P.em2}/>
+        <Container max={760}>
+          <Eyebrow>// what&apos;s included</Eyebrow>
+          <H2>One price. Everything in it.</H2>
+          <Lead>€59.99 covers the full generation and deployment. No hidden extras.</Lead>
+          <div style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 14 }}>
+            {[
+              ["AI-generated professional website, built with Next.js and Tailwind", true],
+              ["Deployed directly to your own Vercel account", true],
+              ["Full source code — download, edit, host anywhere", true],
+              ["Mobile-responsive, SSL, fast — production-ready out of the box", true],
+              ["Edits not included — regenerate a new version anytime for €59.99", false],
+              ["Custom domain not included — purchase separately on Vercel (~€12–30/yr)", false],
+            ].map(([text, ok], i) => (
+              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "14px 18px", borderRadius: 12, background: ok ? P.emSoft : P.bg2, border: `1px solid ${ok ? "rgba(0,144,98,0.25)" : P.line}`, fontFamily: P.font, fontSize: 15, color: ok ? P.ink : P.muted }}>
+                <div style={{ width: 20, height: 20, borderRadius: 10, background: ok ? P.emSoft : "rgba(0,0,0,0.04)", border: `1px solid ${ok ? "rgba(0,144,98,0.25)" : P.line}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                  {ok ? <Check size={11} color={P.em2}/> : <XIcon size={11}/>}
                 </div>
-                <span style={{ fontFamily: P.font, fontSize: 17, fontWeight: 700, color: P.ink }}>A change is…</span>
+                {text as string}
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {CHANGE_DOES.map(s => (
-                  <div key={s} style={{ display: "flex", gap: 10, fontFamily: P.font, fontSize: 14.5, color: P.inkSoft }}>
-                    <Check size={11} color={P.em2}/>{s}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div style={{ padding: 28, borderRadius: 16, background: "#fff", border: `1px solid ${P.line}` }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 14, background: P.sixSoft, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <XIcon size={13}/>
-                </div>
-                <span style={{ fontFamily: P.font, fontSize: 17, fontWeight: 700, color: P.ink }}>A change isn&apos;t…</span>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {CHANGE_DOESNT.map(s => (
-                  <div key={s} style={{ display: "flex", gap: 10, fontFamily: P.font, fontSize: 14.5, color: P.inkSoft }}>
-                    <XIcon size={11}/>{s}
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
         </Container>
       </Section>

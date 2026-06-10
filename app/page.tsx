@@ -174,12 +174,8 @@ function SiteMock({ name, kind, tint = "dark", accent = P.six, pages = [], slug 
 
 // ─── Plan card ─────────────────────────────────────────────────────────────
 const PLANS = [
-  { id: "basic",   name: "Basic",   price: 49.99, tag: "I just need a website.",      cta: "Get Basic",   after: "€15 per edit after launch",            badge: null as string|null,
-    items: [["AI-generated professional website",true],["Deployed to your Vercel account",true],["Full source code ownership",true],["Mobile-responsive · SSL · Custom domain ready",true],["0 free edits",false]] as [string,boolean][] },
-  { id: "pro",     name: "Pro",     price: 59.99, tag: "I want to refine my site.",    cta: "Get Pro",     after: "€15 per edit after the first 5",       badge: "Most popular" as string|null,
-    items: [["Everything in Basic",true],["5 free edits included",true],["Edit tracking in your dashboard",true],["Best value for most businesses",true],["Priority email support",true]] as [string,boolean][] },
-  { id: "premium", name: "Premium", price: 79.99, tag: "I want room to adjust.",       cta: "Get Premium", after: "€15 per edit after the first 15",      badge: null as string|null,
-    items: [["Everything in Pro",true],["15 free edits included",true],["Priority generation queue",true],["Best for evolving businesses",true],["1:1 onboarding call (optional)",true]] as [string,boolean][] },
+  { id: "website", name: "Website", price: 59.99, tag: "One website. Fully yours. Forever.", cta: "Build my website", after: "Domain not included — purchase separately on Vercel", badge: null as string|null,
+    items: [["AI-generated professional website",true],["Deployed to your own Vercel account",true],["Full source code ownership — keep it forever",true],["Mobile-responsive · SSL · custom domain ready",true],["Edits not included — regenerate anytime for €59.99",false],["Custom domain not included — buy on Vercel (~€12–30/yr)",false]] as [string,boolean][] },
 ];
 
 function PlanCard({ plan, ctaHref }: { plan: typeof PLANS[0]; ctaHref: string }) {
@@ -220,10 +216,10 @@ function PlanCard({ plan, ctaHref }: { plan: typeof PLANS[0]; ctaHref: string })
 const FAQ_ITEMS: [string, string][] = [
   ["Do I need to know how to code?",     "No. You describe your business in plain English. We generate the site, deploy it, and you can edit later through your dashboard or in the code directly."],
   ["Who owns the website?",              "You do. The code is yours, the Vercel project is in your account, and the domain (if you connect one) belongs to you."],
-  ["Is there a subscription?",           "No subscription on the generated website. You pay once. Vercel hosting is free for most small sites. Custom domains are paid separately to a registrar."],
+  ["Is there a subscription?",           "No. You pay €59.99 once. Vercel hosting is free for most small sites. Custom domains are purchased separately on Vercel (typically €12–30/yr)."],
   ["What happens after I pay?",          "We generate the site, push it to your Vercel, and send you the deploy URL. The whole flow takes around six minutes."],
-  ["Can I connect my own domain?",       "Yes. You can connect a domain from any registrar (GoDaddy, Namecheap, Porkbun, Cloudflare, etc.) or buy a new one separately."],
-  ["What counts as a change?",           "Updating copy, swapping a section, adjusting colors, adding a service, changing contact info. Custom backends and complex integrations are out of scope."],
+  ["Can I connect my own domain?",       "Yes. You buy a domain separately on Vercel or any registrar (GoDaddy, Namecheap, Cloudflare, etc.) and connect it from your dashboard."],
+  ["Are edits included?",                "No. Edits are not included. If you want changes, simply regenerate a new website for €59.99."],
   ["Can I move away from Vercel?",       "Yes. The code is a standard Next.js project — host it anywhere that runs Node or static sites."],
   ["Do you include hosting?",            "We deploy to your Vercel account. Their Hobby plan is free and works for most small sites. Hosting cost on Vercel is separate from us."],
 ];
@@ -263,7 +259,7 @@ const EXAMPLES = [
 
 // ─── Comparison data ───────────────────────────────────────────────────────
 const COMP_ROWS = [
-  { name: "insixlive",              upfront: "from €49.99", monthly: "€0",      yr1: "from €49.99", yr5: "from €49.99", own: "Yes",     lock: "No",      active: true  },
+  { name: "insixlive",              upfront: "€59.99",       monthly: "€0",      yr1: "€59.99",       yr5: "€59.99",       own: "Yes",     lock: "No",      active: true  },
   { name: "Wix / Squarespace",      upfront: "low",         monthly: "monthly", yr1: "€200+",       yr5: "€1,000+",     own: "No",      lock: "Yes",     active: false },
   { name: "Webflow",                upfront: "medium",      monthly: "monthly", yr1: "€200+",       yr5: "€1,000+",     own: "Partial", lock: "Partial", active: false },
   { name: "Durable / Hostinger AI", upfront: "low",         monthly: "monthly", yr1: "€300+",       yr5: "€1,500+",     own: "No",      lock: "Yes",     active: false },
@@ -375,7 +371,7 @@ export default function Home() {
           </nav>
           <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 10, borderTop: "1px solid rgba(255,255,255,0.08)", flexShrink: 0 }}>
             <Link href={ctaHref} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "linear-gradient(180deg,#FF6A33 0%,#E54B14 100%)", color: "#fff", padding: 16, borderRadius: 12, fontFamily: P.font, fontSize: 16, fontWeight: 700, textDecoration: "none", boxShadow: "0 1px 0 rgba(255,255,255,0.20) inset,0 12px 28px rgba(255,90,31,0.32)" }}>
-              Build my site — from €49 <ArrowR/>
+              Build my site — €59.99 <ArrowR/>
             </Link>
             {loggedIn
               ? <Link href="/dashboard" style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 14, borderRadius: 12, fontFamily: P.font, fontSize: 15, color: "rgba(255,255,255,0.7)", textDecoration: "none", border: "1px solid rgba(255,255,255,0.12)" }}>Dashboard</Link>
@@ -410,11 +406,11 @@ export default function Home() {
                 Stop renting<br/><span style={{ color: T.six }}>your website.</span>
               </h1>
               <p style={{ fontFamily: P.font, fontSize: "clamp(1rem,1.5vw,20px)", lineHeight: 1.5, color: "rgba(255,255,255,0.62)", margin: "0 0 28px", maxWidth: 520 }}>
-                Generate a professional website, deploy it under your own account, and keep the code forever. From €49.99. One-time. No monthly fees.
+                Generate a professional website, deploy it under your own account, and keep the code forever. €59.99. One-time. No monthly fees. No edits included — regenerate anytime.
               </p>
               <div style={{ display: "flex", gap: 10, marginBottom: 22, flexWrap: "wrap" }}>
                 <Link href={ctaHref} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(180deg,#FF6A33 0%,#E54B14 100%)", color: "#fff", padding: "16px 22px", borderRadius: 12, fontFamily: P.font, fontSize: 16, fontWeight: 600, boxShadow: "0 1px 0 rgba(255,255,255,0.20) inset,0 14px 30px rgba(255,90,31,0.32)" }}>
-                  Build my website — from €49 <ArrowR/>
+                  Build my website — €59.99 <ArrowR/>
                 </Link>
                 <a href="#examples" style={{ display: "inline-flex", alignItems: "center", padding: "16px 22px", borderRadius: 12, fontFamily: P.font, fontSize: 16, fontWeight: 600, background: "rgba(255,255,255,0.05)", color: "#fff", border: "1px solid rgba(255,255,255,0.10)" }}>
                   See examples
@@ -422,7 +418,7 @@ export default function Home() {
               </div>
               <div style={{ fontFamily: P.mono, fontSize: 12, color: "rgba(255,255,255,0.45)", marginBottom: 32 }}>One-time payment · No subscriptions · Full ownership</div>
               <div className="g3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, maxWidth: 540 }}>
-                {[["from €49.99","One-time"],["~6 min","Live"],["100%","Code ownership"]].map(([v,l]) => (
+                {[["€59.99","One-time"],["~6 min","Live"],["100%","Code ownership"]].map(([v,l]) => (
                   <div key={l} style={{ padding: "12px 16px", borderRadius: 10, background: "rgba(255,255,255,0.04)", border: `1px solid ${T.line}` }}>
                     <div style={{ fontFamily: P.mono, fontSize: 20, fontWeight: 700, color: "#fff", letterSpacing: -0.4 }}>{v}</div>
                     <div style={{ fontFamily: P.mono, fontSize: 10.5, color: T.muted, textTransform: "uppercase" as const, letterSpacing: 0.6, marginTop: 3 }}>{l}</div>
@@ -466,7 +462,7 @@ export default function Home() {
       <div style={{ borderTop: `1px solid ${P.line}`, borderBottom: `1px solid ${P.line}`, overflow: "hidden", height: 40, display: "flex", alignItems: "center" }}>
         <div className="tk" style={{ display: "flex", whiteSpace: "nowrap" }}>
           {[...Array(2)].flatMap((_,p) =>
-            ["Next.js","Vercel","Stripe","Claude AI","€49.99 one-time","~6 minutes","Zero lock-in","100% yours","No subscriptions","Production-ready"].map(item => (
+            ["Next.js","Vercel","Stripe","Claude AI","€59.99 one-time","~6 minutes","Zero lock-in","100% yours","No subscriptions","Production-ready"].map(item => (
               <span key={`${p}-${item}`} style={{ fontFamily: P.mono, fontSize: 10, color: P.muted, letterSpacing: "0.12em", textTransform: "uppercase" as const, padding: "0 24px" }}>{item} ·</span>
             ))
           )}
@@ -499,7 +495,7 @@ export default function Home() {
             <div style={{ position: "absolute", top: -80, right: -60, width: 240, height: 240, borderRadius: 120, background: "radial-gradient(circle,rgba(74,222,128,0.30),rgba(74,222,128,0) 65%)", filter: "blur(15px)", pointerEvents: "none" }}/>
             <div style={{ position: "relative" }}>
               <TechBadge>insixlive</TechBadge>
-              <div style={{ fontFamily: P.mono, fontSize: 36, fontWeight: 700, letterSpacing: -1, marginTop: 14, marginBottom: 4, color: "#fff" }}>from €49.99</div>
+              <div style={{ fontFamily: P.mono, fontSize: 36, fontWeight: 700, letterSpacing: -1, marginTop: 14, marginBottom: 4, color: "#fff" }}>€59.99</div>
               <div style={{ fontFamily: P.font, fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 22 }}>one-time, then free</div>
               {["Live in around 6 minutes","Deployed to your own Vercel","Full source code in your inbox","No subscription, ever"].map(s => (
                 <div key={s} style={{ display: "flex", gap: 10, padding: "8px 0", fontFamily: P.font, fontSize: 14, color: "rgba(255,255,255,0.85)", borderBottom: `1px solid ${T.line}` }}>
@@ -703,7 +699,7 @@ export default function Home() {
           <div style={{ marginTop: 22, padding: "14px 18px", borderRadius: 12, background: "#fff", border: `1px solid ${P.line}`, display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
             <span style={{ fontFamily: P.mono, fontSize: 11, fontWeight: 700, color: P.muted, textTransform: "uppercase" as const, letterSpacing: 0.6 }}>Note</span>
             <span style={{ fontFamily: P.font, fontSize: 14, color: P.inkSoft }}>
-              Need a single change later? Request edits from your dashboard for <b style={{ color: P.ink }}>€15 per change</b>. Custom domains are <b style={{ color: P.ink }}>not included</b> and usually cost €12–30/year.
+              Custom domains are <b style={{ color: P.ink }}>not included</b> — purchase a domain separately on Vercel (typically €12–30/yr). If you want changes to the site, simply regenerate for €59.99.
             </span>
           </div>
         </div>
@@ -821,7 +817,7 @@ export default function Home() {
             Stop renting a website that doesn&apos;t belong to you. Build something you own.
           </p>
           <Link href={ctaHref} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(180deg,#FF6A33 0%,#E54B14 100%)", color: "#fff", padding: "18px 32px", borderRadius: 14, fontFamily: P.font, fontSize: 16, fontWeight: 700, boxShadow: "0 1px 0 rgba(255,255,255,0.20) inset,0 16px 36px rgba(255,90,31,0.36)" }}>
-            Build my website — from €49 <ArrowR/>
+            Build my website — €59.99 <ArrowR/>
           </Link>
           <p style={{ fontFamily: P.mono, fontSize: 12, color: "rgba(255,255,255,0.35)", letterSpacing: "0.08em", textTransform: "uppercase" as const, marginTop: 18 }}>
             One-time · Stripe-secured · Yours forever

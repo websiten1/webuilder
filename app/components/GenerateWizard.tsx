@@ -54,6 +54,7 @@ const DEFAULT: WizardData = {
 };
 
 const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/test_aFa3cncHh946fBcgZ81B600";
+const PRICE = 59.99;
 
 type TemplateMapTo = { businessType: string; style: string; primaryColor: string; secondaryColor: string; darkMode: boolean; fontFamily: string };
 
@@ -1156,7 +1157,7 @@ function Step10Review({ data, goTo, onGenerate, loading, vercelAuthorized, isEdi
             Continue to payment →
           </button>
           <span style={{ fontFamily: "var(--wf-mono)", fontSize: 11.5, color: "var(--wf-text3)" }}>
-            €149 one-time · secure checkout via Stripe · builds in ~100 sec
+            €59.99 one-time · no edits included · domain sold separately on Vercel
           </span>
         </div>
       )}
@@ -1254,8 +1255,8 @@ function PaymentOverlay({ data, onCancel, onPay }: { data: WizardData; onCancel:
         <div className="wf-pay-sum">
           <div className="wf-pay-brand"><span className="wf-pay-badge">6</span> insixlive</div>
           <div className="wf-pay-item">Website build &amp; deploy</div>
-          <div className="wf-pay-price">€149<span>.00</span></div>
-          <div className="wf-pay-meta">One-time payment · no subscription. Includes AI copy, full code ownership &amp; deploy to your own Vercel.</div>
+          <div className="wf-pay-price">€{PRICE.toFixed(2).replace(".", ",")}<span></span></div>
+          <div className="wf-pay-meta">One-time · no subscription · no edits included. Domain not included — purchase separately on Vercel (~€12–30/yr).</div>
         </div>
 
         <div className="wf-pay-body">
@@ -1290,7 +1291,7 @@ function PaymentOverlay({ data, onCancel, onPay }: { data: WizardData; onCancel:
                 value={name} onChange={e => setName(e.target.value)} />
 
               <button type="button" className="wf-pay-btn" disabled={!ready} onClick={pay}>
-                <ILock /> Pay €149.00
+                <ILock /> Pay €{PRICE.toFixed(2)}
               </button>
 
               <button type="button" className="wf-pay-demo" onClick={autofill}>

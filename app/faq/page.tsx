@@ -13,10 +13,10 @@ const FAQ_CATEGORIES: [string, [string, string][]][] = [
     ["How long does it take?",       "Around six minutes from finished brief to live website. Plus a few minutes to fill out the brief."],
   ]],
   ["Pricing", [
-    ["Is it really one-time?",       "Yes. The website itself is a one-time payment (Basic €49.99, Pro €59.99, Premium €79.99). No subscription on the generated site."],
-    ["Are there monthly fees?",      "Not from us. Vercel's Hobby plan is free for most small sites. Custom domains are paid separately to your registrar (typically €12–30/yr)."],
-    ["What is included in each plan?","Basic gets you the website. Pro adds 5 free edits. Premium adds 15 free edits. Beyond the included edits, additional changes are €15 each."],
-    ["Can I upgrade later?",         "Yes. Upgrade from your dashboard at any time — you only pay the difference."],
+    ["Is it really one-time?",       "Yes. €59.99 once — no subscription, no recurring fees from us."],
+    ["Are there monthly fees?",      "Not from us. Vercel's Hobby plan is free for most small sites. Custom domains are purchased separately on Vercel (typically €12–30/yr)."],
+    ["What is included?",            "A complete AI-generated website deployed to your own Vercel account. Edits are not included — if you want changes, regenerate a new site for €59.99."],
+    ["Is the domain included?",      "No. Domains are purchased separately on Vercel. They typically cost €12–30/year depending on the extension."],
   ]],
   ["Ownership", [
     ["Do I own the website?",                   "Yes. You own the code, the Vercel project, and the domain (if you connect one)."],
@@ -30,14 +30,13 @@ const FAQ_CATEGORIES: [string, [string, string][]][] = [
     ["How long does DNS take?",         "Anywhere from a few minutes to a few hours. Most registrars update within 30 minutes."],
     ["Is SSL included?",                "Yes. Vercel issues SSL certificates automatically once your DNS resolves."],
   ]],
-  ["Edits", [
-    ["What counts as an edit?",           "Updating text, swapping a section, changing colors, adding a service, updating contact info, reworking design direction."],
-    ["What doesn't count?",               "Custom backends, complex booking systems, e-commerce checkout, manual developer work, logo design."],
-    ["How long does an edit take?",       "Most edits complete in under a minute and redeploy immediately."],
-    ["Do edits update my custom domain too?","Yes. Every redeploy updates both the Vercel URL and any connected custom domain."],
+  ["Changes & regeneration", [
+    ["Are edits included?",               "No. Edits are not included in the €59.99 price. If you want changes, you regenerate the website for €59.99."],
+    ["What if I don't like the result?",  "You can regenerate at any time for €59.99. Each generation is a fresh AI-created website based on your updated brief."],
+    ["Can I update my brief and regenerate?", "Yes. Update your business description, style choices, or any other details and generate a completely new version."],
   ]],
   ["Payments and refunds", [
-    ["How do payments work?",     "One-time payment via Stripe at checkout. Edits beyond your free allowance are billed €15 each."],
+    ["How do payments work?",     "One-time payment of €59.99 via Stripe at checkout. No recurring charges from us."],
     ["Is Stripe secure?",         "Yes. We never see or store your card details — Stripe handles all of it."],
     ["Can I get a refund?",       "If generation fails and no website is delivered, yes. Once generation begins and a site is delivered, payments are generally non-refundable."],
   ]],

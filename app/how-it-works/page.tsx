@@ -9,11 +9,10 @@ const HOW_DETAIL = [
   { n: "02", t: "Connect Vercel",         d: "Authorize insixlive to deploy into your Vercel account. Your website will belong to your workspace.", mock: "vercel" },
   { n: "03", t: "Describe your business", d: "Business name, services, audience, location, contact info, tone, goals.", mock: "describe" },
   { n: "04", t: "Choose the look",        d: "Visual style, colors, typography, page structure, features.", mock: "style" },
-  { n: "05", t: "Choose your plan",       d: "Basic, Pro, or Premium. One-time payment through Stripe.", mock: "plan" },
+  { n: "05", t: "Pay €59.99 one-time",    d: "Single payment through Stripe. No subscription, no recurring fees. Domain and edits not included.", mock: "plan" },
   { n: "06", t: "AI generates your site", d: "Claude writes the code. The site is built with Next.js and Tailwind.", mock: "generate" },
   { n: "07", t: "Deployment",             d: "Pushed to your Vercel account. You receive a live .vercel.app URL.", mock: "deploy" },
-  { n: "08", t: "Add a custom domain",    d: "Connect a domain you already own, or buy one separately. SSL configured automatically.", mock: "domain" },
-  { n: "09", t: "Request changes later",  d: "Edit through your dashboard. Free or paid edits depend on your plan.", mock: "edits" },
+  { n: "08", t: "Add a custom domain",    d: "Buy a domain separately on Vercel and connect it. SSL configured automatically.", mock: "domain" },
 ];
 
 function HowMock({ kind }: { kind: string }) {
@@ -57,12 +56,19 @@ function HowMock({ kind }: { kind: string }) {
       return (
         <TechWindow title="pricing" height={210}>
           <div style={{ padding: 18 }}>
-            {PLANS.map(p => (
-              <div key={p.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderRadius: 8, marginBottom: 6, background: p.badge ? "rgba(255,90,31,0.08)" : "rgba(255,255,255,0.03)", border: `1px solid ${p.badge ? "rgba(255,90,31,0.30)" : T.line}` }}>
-                <span style={{ fontFamily: P.mono, fontSize: 12, color: "#fff", fontWeight: 600 }}>{p.name}</span>
-                <span style={{ fontFamily: P.mono, fontSize: 13, color: p.badge ? T.six : T.text, fontWeight: 700 }}>€{p.price.toFixed(2)}</span>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", borderRadius: 10, background: "rgba(255,90,31,0.08)", border: "1px solid rgba(255,90,31,0.30)" }}>
+              <div>
+                <span style={{ fontFamily: P.mono, fontSize: 13, color: "#fff", fontWeight: 700, display: "block" }}>Website</span>
+                <span style={{ fontFamily: P.mono, fontSize: 10, color: T.muted }}>one-time · no subscription</span>
               </div>
-            ))}
+              <span style={{ fontFamily: P.mono, fontSize: 22, color: T.six, fontWeight: 700 }}>€59.99</span>
+            </div>
+            <div style={{ marginTop: 14, fontFamily: P.mono, fontSize: 10.5, color: T.muted, lineHeight: 1.7 }}>
+              <div>✓ full code ownership</div>
+              <div>✓ deploys to your Vercel</div>
+              <div style={{ color: "rgba(255,255,255,0.3)" }}>✗ edits not included</div>
+              <div style={{ color: "rgba(255,255,255,0.3)" }}>✗ domain not included</div>
+            </div>
           </div>
         </TechWindow>
       );
@@ -100,16 +106,6 @@ function HowMock({ kind }: { kind: string }) {
             <div><span style={{ color: T.muted }}>name</span>{"  @"}</div>
             <div><span style={{ color: T.muted }}>value</span>{" "}<span style={{ color: T.sky }}>76.76.21.21</span></div>
             <div style={{ marginTop: 10, color: T.green }}>✓ SSL · acme-plumbing.de</div>
-          </div>
-        </TechWindow>
-      );
-    case "edits":
-      return (
-        <TechWindow title="edit · req" height={210}>
-          <div style={{ padding: 18, fontFamily: P.mono, fontSize: 12, lineHeight: 1.8 }}>
-            <div style={{ color: T.text }}>&quot;Update hours to 7am–9pm&quot;</div>
-            <div style={{ color: T.muted, marginTop: 4 }}>↳ queued · pro plan · 1/5 free edits used</div>
-            <div style={{ marginTop: 14, padding: 8, background: "rgba(74,222,128,0.06)", borderRadius: 6, color: T.green }}>deployed in 38s</div>
           </div>
         </TechWindow>
       );

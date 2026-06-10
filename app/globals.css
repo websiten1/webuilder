@@ -165,6 +165,7 @@ select.inp option { background: #fff; color: var(--ink); }
 
 /* ── Design tokens ── */
 .wf-wrap {
+  zoom: 0.9;
   --wf-bg:       #f8f7f4;
   --wf-bg2:      #ffffff;
   --wf-surf:     #ffffff;

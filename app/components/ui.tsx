@@ -286,9 +286,7 @@ export const FinalCTA = () => (
 // ─── PLANS + PlanCard ──────────────────────────────────────────────────────────
 
 export const PLANS = [
-  { id: "basic",   name: "Basic",   price: 49.99, tag: "I just need a website.",    cta: "Get Basic",   after: "€15 per edit after launch",             badge: null as string | null, items: [["AI-generated professional website",true],["Deployed to your Vercel account",true],["Full source code ownership",true],["Mobile-responsive · SSL · Custom domain ready",true],["0 free edits",false]] as [string,boolean][] },
-  { id: "pro",     name: "Pro",     price: 59.99, tag: "I want to refine my site.", cta: "Get Pro",     after: "€15 per edit after the first 5",        badge: "Most popular" as string | null, items: [["Everything in Basic",true],["5 free edits included",true],["Edit tracking in your dashboard",true],["Best value for most businesses",true],["Priority email support",true]] as [string,boolean][] },
-  { id: "premium", name: "Premium", price: 79.99, tag: "I want room to adjust.",    cta: "Get Premium", after: "€15 per edit after the first 15",       badge: null as string | null, items: [["Everything in Pro",true],["15 free edits included",true],["Priority generation queue",true],["Best for evolving businesses",true],["1:1 onboarding call (optional)",true]] as [string,boolean][] },
+  { id: "website", name: "Website", price: 59.99, tag: "One website. Fully yours. Forever.", cta: "Build my website", after: "Domain not included — purchase separately on Vercel", badge: null as string | null, items: [["AI-generated professional website",true],["Deployed to your own Vercel account",true],["Full source code ownership — keep it forever",true],["Mobile-responsive · SSL · custom domain ready",true],["Edits not included — regenerate anytime for €59.99",false],["Custom domain not included — buy on Vercel (~€12–30/yr)",false]] as [string,boolean][] },
 ];
 
 export const PlanCard = ({ plan, compact = false }: { plan: typeof PLANS[0]; compact?: boolean }) => {
