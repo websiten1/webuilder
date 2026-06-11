@@ -11,12 +11,17 @@ export type DayHours = { open: string; close: string; closed: boolean };
 export type TeamMember = { name: string; role: string; bio: string; photo: string; fileName: string };
 export type PageDesc = { description: string; aiRephrase: boolean; image: string; imageName: string };
 
+export type GalleryMember = { name: string; role: string; photo: string };
+export type Socials = { instagram?: string; facebook?: string; tiktok?: string; youtube?: string; linkedin?: string; whatsapp?: string };
+
 export type WizardData = {
   templateId: string;
+  lang: "ro" | "en";
   business: {
     name: string; type: string; description: string;
     aboutText: string; aboutAiRephrase: boolean;
-    hasLocation: boolean; location: string; locationCity: string; locationCountry: string; serviceArea: string;
+    hasLocation: boolean; location: string; locationCity: string; locationCountry: string;
+    mapsLink: string; serviceArea: string;
     email: string; hasPhone: boolean; phone: string;
     openingHours: string; ownerName: string; experience: string;
   };
@@ -26,6 +31,9 @@ export type WizardData = {
   design: { style: string; primaryColor: string; secondaryColor: string; darkMode: boolean; personalityLevel: string; backgroundStyle: string; animations: string };
   typography: { fontFamily: string; imageryStyle: string; heroPreference: string };
   team: { enabled: boolean; members: TeamMember[] };
+  gallery: string[];
+  galleryMembers: GalleryMember[];
+  socials: Socials;
   pages: { selected: string[]; primaryCTA: string; contentTone: string; specialFeatures: string[]; additionalNotes: string; pageDescriptions: { [id: string]: PageDesc } };
   useEmojis: boolean;
   websiteLanguage: string;
@@ -40,16 +48,20 @@ const DEFAULT_HOURS = Object.fromEntries(DAYS.map(d => [d, { open: "09:00", clos
 
 const DEFAULT: WizardData = {
   templateId: "",
-  business: { name: "", type: "Restaurant", description: "", aboutText: "", aboutAiRephrase: true, hasLocation: true, location: "", locationCity: "", locationCountry: "", serviceArea: "", email: "", hasPhone: true, phone: "", openingHours: "", ownerName: "", experience: "" },
+  lang: "ro",
+  business: { name: "", type: "", description: "", aboutText: "", aboutAiRephrase: true, hasLocation: true, location: "", locationCity: "", locationCountry: "", mapsLink: "", serviceArea: "", email: "", hasPhone: true, phone: "", openingHours: "", ownerName: "", experience: "" },
   schedule: { type: "no-schedule", hours: DEFAULT_HOURS },
   goals: { mainGoal: "", visitorFeel: "", problemSolved: "", whyChoose: "", idealCustomer: "" },
   services: { offersType: "", list: [], priceVisibility: "" },
   design: { style: "minimalist", primaryColor: "#FF5A1F", secondaryColor: "#0e1a2b", darkMode: false, personalityLevel: "balanced", backgroundStyle: "ai-decide", animations: "moderate" },
   typography: { fontFamily: "modern-sans", imageryStyle: "stock-photos", heroPreference: "ai-decide" },
   team: { enabled: false, members: [] },
+  gallery: [],
+  galleryMembers: [],
+  socials: {},
   pages: { selected: ["home","services","about","contact"], primaryCTA: "contact-form", contentTone: "professional-approachable", specialFeatures: [], additionalNotes: "", pageDescriptions: {} },
   useEmojis: false,
-  websiteLanguage: "English",
+  websiteLanguage: "Română",
   logo: { uploaded: false, dataUrl: "", fileName: "" },
 };
 
@@ -248,6 +260,155 @@ const COLOR_GROUPS: { label: string; colors: { hex: string; name: string }[] }[]
   ]},
 ];
 
+// ─── i18n ────────────────────────────────────────────────────────────────────
+
+type Lang = "ro" | "en";
+const tr = (lang: Lang, ro: string, en: string) => lang === "ro" ? ro : en;
+
+const STEP_NAMES = {
+  ro: ["Șablon","Stil vizual","Culori","Tip. & imagini","Afacerea ta","Obiective","Servicii","Pagini","Galerie & social","Detalii finale","Verificare"],
+  en: ["Template","Design","Colours","Type & imagery","Business","Goals","Services","Pages","Gallery & social","Finishing","Review"],
+};
+const STEP_GROUPS = {
+  ro: [{ label: "Aspect & stil", steps: [0,1,2,3] }, { label: "Conținutul tău", steps: [4,5,6,7,8,9] }, { label: "Lansare", steps: [10] }],
+  en: [{ label: "Look & feel",   steps: [0,1,2,3] }, { label: "Your content",    steps: [4,5,6,7,8,9] }, { label: "Ship it",   steps: [10] }],
+};
+
+// RO overrides for option arrays
+const VISUAL_STYLES_RO = [
+  { id: "minimalist",   name: "Minimalist",           desc: "Branduri moderne, premium" },
+  { id: "modern-clean", name: "Modern & Curat",        desc: "Tech, servicii" },
+  { id: "bold-dark",    name: "Îndrăzneț & Întunecat", desc: "Branduri creative, în tendințe" },
+  { id: "corporate",    name: "Corporate",             desc: "Juridic, finanțe, consultanță" },
+  { id: "creative",     name: "Creativ & Vibrant",     desc: "Design, agenții de marketing" },
+  { id: "elegant",      name: "Elegant & Lux",         desc: "Modă, bijuterii, high-end" },
+  { id: "warm",         name: "Cald & Prietenos",      desc: "Sănătate, frumusețe, comunitate" },
+  { id: "futuristic",   name: "High Tech",             desc: "Tech, SaaS, startup-uri" },
+  { id: "playful",      name: "Jucăuș & Distractiv",  desc: "Copii, lifestyle, divertisment" },
+];
+const PERSONALITY_LEVELS_RO = [
+  { id: "minimal",   name: "Foarte simplu",         desc: "Conținutul pe primul loc, decor minim" },
+  { id: "balanced",  name: "Echilibrat",             desc: "Profesional, cu personalitate" },
+  { id: "strong",    name: "Personalitate puternică",desc: "Îndrăzneț, memorabil, distinctiv" },
+  { id: "ai-decide", name: "Lasă AI să decidă",      desc: "Cea mai bună potrivire pentru stilul tău" },
+];
+const BACKGROUND_STYLES_RO = [
+  { id: "white",     label: "Alb / Luminos" }, { id: "cream", label: "Crem / Cald" },
+  { id: "dark",      label: "Întunecat" },     { id: "gradient", label: "Gradient" },
+  { id: "photo",     label: "Fundal foto" },   { id: "ai-decide", label: "AI decide" },
+];
+const ANIMATION_OPTS_RO = [
+  { id: "minimal",   name: "Minimal",     desc: "Încărcare rapidă, fără animații" },
+  { id: "moderate",  name: "Moderat",     desc: "Tranziții fine, profesionale" },
+  { id: "rich",      name: "Bogat",       desc: "Interacțiuni captivante, moderne" },
+  { id: "ai-decide", name: "AI decide",   desc: "Cel mai potrivit pentru stilul tău" },
+];
+const FONTS_RO = [
+  { id: "modern-sans",     name: "Sans Modern",      desc: "Tech, servicii moderne" },
+  { id: "classic-serif",   name: "Serif Clasic",     desc: "Juridic, finanțe, editorial" },
+  { id: "geo-bold",        name: "Geometric Bold",   desc: "Creativ, design, startup-uri" },
+  { id: "mono",            name: "Monospace",         desc: "Tech, orientat developeri" },
+  { id: "playful",         name: "Rotunjit & Jucăuș",desc: "Copii, lifestyle, comunitate" },
+  { id: "humanist-sans",   name: "Sans Umanist",     desc: "Wellness, frumusețe, lifestyle" },
+  { id: "luxury-serif",    name: "Serif de Lux",     desc: "Modă, fine dining" },
+  { id: "editorial-serif", name: "Serif Editorial",  desc: "Publicații, restaurante" },
+  { id: "space-grotesk",   name: "Space Grotesk",    desc: "Tech, Web3, studiouri" },
+];
+const IMAGERY_STYLES_RO = [
+  { id: "photography",   name: "Multă Fotografie",     desc: "Fotografii profesionale peste tot" },
+  { id: "illustrations", name: "Ilustrații & Iconițe", desc: "Iconițe și ilustrații personalizate" },
+  { id: "minimal-img",   name: "Minimalist",           desc: "Preponderent text și culori solide" },
+  { id: "stock-photos",  name: "Fotografii Stock",     desc: "Imagini stock profesionale" },
+  { id: "mixed",         name: "Stil Mixt",            desc: "Ilustrații + fotografii combinate" },
+];
+const HERO_PREFS_RO = [
+  { id: "bg-image",  name: "Imagine de fundal",      desc: "Fotografie full-bleed în spate" },
+  { id: "gradient",  name: "Fundal gradient",         desc: "Gradient de culoare, fără fotografie" },
+  { id: "overlay",   name: "Imagine cu text suprapus",desc: "Fotografie hero cu text deasupra" },
+  { id: "ai-decide", name: "Lasă AI să decidă",       desc: "Cea mai bună alegere pentru stilul tău" },
+];
+const BIZ_TYPES_RO = ["","Sănătate","Fitness & Wellness","Educație","Mâncare & Băutură","Restaurant / Cafenea","Frumusețe & Saloane","Juridic","Imobiliare","Auto","Comerț / Magazin","Creativ / Agenție","Media","Tehnologie / SaaS","Servicii profesionale","ONG","Altceva"];
+const BIZ_TYPES_EN = ["","Restaurant","Hair Salon","Photography","Dental Clinic","Consulting","E-commerce","Real Estate","Fitness","Law Firm","Architecture","Plumbing","Accounting","Marketing Agency","Medical Clinic","Tech Startup","Beauty/Spa","Other"];
+const SCHEDULE_TYPES_RO = [
+  { id: "no-schedule", label: "Fără program fix",     desc: "Nu am un program" },
+  { id: "online",      label: "Complet online",        desc: "Doar online — fără ore fizice" },
+  { id: "always-open", label: "Mereu deschis / 24·7", desc: "Acces non-stop" },
+  { id: "custom",      label: "Am ore specifice",      desc: "Setează orele pe zile" },
+];
+const MAIN_GOALS_RO = [
+  { id: "calls",       name: "Primește apeluri",           desc: "Generează apeluri direct din pagina principală" },
+  { id: "bookings",    name: "Primește programări",        desc: "Umple-ți calendarul online" },
+  { id: "sell",        name: "Vinde produse online",       desc: "E-commerce sau vânzări directe" },
+  { id: "leads",       name: "Generează lead-uri",         desc: "Cereri B2B & solicitări de ofertă" },
+  { id: "present",     name: "Prezintă serviciile",        desc: "Arată ce oferi" },
+  { id: "credibility", name: "Construiește credibilitate", desc: "Stabilește autoritate & încredere" },
+  { id: "portfolio",   name: "Arată portofoliul",          desc: "Expune-ți lucrările creative" },
+  { id: "info",        name: "Oferă informații",           desc: "ONG, educație, comunitate" },
+];
+const VISITOR_FEELS_RO = [
+  { id: "Trust", label: "Încredere" }, { id: "Excitement", label: "Entuziasm" }, { id: "Calm", label: "Calm" },
+  { id: "Luxury", label: "Lux" }, { id: "Safety", label: "Siguranță" }, { id: "Professionalism", label: "Profesionalism" },
+  { id: "Warmth", label: "Căldură" }, { id: "Innovation", label: "Inovație" }, { id: "Creativity", label: "Creativitate" }, { id: "Fun", label: "Distracție" },
+];
+const OFFERS_TYPES_RO = [
+  { id: "services", name: "Servicii",                desc: "Ofer servicii clienților" },
+  { id: "products", name: "Produse",                 desc: "Vând produse fizice sau digitale" },
+  { id: "both",     name: "Ambele",                  desc: "Servicii și produse" },
+  { id: "info",     name: "Informații / Portofoliu", desc: "Fără vânzări directe — doar prezentare" },
+];
+const PRICE_VISIBILITY_RO = [
+  { id: "exact",    label: "Arată prețuri exacte" }, { id: "from", label: 'Arată prețuri "de la"' },
+  { id: "packages", label: "Doar pachete" },          { id: "quote", label: "Cere o ofertă" },
+  { id: "hide",     label: "Ascunde prețurile" },
+];
+const EXTRA_PAGES_RO = [
+  { id: "portfolio",    label: "Portofoliu / Galerie",      desc: "Prezintă-ți lucrările" },
+  { id: "pricing",      label: "Prețuri / Planuri",         desc: "Prețuri servicii" },
+  { id: "team",         label: "Echipă / Personal",         desc: "Cunoaște echipa" },
+  { id: "faq",          label: "Întrebări frecvente",       desc: "Întrebări comune" },
+  { id: "blog",         label: "Blog / Noutăți",            desc: "Articole & actualizări" },
+  { id: "testimonials", label: "Testimoniale",              desc: "Recenzii clienți" },
+  { id: "privacy",      label: "Confidențialitate",         desc: "Pagină legală" },
+  { id: "terms",        label: "Termeni",                   desc: "Pagină legală" },
+  { id: "booking",      label: "Rezervări",                 desc: "Programări" },
+  { id: "newsletter",   label: "Newsletter",                desc: "Listă de email" },
+];
+const CTA_OPTIONS_RO = [
+  { id: "contact-form", label: "Formular de contact" }, { id: "phone",   label: "Apel telefonic" },
+  { id: "email",        label: "Email" },                { id: "booking", label: "Rezervare / Programare" },
+  { id: "shop",         label: "Magazin / Cumpără" },    { id: "newsletter", label: "Abonare newsletter" },
+  { id: "multiple",     label: "Mai multe CTA-uri" },
+];
+const TONE_OPTIONS_RO = [
+  { id: "formal",                    label: "Profesional & Formal" },
+  { id: "professional-approachable", label: "Profesional & Accesibil" },
+  { id: "casual",                    label: "Relaxat & Prietenos" },
+  { id: "creative",                  label: "Creativ & Expresiv" },
+  { id: "ai-decide",                 label: "Lasă AI să decidă" },
+];
+const SPECIAL_FEATURES_RO = [
+  { id: "testimonials",  label: "Testimoniale clienți" }, { id: "social",   label: "Integrare social media" },
+  { id: "newsletter",    label: "Abonare newsletter" },   { id: "search",   label: "Funcție de căutare" },
+  { id: "multilang",     label: "Suport multilingv" },    { id: "accessibility", label: "Accesibilitate (WCAG)" },
+  { id: "analytics",     label: "Integrare analytics" },
+];
+const LANGUAGES_RO = ["Română","English","Español","Français","Deutsch","Italiano","Português","Magyar","Українська"];
+const CORE_PAGES_RO = [
+  { id: "home",     label: "Acasă",             desc: "Inclusă mereu",  required: true },
+  { id: "services", label: "Servicii / Produse",desc: "Ce oferi",       required: false },
+  { id: "about",    label: "Despre noi",         desc: "Povestea ta",    required: false },
+  { id: "contact",  label: "Contact",            desc: "Ia legătura",   required: false },
+];
+
+const SOC_NETWORKS = [
+  { key: "instagram", label: "Instagram", prefix: "instagram.com/",  ph: "numele_tau" },
+  { key: "facebook",  label: "Facebook",  prefix: "facebook.com/",   ph: "afacerea.ta" },
+  { key: "tiktok",    label: "TikTok",    prefix: "tiktok.com/@",    ph: "numele_tau" },
+  { key: "youtube",   label: "YouTube",   prefix: "youtube.com/@",   ph: "canalul_tau" },
+  { key: "linkedin",  label: "LinkedIn",  prefix: "linkedin.com/in/",ph: "profil" },
+  { key: "whatsapp",  label: "WhatsApp",  prefix: "+40 ",            ph: "7xx xxx xxx" },
+];
+
 // ─── SVG Icons ────────────────────────────────────────────────────────────────
 
 const ICheck = () => (
@@ -302,6 +463,139 @@ const ITriangle = () => (
     <path d="M12 1l11 19H1L12 1z" fill="var(--wf-ok)" />
   </svg>
 );
+
+const IInstagram = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.7"/><circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.7"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"/></svg>;
+const IFacebook  = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M14 8.5V7a1.5 1.5 0 011.5-1.5H17V2.8h-2.4A4 4 0 0010.6 6.8v1.7H8.4v2.9h2.2V21h3.4v-9.6h2.5l.5-2.9H14z" fill="currentColor"/></svg>;
+const ITiktok    = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M14.5 3v9.8a3.3 3.3 0 11-3.3-3.3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M14.5 4.5c.6 2.4 2.3 4 4.7 4.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>;
+const IYoutube   = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2.5" y="5.5" width="19" height="13" rx="4" stroke="currentColor" strokeWidth="1.7"/><path d="M10.2 9.3l5 2.7-5 2.7V9.3z" fill="currentColor"/></svg>;
+const ILinkedin  = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" strokeWidth="1.7"/><path d="M7.5 10.2V17M7.5 7.2v.1M11.5 17v-4a2.3 2.3 0 014.6 0v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>;
+const IWhatsapp  = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3.5a8.5 8.5 0 00-7.3 12.8L3.5 20.5l4.4-1.1A8.5 8.5 0 1012 3.5z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/><path d="M9 8.8c0 3.2 3 6.2 6.2 6.2l.9-1.6-2-1.1-.9.8c-.9-.4-1.9-1.4-2.3-2.3l.8-.9-1.1-2L9 8.8z" fill="currentColor"/></svg>;
+
+const SOC_ICON_MAP: Record<string, React.ReactNode> = {
+  instagram: <IInstagram/>, facebook: <IFacebook/>, tiktok: <ITiktok/>,
+  youtube: <IYoutube/>, linkedin: <ILinkedin/>, whatsapp: <IWhatsapp/>,
+};
+
+// ─── Gallery Component ───────────────────────────────────────────────────────
+
+const GALLERY_MAX = 12;
+
+function readPhotoAsDataUrl(file: File, maxDim: number, cb: (src: string) => void) {
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = () => {
+    const k = Math.min(1, maxDim / Math.max(img.width, img.height));
+    const w = Math.max(1, Math.round(img.width * k));
+    const h = Math.max(1, Math.round(img.height * k));
+    const canvas = document.createElement("canvas");
+    canvas.width = w; canvas.height = h;
+    canvas.getContext("2d")?.drawImage(img, 0, 0, w, h);
+    URL.revokeObjectURL(url);
+    cb(canvas.toDataURL("image/jpeg", 0.72));
+  };
+  img.onerror = () => URL.revokeObjectURL(url);
+  img.src = url;
+}
+
+function GalleryGrid({ photos, onChange, lang }: { photos: string[]; onChange: (fn: (p: string[]) => string[]) => void; lang: Lang }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const addFiles = (files: FileList) => {
+    Array.from(files).slice(0, GALLERY_MAX - photos.length).forEach(f =>
+      readPhotoAsDataUrl(f, 640, src => onChange(prev => prev.length < GALLERY_MAX ? [...prev, src] : prev))
+    );
+  };
+  const del = (i: number) => onChange(prev => prev.filter((_, j) => j !== i));
+  return (
+    <div>
+      <div className="wf-gal-grid">
+        {photos.map((src, i) => (
+          <div className="wf-gal-item" key={i}>
+            <img src={src} alt="" />
+            <button type="button" className="wf-gal-del" onClick={() => del(i)} aria-label={tr(lang,"Șterge","Remove")}><IX /></button>
+          </div>
+        ))}
+        {photos.length < GALLERY_MAX && (
+          <button type="button" className="wf-gal-add" onClick={() => inputRef.current?.click()}>
+            <span className="wf-ga-ico"><IPlus /></span>
+            <span className="wf-ga-txt">{tr(lang,"Adaugă poze","Add photos")}</span>
+          </button>
+        )}
+      </div>
+      <input ref={inputRef} type="file" accept="image/*" multiple style={{ display:"none" }}
+        onChange={e => { if (e.target.files) addFiles(e.target.files); e.target.value = ""; }} />
+      <div className="wf-note" style={{ marginTop: 8, fontSize: 12, color: "var(--wf-text3)" }}>
+        {photos.length}/{GALLERY_MAX} {tr(lang,"poze · JPG, PNG sau WebP — optimizate automat","photos · JPG, PNG or WebP — auto-optimised")}
+      </div>
+    </div>
+  );
+}
+
+// ─── Team Editor ─────────────────────────────────────────────────────────────
+
+function TeamMemberRow({ m, onChange, onDelete, lang }: {
+  m: GalleryMember; onChange: (p: Partial<GalleryMember>) => void; onDelete: () => void; lang: Lang;
+}) {
+  const photoRef = useRef<HTMLInputElement>(null);
+  return (
+    <div className="wf-team-row">
+      <button type="button" className={`wf-team-photo${m.photo ? " has" : ""}`}
+        onClick={() => photoRef.current?.click()}>
+        {m.photo ? <img src={m.photo} alt={m.name} /> : <span className="wf-tp-ico"><IUpload /></span>}
+        <span className="wf-tp-hint">{m.photo ? tr(lang,"Schimbă","Change") : tr(lang,"Poză","Photo")}</span>
+      </button>
+      <input ref={photoRef} type="file" accept="image/*" style={{ display:"none" }}
+        onChange={e => { const f = e.target.files?.[0]; if (f) readPhotoAsDataUrl(f, 320, src => onChange({ photo: src })); e.target.value = ""; }} />
+      <div className="wf-team-fields">
+        <input className="wf-input" value={m.name} placeholder={tr(lang,"ex. Dr. Alina Popescu","e.g. Dr. Jane Smith")}
+          onChange={e => onChange({ name: e.target.value })} />
+        <input className="wf-input" value={m.role} placeholder={tr(lang,"ex. Medic stomatolog","e.g. Dentist")}
+          onChange={e => onChange({ role: e.target.value })} />
+      </div>
+      <button type="button" className="wf-rep-del" onClick={onDelete}><ITrash /></button>
+    </div>
+  );
+}
+
+function TeamEditor({ members, onChange, lang }: { members: GalleryMember[]; onChange: (v: GalleryMember[]) => void; lang: Lang }) {
+  const list = members.length ? members : [{ name: "", role: "", photo: "" }];
+  const setMember = (i: number, patch: Partial<GalleryMember>) => onChange(list.map((m, j) => j === i ? { ...m, ...patch } : m));
+  const add = () => onChange([...list, { name: "", role: "", photo: "" }]);
+  const del = (i: number) => { const next = list.filter((_, j) => j !== i); onChange(next.length ? next : [{ name: "", role: "", photo: "" }]); };
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {list.map((m, i) => <TeamMemberRow key={i} m={m} onChange={p => setMember(i, p)} onDelete={() => del(i)} lang={lang} />)}
+      <button type="button" className="wf-add-item" onClick={add}><IPlus /> {tr(lang,"Adaugă un membru","Add member")}</button>
+    </div>
+  );
+}
+
+// ─── Social Links ─────────────────────────────────────────────────────────────
+
+function SocialLinksEditor({ socials, onChange, lang }: { socials: Socials; onChange: (v: Socials) => void; lang: Lang }) {
+  return (
+    <div className="wf-soc-list">
+      {SOC_NETWORKS.map(n => {
+        const val = (socials as Record<string, string>)[n.key] || "";
+        const filled = val.trim().length > 0;
+        return (
+          <div key={n.key} className={`wf-soc-row${filled ? " on" : ""}`}>
+            <span className="wf-soc-ico">{SOC_ICON_MAP[n.key]}</span>
+            <span className="wf-soc-name">{n.label}</span>
+            <div className="wf-with-prefix" style={{ flex: 1, display: "flex", alignItems: "stretch", background: "var(--wf-surf2)", border: "1px solid var(--wf-border)", borderRadius: "var(--wf-r)", overflow: "hidden" }}>
+              <div style={{ padding: "0 10px", background: "var(--wf-surf3)", display: "flex", alignItems: "center", fontSize: 12, fontFamily: "var(--wf-mono)", color: "var(--wf-text3)", borderRight: "1px solid var(--wf-border)", whiteSpace: "nowrap" }}>{n.prefix}</div>
+              <input className="wf-input" style={{ border: 0, background: "transparent", borderRadius: 0 }}
+                value={val} placeholder={n.ph}
+                onChange={e => onChange({ ...socials, [n.key]: e.target.value })} />
+            </div>
+          </div>
+        );
+      })}
+      <div style={{ fontSize: 12, color: "var(--wf-text3)", marginTop: 8, lineHeight: 1.5 }}>
+        {tr(lang,"Completează doar rețelele pe care le folosești — iconițele apar automat pe site.","Only fill in networks you use — icons appear automatically on the site.")}
+      </div>
+    </div>
+  );
+}
 
 // ─── Primitive UI Components ──────────────────────────────────────────────────
 
@@ -575,7 +869,12 @@ function LocationAutocomplete({ city, country, disabled, onSelect, onClear }: {
 
 // ─── Schedule Picker ──────────────────────────────────────────────────────────
 
-function SchedulePicker({ schedule, onChange }: { schedule: WizardData["schedule"]; onChange: (s: WizardData["schedule"]) => void }) {
+function SchedulePicker({ schedule, onChange, schedTypes, lang }: {
+  schedule: WizardData["schedule"]; onChange: (s: WizardData["schedule"]) => void;
+  schedTypes?: typeof SCHEDULE_TYPES; lang?: Lang;
+}) {
+  const L = lang ?? "en";
+  const types = schedTypes ?? SCHEDULE_TYPES;
   const setType = (type: WizardData["schedule"]["type"]) => onChange({ ...schedule, type });
   const setDay = (day: string, field: keyof DayHours, val: string | boolean) =>
     onChange({ ...schedule, hours: { ...schedule.hours, [day]: { ...schedule.hours[day], [field]: val } } });
@@ -586,7 +885,7 @@ function SchedulePicker({ schedule, onChange }: { schedule: WizardData["schedule
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       <div className="wf-opt-grid wf-og-2">
-        {SCHEDULE_TYPES.map(s => {
+        {types.map(s => {
           const on = schedule.type === s.id;
           return (
             <button key={s.id} type="button" className={`wf-opt-card${on ? " sel" : ""}`}
@@ -602,9 +901,12 @@ function SchedulePicker({ schedule, onChange }: { schedule: WizardData["schedule
         <div className="wf-sched">
           {DAYS.map(day => {
             const h = schedule.hours[day] ?? { open: "09:00", close: "17:00", closed: false };
+            const dayLabel = L === "ro"
+              ? ({ monday:"Lun",tuesday:"Mar",wednesday:"Mie",thursday:"Joi",friday:"Vin",saturday:"Sâm",sunday:"Dum" }[day] ?? day)
+              : DAY_LABELS[day];
             return (
               <div key={day} className={`wf-srow${h.closed ? " closed" : ""}`}>
-                <span className="wf-sday">{DAY_LABELS[day]}</span>
+                <span className="wf-sday">{dayLabel}</span>
                 <WizSwitch on={!h.closed} onToggle={v => setDay(day, "closed", !v)} />
                 <div className="wf-stimes">
                   {h.closed ? <span>Closed</span> : (
@@ -632,7 +934,7 @@ function SchedulePicker({ schedule, onChange }: { schedule: WizardData["schedule
 
 // ─── Step 01 — Template ───────────────────────────────────────────────────────
 
-function Step01Template({ data, setData }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>> }) {
+function Step01Template({ data, setData, lang }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>>; lang: Lang }) {
   const handleSelect = (id: string, mapTo: unknown) => {
     const m = mapTo as TemplateMapTo;
     setData(p => ({
@@ -648,8 +950,9 @@ function Step01Template({ data, setData }: { data: WizardData; setData: React.Di
 
   return (
     <div>
-      <StepHead idx={1} total={10} kicker="Pick your starting point" title="Choose a template"
-        sub="Start from an industry template — or choose scratch to configure everything yourself." />
+      <StepHead idx={1} total={11} kicker={tr(lang,"Alege punctul de start","Pick your starting point")}
+        title={tr(lang,"Alege un șablon","Choose a template")}
+        sub={tr(lang,"Începe de la un șablon de industrie — sau de la zero, pentru un design complet personalizat.","Start from an industry template — or choose scratch to configure everything yourself.")} />
       <TemplateGallery selectedId={data.templateId} onSelect={handleSelect} />
     </div>
   );
@@ -657,25 +960,29 @@ function Step01Template({ data, setData }: { data: WizardData; setData: React.Di
 
 // ─── Step 02 — Design Style ───────────────────────────────────────────────────
 
-function Step02Design({ data, setData }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>> }) {
+function Step02Design({ data, setData, lang }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>>; lang: Lang }) {
   const d = data.design;
   const set = <K extends keyof WizardData["design"]>(k: K, v: WizardData["design"][K]) =>
     setData(p => ({ ...p, design: { ...p.design, [k]: v } }));
+  const styles     = lang === "ro" ? VISUAL_STYLES_RO   : VISUAL_STYLES;
+  const personals  = lang === "ro" ? PERSONALITY_LEVELS_RO : PERSONALITY_LEVELS;
+  const bgs        = lang === "ro" ? BACKGROUND_STYLES_RO  : BACKGROUND_STYLES;
 
   return (
     <div>
-      <StepHead idx={2} total={10} kicker="Design aesthetic" title="Pick your visual style"
-        sub="The overall personality and mood of your site. Fine-tune colours and type in the next two steps." />
-      <Block label="Visual style" required>
-        <WizOptGrid cols={3} options={VISUAL_STYLES.map(s => ({ id: s.id, name: s.name, desc: s.desc }))}
+      <StepHead idx={2} total={11} kicker={tr(lang,"Stil vizual","Design aesthetic")}
+        title={tr(lang,"Alege-ți stilul vizual","Pick your visual style")}
+        sub={tr(lang,"Personalitatea și atmosfera generală a site-ului. Vei ajusta culorile și tipografia în pasul următor.","The overall personality and mood of your site. Fine-tune colours and type in the next two steps.")} />
+      <Block label={tr(lang,"Stil vizual","Visual style")} required>
+        <WizOptGrid cols={3} options={styles.map(s => ({ id: s.id, name: s.name, desc: s.desc }))}
           value={d.style} onChange={v => set("style", v)} />
       </Block>
-      <Block label="Personality level">
-        <WizOptGrid cols={2} options={PERSONALITY_LEVELS.map(s => ({ id: s.id, name: s.name, desc: s.desc }))}
+      <Block label={tr(lang,"Nivel de personalitate","Personality level")}>
+        <WizOptGrid cols={2} options={personals.map(s => ({ id: s.id, name: s.name, desc: s.desc }))}
           value={d.personalityLevel} onChange={v => set("personalityLevel", v)} />
       </Block>
-      <Block label="Background style">
-        <WizChipSelect options={BACKGROUND_STYLES.map(s => ({ id: s.id, label: s.label }))}
+      <Block label={tr(lang,"Stilul fundalului","Background style")}>
+        <WizChipSelect options={bgs.map(s => ({ id: s.id, label: s.label }))}
           value={d.backgroundStyle} onChange={v => set("backgroundStyle", v as string)} />
       </Block>
     </div>
@@ -684,27 +991,31 @@ function Step02Design({ data, setData }: { data: WizardData; setData: React.Disp
 
 // ─── Step 03 — Colors & Motion ────────────────────────────────────────────────
 
-function Step03Colors({ data, setData }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>> }) {
+function Step03Colors({ data, setData, lang }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>>; lang: Lang }) {
   const d = data.design;
   const set = <K extends keyof WizardData["design"]>(k: K, v: WizardData["design"][K]) =>
     setData(p => ({ ...p, design: { ...p.design, [k]: v } }));
+  const anims = lang === "ro" ? ANIMATION_OPTS_RO : ANIMATION_OPTS;
 
   return (
     <div>
-      <StepHead idx={3} total={10} kicker="Colour & motion" title="Your brand colours"
-        sub="These flow straight into the generated site — pick a primary, an accent, and how lively it should feel." />
-      <Block label="Primary brand color" required note="The dominant colour — buttons, links, key highlights.">
-        <WizColorPicker value={d.primaryColor} onChange={v => set("primaryColor", v)} label="Primary" />
+      <StepHead idx={3} total={11} kicker={tr(lang,"Culoare & mișcare","Colour & motion")}
+        title={tr(lang,"Culorile brandului tău","Your brand colours")}
+        sub={tr(lang,"Acestea ajung direct în site-ul generat — alege o culoare principală, una secundară și cât de dinamic să fie.","These flow straight into the generated site — pick a primary, an accent, and how lively it should feel.")} />
+      <Block label={tr(lang,"Culoarea principală a brandului","Primary brand color")} required
+        note={tr(lang,"Culoarea dominantă — butoane, linkuri, accente cheie.","The dominant colour — buttons, links, key highlights.")}>
+        <WizColorPicker value={d.primaryColor} onChange={v => set("primaryColor", v)} label={tr(lang,"Principală","Primary")} />
       </Block>
-      <Block label="Accent / secondary color" note="Used for supporting elements and contrast.">
-        <WizColorPicker value={d.secondaryColor} onChange={v => set("secondaryColor", v)} label="Accent" />
+      <Block label={tr(lang,"Culoare de accent / secundară","Accent / secondary color")}
+        note={tr(lang,"Folosită pentru elemente de suport și contrast.","Used for supporting elements and contrast.")}>
+        <WizColorPicker value={d.secondaryColor} onChange={v => set("secondaryColor", v)} label={tr(lang,"Accent","Accent")} />
       </Block>
-      <Block label="Animations & interactions">
-        <WizOptGrid cols={2} options={ANIMATION_OPTS.map(a => ({ id: a.id, name: a.name, desc: a.desc }))}
+      <Block label={tr(lang,"Animații & interacțiuni","Animations & interactions")}>
+        <WizOptGrid cols={2} options={anims.map(a => ({ id: a.id, name: a.name, desc: a.desc }))}
           value={d.animations} onChange={v => set("animations", v)} />
       </Block>
-      <Block label="Dark mode">
-        <WizCheckRow label="Include a dark variant — appealing on mobile, modern UX"
+      <Block label={tr(lang,"Mod întunecat","Dark mode")}>
+        <WizCheckRow label={tr(lang,"Adaugă o variantă întunecată — atractivă pe mobil, UX modern","Include a dark variant — appealing on mobile, modern UX")}
           on={d.darkMode} onToggle={v => set("darkMode", v)} />
       </Block>
     </div>
@@ -713,12 +1024,15 @@ function Step03Colors({ data, setData }: { data: WizardData; setData: React.Disp
 
 // ─── Step 04 — Type & Imagery ─────────────────────────────────────────────────
 
-function Step04TypeImagery({ data, setData }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>> }) {
+function Step04TypeImagery({ data, setData, lang }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>>; lang: Lang }) {
   const t = data.typography;
   const l = data.logo;
   const setTypo = <K extends keyof WizardData["typography"]>(k: K, v: WizardData["typography"][K]) =>
     setData(p => ({ ...p, typography: { ...p.typography, [k]: v } }));
   const fileRef = useRef<HTMLInputElement>(null);
+  const fonts   = lang === "ro" ? FONTS_RO    : FONTS;
+  const imagery = lang === "ro" ? IMAGERY_STYLES_RO : IMAGERY_STYLES;
+  const heros   = lang === "ro" ? HERO_PREFS_RO     : HERO_PREFS;
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -730,17 +1044,19 @@ function Step04TypeImagery({ data, setData }: { data: WizardData; setData: React
 
   return (
     <div>
-      <StepHead idx={4} total={10} kicker="Typography & imagery" title="Type, photos & your logo"
-        sub="Lock in the lettering and the visual language, then drop in a logo if you have one." />
-      <Block label="Typography style" required>
+      <StepHead idx={4} total={11} kicker={tr(lang,"Tipografie & imagini","Typography & imagery")}
+        title={tr(lang,"Tipografie, fotografii & logo","Type, photos & your logo")}
+        sub={tr(lang,"Stabilește literele și limbajul vizual — apoi încarcă un logo, dacă ai unul.","Lock in the lettering and the visual language, then drop in a logo if you have one.")} />
+      <Block label={tr(lang,"Stil tipografic","Typography style")} required>
         <div className="wf-opt-grid wf-og-3">
-          {FONTS.map(f => {
+          {fonts.map((f, fi) => {
+            const fontFull = FONTS[fi] ?? FONTS[0];
             const sel = t.fontFamily === f.id;
             return (
               <button key={f.id} type="button" className={`wf-opt-card${sel ? " sel" : ""}`}
                 onClick={() => setTypo("fontFamily", f.id)}>
                 <span className="wf-tick"><ICheck /></span>
-                <span style={{ ...f.style, fontSize: 28, lineHeight: 1, marginBottom: 7, color: "var(--wf-text)", display: "block" }}>{f.sample}</span>
+                <span style={{ ...fontFull.style, fontSize: 28, lineHeight: 1, marginBottom: 7, color: "var(--wf-text)", display: "block" }}>Aa</span>
                 <span className="wf-oct">{f.name}</span>
                 <span className="wf-ocd">{f.desc}</span>
               </button>
@@ -748,15 +1064,15 @@ function Step04TypeImagery({ data, setData }: { data: WizardData; setData: React
           })}
         </div>
       </Block>
-      <Block label="Imagery style">
-        <WizOptGrid cols={3} options={IMAGERY_STYLES.map(i => ({ id: i.id, name: i.name, desc: i.desc }))}
+      <Block label={tr(lang,"Stil imagini","Imagery style")}>
+        <WizOptGrid cols={3} options={imagery.map(i => ({ id: i.id, name: i.name, desc: i.desc }))}
           value={t.imageryStyle} onChange={v => setTypo("imageryStyle", v)} />
       </Block>
-      <Block label="Hero section style">
-        <WizOptGrid cols={2} options={HERO_PREFS.map(h => ({ id: h.id, name: h.name, desc: h.desc }))}
+      <Block label={tr(lang,"Stilul secțiunii hero","Hero section style")}>
+        <WizOptGrid cols={2} options={heros.map(h => ({ id: h.id, name: h.name, desc: h.desc }))}
           value={t.heroPreference} onChange={v => setTypo("heroPreference", v)} />
       </Block>
-      <Block label="Logo" optional note="PNG, SVG, JPG or WebP · Max 5MB — AI places it in the header, sized for navigation.">
+      <Block label="Logo" optional note={tr(lang,"PNG, SVG, JPG sau WebP · Max 5MB — AI îl plasează în antet, dimensionat pentru navigare.","PNG, SVG, JPG or WebP · Max 5MB — AI places it in the header, sized for navigation.")}>
         {l.uploaded && l.dataUrl ? (
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <img src={l.dataUrl} alt={l.fileName} style={{ height: 48, maxWidth: 120, objectFit: "contain", borderRadius: 8, border: "1px solid var(--wf-border)" }} />
@@ -772,8 +1088,8 @@ function Step04TypeImagery({ data, setData }: { data: WizardData; setData: React
           <label className="wf-upload" style={{ display: "block" }}>
             <input ref={fileRef} type="file" accept=".png,.svg,.jpg,.jpeg,.webp" style={{ display: "none" }} onChange={handleFile} />
             <div className="wf-up-ico"><IUpload /></div>
-            <div className="wf-up-h">Upload your logo</div>
-            <div className="wf-up-d">Drag & drop or click to browse</div>
+            <div className="wf-up-h">{tr(lang,"Încarcă logo-ul","Upload your logo")}</div>
+            <div className="wf-up-d">{tr(lang,"Trage sau apasă ca să alegi","Drag & drop or click to browse")}</div>
           </label>
         )}
       </Block>
@@ -783,49 +1099,60 @@ function Step04TypeImagery({ data, setData }: { data: WizardData; setData: React
 
 // ─── Step 05 — Business ───────────────────────────────────────────────────────
 
-function Step05Business({ data, setData }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>> }) {
+function Step05Business({ data, setData, lang }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>>; lang: Lang }) {
   const b = data.business;
   const set = <K extends keyof WizardData["business"]>(k: K, v: WizardData["business"][K]) =>
     setData(p => ({ ...p, business: { ...p.business, [k]: v } }));
+  const bizTypes = lang === "ro" ? BIZ_TYPES_RO : BIZ_TYPES_EN;
+  const schedTypes = (lang === "ro" ? SCHEDULE_TYPES_RO : SCHEDULE_TYPES) as typeof SCHEDULE_TYPES;
 
   return (
     <div>
-      <StepHead idx={5} total={10} kicker="Tell us about your business" title="The basics"
-        sub="Name, contact details, location and opening hours. This grounds everything the AI writes for you." />
+      <StepHead idx={5} total={11} kicker={tr(lang,"Spune-ne despre afacerea ta","Tell us about your business")}
+        title={tr(lang,"Datele de bază","The basics")}
+        sub={tr(lang,"Nume, date de contact, locație și program. Acestea stau la baza a tot ce scrie AI pentru tine.","Name, contact details, location and opening hours. This grounds everything the AI writes for you.")} />
 
-      <Block label="Business name" required>
-        <WizInput value={b.name} onChange={v => set("name", v)} placeholder="e.g. Northside Dental" />
+      <Block label={tr(lang,"Numele afacerii","Business name")} required>
+        <WizInput value={b.name} onChange={v => set("name", v)} placeholder={tr(lang,"ex. Cabinet Dentar Nord","e.g. Northside Dental")} />
       </Block>
 
-      <Block label="Business type" required>
+      <Block label={tr(lang,"Tipul afacerii","Business type")} required>
         <select className="wf-input" value={b.type} onChange={e => set("type", e.target.value)}>
-          {BUSINESS_TYPES.map(t => <option key={t}>{t}</option>)}
+          {bizTypes.map((t, i) => <option key={t} value={i === 0 ? "" : t}>{t || tr(lang,"Alege un tip…","Select a type…")}</option>)}
         </select>
       </Block>
 
-      <Block label="Business description" required note="What you do, in a sentence or two. The AI turns this into your hero and intro copy.">
+      <Block label={tr(lang,"Descrierea afacerii","Business description")} required
+        note={tr(lang,"Ce faci, în una-două propoziții. AI transformă asta în textul de hero și introducere.","What you do, in a sentence or two. The AI turns this into your hero and intro copy.")}>
         <WizTextarea value={b.description} onChange={v => set("description", v)}
-          placeholder="What you do, who you serve, what makes you different…"
+          placeholder={tr(lang,"Ce faci, în una-două propoziții…","What you do, who you serve, what makes you different…")}
           maxLength={500} aiOn={b.aboutAiRephrase} onAiToggle={v => set("aboutAiRephrase", v)} />
       </Block>
 
-      <Block label="About your business" optional>
+      <Block label={tr(lang,"Despre afacerea ta","About your business")} optional>
         <WizTextarea value={b.aboutText} onChange={v => set("aboutText", v)}
-          placeholder="Your story, mission, what makes you different…" maxLength={800}
+          placeholder={tr(lang,"Povestea ta, misiunea, ce te diferențiază…","Your story, mission, what makes you different…")} maxLength={800}
           aiOn={b.aboutAiRephrase} onAiToggle={v => set("aboutAiRephrase", v)} />
       </Block>
 
-      <Block label="Location" required={b.hasLocation}>
+      <Block label={tr(lang,"Locație","Location")} required={b.hasLocation}>
         <LocationAutocomplete city={b.locationCity} country={b.locationCountry} disabled={!b.hasLocation}
           onSelect={(city, country) => setData(p => ({ ...p, business: { ...p.business, locationCity: city, locationCountry: country, location: `${city}${country ? `, ${country}` : ""}` } }))}
           onClear={() => setData(p => ({ ...p, business: { ...p.business, locationCity: "", locationCountry: "", location: "" } }))} />
         <div style={{ marginTop: 10 }}>
-          <WizCheckRow label="I don't have a physical location" on={!b.hasLocation} onToggle={v => set("hasLocation", !v)} />
+          <WizCheckRow label={tr(lang,"Nu am o locație fizică","I don't have a physical location")} on={!b.hasLocation} onToggle={v => set("hasLocation", !v)} />
         </div>
         {b.hasLocation && (
+          <div className="wf-maps-wrap">
+            <div className="wf-blabel">{tr(lang,"Link Google Maps","Google Maps link")} <span className="opt">({tr(lang,"opțional","optional")})</span></div>
+            <div className="wf-maps-note">{tr(lang,'Deschide locatia in Google Maps, apasa "Distribuie" si lipeste linkul aici - il integram in site cu harta si buton de indicatii.',"Open your location in Google Maps, tap Share, and paste the link here — we embed it on the site with a map and directions button.")}</div>
+            <WizInput value={b.mapsLink} onChange={v => set("mapsLink", v)} placeholder="https://maps.app.goo.gl/…" type="url" />
+          </div>
+        )}
+        {b.hasLocation && (
           <div style={{ marginTop: 10 }}>
-            <div className="wf-blabel">Service area <span className="opt">(optional)</span></div>
-            <WizInput value={b.serviceArea} onChange={v => set("serviceArea", v)} placeholder="e.g. Greater London, nationwide, remote" />
+            <div className="wf-blabel">{tr(lang,"Zona de servicii","Service area")} <span className="opt">({tr(lang,"opțional","optional")})</span></div>
+            <WizInput value={b.serviceArea} onChange={v => set("serviceArea", v)} placeholder={tr(lang,"ex. București și împrejurimi","e.g. Greater London, nationwide")} />
           </div>
         )}
       </Block>
@@ -833,34 +1160,34 @@ function Step05Business({ data, setData }: { data: WizardData; setData: React.Di
       <Block>
         <div className="wf-grid2">
           <div>
-            <div className="wf-blabel">Email <span className="opt">(optional)</span></div>
-            <WizInput value={b.email} onChange={v => set("email", v)} placeholder="hello@business.com" type="email" />
+            <div className="wf-blabel">Email <span className="opt">({tr(lang,"opțional","optional")})</span></div>
+            <WizInput value={b.email} onChange={v => set("email", v)} placeholder={tr(lang,"contact@afacerea.ro","hello@business.com")} type="email" />
           </div>
           <div>
-            <div className="wf-blabel">Phone <span className="req">*</span></div>
-            <WizInput value={b.phone} onChange={v => set("phone", v)} placeholder="+1 555 000 0000" disabled={!b.hasPhone} />
+            <div className="wf-blabel">{tr(lang,"Telefon","Phone")} <span className="req">*</span></div>
+            <WizInput value={b.phone} onChange={v => set("phone", v)} placeholder={tr(lang,"+40 7xx xxx xxx","+1 555 000 0000")} disabled={!b.hasPhone} />
           </div>
         </div>
         <div style={{ marginTop: 10 }}>
-          <WizCheckRow label="I don't have a phone number" on={!b.hasPhone} onToggle={v => set("hasPhone", !v)} />
+          <WizCheckRow label={tr(lang,"Nu am un număr de telefon","I don't have a phone number")} on={!b.hasPhone} onToggle={v => set("hasPhone", !v)} />
         </div>
       </Block>
 
-      <Block label="Business schedule">
-        <SchedulePicker schedule={data.schedule} onChange={s => setData(p => ({ ...p, schedule: s }))} />
+      <Block label={tr(lang,"Programul afacerii","Business schedule")}>
+        <SchedulePicker schedule={data.schedule} onChange={s => setData(p => ({ ...p, schedule: s }))} schedTypes={schedTypes} lang={lang} />
       </Block>
 
       <Block>
         <div className="wf-grid2">
           <div>
-            <div className="wf-blabel">Years in business <span className="opt">(optional)</span></div>
+            <div className="wf-blabel">{tr(lang,"Ani de activitate","Years in business")} <span className="opt">({tr(lang,"opțional","optional")})</span></div>
             <select className="wf-input" value={b.experience} onChange={e => set("experience", e.target.value)}>
               {EXPERIENCE_OPTIONS.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
             </select>
           </div>
           <div>
-            <div className="wf-blabel">Your name <span className="opt">(optional)</span></div>
-            <WizInput value={b.ownerName} onChange={v => set("ownerName", v)} placeholder="So we can address you" />
+            <div className="wf-blabel">{tr(lang,"Numele tău","Your name")} <span className="opt">({tr(lang,"opțional","optional")})</span></div>
+            <WizInput value={b.ownerName} onChange={v => set("ownerName", v)} placeholder={tr(lang,"Ca să ne adresăm corect","So we can address you")} />
           </div>
         </div>
       </Block>
@@ -870,34 +1197,41 @@ function Step05Business({ data, setData }: { data: WizardData; setData: React.Di
 
 // ─── Step 06 — Goals & Audience ───────────────────────────────────────────────
 
-function Step06Goals({ data, setData }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>> }) {
+function Step06Goals({ data, setData, lang }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>>; lang: Lang }) {
   const g = data.goals;
   const set = <K extends keyof WizardData["goals"]>(k: K, v: WizardData["goals"][K]) =>
     setData(p => ({ ...p, goals: { ...p.goals, [k]: v } }));
+  const goals   = lang === "ro" ? MAIN_GOALS_RO : MAIN_GOALS;
+  const feels   = lang === "ro"
+    ? VISITOR_FEELS_RO.map(f => ({ id: f.id, label: f.label }))
+    : VISITOR_FEELS.map(f => ({ id: f, label: f }));
 
   return (
     <div>
-      <StepHead idx={6} total={10} kicker="Goals & audience" title="What should it accomplish?"
-        sub="Tell us the job your website needs to do and who it's speaking to — we optimise the layout around it." />
-      <Block label="Main goal" required note="What's the #1 thing a visitor should do?">
-        <WizOptGrid cols={2} options={MAIN_GOALS.map(m => ({ id: m.id, name: m.name, desc: m.desc }))}
+      <StepHead idx={6} total={11} kicker={tr(lang,"Obiective & public","Goals & audience")}
+        title={tr(lang,"Ce trebuie să realizeze?","What should it accomplish?")}
+        sub={tr(lang,"Spune-ne ce sarcină are de îndeplinit site-ul și cui i se adresează — optimizăm aranjamentul în jurul acestui scop.","Tell us the job your website needs to do and who it's speaking to — we optimise the layout around it.")} />
+      <Block label={tr(lang,"Obiectiv principal","Main goal")} required
+        note={tr(lang,"Care e lucrul #1 pe care ar trebui să-l facă un vizitator?","What's the #1 thing a visitor should do?")}>
+        <WizOptGrid cols={2} options={goals.map(m => ({ id: m.id, name: m.name, desc: m.desc }))}
           value={g.mainGoal} onChange={v => set("mainGoal", v)} />
       </Block>
-      <Block label="How should visitors feel when they land?" note="Pick one — this shapes colour, copy and imagery.">
-        <WizChipSelect options={VISITOR_FEELS.map(f => ({ id: f, label: f }))}
+      <Block label={tr(lang,"Cum ar trebui să se simtă vizitatorii când ajung pe site?","How should visitors feel when they land?")}
+        note={tr(lang,"Alege una — asta modelează culorile, textul și imaginile.","Pick one — this shapes colour, copy and imagery.")}>
+        <WizChipSelect options={feels}
           value={g.visitorFeel} onChange={v => set("visitorFeel", v as string)} />
       </Block>
-      <Block label="Who is your ideal customer?" optional>
+      <Block label={tr(lang,"Cine este clientul tău ideal?","Who is your ideal customer?")} optional>
         <WizInput value={g.idealCustomer} onChange={v => set("idealCustomer", v)}
-          placeholder="e.g. busy parents, local homeowners, founders…" />
+          placeholder={tr(lang,"ex. părinți ocupați, proprietari locali…","e.g. busy parents, local homeowners, founders…")} />
       </Block>
-      <Block label="What problem do you solve for them?" optional>
+      <Block label={tr(lang,"Ce problemă le rezolvi?","What problem do you solve for them?")} optional>
         <WizTextarea value={g.problemSolved} onChange={v => set("problemSolved", v)}
-          placeholder="The core pain you take away" maxLength={300} />
+          placeholder={tr(lang,"Durerea principală pe care o elimini","The core pain you take away")} maxLength={300} />
       </Block>
-      <Block label="Why should they choose you over competitors?" optional>
+      <Block label={tr(lang,"De ce să te aleagă pe tine în locul concurenței?","Why should they choose you over competitors?")} optional>
         <WizTextarea value={g.whyChoose} onChange={v => set("whyChoose", v)}
-          placeholder="Your edge — experience, price, care, speed…" maxLength={300} />
+          placeholder={tr(lang,"Avantajul tău — experiență, preț, grijă, viteză…","Your edge — experience, price, care, speed…")} maxLength={300} />
       </Block>
     </div>
   );
@@ -905,24 +1239,28 @@ function Step06Goals({ data, setData }: { data: WizardData; setData: React.Dispa
 
 // ─── Step 07 — Services & Pricing ─────────────────────────────────────────────
 
-function Step07Services({ data, setData }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>> }) {
+function Step07Services({ data, setData, lang }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>>; lang: Lang }) {
   const s = data.services;
   const set = <K extends keyof WizardData["services"]>(k: K, v: WizardData["services"][K]) =>
     setData(p => ({ ...p, services: { ...p.services, [k]: v } }));
+  const offers = lang === "ro" ? OFFERS_TYPES_RO : OFFERS_TYPES;
+  const prices = lang === "ro" ? PRICE_VISIBILITY_RO : PRICE_VISIBILITY;
 
   return (
     <div>
-      <StepHead idx={7} total={10} kicker="Services & pricing" title="What you offer"
-        sub="List what you sell and choose how prices appear. Leave the descriptions to us if you like." />
-      <Block label="What do you offer?" required>
-        <WizOptGrid cols={2} options={OFFERS_TYPES.map(o => ({ id: o.id, name: o.name, desc: o.desc }))}
+      <StepHead idx={7} total={11} kicker={tr(lang,"Servicii & prețuri","Services & pricing")}
+        title={tr(lang,"Ce oferi","What you offer")}
+        sub={tr(lang,"Listează ce vinzi și alege cum apar prețurile. Lasă descrierile pe seama noastră, dacă vrei.","List what you sell and choose how prices appear. Leave the descriptions to us if you like.")} />
+      <Block label={tr(lang,"Ce oferi?","What do you offer?")} required>
+        <WizOptGrid cols={2} options={offers.map(o => ({ id: o.id, name: o.name, desc: o.desc }))}
           value={s.offersType} onChange={v => set("offersType", v)} />
       </Block>
-      <Block label="List your main services or products" optional note="AI will generate polished descriptions for each one.">
-        <WizRepeater items={s.list} onChange={v => set("list", v)} placeholder="e.g. Full website redesign" />
+      <Block label={tr(lang,"Listează principalele servicii sau produse","List your main services or products")} optional
+        note={tr(lang,"AI va genera descrieri șlefuite pentru fiecare.","AI will generate polished descriptions for each one.")}>
+        <WizRepeater items={s.list} onChange={v => set("list", v)} placeholder={tr(lang,"ex. Consultație & plan de tratament","e.g. Full website redesign")} />
       </Block>
-      <Block label="How should pricing be shown?">
-        <WizChipSelect options={PRICE_VISIBILITY.map(p => ({ id: p.id, label: p.label }))}
+      <Block label={tr(lang,"Cum ar trebui afișate prețurile?","How should pricing be shown?")}>
+        <WizChipSelect options={prices.map(p => ({ id: p.id, label: p.label }))}
           value={s.priceVisibility} onChange={v => set("priceVisibility", v as string)} />
       </Block>
     </div>
@@ -931,9 +1269,11 @@ function Step07Services({ data, setData }: { data: WizardData; setData: React.Di
 
 // ─── Step 08 — Pages ──────────────────────────────────────────────────────────
 
-function Step08Pages({ data, setData }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>> }) {
+function Step08Pages({ data, setData, lang }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>>; lang: Lang }) {
   const pg = data.pages;
   const selected = pg.selected || [];
+  const corePages  = lang === "ro" ? CORE_PAGES_RO  : CORE_PAGES;
+  const extraPages = lang === "ro" ? EXTRA_PAGES_RO : EXTRA_PAGES;
 
   const toggle = (id: string, required: boolean) => {
     if (required) return;
@@ -943,12 +1283,13 @@ function Step08Pages({ data, setData }: { data: WizardData; setData: React.Dispa
 
   return (
     <div>
-      <StepHead idx={8} total={10} kicker="Pages & structure" title="Which pages do you need?"
-        sub="Home is always included. Toggle the rest — then drop in anything you want the AI to say per section." />
+      <StepHead idx={8} total={11} kicker={tr(lang,"Pagini & structură","Pages & structure")}
+        title={tr(lang,"De ce pagini ai nevoie?","Which pages do you need?")}
+        sub={tr(lang,"Pagina Acasă este inclusă mereu. Activează-le pe celelalte, apoi adaugă orice vrei să spună AI.","Home is always included. Toggle the rest — then drop in anything you want the AI to say per section.")} />
 
-      <Block label="Core pages" note="The essentials — Home is always included.">
+      <Block label={tr(lang,"Pagini esențiale","Core pages")} note={tr(lang,"Pagina Acasă este inclusă mereu.","Home is always included.")}>
         <div className="wf-opt-grid wf-og-2">
-          {CORE_PAGES.map(p => {
+          {corePages.map(p => {
             const on = p.required || selected.includes(p.id);
             return (
               <button key={p.id} type="button"
@@ -957,16 +1298,16 @@ function Step08Pages({ data, setData }: { data: WizardData; setData: React.Dispa
                 style={p.required ? { cursor: "default" } : undefined}>
                 <span className="wf-tick">{p.required ? <ILock /> : <ICheck />}</span>
                 <span className="wf-oct">{p.label}</span>
-                <span className="wf-ocd">{p.required ? "Always included" : p.desc}</span>
+                <span className="wf-ocd">{p.required ? tr(lang,"Inclusă mereu","Always included") : p.desc}</span>
               </button>
             );
           })}
         </div>
       </Block>
 
-      <Block label="Add more pages" optional>
+      <Block label={tr(lang,"Adaugă mai multe pagini","Add more pages")} optional>
         <div className="wf-opt-grid wf-og-3">
-          {EXTRA_PAGES.map(p => {
+          {extraPages.map(p => {
             const on = selected.includes(p.id);
             return (
               <button key={p.id} type="button" className={`wf-opt-card${on ? " sel" : ""}`} onClick={() => toggle(p.id, false)}>
@@ -979,185 +1320,258 @@ function Step08Pages({ data, setData }: { data: WizardData; setData: React.Dispa
         </div>
       </Block>
 
-      <Block label="Additional notes for the AI" optional note="Anything specific you want included or avoided on any page.">
+      <Block label={tr(lang,"Note suplimentare pentru AI","Additional notes for the AI")} optional
+        note={tr(lang,"Orice specific pe care vrei să-l incluzi sau să-l eviți pe orice pagină.","Anything specific you want included or avoided on any page.")}>
         <WizTextarea value={pg.additionalNotes} onChange={v => setData(p => ({ ...p, pages: { ...p.pages, additionalNotes: v } }))}
-          placeholder="e.g. Make the About page personal, no stock photo clichés, include our founding story…" maxLength={600} />
+          placeholder={tr(lang,"ex. Pagina Despre noi să fie personală, fără fotografii stock clișeu…","e.g. Make the About page personal, no stock photo clichés, include our founding story…")} maxLength={600} />
       </Block>
     </div>
   );
 }
 
-// ─── Step 09 — Finishing Touches ──────────────────────────────────────────────
+// ─── Step 09 — Gallery, Team & Social ────────────────────────────────────────
 
-function Step09Finishing({ data, setData }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>> }) {
+function Step09MediaSocial({ data, setData, lang }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>>; lang: Lang }) {
+  return (
+    <div>
+      <StepHead idx={9} total={11}
+        kicker={tr(lang,"Poze & prezență online","Photos & online presence")}
+        title={tr(lang,"Galerie, echipă & social","Gallery, team & social")}
+        sub={tr(lang,"Pozele reale vând. Încarcă imagini cu brandul tău, prezintă-ți echipa și leagă-ți rețelele sociale de site.","Real photos sell. Upload brand images, introduce your team, and connect your social networks.")} />
+
+      <Block label={tr(lang,"Galerie foto","Photo gallery")} optional
+        note={tr(lang,"Poze cu localul, produsele, lucrările sau atmosfera afacerii tale — apar în galeria site-ului.","Photos of your premises, products, work or atmosphere — shown in the site gallery.")}>
+        <GalleryGrid
+          photos={data.gallery}
+          onChange={fn => setData(p => ({ ...p, gallery: fn(p.gallery) }))}
+          lang={lang}
+        />
+      </Block>
+
+      <Block label={tr(lang,"Secțiunea de echipă","Team section")}>
+        <WizOptGrid cols={2} options={[
+          { id: "no",  name: tr(lang,"Fără secțiune de echipă","No team section"), desc: tr(lang,"Sări peste secțiunea de echipă","Skip the team section") },
+          { id: "yes", name: tr(lang,"Da, adaugă membri","Yes, add members"),      desc: tr(lang,"Prezintă-ți echipa, cu poză și rol","Feature your team with photo and role") },
+        ]} value={data.team.enabled ? "yes" : "no"}
+          onChange={v => setData(p => ({ ...p, team: { ...p.team, enabled: v === "yes" } }))} />
+        {data.team.enabled && (
+          <div style={{ marginTop: 16 }}>
+            <div className="wf-bnote" style={{ marginBottom: 12 }}>
+              {tr(lang,"Adauga fiecare persoana cu numele complet (ex. Dr. Alina Popescu), rolul si o poza.","Add each person with their full name, role, and a photo.")}
+            </div>
+            <TeamEditor
+              members={data.galleryMembers}
+              onChange={v => setData(p => ({ ...p, galleryMembers: v }))}
+              lang={lang}
+            />
+          </div>
+        )}
+      </Block>
+
+      <Block label="Social media" optional>
+        <SocialLinksEditor socials={data.socials} onChange={v => setData(p => ({ ...p, socials: v }))} lang={lang} />
+      </Block>
+    </div>
+  );
+}
+
+// ─── Step 10 — Finishing Touches ──────────────────────────────────────────────
+
+function Step09Finishing({ data, setData, lang }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>>; lang: Lang }) {
   const pg = data.pages;
   const setPg = <K extends keyof WizardData["pages"]>(k: K, v: WizardData["pages"][K]) =>
     setData(p => ({ ...p, pages: { ...p.pages, [k]: v } }));
+  const ctas     = lang === "ro" ? CTA_OPTIONS_RO     : CTA_OPTIONS;
+  const tones    = lang === "ro" ? TONE_OPTIONS_RO    : TONE_OPTIONS;
+  const features = lang === "ro" ? SPECIAL_FEATURES_RO: SPECIAL_FEATURES;
+  const langs    = lang === "ro" ? LANGUAGES_RO        : LANGUAGES;
 
   return (
     <div>
-      <StepHead idx={9} total={10} kicker="Finishing touches" title="Tone & the final details"
-        sub="The last few choices that give your site personality and tell visitors exactly what to do." />
+      <StepHead idx={10} total={11} kicker={tr(lang,"Detalii finale","Finishing touches")}
+        title={tr(lang,"Tonul & ultimele detalii","Tone & the final details")}
+        sub={tr(lang,"Ultimele alegeri care dau personalitate site-ului și le spun vizitatorilor exact ce să facă.","The last few choices that give your site personality and tell visitors exactly what to do.")} />
 
-      <Block label="Primary call-to-action" required note="The main action you want visitors to take.">
-        <WizChipSelect options={CTA_OPTIONS.map(c => ({ id: c.id, label: c.label }))}
+      <Block label={tr(lang,"Acțiunea principală (CTA)","Primary call-to-action")} required
+        note={tr(lang,"Acțiunea principală pe care vrei să o facă vizitatorii.","The main action you want visitors to take.")}>
+        <WizChipSelect options={ctas.map(c => ({ id: c.id, label: c.label }))}
           value={pg.primaryCTA} onChange={v => setPg("primaryCTA", v as string)} />
       </Block>
 
-      <Block label="Content tone">
-        <WizOptGrid cols={3} options={TONE_OPTIONS.map(t => ({ id: t.id, name: t.label }))}
+      <Block label={tr(lang,"Tonul conținutului","Content tone")}>
+        <WizOptGrid cols={3} options={tones.map(t => ({ id: t.id, name: t.label }))}
           value={pg.contentTone} onChange={v => setPg("contentTone", v)} />
       </Block>
 
-      <Block label="Team section">
-        <WizOptGrid cols={2} options={[
-          { id: "no",  name: "No team section",       desc: "Skip the team section" },
-          { id: "yes", name: "Yes, add team members", desc: "Feature your team on the website" },
-        ]} value={data.team.enabled ? "yes" : "no"}
-          onChange={v => setData(p => ({ ...p, team: { ...p.team, enabled: v === "yes" } }))} />
-      </Block>
-
-      <Block label="Special features to include" optional>
-        <WizChipSelect options={SPECIAL_FEATURES.map(f => ({ id: f.id, label: f.label }))}
+      <Block label={tr(lang,"Funcții speciale de inclus","Special features to include")} optional>
+        <WizChipSelect options={features.map(f => ({ id: f.id, label: f.label }))}
           value={pg.specialFeatures} onChange={v => setPg("specialFeatures", v as string[])} multi />
       </Block>
 
-      <Block label="Use emojis in your website?">
+      <Block label={tr(lang,"Folosești emoji pe site?","Use emojis in your website?")}>
         <WizOptGrid cols={2} options={[
-          { id: "no",  name: "No, keep it professional", desc: "Clean and formal — no emojis" },
-          { id: "yes", name: "Yes, add personality",     desc: "Emojis to make it feel friendly" },
+          { id: "no",  name: tr(lang,"Nu, păstrează-l profesional","No, keep it professional"), desc: tr(lang,"Curat și formal — fără emoji","Clean and formal — no emojis") },
+          { id: "yes", name: tr(lang,"Da, adaugă personalitate","Yes, add personality"),       desc: tr(lang,"Emoji ca să pară mai prietenos","Emojis to make it feel friendly") },
         ]} value={data.useEmojis ? "yes" : "no"}
           onChange={v => setData(p => ({ ...p, useEmojis: v === "yes" }))} />
       </Block>
 
-      <Block label="Website language" note="All content will be generated in this language.">
+      <Block label={tr(lang,"Limba site-ului","Website language")} note={tr(lang,"Tot conținutul va fi generat în această limbă.","All content will be generated in this language.")}>
         <select className="wf-input" value={data.websiteLanguage}
           onChange={e => setData(p => ({ ...p, websiteLanguage: e.target.value }))}>
-          {LANGUAGES.map(l => <option key={l}>{l}</option>)}
+          {langs.map(l => <option key={l}>{l}</option>)}
         </select>
       </Block>
     </div>
   );
 }
 
-// ─── Step 10 — Review ─────────────────────────────────────────────────────────
+// ─── Step 11 — Review ─────────────────────────────────────────────────────────
 
-function Step10Review({ data, goTo, onGenerate, loading, vercelAuthorized, isEditMode }: {
+function Step10Review({ data, goTo, onGenerate, loading, vercelAuthorized, isEditMode, lang }: {
   data: WizardData; goTo: (n: number) => void; onGenerate: () => void;
-  loading: boolean; vercelAuthorized: boolean | null; isEditMode: boolean;
+  loading: boolean; vercelAuthorized: boolean | null; isEditMode: boolean; lang: Lang;
 }) {
   const dash = (v: string | undefined) => v || "—";
-  const goalLabel = MAIN_GOALS.find(g => g.id === data.goals.mainGoal)?.name;
-  const offerLabel = OFFERS_TYPES.find(o => o.id === data.services.offersType)?.name;
-  const toneLabel = TONE_OPTIONS.find(t => t.id === data.pages.contentTone)?.label;
-  const ctaLabel = CTA_OPTIONS.find(c => c.id === data.pages.primaryCTA)?.label;
-  const styleLabel = VISUAL_STYLES.find(s => s.id === data.design.style)?.name;
-  const fontLabel = FONTS.find(f => f.id === data.typography.fontFamily)?.name;
-  const imageryLabel = IMAGERY_STYLES.find(i => i.id === data.typography.imageryStyle)?.name;
-  const activePages = (data.pages.selected || []).join(", ") || "home, services, about, contact";
+  const goals   = lang === "ro" ? MAIN_GOALS_RO   : MAIN_GOALS;
+  const offers  = lang === "ro" ? OFFERS_TYPES_RO : OFFERS_TYPES;
+  const tones   = lang === "ro" ? TONE_OPTIONS_RO : TONE_OPTIONS;
+  const ctas    = lang === "ro" ? CTA_OPTIONS_RO  : CTA_OPTIONS;
+  const styles  = lang === "ro" ? VISUAL_STYLES_RO: VISUAL_STYLES;
+  const fonts   = lang === "ro" ? FONTS_RO        : FONTS;
+  const imagery = lang === "ro" ? IMAGERY_STYLES_RO : IMAGERY_STYLES;
+  const goalLabel    = goals.find(g => g.id === data.goals.mainGoal)?.name;
+  const offerLabel   = offers.find(o => o.id === data.services.offersType)?.name;
+  const toneLabel    = tones.find(t => t.id === data.pages.contentTone)?.label;
+  const ctaLabel     = ctas.find(c => c.id === data.pages.primaryCTA)?.label;
+  const styleLabel   = styles.find(s => s.id === data.design.style)?.name;
+  const fontLabel    = fonts.find(f => f.id === data.typography.fontFamily)?.name;
+  const imageryLabel = imagery.find(i => i.id === data.typography.imageryStyle)?.name;
+  const activePages  = (data.pages.selected || []).join(", ") || "home, services, about, contact";
+  const galleryCount = data.gallery.length;
+  const teamList     = data.galleryMembers.filter(m => m.name.trim() || m.photo);
+  const activeSocials = SOC_NETWORKS.filter(n => ((data.socials as Record<string,string>)[n.key] || "").trim());
 
   return (
     <div>
-      <StepHead idx={10} total={10} kicker="Review & generate" title="Everything look good?"
-        sub="A quick scan before we build. Click any Edit link to jump back and change it." />
+      <StepHead idx={11} total={11} kicker={tr(lang,"Verificare & generare","Review & generate")}
+        title={tr(lang,"Totul arată bine?","Everything look good?")}
+        sub={tr(lang,"O privire rapida inainte de constructie. Apasa orice Editeaza ca sa te intorci.","A quick scan before we build. Click any Edit link to jump back and change it.")} />
 
       <div className="wf-rev-grid">
+        {[
+          { k: tr(lang,"Șablon","Template"), step: 0, v: data.templateId
+            ? `Template ${data.templateId}`
+            : <span style={{ fontStyle:"italic", color:"var(--wf-text3)" }}>{tr(lang,"Personalizat","Custom / scratch")}</span> },
+          { k: tr(lang,"Afacere","Business"), step: 4,
+            v: `${dash(data.business.name)}${data.business.type ? ` · ${data.business.type}` : ""}`, muted: !data.business.name },
+          { k: tr(lang,"Descriere","Description"), step: 4,
+            v: dash(data.business.description), muted: !data.business.description, small: true },
+          { k: tr(lang,"Locație","Location"), step: 4,
+            v: !data.business.hasLocation
+              ? tr(lang,"Fără locație fizică","No physical location")
+              : dash(data.business.location),
+            muted: !data.business.location && data.business.hasLocation,
+            extra: data.business.hasLocation && data.business.mapsLink
+              ? <span style={{ display:"block",marginTop:4,fontFamily:"var(--wf-mono)",fontSize:11,color:"var(--wf-ok)" }}>✓ Google Maps</span>
+              : null },
+          { k: tr(lang,"Obiectiv principal","Main goal"), step: 5, v: dash(goalLabel), muted: !goalLabel },
+          { k: tr(lang,"Ce oferi","What you offer"), step: 6, v: dash(offerLabel), muted: !offerLabel },
+          { k: tr(lang,"Stil de design","Design style"), step: 1, v: dash(styleLabel), muted: !styleLabel },
+          { k: tr(lang,"Tipografie","Typography"), step: 3, v: dash(fontLabel), muted: !fontLabel },
+        ].map(({ k, step, v, muted, small, extra }) => (
+          <div className="wf-rev-card" key={k}>
+            <button type="button" className="wf-edit" onClick={() => goTo(step)}>{tr(lang,"Editează","Edit")}</button>
+            <div className="wf-rk">{k}</div>
+            <div className={`wf-rv${muted ? " muted" : ""}`} style={small ? { fontSize:13, overflow:"hidden", WebkitLineClamp:3, display:"-webkit-box", WebkitBoxOrient:"vertical" } : undefined}>{v}{extra}</div>
+          </div>
+        ))}
         <div className="wf-rev-card">
-          <button type="button" className="wf-edit" onClick={() => goTo(0)}>Edit</button>
-          <div className="wf-rk">Template</div>
-          <div className="wf-rv">{data.templateId ? `Template ${data.templateId}` : <span style={{ fontStyle: "italic", color: "var(--wf-text3)" }}>Custom / scratch</span>}</div>
-        </div>
-        <div className="wf-rev-card">
-          <button type="button" className="wf-edit" onClick={() => goTo(4)}>Edit</button>
-          <div className="wf-rk">Business</div>
-          <div className={`wf-rv${!data.business.name ? " muted" : ""}`}>{dash(data.business.name)}{data.business.type ? ` · ${data.business.type}` : ""}</div>
-        </div>
-        <div className="wf-rev-card">
-          <button type="button" className="wf-edit" onClick={() => goTo(4)}>Edit</button>
-          <div className="wf-rk">Description</div>
-          <div className={`wf-rv${!data.business.description ? " muted" : ""}`} style={{ fontSize: 13, WebkitLineClamp: 3, display: "-webkit-box", WebkitBoxOrient: "vertical", overflow: "hidden" }}>{dash(data.business.description)}</div>
-        </div>
-        <div className="wf-rev-card">
-          <button type="button" className="wf-edit" onClick={() => goTo(4)}>Edit</button>
-          <div className="wf-rk">Location</div>
-          <div className={`wf-rv${!data.business.location && data.business.hasLocation ? " muted" : ""}`}>{!data.business.hasLocation ? "No physical location" : dash(data.business.location)}</div>
-        </div>
-        <div className="wf-rev-card">
-          <button type="button" className="wf-edit" onClick={() => goTo(5)}>Edit</button>
-          <div className="wf-rk">Main goal</div>
-          <div className={`wf-rv${!goalLabel ? " muted" : ""}`}>{dash(goalLabel)}</div>
-        </div>
-        <div className="wf-rev-card">
-          <button type="button" className="wf-edit" onClick={() => goTo(6)}>Edit</button>
-          <div className="wf-rk">What you offer</div>
-          <div className={`wf-rv${!offerLabel ? " muted" : ""}`}>{dash(offerLabel)}</div>
-        </div>
-        <div className="wf-rev-card">
-          <button type="button" className="wf-edit" onClick={() => goTo(1)}>Edit</button>
-          <div className="wf-rk">Design style</div>
-          <div className={`wf-rv${!styleLabel ? " muted" : ""}`}>{dash(styleLabel)}</div>
-        </div>
-        <div className="wf-rev-card">
-          <button type="button" className="wf-edit" onClick={() => goTo(2)}>Edit</button>
-          <div className="wf-rk">Colours</div>
+          <button type="button" className="wf-edit" onClick={() => goTo(2)}>{tr(lang,"Editează","Edit")}</button>
+          <div className="wf-rk">{tr(lang,"Culori","Colours")}</div>
           <div className="wf-rv">
             <div className="wf-rev-swatches">
-              <i style={{ background: data.design.primaryColor }} />
-              <i style={{ background: data.design.secondaryColor }} />
-              <span style={{ fontFamily: "var(--wf-mono)", fontSize: 11, color: "var(--wf-text3)", alignSelf: "center", marginLeft: 4 }}>{data.design.primaryColor} · {data.design.secondaryColor}</span>
+              <i style={{ background: data.design.primaryColor }} /><i style={{ background: data.design.secondaryColor }} />
+              <span style={{ fontFamily:"var(--wf-mono)",fontSize:11,color:"var(--wf-text3)",alignSelf:"center",marginLeft:4 }}>{data.design.primaryColor} · {data.design.secondaryColor}</span>
             </div>
           </div>
         </div>
+        {[
+          { k: tr(lang,"Imagini","Imagery"),  step: 3, v: dash(imageryLabel), muted: !imageryLabel },
+          { k: tr(lang,"Pagini","Pages"),      step: 7, v: activePages, small: true },
+          { k: tr(lang,"CTA principal","Primary CTA"), step: 9, v: dash(ctaLabel), muted: !ctaLabel },
+          { k: tr(lang,"Tonul conținutului","Content tone"), step: 9, v: dash(toneLabel), muted: !toneLabel },
+        ].map(({ k, step, v, muted, small }) => (
+          <div className="wf-rev-card" key={k}>
+            <button type="button" className="wf-edit" onClick={() => goTo(step)}>{tr(lang,"Editează","Edit")}</button>
+            <div className="wf-rk">{k}</div>
+            <div className={`wf-rv${muted ? " muted" : ""}`} style={small ? { fontSize:13 } : undefined}>{v}</div>
+          </div>
+        ))}
         <div className="wf-rev-card">
-          <button type="button" className="wf-edit" onClick={() => goTo(3)}>Edit</button>
-          <div className="wf-rk">Typography</div>
-          <div className={`wf-rv${!fontLabel ? " muted" : ""}`}>{dash(fontLabel)}</div>
+          <button type="button" className="wf-edit" onClick={() => goTo(8)}>{tr(lang,"Editează","Edit")}</button>
+          <div className="wf-rk">{tr(lang,"Galerie foto","Photo gallery")}</div>
+          <div className="wf-rv">
+            {galleryCount > 0 ? (
+              <div className="wf-rev-thumbs">
+                {data.gallery.slice(0,6).map((src,i) => <img key={i} src={src} alt="" />)}
+                {galleryCount > 6 && <span className="wf-more">+{galleryCount-6}</span>}
+              </div>
+            ) : <span style={{ fontStyle:"italic",color:"var(--wf-text3)" }}>{tr(lang,"Fără poze","No photos")}</span>}
+          </div>
         </div>
         <div className="wf-rev-card">
-          <button type="button" className="wf-edit" onClick={() => goTo(3)}>Edit</button>
-          <div className="wf-rk">Imagery</div>
-          <div className={`wf-rv${!imageryLabel ? " muted" : ""}`}>{dash(imageryLabel)}</div>
+          <button type="button" className="wf-edit" onClick={() => goTo(8)}>{tr(lang,"Editează","Edit")}</button>
+          <div className="wf-rk">{tr(lang,"Echipă","Team")}</div>
+          <div className="wf-rv">
+            {data.team.enabled && teamList.length > 0 ? (
+              <div className="wf-rev-team">
+                {teamList.slice(0,4).map((m,i) => (
+                  <span key={i} className="wf-rt-chip">
+                    {m.photo ? <img src={m.photo} alt={m.name} /> : <i />}
+                    {m.name || tr(lang,"Fără nume","No name")}
+                  </span>
+                ))}
+                {teamList.length > 4 && <span className="wf-more">+{teamList.length-4}</span>}
+              </div>
+            ) : <span style={{ fontStyle:"italic",color:"var(--wf-text3)" }}>{tr(lang,"Fără secțiune de echipă","No team section")}</span>}
+          </div>
         </div>
         <div className="wf-rev-card">
-          <button type="button" className="wf-edit" onClick={() => goTo(7)}>Edit</button>
-          <div className="wf-rk">Pages</div>
-          <div className="wf-rv" style={{ fontSize: 13 }}>{activePages}</div>
-        </div>
-        <div className="wf-rev-card">
-          <button type="button" className="wf-edit" onClick={() => goTo(8)}>Edit</button>
-          <div className="wf-rk">Primary CTA</div>
-          <div className={`wf-rv${!ctaLabel ? " muted" : ""}`}>{dash(ctaLabel)}</div>
-        </div>
-        <div className="wf-rev-card">
-          <button type="button" className="wf-edit" onClick={() => goTo(8)}>Edit</button>
-          <div className="wf-rk">Content tone</div>
-          <div className={`wf-rv${!toneLabel ? " muted" : ""}`}>{dash(toneLabel)}</div>
+          <button type="button" className="wf-edit" onClick={() => goTo(8)}>{tr(lang,"Editează","Edit")}</button>
+          <div className="wf-rk">Social media</div>
+          <div className="wf-rv" style={{ fontSize:13 }}>
+            {activeSocials.length > 0
+              ? activeSocials.map(n => n.label).join(", ")
+              : <span style={{ fontStyle:"italic",color:"var(--wf-text3)" }}>{tr(lang,"Nicio rețea adăugată","No networks added")}</span>}
+          </div>
         </div>
       </div>
 
       <div className="wf-deploy-card">
         <div className="wf-deploy-ico"><ITriangle /></div>
         <div style={{ flex: 1 }}>
-          <div className="wf-vh">Vercel connected <span style={{ color: "var(--wf-ok)" }}>✓</span></div>
-          <div className="wf-vd">Your generated website deploys directly to your own Vercel project. You keep the code, forever.</div>
+          <div className="wf-vh">Vercel {tr(lang,"conectat","connected")} <span style={{ color:"var(--wf-ok)" }}>✓</span></div>
+          <div className="wf-vd">{tr(lang,"Site-ul generat se publică direct în propriul tău proiect Vercel. Codul rămâne al tău, pentru totdeauna.","Your generated website deploys directly to your own Vercel project. You keep the code, forever.")}</div>
         </div>
         {vercelAuthorized === false && (
-          <a href="/api/auth/vercel" style={{ flexShrink: 0, marginLeft: "auto", fontFamily: "var(--wf-mono)", fontSize: 11.5, fontWeight: 600, padding: "7px 13px", borderRadius: 7, background: "var(--wf-text)", color: "#fff", textDecoration: "none" }}>Connect Vercel</a>
+          <a href="/api/auth/vercel" style={{ flexShrink:0,marginLeft:"auto",fontFamily:"var(--wf-mono)",fontSize:11.5,fontWeight:600,padding:"7px 13px",borderRadius:7,background:"var(--wf-text)",color:"#fff",textDecoration:"none" }}>
+            {tr(lang,"Conectează Vercel","Connect Vercel")}
+          </a>
         )}
       </div>
 
       {isEditMode ? (
-        <button type="button" className="wf-btn wf-btn-pay" onClick={onGenerate} disabled={loading}
-          style={{ width: "100%" }}>
-          {loading ? "Regenerating…" : "Regenerate my website →"}
+        <button type="button" className="wf-btn wf-btn-pay" onClick={onGenerate} disabled={loading} style={{ width:"100%" }}>
+          {loading ? tr(lang,"Se regenerează…","Regenerating…") : tr(lang,"Regenerează site-ul →","Regenerate my website →")}
         </button>
       ) : (
-        <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:16, flexWrap:"wrap" }}>
           <button type="button" className="wf-btn wf-btn-pay" onClick={onGenerate}>
-            Continue to payment →
+            {tr(lang,"Continuă spre plată →","Continue to payment →")}
           </button>
-          <span style={{ fontFamily: "var(--wf-mono)", fontSize: 11.5, color: "var(--wf-text3)" }}>
-            €59.99 one-time · no edits included · domain sold separately on Vercel
+          <span style={{ fontFamily:"var(--wf-mono)",fontSize:11.5,color:"var(--wf-text3)" }}>
+            {tr(lang,"59,99 € plată unică · fără editări incluse · domeniu separat pe Vercel","€59.99 one-time · no edits included · domain sold separately on Vercel")}
           </span>
         </div>
       )}
@@ -1227,77 +1641,55 @@ function GenerateOverlay({ siteName, countdown, stageMsg }: { siteName: string; 
   );
 }
 
-function PaymentOverlay({ data, onCancel, onPay }: { data: WizardData; onCancel: () => void; onPay: () => void }) {
-  const [card, setCard] = useState("");
-  const [exp, setExp] = useState("");
-  const [cvc, setCvc] = useState("");
-  const [name, setName] = useState("");
+function PaymentOverlay({ data, onCancel, onPay, lang }: { data: WizardData; onCancel: () => void; onPay: () => void; lang: Lang }) {
   const [phase, setPhase] = useState<"form" | "redirecting">("form");
 
-  const digits = (s: string) => s.replace(/\D/g, "");
-  const fmtCard = (s: string) => digits(s).slice(0, 16).replace(/(\d{4})(?=\d)/g, "$1 ");
-  const fmtExp  = (s: string) => { const d = digits(s).slice(0, 4); return d.length > 2 ? d.slice(0, 2) + " / " + d.slice(2) : d; };
-  const ready = digits(card).length === 16 && digits(exp).length === 4 && digits(cvc).length >= 3 && name.trim().length > 1;
-
-  const autofill = () => { setCard("4242 4242 4242 4242"); setExp("12 / 29"); setCvc("424"); setName(data.business.ownerName || data.business.name || "Test Customer"); };
-
-  const pay = () => {
-    if (!ready || phase !== "form") return;
+  const handlePay = () => {
     setPhase("redirecting");
-    setTimeout(onPay, 900);
+    setTimeout(onPay, 700);
   };
 
   return (
     <div className="wf-overlay">
       <div className="wf-pay-modal">
-        {phase === "form" && <button type="button" className="wf-pay-close" onClick={onCancel} aria-label="Close"><IX /></button>}
+        {phase === "form" && <button type="button" className="wf-pay-close" onClick={onCancel} aria-label={tr(lang,"Închide","Close")}><IX /></button>}
 
         <div className="wf-pay-sum">
           <div className="wf-pay-brand"><span className="wf-pay-badge">6</span> insixlive</div>
-          <div className="wf-pay-item">Website build &amp; deploy</div>
-          <div className="wf-pay-price">€{PRICE.toFixed(2).replace(".", ",")}<span></span></div>
-          <div className="wf-pay-meta">One-time · no subscription · no edits included. Domain not included — purchase separately on Vercel (~€12–30/yr).</div>
+          <div className="wf-pay-item">{tr(lang,"Creare & publicare website","Website build & deploy")}</div>
+          <div className="wf-pay-price">{tr(lang,"59,99 €","€59.99")}</div>
+          <div className="wf-pay-meta">
+            {tr(lang,
+              "Plată unică · fără abonament · fără editări incluse. Domeniu neinclu — cumpără separat pe Vercel (~12–30 €/an).",
+              "One-time · no subscription · no edits included. Domain not included — purchase separately on Vercel (~€12–30/yr)."
+            )}
+          </div>
         </div>
 
         <div className="wf-pay-body">
           {phase === "redirecting" ? (
-            <div style={{ textAlign: "center", padding: "24px 0" }}>
-              <div style={{ width: 32, height: 32, borderRadius: "50%", border: "2.5px solid var(--wf-border)", borderTopColor: "#635bff", animation: "spin .8s linear infinite", margin: "0 auto 14px" }} />
-              <p style={{ fontFamily: "var(--wf-mono)", fontSize: 13, color: "var(--wf-text2)" }}>Redirecting to Stripe…</p>
+            <div style={{ textAlign:"center", padding:"24px 0" }}>
+              <div style={{ width:32, height:32, borderRadius:"50%", border:"2.5px solid var(--wf-border)", borderTopColor:"#635bff", animation:"spin .8s linear infinite", margin:"0 auto 14px" }} />
+              <p style={{ fontFamily:"var(--wf-mono)", fontSize:13, color:"var(--wf-text2)" }}>
+                {tr(lang,"Redirectare spre Stripe…","Redirecting to Stripe…")}
+              </p>
             </div>
           ) : (
             <>
-              <button type="button" className="wf-pay-link" onClick={onPay}><b>Link</b> Pay faster with Link</button>
-              <div className="wf-pay-div"><span>Or pay with card</span></div>
-
-              <div className="wf-pay-lab">Card information</div>
-              <div className="wf-pay-group">
-                <div className="wf-pay-row">
-                  <input className="wf-pay-in" inputMode="numeric" autoComplete="cc-number"
-                    placeholder="1234 1234 1234 1234" value={card}
-                    onChange={e => setCard(fmtCard(e.target.value))} />
-                  <span className="wf-pay-brands"><i>VISA</i><i>MC</i><i>AMEX</i></span>
-                </div>
-                <div className="wf-pay-split">
-                  <input className="wf-pay-in" inputMode="numeric" autoComplete="cc-exp"
-                    placeholder="MM / YY" value={exp} onChange={e => setExp(fmtExp(e.target.value))} />
-                  <input className="wf-pay-in" inputMode="numeric" autoComplete="cc-csc"
-                    placeholder="CVC" value={cvc} onChange={e => setCvc(digits(e.target.value).slice(0, 4))} />
-                </div>
+              <div className="wf-pay-lab">{tr(lang,"Plată rapidă prin Link","Fast payment with Link")}</div>
+              <button type="button" className="wf-pay-btn" onClick={handlePay} style={{ marginBottom: 6 }}>
+                <ILock /> {tr(lang,`Plătește 59,99 € cu Link`,`Pay €59.99 with Link`)}
+              </button>
+              <p style={{ fontSize:12.5, color:"var(--wf-text3)", textAlign:"center", lineHeight:1.5, margin:"10px 0 0" }}>
+                {tr(lang,
+                  "Te autentifici cu emailul tău — fără date de card introduse aici.",
+                  "Sign in with your email — no card details entered here."
+                )}
+              </p>
+              <div className="wf-pay-foot" style={{ marginTop:16 }}>
+                {tr(lang,"Procesat de","Powered by")} <b>stripe</b>
+                <span>·</span><span style={{ textDecoration:"underline", cursor:"pointer" }}>{tr(lang,"Termeni","Terms")}</span>
               </div>
-
-              <div className="wf-pay-lab">Name on card</div>
-              <input className="wf-pay-solo" autoComplete="cc-name" placeholder="Full name"
-                value={name} onChange={e => setName(e.target.value)} />
-
-              <button type="button" className="wf-pay-btn" disabled={!ready} onClick={pay}>
-                <ILock /> Pay €{PRICE.toFixed(2)}
-              </button>
-
-              <button type="button" className="wf-pay-demo" onClick={autofill}>
-                Demo · fill test card 4242 4242 4242 4242
-              </button>
-              <div className="wf-pay-foot">Powered by <b>stripe</b> <span>·</span> <span style={{ textDecoration: "underline", cursor: "pointer" }}>Terms</span></div>
             </>
           )}
         </div>
@@ -1308,24 +1700,6 @@ function PaymentOverlay({ data, onCancel, onPay }: { data: WizardData; onCancel:
 
 // ─── Steps config ─────────────────────────────────────────────────────────────
 
-const STEPS = [
-  { name: "Template"  },
-  { name: "Design"    },
-  { name: "Colours"   },
-  { name: "Type"      },
-  { name: "Business"  },
-  { name: "Goals"     },
-  { name: "Services"  },
-  { name: "Pages"     },
-  { name: "Finishing" },
-  { name: "Review"    },
-];
-const GROUPS = [
-  { label: "Look & feel", steps: [0, 1, 2, 3] },
-  { label: "Your content", steps: [4, 5, 6, 7, 8] },
-  { label: "Ship it",      steps: [9] },
-];
-const TOTAL = STEPS.length;
 
 const STAGE_MESSAGES: Record<number, string> = {
   100: "Starting generation...",
@@ -1339,10 +1713,14 @@ const STAGE_MESSAGES: Record<number, string> = {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
+const TOTAL = 11; // 11 steps (0–10)
+
 export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [data, setData] = useState<WizardData>(DEFAULT);
+  const lang: Lang = data.lang ?? "ro";
+  const setLang = (l: Lang) => setData(p => ({ ...p, lang: l }));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [countdown, setCountdown] = useState(100);
@@ -1401,12 +1779,16 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
         services:  { ...DEFAULT.services,  ...p.services },
         design:    { ...DEFAULT.design,    ...p.design },
         typography:{ ...DEFAULT.typography,...p.typography },
-        team:      { ...DEFAULT.team,      ...p.team },
-        pages:     { ...DEFAULT.pages,     ...p.pages, pageDescriptions: p.pages?.pageDescriptions ?? {} },
-        logo:      { ...DEFAULT.logo,      ...p.logo },
-        useEmojis: p.useEmojis ?? false,
-        websiteLanguage: p.websiteLanguage ?? "English",
-        business: { ...DEFAULT.business, ...p.business, locationCity: p.business?.locationCity ?? "", locationCountry: p.business?.locationCountry ?? "" },
+        team:          { ...DEFAULT.team,          ...p.team },
+        pages:         { ...DEFAULT.pages,         ...p.pages, pageDescriptions: p.pages?.pageDescriptions ?? {} },
+        logo:          { ...DEFAULT.logo,          ...p.logo },
+        gallery:       p.gallery       ?? [],
+        galleryMembers:p.galleryMembers ?? [],
+        socials:       p.socials        ?? {},
+        useEmojis:     p.useEmojis      ?? false,
+        websiteLanguage: p.websiteLanguage ?? "Română",
+        lang:          p.lang           ?? "ro",
+        business: { ...DEFAULT.business, ...p.business, mapsLink: p.business?.mapsLink ?? "", locationCity: p.business?.locationCity ?? "", locationCountry: p.business?.locationCountry ?? "" },
       });
     } catch { localStorage.removeItem("wizard_data"); }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -1416,9 +1798,11 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
     try {
       const stripped: WizardData = {
         ...data,
-        logo: { ...data.logo, dataUrl: "" },
-        team: { ...data.team, members: data.team.members.map(m => ({ ...m, photo: "" })) },
-        pages: { ...data.pages, pageDescriptions: Object.fromEntries(Object.entries(data.pages.pageDescriptions).map(([k, v]) => [k, { ...v, image: "" }])) },
+        logo:          { ...data.logo, dataUrl: "" },
+        gallery:       [],
+        galleryMembers: data.galleryMembers.map(m => ({ ...m, photo: "" })),
+        team:          { ...data.team, members: data.team.members.map(m => ({ ...m, photo: "" })) },
+        pages:         { ...data.pages, pageDescriptions: Object.fromEntries(Object.entries(data.pages.pageDescriptions).map(([k, v]) => [k, { ...v, image: "" }])) },
       };
       localStorage.setItem("wizard_data", JSON.stringify(stripped));
     } catch { /* QuotaExceededError */ }
@@ -1497,11 +1881,11 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
           <span className="wf-brand-word">in<span>six</span>live</span>
         </Link>
 
-        <div className="wf-kicker">Build wizard · {String(step + 1).padStart(2, "0")}/{TOTAL}</div>
+        <div className="wf-kicker">{tr(lang,"Asistent de creare","Build wizard")} · {String(step + 1).padStart(2, "0")}/{TOTAL}</div>
         <div className="wf-prog-rail"><i style={{ width: pct + "%" }} /></div>
 
         <ul className="wf-stepper">
-          {GROUPS.map(g => (
+          {STEP_GROUPS[lang].map(g => (
             <li key={g.label} style={{ listStyle: "none", padding: 0 }}>
               <div className="wf-grp">{g.label}</div>
               {g.steps.map(i => (
@@ -1510,7 +1894,7 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
                   <span className="wf-num">
                     {i < step ? <ICheck /> : String(i + 1).padStart(2, "0")}
                   </span>
-                  <span className="wf-sname">{STEPS[i].name}</span>
+                  <span className="wf-sname">{STEP_NAMES[lang][i]}</span>
                 </div>
               ))}
             </li>
@@ -1518,8 +1902,12 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
         </ul>
 
         <div className="wf-side-foot">
-          <div className="wf-side-save"><span className="wf-sdot" /> Progress saved automatically</div>
-          <div>One-time · deploys to your Vercel</div>
+          <div className="wf-side-save"><span className="wf-sdot" /> {tr(lang,"Progres salvat automat","Progress saved automatically")}</div>
+          <div style={{ marginTop: 4 }}>{tr(lang,"Plată unică · publicat pe Vercel-ul tău","One-time · deploys to your Vercel")}</div>
+          <div className="wf-lang-toggle" style={{ marginTop: 12 }}>
+            <button type="button" className={`wf-lang-btn${lang === "ro" ? " active" : ""}`} onClick={() => setLang("ro")}>RO</button>
+            <button type="button" className={`wf-lang-btn${lang === "en" ? " active" : ""}`} onClick={() => setLang("en")}>EN</button>
+          </div>
         </div>
       </aside>
 
@@ -1532,7 +1920,7 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
             <span className="wf-brand-word" style={{ fontSize: 15 }}>in<span>six</span>live</span>
           </Link>
           <div className="wf-tbstep">
-            <span className="wf-tbidx">{String(step + 1).padStart(2, "0")}/{TOTAL}</span> {STEPS[step].name}
+            <span className="wf-tbidx">{String(step + 1).padStart(2, "0")}/{TOTAL}</span> {STEP_NAMES[lang][step]}
           </div>
           <div className="wf-tbprog"><div className="wf-tbfill" style={{ width: pct + "%" }} /></div>
         </div>
@@ -1559,19 +1947,20 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
             )}
 
             <div key={step} className={`wf-enter${dirRef.current < 0 ? " back" : ""}`}>
-              {step === 0 && <Step01Template data={data} setData={setData} />}
-              {step === 1 && <Step02Design   data={data} setData={setData} />}
-              {step === 2 && <Step03Colors   data={data} setData={setData} />}
-              {step === 3 && <Step04TypeImagery data={data} setData={setData} />}
-              {step === 4 && <Step05Business data={data} setData={setData} />}
-              {step === 5 && <Step06Goals    data={data} setData={setData} />}
-              {step === 6 && <Step07Services data={data} setData={setData} />}
-              {step === 7 && <Step08Pages    data={data} setData={setData} />}
-              {step === 8 && <Step09Finishing data={data} setData={setData} />}
-              {step === 9 && (
+              {step === 0  && <Step01Template    data={data} setData={setData} lang={lang} />}
+              {step === 1  && <Step02Design      data={data} setData={setData} lang={lang} />}
+              {step === 2  && <Step03Colors      data={data} setData={setData} lang={lang} />}
+              {step === 3  && <Step04TypeImagery data={data} setData={setData} lang={lang} />}
+              {step === 4  && <Step05Business    data={data} setData={setData} lang={lang} />}
+              {step === 5  && <Step06Goals       data={data} setData={setData} lang={lang} />}
+              {step === 6  && <Step07Services    data={data} setData={setData} lang={lang} />}
+              {step === 7  && <Step08Pages       data={data} setData={setData} lang={lang} />}
+              {step === 8  && <Step09MediaSocial data={data} setData={setData} lang={lang} />}
+              {step === 9  && <Step09Finishing   data={data} setData={setData} lang={lang} />}
+              {step === 10 && (
                 <Step10Review
                   data={data} goTo={goTo} onGenerate={handleReviewGenerate}
-                  loading={loading} vercelAuthorized={vercelAuthorized} isEditMode={isEditMode}
+                  loading={loading} vercelAuthorized={vercelAuthorized} isEditMode={isEditMode} lang={lang}
                 />
               )}
             </div>
@@ -1581,15 +1970,15 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
         {/* Footer nav */}
         <div className="wf-foot">
           {step > 0 ? (
-            <button type="button" className="wf-btn wf-btn-ghost" onClick={back}><IArrowL /> Back</button>
+            <button type="button" className="wf-btn wf-btn-ghost" onClick={back}><IArrowL /> {tr(lang,"Înapoi","Back")}</button>
           ) : (
             <span />
           )}
           <span className="wf-spacer" />
-          <span className="wf-save-hint"><span className="wf-sdot" /> Saved</span>
+          <span className="wf-save-hint"><span className="wf-sdot" /> {tr(lang,"Salvat","Saved")}</span>
           {step < TOTAL - 1 && (
             <button type="button" className="wf-btn wf-btn-primary" onClick={next}>
-              Continue <IArrowR />
+              {tr(lang,"Continuă","Continue")} <IArrowR />
             </button>
           )}
         </div>
@@ -1599,6 +1988,7 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
       {showPayment && (
         <PaymentOverlay
           data={data}
+          lang={lang}
           onCancel={() => setShowPayment(false)}
           onPay={() => { setShowPayment(false); handlePayWithStripe(); }}
         />
