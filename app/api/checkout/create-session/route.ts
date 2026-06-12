@@ -30,16 +30,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (user.payment_status === "paid") {
-      return NextResponse.json(
-        { error: "Payment already completed." },
-        { status: 400 }
-      );
-    }
-
     const stripe = getStripe();
-    const baseUrl =
-      process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -48,19 +40,20 @@ export async function POST(request: NextRequest) {
         {
           price_data: {
             currency: "eur",
-            unit_amount: 4999,
+            unit_amount: 5999,
             product_data: {
-              name: "WebBuilder — Professional Website",
+              name: "insixlive — Professional Website",
               description:
-                "AI-generated, production-ready website. One-time payment. You own the code forever.",
+                "AI-generated, production-ready website deployed to your Vercel account. One-time payment. You own the code forever.",
             },
           },
           quantity: 1,
         },
       ],
       metadata: { userId: user.id },
+      client_reference_id: user.id,
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/checkout`,
+      cancel_url: `${baseUrl}/generate`,
     });
 
     return NextResponse.json({ url: checkoutSession.url });

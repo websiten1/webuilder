@@ -29,19 +29,23 @@ export async function POST(request: NextRequest) {
     const stripe = getStripe();
     const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
 
-    // Payment Links use client_reference_id; Checkout Sessions use metadata.userId
+    if (checkoutSession.payment_status !== "paid") {
+      return NextResponse.json(
+        { error: "Payment has not been completed yet." },
+        { status: 400 }
+      );
+    }
+
+    // Verify the payment belongs to this user when metadata is present
     const sessionUserId =
       checkoutSession.metadata?.userId ||
       checkoutSession.client_reference_id ||
       null;
 
-    if (
-      checkoutSession.payment_status !== "paid" ||
-      sessionUserId !== authSession.userId
-    ) {
+    if (sessionUserId && sessionUserId !== authSession.userId) {
       return NextResponse.json(
-        { error: "Payment could not be verified." },
-        { status: 400 }
+        { error: "This payment does not belong to your account." },
+        { status: 403 }
       );
     }
 

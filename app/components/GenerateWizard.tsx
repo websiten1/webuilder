@@ -1648,18 +1648,16 @@ function GenerateOverlay({ siteName, countdown, stageMsg }: { siteName: string; 
   );
 }
 
-function PaymentOverlay({ data, onCancel, onPay, lang }: { data: WizardData; onCancel: () => void; onPay: () => void; lang: Lang }) {
-  const [phase, setPhase] = useState<"form" | "redirecting">("form");
-
-  const handlePay = () => {
-    setPhase("redirecting");
-    setTimeout(onPay, 700);
-  };
+function PaymentOverlay({ data, onCancel, onPay, lang, paymentLoading, paymentError }: {
+  data: WizardData; onCancel: () => void; onPay: () => void; lang: Lang;
+  paymentLoading: boolean; paymentError: string;
+}) {
+  const handlePay = () => { onPay(); };
 
   return (
     <div className="wf-overlay">
       <div className="wf-pay-modal">
-        {phase === "form" && <button type="button" className="wf-pay-close" onClick={onCancel} aria-label={tr(lang,"Închide","Close")}><IX /></button>}
+        {!paymentLoading && <button type="button" className="wf-pay-close" onClick={onCancel} aria-label={tr(lang,"Închide","Close")}><IX /></button>}
 
         <div className="wf-pay-sum">
           <div className="wf-pay-brand"><span className="wf-pay-badge">6</span> insixlive</div>
@@ -1674,28 +1672,32 @@ function PaymentOverlay({ data, onCancel, onPay, lang }: { data: WizardData; onC
         </div>
 
         <div className="wf-pay-body">
-          {phase === "redirecting" ? (
+          {paymentLoading ? (
             <div style={{ textAlign:"center", padding:"24px 0" }}>
               <div style={{ width:32, height:32, borderRadius:"50%", border:"2.5px solid var(--wf-border)", borderTopColor:"#635bff", animation:"spin .8s linear infinite", margin:"0 auto 14px" }} />
               <p style={{ fontFamily:"var(--wf-mono)", fontSize:13, color:"var(--wf-text2)" }}>
-                {tr(lang,"Redirectare spre Stripe…","Redirecting to Stripe…")}
+                {tr(lang,"Se pregătește plata…","Preparing checkout…")}
               </p>
             </div>
           ) : (
             <>
-              <div className="wf-pay-lab">{tr(lang,"Plată rapidă prin Link","Fast payment with Link")}</div>
+              {paymentError && (
+                <div style={{ padding:"10px 14px", borderRadius:8, background:"#FFF0EE", border:"1px solid rgba(255,90,31,.2)", color:"#C43600", fontSize:13, marginBottom:12 }}>
+                  {paymentError}
+                </div>
+              )}
+              <div className="wf-pay-lab">{tr(lang,"Plată securizată prin Stripe","Secure payment via Stripe")}</div>
               <button type="button" className="wf-pay-btn" onClick={handlePay} style={{ marginBottom: 6 }}>
-                <ILock /> {tr(lang,`Plătește 59,99 € cu Link`,`Pay €59.99 with Link`)}
+                <ILock /> {tr(lang,"Plătește 59,99 €","Pay €59.99")}
               </button>
               <p style={{ fontSize:12.5, color:"var(--wf-text3)", textAlign:"center", lineHeight:1.5, margin:"10px 0 0" }}>
                 {tr(lang,
-                  "Te autentifici cu emailul tău — fără date de card introduse aici.",
-                  "Sign in with your email — no card details entered here."
+                  "Vei fi redirecționat către Stripe. Card de credit sau debit.",
+                  "You'll be redirected to Stripe. Credit or debit card."
                 )}
               </p>
               <div className="wf-pay-foot" style={{ marginTop:16 }}>
                 {tr(lang,"Procesat de","Powered by")} <b>stripe</b>
-                <span>·</span><span style={{ textDecoration:"underline", cursor:"pointer" }}>{tr(lang,"Termeni","Terms")}</span>
               </div>
             </>
           )}
@@ -1883,9 +1885,27 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
     }
   };
 
-  const handlePayWithStripe = () => {
-    try { localStorage.setItem("pending_tier", "website"); } catch {}
-    window.location.href = STRIPE_PAYMENT_LINK;
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentError, setPaymentError] = useState("");
+
+  const handlePayWithStripe = async () => {
+    setPaymentLoading(true);
+    setPaymentError("");
+    try {
+      const res = await fetch("/api/checkout/create-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const body = await res.json();
+      if (!res.ok || !body.url) {
+        throw new Error(body.error || "Could not start checkout.");
+      }
+      try { localStorage.setItem("pending_tier", "website"); } catch {}
+      window.location.href = body.url;
+    } catch (err) {
+      setPaymentError(err instanceof Error ? err.message : "Payment error. Please try again.");
+      setPaymentLoading(false);
+    }
   };
 
   const handleReviewGenerate = () => {
@@ -2015,8 +2035,10 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
         <PaymentOverlay
           data={data}
           lang={lang}
-          onCancel={() => setShowPayment(false)}
-          onPay={() => { setShowPayment(false); handlePayWithStripe(); }}
+          paymentLoading={paymentLoading}
+          paymentError={paymentError}
+          onCancel={() => { if (!paymentLoading) setShowPayment(false); }}
+          onPay={handlePayWithStripe}
         />
       )}
 
