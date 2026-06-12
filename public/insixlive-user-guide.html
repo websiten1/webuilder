@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>insixlive — Complete User Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --ink: #0A0E14;
+    --orange: #FF5A1F;
+    --green: #00B377;
+    --bg: #FAFAFA;
+    --bg2: #F2F2EF;
+    --line: #E2E2DE;
+    --muted: #6B7180;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 14px; }
+
+  body {
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Cover page ── */
+  .cover {
+    background: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 40px;
+    page-break-after: always;
+  }
+  .cover-mark {
+    width: 100px; height: 100px;
+    background: var(--orange);
+    border-radius: 26px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 32px;
+  }
+  .cover-mark span {
+    font-size: 68px; font-weight: 900; color: var(--ink); line-height: 1; margin-top: 4px;
+  }
+  .cover h1 {
+    font-size: 54px; font-weight: 900; letter-spacing: -2px;
+    color: #fff; line-height: 1; margin-bottom: 10px;
+  }
+  .cover h1 span { color: var(--orange); }
+  .cover-sub {
+    font-size: 20px; color: rgba(255,255,255,0.55); font-weight: 400;
+    margin-bottom: 52px; letter-spacing: -0.3px;
+  }
+  .cover-meta {
+    font-family: var(--mono); font-size: 12px;
+    color: rgba(255,255,255,0.3); letter-spacing: 0.1em;
+    text-transform: uppercase; border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 28px; width: 100%; max-width: 480px;
+    display: flex; justify-content: space-between;
+  }
+  .cover-toc {
+    margin: 40px auto 0; max-width: 480px; width: 100%;
+    text-align: left;
+  }
+  .cover-toc-title {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--orange);
+    display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+  }
+  .cover-toc-title::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.1); }
+  .cover-toc ol { list-style: none; counter-reset: toc; }
+  .cover-toc li { counter-increment: toc; display: flex; align-items: baseline; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.65); font-size: 13.5px; }
+  .cover-toc li::before { content: "0" counter(toc); font-family: var(--mono); font-size: 11px; color: var(--orange); min-width: 24px; }
+
+  /* ── Page layout ── */
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 64px 56px;
+  }
+
+  @media print {
+    .page { padding: 40px 48px; }
+  }
+
+  /* ── Section headers ── */
+  .section-header {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 32px; padding-bottom: 16px;
+    border-bottom: 2px solid var(--line);
+  }
+  .section-num {
+    font-family: var(--mono); font-size: 12px; font-weight: 600;
+    color: var(--orange); background: rgba(255,90,31,0.08);
+    border: 1px solid rgba(255,90,31,0.2); border-radius: 6px;
+    padding: 3px 10px; white-space: nowrap;
+  }
+  .section-title {
+    font-size: 28px; font-weight: 800; letter-spacing: -0.8px; color: var(--ink);
+  }
+
+  h2 {
+    font-size: 18px; font-weight: 700; letter-spacing: -0.4px;
+    margin: 32px 0 12px; color: var(--ink);
+  }
+  h3 {
+    font-size: 14.5px; font-weight: 700; letter-spacing: -0.2px;
+    margin: 24px 0 8px; color: var(--ink);
+  }
+
+  p { margin-bottom: 14px; color: #2a2e38; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 700; color: var(--ink); }
+
+  ul, ol { padding-left: 20px; margin-bottom: 16px; }
+  li { margin-bottom: 6px; color: #2a2e38; }
+  li strong { color: var(--ink); }
+
+  /* ── Step boxes ── */
+  .steps { display: flex; flex-direction: column; gap: 0; margin: 20px 0; }
+  .step {
+    display: flex; gap: 16px; padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .step:last-child { border-bottom: none; }
+  .step-num {
+    flex-shrink: 0; width: 32px; height: 32px;
+    background: var(--orange); color: #fff;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; margin-top: 1px;
+  }
+  .step-body { flex: 1; }
+  .step-body strong { display: block; font-size: 14.5px; margin-bottom: 4px; }
+
+  /* ── Info / warning boxes ── */
+  .box {
+    border-radius: 10px; padding: 16px 18px; margin: 20px 0;
+  }
+  .box-info {
+    background: #EFF6FF; border: 1px solid #BFDBFE;
+  }
+  .box-info .box-title { color: #1D4ED8; }
+  .box-warn {
+    background: #FFF7ED; border: 1px solid #FED7AA;
+  }
+  .box-warn .box-title { color: #C2410C; }
+  .box-ok {
+    background: #F0FDF4; border: 1px solid #BBF7D0;
+  }
+  .box-ok .box-title { color: #166534; }
+  .box-title {
+    font-weight: 700; font-size: 13px; letter-spacing: 0.02em;
+    text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 7px;
+  }
+  .box p { font-size: 13.5px; color: inherit; margin-bottom: 6px; }
+  .box p:last-child { margin-bottom: 0; }
+
+  /* ── Code / DNS record ── */
+  .code-block {
+    font-family: var(--mono); font-size: 12px;
+    background: var(--ink); color: #e8e6e0;
+    border-radius: 8px; padding: 16px 18px;
+    margin: 14px 0; line-height: 1.8;
+    overflow-x: auto;
+  }
+  .code-block .comment { color: #5a6478; }
+  .code-block .key { color: #82aaff; }
+  .code-block .val { color: #c3e88d; }
+  .code-block .label { color: var(--orange); }
+
+  /* ── DNS table ── */
+  .dns-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  .dns-table th {
+    background: var(--ink); color: #fff;
+    padding: 10px 14px; text-align: left;
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    font-weight: 600;
+  }
+  .dns-table td { padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  .dns-table tr:last-child td { border-bottom: none; }
+  .dns-table tr:nth-child(even) td { background: var(--bg); }
+  .dns-table code {
+    font-family: var(--mono); font-size: 12px; background: rgba(0,0,0,0.05);
+    padding: 2px 6px; border-radius: 4px;
+  }
+
+  /* ── FAQ ── */
+  .faq { display: flex; flex-direction: column; gap: 0; margin: 16px 0; }
+  .faq-item { padding: 18px 0; border-bottom: 1px solid var(--line); }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-q {
+    font-weight: 700; font-size: 14.5px; color: var(--ink);
+    margin-bottom: 8px; display: flex; gap: 10px; align-items: flex-start;
+  }
+  .faq-q::before {
+    content: "Q";
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    background: var(--orange); color: #fff;
+    padding: 2px 7px; border-radius: 4px; flex-shrink: 0; margin-top: 1px;
+  }
+  .faq-a { color: #2a2e38; font-size: 13.5px; padding-left: 34px; }
+
+  /* ── Tag chips ── */
+  .tag {
+    display: inline-block; font-family: var(--mono); font-size: 11px;
+    font-weight: 600; padding: 3px 9px; border-radius: 99px;
+    border: 1px solid; letter-spacing: 0.04em; vertical-align: middle; margin: 0 2px;
+  }
+  .tag-green { background: rgba(0,179,119,0.08); border-color: rgba(0,179,119,0.3); color: #007350; }
+  .tag-orange { background: rgba(255,90,31,0.08); border-color: rgba(255,90,31,0.25); color: #c43600; }
+  .tag-blue { background: #EFF6FF; border-color: #BFDBFE; color: #1D4ED8; }
+
+  /* ── Divider ── */
+  .divider {
+    border: none; border-top: 1px dashed var(--line);
+    margin: 36px 0;
+  }
+
+  /* ── Page break ── */
+  .page-break { page-break-before: always; }
+
+  /* ── Footer ── */
+  .doc-footer {
+    margin-top: 60px; padding-top: 20px;
+    border-top: 2px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+  }
+  .doc-footer .brand { display: flex; align-items: center; gap: 7px; }
+  .doc-footer .mark {
+    width: 22px; height: 22px; background: var(--ink); border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 900; color: var(--orange);
+  }
+
+  /* ── Highlight ── */
+  .hl { color: var(--orange); font-weight: 700; }
+  .hl-green { color: var(--green); font-weight: 700; }
+
+  /* ── Price badge ── */
+  .price {
+    display: inline-flex; align-items: baseline; gap: 3px;
+    font-family: var(--mono); font-weight: 700;
+    color: var(--ink); font-size: 15px;
+  }
+  .price .cents { font-size: 12px; color: var(--muted); }
+
+  /* Print overrides */
+  @media print {
+    body { font-size: 13px; }
+    .cover { min-height: 270mm; }
+    h2 { margin-top: 24px; }
+    .box { page-break-inside: avoid; }
+    .step { page-break-inside: avoid; }
+    .faq-item { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ COVER ═══════════════════ -->
+<div class="cover">
+  <div class="cover-mark"><span>6</span></div>
+  <h1>in<span>six</span>live</h1>
+  <p class="cover-sub">Complete User Guide — Everything you need to know</p>
+
+  <div class="cover-toc">
+    <div class="cover-toc-title">Contents</div>
+    <ol>
+      <li>What insixlive does — and what it doesn't</li>
+      <li>How the generation process works</li>
+      <li>Your Vercel account explained</li>
+      <li>Your generated site URL — who can see it?</li>
+      <li>Getting a custom domain</li>
+      <li>Connecting your domain to Vercel (DNS setup)</li>
+      <li>Buying a domain directly on Vercel</li>
+      <li>Frequently asked questions</li>
+    </ol>
+  </div>
+
+  <div class="cover-meta">
+    <span>insixlive.com</span>
+    <span>User Guide v1.0</span>
+    <span>June 2026</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ SECTION 1 ═══════════════════ -->
+<div class="page page-break">
+
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <span class="section-title">What insixlive does — and what it doesn't</span>
+  </div>
+
+  <h2>What we build</h2>
+  <p>insixlive generates <strong>complete, professional websites</strong> for businesses, freelancers, and local services. Our AI writes all the copy, builds all the pages, and deploys a production-ready Next.js website directly into your own Vercel account — in about six minutes.</p>
+
+  <p>We build websites for:</p>
+  <ul>
+    <li><strong>Local service businesses</strong> — plumbers, electricians, cleaners, builders, mechanics</li>
+    <li><strong>Health & beauty</strong> — dental clinics, hair salons, physiotherapy, spas, gyms</li>
+    <li><strong>Food & hospitality</strong> — cafés, restaurants, bakeries, catering</li>
+    <li><strong>Professional services</strong> — lawyers, accountants, consultants, architects, agencies</li>
+    <li><strong>Creative & freelance</strong> — photographers, designers, coaches, educators</li>
+    <li><strong>Informational & community</strong> — NGOs, schools, churches, events</li>
+    <li><strong>Portfolio sites</strong> — showcase work, attract clients, present yourself</li>
+  </ul>
+
+  <hr class="divider"/>
+
+  <h2>What we do <em>not</em> build — and why</h2>
+
+  <div class="box box-warn">
+    <div class="box-title">⚠ We do not build online stores (e-commerce)</div>
+    <p>insixlive cannot build a website where customers browse products and pay you directly through the site.</p>
+  </div>
+
+  <h3>Why e-commerce is not possible</h3>
+  <p>An online store needs to <strong>receive payments on your behalf</strong> — money that customers pay goes through the website and must reach you, the business owner. This requires:</p>
+
+  <ul>
+    <li>A <strong>Stripe or payment processor account</strong> linked specifically to your business</li>
+    <li><strong>Legal and banking verification</strong> (KYC — Know Your Customer) that Stripe performs with you directly</li>
+    <li><strong>Payout settings</strong> — your bank account details connected to Stripe so funds transfer to you</li>
+    <li><strong>Tax configuration</strong> — VAT rates, regional tax rules applied per product/country</li>
+    <li><strong>Order management</strong> — a backend database of orders, inventory, refunds, shipping</li>
+  </ul>
+
+  <p>None of this can be set up on your behalf by insixlive. We do not have access to your banking information, and we cannot legally accept payments that belong to your business. Every online store needs to be configured individually by the business owner.</p>
+
+  <div class="box box-info">
+    <div class="box-title">ℹ If you sell products</div>
+    <p>If you sell physical or digital products, we can build you a <strong>catalogue website</strong> that showcases your products and tells customers how to buy (phone, email, WhatsApp, in-store). The website drives interest and contact — the actual transaction happens through your existing process.</p>
+    <p>Alternatively, we can include a <strong>"Buy" button</strong> that links to an external platform you already use (Etsy, Gumroad, Shopify, etc.).</p>
+  </div>
+
+  <div class="doc-footer">
+    <div class="brand"><div class="mark">6</div><span>insixlive.com</span></div>
+    <span>Section 01 — What we build</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ SECTION 2 ═══════════════════ -->
+<div class="page page-break">
+
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <span class="section-title">How the generation process works</span>
+  </div>
+
+  <p>From start to live website in approximately <strong>6 minutes</strong>. Here is what happens at each step.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <strong>Create your account</strong>
+        Sign up at insixlive.com with your email and choose a password. Verify your email address using the code we send you. This takes about 1 minute.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <strong>Connect your Vercel account</strong>
+        You will be asked to authorize insixlive to deploy to your Vercel account. If you don't have a Vercel account, you create one for free at vercel.com — it takes 30 seconds. This authorization is a one-time step and can be revoked at any time from your Vercel settings.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <strong>Fill in the website form</strong>
+        Answer questions about your business: name, type, description, location, contact details, opening hours, visual style, colours, pages needed, and tone. You can also upload your logo and photos. The form takes 3–5 minutes to complete.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <strong>Pay €59.99 one-time</strong>
+        A single payment via Stripe. No subscription, no monthly fees. You pay once and the website is yours permanently. If you ever want changes, you regenerate a new version for the same price.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <strong>AI generates your website</strong>
+        Claude AI writes all the page content, builds the code, and creates a fully designed Next.js website tailored to your business. This takes approximately 60–100 seconds.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <strong>Your website is live on Vercel</strong>
+        The finished website is deployed to your personal Vercel account. You receive a live URL that looks like <code style="font-family:var(--mono);background:rgba(0,0,0,0.06);padding:2px 6px;border-radius:4px">your-business-name.vercel.app</code>. This URL is publicly accessible to everyone in the world immediately.
+      </div>
+    </div>
+  </div>
+
+  <div class="box box-ok">
+    <div class="box-title">✓ You own everything</div>
+    <p>The website code belongs to you. The Vercel project belongs to you. The domain (if you add one) belongs to you. insixlive does not lock you in — you can download the code, move it to any host, or edit it yourself at any time.</p>
+  </div>
+
+  <h2>What is included in the €59.99</h2>
+  <ul>
+    <li>A complete, AI-generated professional website with all pages</li>
+    <li>All copy written by AI tailored to your business</li>
+    <li>Mobile-responsive design — works perfectly on phones, tablets, and computers</li>
+    <li>SSL certificate (HTTPS) — automatically provided by Vercel, free</li>
+    <li>Deployment directly to your Vercel account</li>
+    <li>Full source code — you own it forever</li>
+  </ul>
+
+  <h2>What is NOT included</h2>
+  <ul>
+    <li><strong>Edits</strong> — if you want changes, you regenerate a new website for €59.99</li>
+    <li><strong>Custom domain</strong> — purchased separately (explained in sections 5, 6, and 7)</li>
+    <li><strong>Hosting fees</strong> — Vercel's Hobby plan is completely free for most small websites</li>
+  </ul>
+
+  <div class="doc-footer">
+    <div class="brand"><div class="mark">6</div><span>insixlive.com</span></div>
+    <span>Section 02 — How it works</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ SECTION 3 ═══════════════════ -->
+<div class="page page-break">
+
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <span class="section-title">Your Vercel account explained</span>
+  </div>
+
+  <h2>What is Vercel?</h2>
+  <p><strong>Vercel</strong> (vercel.com) is a cloud hosting platform. It is where your website lives — the servers that store your website files and make them available on the internet at all times.</p>
+
+  <p>Vercel has a <strong>completely free Hobby plan</strong> that is more than sufficient for the vast majority of small business websites. You will not be charged by Vercel simply for having your website hosted there.</p>
+
+  <h2>Why does insixlive deploy to YOUR Vercel, not ours?</h2>
+  <p>Most website builders host your website on their own servers — which means if you leave, your website disappears. insixlive works differently:</p>
+
+  <ul>
+    <li>Your website is deployed to <strong>your own Vercel account</strong>, which you control</li>
+    <li>If you stop using insixlive, <strong>your website keeps running</strong> — nothing changes</li>
+    <li>You can add collaborators, edit the code, and manage everything from your Vercel dashboard</li>
+    <li>You are never dependent on insixlive staying in business</li>
+  </ul>
+
+  <div class="box box-info">
+    <div class="box-title">ℹ Creating your free Vercel account</div>
+    <p>Go to <strong>vercel.com</strong> and click "Sign Up". You can sign up with your email, GitHub, Google, or GitLab account. The free Hobby plan requires no credit card.</p>
+    <p>Once created, return to insixlive and connect your account using the "Connect Vercel" button in your dashboard.</p>
+  </div>
+
+  <h2>What does the Vercel connection allow insixlive to do?</h2>
+  <p>When you authorize insixlive to access your Vercel account, we are granted permission to:</p>
+  <ul>
+    <li><strong>Create new projects</strong> — one project per website you generate</li>
+    <li><strong>Deploy code</strong> — push the generated website files to that project</li>
+    <li><strong>Read project information</strong> — to show you your websites in your dashboard</li>
+  </ul>
+
+  <div class="box box-warn">
+    <div class="box-title">⚠ What insixlive cannot do</div>
+    <p>We cannot access your other Vercel projects, delete anything, change your billing settings, or access your payment information. Our access is limited to the projects we create for you.</p>
+  </div>
+
+  <h2>How to revoke access</h2>
+  <p>If you ever want to disconnect insixlive from your Vercel account:</p>
+  <ol>
+    <li>Log in to <strong>vercel.com</strong></li>
+    <li>Go to <strong>Account Settings → Integrations</strong></li>
+    <li>Find "insixlive" and click <strong>Remove</strong></li>
+  </ol>
+  <p>Your websites will continue to run normally — removing access only prevents insixlive from deploying new websites in the future.</p>
+
+  <div class="doc-footer">
+    <div class="brand"><div class="mark">6</div><span>insixlive.com</span></div>
+    <span>Section 03 — Your Vercel account</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ SECTION 4 ═══════════════════ -->
+<div class="page page-break">
+
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <span class="section-title">Your generated site URL — who can see it?</span>
+  </div>
+
+  <h2>The .vercel.app address</h2>
+  <p>When your website is generated, it immediately gets a public URL that looks like this:</p>
+
+  <div class="code-block">
+    <span class="val">https://your-business-name-abc123.vercel.app</span>
+  </div>
+
+  <div class="box box-ok">
+    <div class="box-title">✓ This URL is public — everyone can access it</div>
+    <p>Your <code style="font-family:var(--mono);font-size:12px">.vercel.app</code> address is <strong>publicly accessible to anyone in the world</strong>, right away, with no extra steps. You can share it on WhatsApp, email it to customers, post it on Instagram, or add it to a business card.</p>
+    <p>There is no "private mode" — the moment your site is deployed, it is live.</p>
+  </div>
+
+  <h2>So why would I need a custom domain?</h2>
+  <p>You don't <em>need</em> one — your website works perfectly without it. However, a custom domain has significant advantages:</p>
+
+  <ul>
+    <li><strong>Professionalism</strong> — <code style="font-family:var(--mono);font-size:12px">mybusiness.ro</code> looks far more credible than <code style="font-family:var(--mono);font-size:12px">mybusiness-abc123.vercel.app</code></li>
+    <li><strong>Memorability</strong> — customers can type your address directly into a browser</li>
+    <li><strong>Trust</strong> — clients, partners, and Google take a proper domain more seriously</li>
+    <li><strong>Email</strong> — a custom domain lets you use a matching email address like <code style="font-family:var(--mono);font-size:12px">contact@mybusiness.ro</code></li>
+    <li><strong>SEO</strong> — search engines rank websites with custom domains higher over time</li>
+  </ul>
+
+  <hr class="divider"/>
+
+  <h2>The vercel.app URL will always work</h2>
+  <p>Even after you add a custom domain, your original <code style="font-family:var(--mono);font-size:12px">.vercel.app</code> address continues to work. Both addresses point to the same website. You can give out either one.</p>
+
+  <h2>Summary</h2>
+  <table class="dns-table">
+    <thead>
+      <tr><th>Address type</th><th>Example</th><th>Public?</th><th>Cost</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Vercel address</strong> (included)</td>
+        <td><code>mybiz-abc.vercel.app</code></td>
+        <td><span class="tag tag-green">Yes</span></td>
+        <td>Free</td>
+      </tr>
+      <tr>
+        <td><strong>Custom domain</strong> (optional)</td>
+        <td><code>mybusiness.ro</code></td>
+        <td><span class="tag tag-green">Yes</span></td>
+        <td>€12–30/year</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="doc-footer">
+    <div class="brand"><div class="mark">6</div><span>insixlive.com</span></div>
+    <span>Section 04 — Who can see your site</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ SECTION 5 ═══════════════════ -->
+<div class="page page-break">
+
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <span class="section-title">Getting a custom domain</span>
+  </div>
+
+  <h2>What is a domain name?</h2>
+  <p>A domain name is the address people type to find your website — for example <strong>mybusiness.ro</strong> or <strong>clinicadentar.com</strong>. You rent a domain name from a registrar (a company that manages domain registration) and pay annually — typically between <strong>€8 and €30 per year</strong> depending on the extension (.com, .ro, .eu, etc.).</p>
+
+  <h2>Option A — Buy a domain through Vercel (simplest)</h2>
+  <p>Vercel lets you search for and buy a domain directly from your dashboard. The domain is immediately connected to your website with no DNS configuration needed.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <strong>Log in to vercel.com</strong>
+        Go to your Vercel dashboard and open the project for your insixlive website.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <strong>Open Domains settings</strong>
+        In your project, click <strong>Settings</strong> (top navigation) → <strong>Domains</strong>.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <strong>Search for a domain</strong>
+        Type the domain name you want (e.g. <code style="font-family:var(--mono);background:rgba(0,0,0,0.06);padding:2px 5px;border-radius:3px">mybusiness.ro</code>) in the search field. Vercel will show availability and pricing.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <strong>Purchase</strong>
+        Enter your payment details and complete the purchase. The domain is automatically connected to your project — no further setup needed.
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+
+  <h2>Option B — Buy from another registrar, then connect</h2>
+  <p>You can buy a domain from any registrar — popular choices include <strong>Namecheap</strong>, <strong>GoDaddy</strong>, <strong>Porkbun</strong>, <strong>Cloudflare</strong>, <strong>ROTLD.ro</strong> (for .ro domains), or <strong>GoDaddy.ro</strong>. Prices are similar everywhere; Porkbun and Namecheap tend to be cheapest.</p>
+
+  <div class="box box-info">
+    <div class="box-title">ℹ .ro domains</div>
+    <p>If you want a <strong>.ro</strong> domain (Romanian), you can register it at <strong>rotld.ro</strong>, <strong>GoDaddy.ro</strong>, or most international registrars. A .ro domain costs approximately €10–20/year.</p>
+  </div>
+
+  <h2>Which domain extension should I choose?</h2>
+  <table class="dns-table">
+    <thead><tr><th>Extension</th><th>Best for</th><th>Typical cost/yr</th></tr></thead>
+    <tbody>
+      <tr><td><code>.com</code></td><td>Any business, most universal and trusted</td><td>€10–15</td></tr>
+      <tr><td><code>.ro</code></td><td>Romanian businesses targeting local customers</td><td>€10–18</td></tr>
+      <tr><td><code>.eu</code></td><td>European businesses</td><td>€8–12</td></tr>
+      <tr><td><code>.net</code></td><td>Technology, networks</td><td>€12–16</td></tr>
+      <tr><td><code>.co</code></td><td>Startups, modern brands</td><td>€25–35</td></tr>
+    </tbody>
+  </table>
+
+  <div class="doc-footer">
+    <div class="brand"><div class="mark">6</div><span>insixlive.com</span></div>
+    <span>Section 05 — Getting a custom domain</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ SECTION 6 ═══════════════════ -->
+<div class="page page-break">
+
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <span class="section-title">Connecting your domain to Vercel (DNS setup)</span>
+  </div>
+
+  <p>If you bought a domain from a registrar other than Vercel, you need to point it to your website by updating your <strong>DNS records</strong>. This sounds technical but takes only a few minutes once you know what to do.</p>
+
+  <h2>What is DNS?</h2>
+  <p>DNS (Domain Name System) is like a phonebook for the internet. When someone types <code style="font-family:var(--mono);background:rgba(0,0,0,0.06);padding:2px 5px;border-radius:3px">mybusiness.ro</code> into their browser, DNS tells the browser which server to go to. By updating your DNS records, you tell the internet "this domain should go to my Vercel website."</p>
+
+  <hr class="divider"/>
+
+  <h2>Step 1 — Add the domain in Vercel</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <strong>Open your Vercel project</strong>
+        Log in to vercel.com → click your project → click <strong>Settings</strong> → click <strong>Domains</strong>.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <strong>Add your domain</strong>
+        Type your domain name (e.g. <code style="font-family:var(--mono);background:rgba(0,0,0,0.06);padding:2px 5px;border-radius:3px">mybusiness.ro</code>) and click <strong>Add</strong>. Also add <code style="font-family:var(--mono);background:rgba(0,0,0,0.06);padding:2px 5px;border-radius:3px">www.mybusiness.ro</code> if you want the www version to work too.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <strong>Vercel shows you the DNS records to add</strong>
+        After adding the domain, Vercel displays the exact DNS records you need. They look like the table below. Keep this page open — you will need these values in Step 2.
+      </div>
+    </div>
+  </div>
+
+  <h2>The DNS records Vercel will give you</h2>
+  <p>Vercel provides two types of records. You need to copy these into your registrar's DNS settings:</p>
+
+  <table class="dns-table">
+    <thead>
+      <tr><th>Type</th><th>Name / Host</th><th>Value / Points to</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>A</code></td>
+        <td><code>@</code> (or blank)</td>
+        <td><code>76.76.21.21</code></td>
+        <td>The root domain (mybusiness.ro)</td>
+      </tr>
+      <tr>
+        <td><code>CNAME</code></td>
+        <td><code>www</code></td>
+        <td><code>cname.vercel-dns.com</code></td>
+        <td>The www version (www.mybusiness.ro)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="box box-info">
+    <div class="box-title">ℹ Always use the values Vercel shows you</div>
+    <p>The values above are the standard Vercel DNS records, but always copy the exact values from your Vercel dashboard — they are occasionally updated.</p>
+  </div>
+
+  <h2>Step 2 — Add the records at your registrar</h2>
+  <p>Log in to wherever you bought your domain (GoDaddy, Namecheap, Porkbun, ROTLD, etc.) and find the <strong>DNS settings</strong> or <strong>DNS Management</strong> section for your domain. The exact location varies by registrar but it is usually under "Manage Domain" or "Advanced DNS."</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <strong>Find DNS Management</strong>
+        In your registrar's dashboard, find your domain and look for "DNS", "DNS Records", "Manage DNS", or "Name Servers."
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <strong>Add the A record</strong>
+        Click "Add Record." Select type <code style="font-family:var(--mono);background:rgba(0,0,0,0.06);padding:2px 5px;border-radius:3px">A</code>. Set the host/name to <code style="font-family:var(--mono);background:rgba(0,0,0,0.06);padding:2px 5px;border-radius:3px">@</code> and the value to <code style="font-family:var(--mono);background:rgba(0,0,0,0.06);padding:2px 5px;border-radius:3px">76.76.21.21</code>. Save.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <strong>Add the CNAME record</strong>
+        Add another record. Select type <code style="font-family:var(--mono);background:rgba(0,0,0,0.06);padding:2px 5px;border-radius:3px">CNAME</code>. Set the host/name to <code style="font-family:var(--mono);background:rgba(0,0,0,0.06);padding:2px 5px;border-radius:3px">www</code> and the value to <code style="font-family:var(--mono);background:rgba(0,0,0,0.06);padding:2px 5px;border-radius:3px">cname.vercel-dns.com</code>. Save.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <strong>Wait for DNS propagation</strong>
+        DNS changes can take anywhere from 5 minutes to 24 hours to spread across the internet. Most registrars update within 15–30 minutes. Once done, your domain will show a green checkmark in your Vercel dashboard and your website will load at your custom address.
+      </div>
+    </div>
+  </div>
+
+  <div class="box box-ok">
+    <div class="box-title">✓ SSL is automatic</div>
+    <p>Once your DNS is connected, Vercel automatically issues a free SSL certificate (HTTPS). Your website will be secure — you do not need to do anything for this.</p>
+  </div>
+
+  <div class="doc-footer">
+    <div class="brand"><div class="mark">6</div><span>insixlive.com</span></div>
+    <span>Section 06 — DNS setup</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ SECTION 7 ═══════════════════ -->
+<div class="page page-break">
+
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <span class="section-title">Buying a domain directly on Vercel</span>
+  </div>
+
+  <p>Buying a domain through Vercel is the <strong>easiest option</strong> because the domain is connected to your website automatically — no DNS configuration needed.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <strong>Go to your Vercel project</strong>
+        Log in at vercel.com. Click on the project insixlive created for you (it will be named after your business).
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <strong>Open Settings → Domains</strong>
+        Click the <strong>Settings</strong> tab at the top of your project page, then click <strong>Domains</strong> in the left sidebar.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <strong>Search for a domain</strong>
+        Type the name you want in the search box (for example: <code style="font-family:var(--mono);background:rgba(0,0,0,0.06);padding:2px 5px;border-radius:3px">mybusiness.ro</code>). Vercel will show whether it is available and the annual price. Try different extensions if your preferred name is taken.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <strong>Click "Purchase Domain"</strong>
+        Add a payment method (credit or debit card) and confirm. The domain is registered in your name and immediately assigned to your project.
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <strong>Done — no DNS setup needed</strong>
+        When you buy through Vercel, DNS is automatically configured. Your website will be accessible at your new domain within a few minutes.
+      </div>
+    </div>
+  </div>
+
+  <div class="box box-info">
+    <div class="box-title">ℹ Domain renewal</div>
+    <p>Domains are renewed annually. Vercel will charge your saved payment method automatically when renewal is due — usually 30 days before expiry. Make sure your payment details stay up to date to avoid your domain expiring.</p>
+  </div>
+
+  <hr class="divider"/>
+
+  <h2>What if the domain name I want is taken?</h2>
+  <p>Popular one-word domains are almost always registered. Here are strategies to find a good alternative:</p>
+
+  <ul>
+    <li><strong>Try a different extension</strong> — if <code style="font-family:var(--mono);font-size:12px">mybusiness.com</code> is taken, try <code style="font-family:var(--mono);font-size:12px">mybusiness.ro</code> or <code style="font-family:var(--mono);font-size:12px">mybusiness.eu</code></li>
+    <li><strong>Add your city or country</strong> — <code style="font-family:var(--mono);font-size:12px">dentistcluj.ro</code>, <code style="font-family:var(--mono);font-size:12px">coafura-bucuresti.ro</code></li>
+    <li><strong>Add a descriptor</strong> — <code style="font-family:var(--mono);font-size:12px">clinicadentar-popescu.ro</code></li>
+    <li><strong>Use hyphens</strong> — <code style="font-family:var(--mono);font-size:12px">my-business.ro</code> (avoid more than one hyphen)</li>
+    <li><strong>Shorten it</strong> — <code style="font-family:var(--mono);font-size:12px">dentpro.ro</code> instead of <code style="font-family:var(--mono);font-size:12px">clinicadentistapopescu.ro</code></li>
+  </ul>
+
+  <div class="box box-warn">
+    <div class="box-title">⚠ Avoid very long domains</div>
+    <p>Keep your domain under 15–20 characters if possible. People need to be able to remember and type it without errors.</p>
+  </div>
+
+  <div class="doc-footer">
+    <div class="brand"><div class="mark">6</div><span>insixlive.com</span></div>
+    <span>Section 07 — Buying a domain on Vercel</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ SECTION 8 — FAQ ═══════════════════ -->
+<div class="page page-break">
+
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <span class="section-title">Frequently asked questions</span>
+  </div>
+
+  <div class="faq">
+
+    <div class="faq-item">
+      <div class="faq-q">Do I need to know anything about technology or coding?</div>
+      <div class="faq-a">No. insixlive is designed for business owners with no technical knowledge. You describe your business in plain language and we handle everything else. The form is simple and takes about 5 minutes to fill in.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">How long until my website is live?</div>
+      <div class="faq-a">From submitting your form to having a live website takes approximately <strong>6 minutes</strong>. The AI generation and deployment happen automatically while you wait.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Is there a monthly fee?</div>
+      <div class="faq-a"><strong>No.</strong> insixlive charges €59.99 once. That's it. Vercel hosting is free on their Hobby plan for most small websites. If you add a custom domain, you pay the registrar annually (€10–30/year) — but that's separate from insixlive.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">What if I don't like the result?</div>
+      <div class="faq-a">You can regenerate your website at any time for €59.99. Update your brief, change your style preferences, and generate a completely new version. Each generation is a fresh AI-built website based on your updated information.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Can I edit the website after it's generated?</div>
+      <div class="faq-a">Yes. You own the code — you can edit it directly in the Vercel interface or download it and edit with any code editor. If you're not technical, the easiest approach is to regenerate with an updated brief. You can also hire any web developer to modify the code since it's standard Next.js.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Will my website appear on Google?</div>
+      <div class="faq-a">Yes, but it takes time. Google needs to <strong>discover and index</strong> your website — this typically takes 1–4 weeks after launch. You can speed this up by submitting your URL to <strong>Google Search Console</strong> (search.google.com/search-console) and requesting indexing. A custom domain significantly helps your Google ranking over time.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Can I have multiple websites?</div>
+      <div class="faq-a">Yes. Each website generation is a separate €59.99 payment. Each generates a new, separate project in your Vercel account with its own URL.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Is the website mobile-friendly?</div>
+      <div class="faq-a">Yes. Every website insixlive generates is fully responsive — it automatically adapts to look correct on mobile phones, tablets, and desktop computers.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Does my website have HTTPS / is it secure?</div>
+      <div class="faq-a">Yes. Vercel provides a free SSL certificate automatically. Your website will always use HTTPS — the padlock icon appears in every browser. No action is needed from you.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Can I use a domain I already own?</div>
+      <div class="faq-a">Yes. If you already have a domain registered anywhere, you can connect it to your Vercel project by updating two DNS records as described in Section 6 of this guide. The process takes about 5 minutes plus up to 24 hours for DNS to propagate.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">How much does a domain cost?</div>
+      <div class="faq-a">Typically between <strong>€8 and €30 per year</strong> depending on the extension. Common extensions: .com (~€12–15/yr), .ro (~€10–18/yr), .eu (~€8–12/yr). Domain cost is paid to the domain registrar (or Vercel), not to insixlive.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">What happens if I close my Vercel account?</div>
+      <div class="faq-a">Your website would go offline. Before closing Vercel, download your website code from the project and back it up. The code is standard Next.js and can be hosted on any other platform (Netlify, Cloudflare Pages, a VPS, etc.).</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Can I have a professional email like contact@mybusiness.ro?</div>
+      <div class="faq-a">A custom domain enables professional email, but email hosting is separate from website hosting. Vercel does not provide email. You would need to set up email through a service like <strong>Google Workspace</strong> (€5–10/month), <strong>Zoho Mail</strong> (free tier available), or your domain registrar's email service. Contact us if you need guidance on this.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Can I build a website in Romanian?</div>
+      <div class="faq-a">Yes. Our form is available in Romanian and you can specify that the website should be generated in Romanian. All content, copy, and page text will be written in Romanian by the AI.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">My DNS is set up but the domain still doesn't work — what do I do?</div>
+      <div class="faq-a">DNS propagation can take up to 24 hours, though most cases resolve within 30 minutes. Check the status in your Vercel dashboard under Settings → Domains — it will show a green checkmark when DNS is properly connected. If it shows an error after 24 hours, double-check that you entered the DNS records exactly as shown in Vercel, with no extra spaces or typos.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Who do I contact if I have a problem?</div>
+      <div class="faq-a">Email us at <strong>contact@insixlive.com</strong>. We aim to respond within 24 hours on business days.</div>
+    </div>
+
+  </div>
+
+  <div class="doc-footer">
+    <div class="brand"><div class="mark">6</div><span>insixlive.com</span></div>
+    <span>Section 08 — FAQ</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ BACK COVER ═══════════════════ -->
+<div class="cover page-break" style="justify-content:center;gap:32px">
+  <div class="cover-mark"><span>6</span></div>
+  <div>
+    <h1 style="font-size:40px;margin-bottom:8px">in<span>six</span>live</h1>
+    <p style="color:rgba(255,255,255,0.45);font-size:16px">Your website live in six minutes</p>
+  </div>
+  <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:28px;display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:380px">
+    <p style="color:rgba(255,255,255,0.55);font-size:14px;text-align:center;margin:0">Questions? We're here to help.</p>
+    <p style="font-family:var(--mono);color:var(--orange);font-size:15px;font-weight:600;margin:0">contact@insixlive.com</p>
+    <p style="font-family:var(--mono);color:rgba(255,255,255,0.35);font-size:12px;margin:0">insixlive.com</p>
+  </div>
+</div>
+
+</body>
+</html>
