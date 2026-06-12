@@ -14,6 +14,8 @@ export type PageDesc = { description: string; aiRephrase: boolean; image: string
 export type GalleryMember = { name: string; role: string; photo: string };
 export type Socials = { instagram?: string; facebook?: string; tiktok?: string; youtube?: string; linkedin?: string; whatsapp?: string };
 
+export type ServiceItem = { name: string; description: string; price: string; callForPrice: boolean };
+
 export type WizardData = {
   templateId: string;
   lang: "ro" | "en";
@@ -27,7 +29,13 @@ export type WizardData = {
   };
   schedule: { type: "no-schedule" | "online" | "always-open" | "custom"; hours: { [day: string]: DayHours } };
   goals: { mainGoal: string; visitorFeel: string; problemSolved: string; whyChoose: string; idealCustomer: string };
-  services: { offersType: string; list: string[]; priceVisibility: string };
+  services: {
+    offersType: string;
+    list: string[];
+    serviceItems: ServiceItem[];
+    priceVisibility: string;
+    quoteContacts: { phone: string; email: string; instagram: string; facebook: string; whatsapp: string };
+  };
   design: { style: string; primaryColor: string; secondaryColor: string; darkMode: boolean; personalityLevel: string; backgroundStyle: string; animations: string };
   typography: { fontFamily: string; imageryStyle: string; heroPreference: string };
   team: { enabled: boolean; members: TeamMember[] };
@@ -52,14 +60,14 @@ const DEFAULT: WizardData = {
   business: { name: "", type: "", description: "", aboutText: "", aboutAiRephrase: true, hasLocation: true, location: "", locationCity: "", locationCountry: "", mapsLink: "", serviceArea: "", email: "", hasPhone: true, phone: "", openingHours: "", ownerName: "", experience: "" },
   schedule: { type: "no-schedule", hours: DEFAULT_HOURS },
   goals: { mainGoal: "", visitorFeel: "", problemSolved: "", whyChoose: "", idealCustomer: "" },
-  services: { offersType: "", list: [], priceVisibility: "" },
+  services: { offersType: "", list: [], serviceItems: [], priceVisibility: "", quoteContacts: { phone: "", email: "", instagram: "", facebook: "", whatsapp: "" } },
   design: { style: "minimalist", primaryColor: "#FF5A1F", secondaryColor: "#0e1a2b", darkMode: false, personalityLevel: "balanced", backgroundStyle: "ai-decide", animations: "moderate" },
-  typography: { fontFamily: "modern-sans", imageryStyle: "stock-photos", heroPreference: "ai-decide" },
+  typography: { fontFamily: "modern-sans", imageryStyle: "no-images", heroPreference: "ai-decide" },
   team: { enabled: false, members: [] },
   gallery: [],
   galleryMembers: [],
   socials: {},
-  pages: { selected: ["home","services","about","contact"], primaryCTA: "contact-form", contentTone: "professional-approachable", specialFeatures: [], additionalNotes: "", pageDescriptions: {} },
+  pages: { selected: ["home","services","about","contact"], primaryCTA: "phone", contentTone: "professional-approachable", specialFeatures: [], additionalNotes: "", pageDescriptions: {} },
   useEmojis: false,
   websiteLanguage: "Română",
   logo: { uploaded: false, dataUrl: "", fileName: "" },
@@ -113,17 +121,8 @@ const FONTS = [
   { id: "space-grotesk",   name: "Space Grotesk",    desc: "Tech, Web3, creative studios",sample: "Aa", style: { fontFamily: "'Space Grotesk',ui-sans-serif,sans-serif", fontWeight: 500 } },
 ];
 const IMAGERY_STYLES = [
-  { id: "photography",   name: "Photography Heavy",    desc: "Professional photos throughout" },
-  { id: "illustrations", name: "Illustrations & Icons",desc: "Custom icons and illustrations" },
-  { id: "minimal-img",   name: "Minimalist",           desc: "Mostly text and solid colors" },
-  { id: "stock-photos",  name: "Stock Photos",         desc: "Professional stock imagery" },
-  { id: "mixed",         name: "Mixed Style",          desc: "Illustrations + photos combined" },
-];
-const HERO_PREFS = [
-  { id: "bg-image",  name: "Background image",         desc: "Full-bleed photo behind content" },
-  { id: "gradient",  name: "Gradient background",      desc: "Color gradient, no photo" },
-  { id: "overlay",   name: "Image with text overlay",  desc: "Hero photo with text on top" },
-  { id: "ai-decide", name: "Let AI decide",            desc: "Best choice for your style" },
+  { id: "no-images",    name: "No images",             desc: "Text and colours only — clean, professional look" },
+  { id: "own-images",   name: "I will add my own images", desc: "Upload your photos in the gallery section later in this form" },
 ];
 
 const SCHEDULE_TYPES = [
@@ -150,8 +149,6 @@ const EXPERIENCE_OPTIONS = [
 
 const MAIN_GOALS = [
   { id: "calls",       name: "Get phone calls",             desc: "Drive call inquiries from the homepage" },
-  { id: "bookings",    name: "Get bookings / appointments", desc: "Fill your calendar online" },
-  { id: "sell",        name: "Sell products online",        desc: "E-commerce or direct sales" },
   { id: "leads",       name: "Generate leads",              desc: "B2B inquiries & quote requests" },
   { id: "present",     name: "Present services",            desc: "Showcase what you offer" },
   { id: "credibility", name: "Build credibility",           desc: "Establish authority & trust" },
@@ -162,45 +159,36 @@ const VISITOR_FEELS = ["Trust","Excitement","Calm","Luxury","Safety","Profession
 
 const OFFERS_TYPES = [
   { id: "services",  name: "Services",                desc: "I provide services to clients" },
-  { id: "products",  name: "Products",                desc: "I sell physical or digital products" },
-  { id: "both",      name: "Both",                    desc: "Services and products" },
+  { id: "products",  name: "Physical products (in-person)", desc: "I sell physical products — not through this website" },
   { id: "info",      name: "Information / Portfolio", desc: "No direct sales — just showcasing" },
 ];
 const PRICE_VISIBILITY = [
   { id: "exact",    label: "Show exact prices" },
-  { id: "from",     label: "Show 'from' prices" },
-  { id: "packages", label: "Packages only" },
   { id: "quote",    label: "Request a quote" },
   { id: "hide",     label: "Hide prices" },
 ];
 
 const CORE_PAGES = [
-  { id: "home",     label: "Home",              desc: "Always included",  required: true },
-  { id: "services", label: "Services/Products", desc: "What you offer",   required: false },
-  { id: "about",    label: "About Us",          desc: "Your story",       required: false },
-  { id: "contact",  label: "Contact",           desc: "Get in touch",     required: false },
+  { id: "home",     label: "Home",     desc: "Always included", required: true },
+  { id: "services", label: "Services", desc: "What you offer",  required: false },
+  { id: "about",    label: "About Us", desc: "Your story",      required: false },
+  { id: "contact",  label: "Contact",  desc: "Get in touch",    required: false },
 ];
 const EXTRA_PAGES = [
-  { id: "portfolio",    label: "Portfolio/Gallery",   desc: "Showcase your work" },
-  { id: "pricing",      label: "Pricing/Plans",       desc: "Service pricing" },
-  { id: "team",         label: "Team/Staff",          desc: "Meet the team" },
-  { id: "faq",          label: "FAQ/Help",            desc: "Common questions" },
-  { id: "blog",         label: "Blog/News",           desc: "Articles & updates" },
-  { id: "testimonials", label: "Testimonials",        desc: "Customer reviews" },
-  { id: "privacy",      label: "Privacy Policy",      desc: "Legal page" },
-  { id: "terms",        label: "Terms of Service",    desc: "Legal page" },
-  { id: "booking",      label: "Booking",             desc: "Appointments" },
-  { id: "newsletter",   label: "Newsletter Signup",   desc: "Email list" },
+  { id: "portfolio",    label: "Portfolio/Gallery", desc: "Showcase your work" },
+  { id: "pricing",      label: "Pricing/Plans",     desc: "Service pricing" },
+  { id: "team",         label: "Team/Staff",        desc: "Meet the team" },
+  { id: "faq",          label: "FAQ/Help",          desc: "Common questions" },
+  { id: "blog",         label: "Blog/News",         desc: "Articles & updates" },
+  { id: "testimonials", label: "Testimonials",      desc: "Customer reviews" },
+  { id: "privacy",      label: "Privacy Policy",    desc: "Legal page" },
+  { id: "terms",        label: "Terms of Service",  desc: "Legal page" },
+  { id: "booking",      label: "Booking",           desc: "Appointments" },
 ];
 
 const CTA_OPTIONS = [
-  { id: "contact-form", label: "Contact form" },
-  { id: "phone",        label: "Phone call" },
-  { id: "email",        label: "Email" },
-  { id: "booking",      label: "Booking/Appointment" },
-  { id: "shop",         label: "Shop/Buy" },
-  { id: "newsletter",   label: "Newsletter signup" },
-  { id: "multiple",     label: "Multiple CTAs" },
+  { id: "phone", label: "Phone call" },
+  { id: "email", label: "Email" },
 ];
 const TONE_OPTIONS = [
   { id: "formal",                   label: "Professional & Formal" },
@@ -315,17 +303,8 @@ const FONTS_RO = [
   { id: "space-grotesk",   name: "Space Grotesk",    desc: "Tech, Web3, studiouri" },
 ];
 const IMAGERY_STYLES_RO = [
-  { id: "photography",   name: "Multă Fotografie",     desc: "Fotografii profesionale peste tot" },
-  { id: "illustrations", name: "Ilustrații & Iconițe", desc: "Iconițe și ilustrații personalizate" },
-  { id: "minimal-img",   name: "Minimalist",           desc: "Preponderent text și culori solide" },
-  { id: "stock-photos",  name: "Fotografii Stock",     desc: "Imagini stock profesionale" },
-  { id: "mixed",         name: "Stil Mixt",            desc: "Ilustrații + fotografii combinate" },
-];
-const HERO_PREFS_RO = [
-  { id: "bg-image",  name: "Imagine de fundal",      desc: "Fotografie full-bleed în spate" },
-  { id: "gradient",  name: "Fundal gradient",         desc: "Gradient de culoare, fără fotografie" },
-  { id: "overlay",   name: "Imagine cu text suprapus",desc: "Fotografie hero cu text deasupra" },
-  { id: "ai-decide", name: "Lasă AI să decidă",       desc: "Cea mai bună alegere pentru stilul tău" },
+  { id: "no-images",  name: "Fără imagini",           desc: "Doar text și culori — aspect curat, profesional" },
+  { id: "own-images", name: "Voi adăuga propriile imagini", desc: "Încarcă fotografiile în secțiunea galerie mai târziu în formular" },
 ];
 const BIZ_TYPES_RO = ["","Sănătate","Fitness & Wellness","Educație","Mâncare & Băutură","Restaurant / Cafenea","Frumusețe & Saloane","Juridic","Imobiliare","Auto","Comerț / Magazin","Creativ / Agenție","Media","Tehnologie / SaaS","Servicii profesionale","ONG","Altceva"];
 const BIZ_TYPES_EN = ["","Restaurant","Hair Salon","Photography","Dental Clinic","Consulting","E-commerce","Real Estate","Fitness","Law Firm","Architecture","Plumbing","Accounting","Marketing Agency","Medical Clinic","Tech Startup","Beauty/Spa","Other"];
@@ -337,8 +316,6 @@ const SCHEDULE_TYPES_RO = [
 ];
 const MAIN_GOALS_RO = [
   { id: "calls",       name: "Primește apeluri",           desc: "Generează apeluri direct din pagina principală" },
-  { id: "bookings",    name: "Primește programări",        desc: "Umple-ți calendarul online" },
-  { id: "sell",        name: "Vinde produse online",       desc: "E-commerce sau vânzări directe" },
   { id: "leads",       name: "Generează lead-uri",         desc: "Cereri B2B & solicitări de ofertă" },
   { id: "present",     name: "Prezintă serviciile",        desc: "Arată ce oferi" },
   { id: "credibility", name: "Construiește credibilitate", desc: "Stabilește autoritate & încredere" },
@@ -351,33 +328,29 @@ const VISITOR_FEELS_RO = [
   { id: "Warmth", label: "Căldură" }, { id: "Innovation", label: "Inovație" }, { id: "Creativity", label: "Creativitate" }, { id: "Fun", label: "Distracție" },
 ];
 const OFFERS_TYPES_RO = [
-  { id: "services", name: "Servicii",                desc: "Ofer servicii clienților" },
-  { id: "products", name: "Produse",                 desc: "Vând produse fizice sau digitale" },
-  { id: "both",     name: "Ambele",                  desc: "Servicii și produse" },
-  { id: "info",     name: "Informații / Portofoliu", desc: "Fără vânzări directe — doar prezentare" },
+  { id: "services", name: "Servicii",                       desc: "Ofer servicii clienților" },
+  { id: "products", name: "Produse fizice (în persoană)",   desc: "Vând produse fizice — nu prin acest site" },
+  { id: "info",     name: "Informații / Portofoliu",        desc: "Fără vânzări directe — doar prezentare" },
 ];
 const PRICE_VISIBILITY_RO = [
-  { id: "exact",    label: "Arată prețuri exacte" }, { id: "from", label: 'Arată prețuri "de la"' },
-  { id: "packages", label: "Doar pachete" },          { id: "quote", label: "Cere o ofertă" },
-  { id: "hide",     label: "Ascunde prețurile" },
+  { id: "exact", label: "Arată prețuri exacte" },
+  { id: "quote", label: "Cere o ofertă" },
+  { id: "hide",  label: "Ascunde prețurile" },
 ];
 const EXTRA_PAGES_RO = [
-  { id: "portfolio",    label: "Portofoliu / Galerie",      desc: "Prezintă-ți lucrările" },
-  { id: "pricing",      label: "Prețuri / Planuri",         desc: "Prețuri servicii" },
-  { id: "team",         label: "Echipă / Personal",         desc: "Cunoaște echipa" },
-  { id: "faq",          label: "Întrebări frecvente",       desc: "Întrebări comune" },
-  { id: "blog",         label: "Blog / Noutăți",            desc: "Articole & actualizări" },
-  { id: "testimonials", label: "Testimoniale",              desc: "Recenzii clienți" },
-  { id: "privacy",      label: "Confidențialitate",         desc: "Pagină legală" },
-  { id: "terms",        label: "Termeni",                   desc: "Pagină legală" },
-  { id: "booking",      label: "Rezervări",                 desc: "Programări" },
-  { id: "newsletter",   label: "Newsletter",                desc: "Listă de email" },
+  { id: "portfolio",    label: "Portofoliu / Galerie",  desc: "Prezintă-ți lucrările" },
+  { id: "pricing",      label: "Prețuri / Planuri",     desc: "Prețuri servicii" },
+  { id: "team",         label: "Echipă / Personal",     desc: "Cunoaște echipa" },
+  { id: "faq",          label: "Întrebări frecvente",   desc: "Întrebări comune" },
+  { id: "blog",         label: "Blog / Noutăți",        desc: "Articole & actualizări" },
+  { id: "testimonials", label: "Testimoniale",          desc: "Recenzii clienți" },
+  { id: "privacy",      label: "Confidențialitate",     desc: "Pagină legală" },
+  { id: "terms",        label: "Termeni",               desc: "Pagină legală" },
+  { id: "booking",      label: "Rezervări",             desc: "Programări" },
 ];
 const CTA_OPTIONS_RO = [
-  { id: "contact-form", label: "Formular de contact" }, { id: "phone",   label: "Apel telefonic" },
-  { id: "email",        label: "Email" },                { id: "booking", label: "Rezervare / Programare" },
-  { id: "shop",         label: "Magazin / Cumpără" },    { id: "newsletter", label: "Abonare newsletter" },
-  { id: "multiple",     label: "Mai multe CTA-uri" },
+  { id: "phone", label: "Apel telefonic" },
+  { id: "email", label: "Email" },
 ];
 const TONE_OPTIONS_RO = [
   { id: "formal",                    label: "Profesional & Formal" },
@@ -395,7 +368,7 @@ const SPECIAL_FEATURES_RO = [
 const LANGUAGES_RO = ["Română","English","Español","Français","Deutsch","Italiano","Português","Magyar","Українська"];
 const CORE_PAGES_RO = [
   { id: "home",     label: "Acasă",             desc: "Inclusă mereu",  required: true },
-  { id: "services", label: "Servicii / Produse",desc: "Ce oferi",       required: false },
+  { id: "services", label: "Servicii",         desc: "Ce oferi",       required: false },
   { id: "about",    label: "Despre noi",         desc: "Povestea ta",    required: false },
   { id: "contact",  label: "Contact",            desc: "Ia legătura",   required: false },
 ];
@@ -769,98 +742,100 @@ function WizRepeater({ items, onChange, placeholder = "e.g. Deep tissue massage"
   );
 }
 
-// ─── Location Autocomplete ─────────────────────────────────────────────────────
+// ─── Country + City Dropdowns ────────────────────────────────────────────────
 
-type NominatimResult = {
-  place_id: number; display_name: string; name: string; lat: string; lon: string;
-  type: string; class: string;
-  address: { city?: string; town?: string; village?: string; municipality?: string; state?: string; country?: string; country_code?: string };
+const COUNTRIES = [
+  "Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria",
+  "Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan",
+  "Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina Faso","Burundi","Cabo Verde","Cambodia",
+  "Cameroon","Canada","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo","Costa Rica",
+  "Croatia","Cuba","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt",
+  "El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia","Fiji","Finland","France","Gabon",
+  "Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana",
+  "Haiti","Honduras","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel",
+  "Italy","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kiribati","Kuwait","Kyrgyzstan","Laos",
+  "Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Madagascar","Malawi",
+  "Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova",
+  "Monaco","Mongolia","Montenegro","Morocco","Mozambique","Myanmar","Namibia","Nauru","Nepal","Netherlands",
+  "New Zealand","Nicaragua","Niger","Nigeria","North Korea","North Macedonia","Norway","Oman","Pakistan","Palau",
+  "Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Qatar","Romania","Russia",
+  "Rwanda","Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino","Sao Tome and Principe",
+  "Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia",
+  "South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria",
+  "Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey",
+  "Turkmenistan","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan",
+  "Vanuatu","Vatican City","Venezuela","Vietnam","Yemen","Zambia","Zimbabwe",
+];
+
+// Major cities per country (abbreviated for common countries; others get a text input)
+const CITIES_BY_COUNTRY: Record<string, string[]> = {
+  "Romania": ["Bucharest","Cluj-Napoca","Timișoara","Iași","Constanța","Craiova","Brașov","Galați","Ploiești","Oradea","Brăila","Arad","Pitești","Sibiu","Bacău","Târgu Mureș","Baia Mare","Buzău","Satu Mare","Râmnicu Vâlcea"],
+  "United Kingdom": ["London","Birmingham","Manchester","Glasgow","Leeds","Sheffield","Edinburgh","Liverpool","Bristol","Cardiff","Coventry","Leicester","Bradford","Nottingham","Newcastle","Belfast","Brighton","Hull","Plymouth","Oxford"],
+  "United States": ["New York","Los Angeles","Chicago","Houston","Phoenix","Philadelphia","San Antonio","San Diego","Dallas","San Jose","Austin","Jacksonville","Fort Worth","Columbus","Charlotte","Indianapolis","San Francisco","Seattle","Denver","Washington DC"],
+  "Germany": ["Berlin","Hamburg","Munich","Cologne","Frankfurt","Stuttgart","Düsseldorf","Dortmund","Essen","Leipzig","Bremen","Dresden","Hannover","Nuremberg","Duisburg","Bochum","Wuppertal","Bielefeld","Bonn","Münster"],
+  "France": ["Paris","Lyon","Marseille","Toulouse","Nice","Nantes","Strasbourg","Montpellier","Bordeaux","Lille","Rennes","Reims","Saint-Étienne","Toulon","Grenoble","Dijon","Angers","Nîmes","Villeurbanne","Clermont-Ferrand"],
+  "Spain": ["Madrid","Barcelona","Valencia","Seville","Zaragoza","Málaga","Murcia","Palma","Las Palmas","Bilbao","Alicante","Córdoba","Valladolid","Vigo","Gijón","Eixample","Hospitalet","Vitoria-Gasteiz","La Coruña","Santa Cruz de Tenerife"],
+  "Italy": ["Rome","Milan","Naples","Turin","Palermo","Genoa","Bologna","Florence","Bari","Catania","Venice","Verona","Messina","Padua","Trieste","Brescia","Taranto","Prato","Reggio Calabria","Modena"],
+  "Portugal": ["Lisbon","Porto","Braga","Coimbra","Funchal","Setúbal","Almada","Agualva-Cacém","Queluz","Viseu","Guimarães","Vila Nova de Gaia","Amadora","Aveiro","Odivelas","Barreiro","Loures","Matosinhos","Évora","Faro"],
+  "Netherlands": ["Amsterdam","Rotterdam","The Hague","Utrecht","Eindhoven","Tilburg","Groningen","Almere","Breda","Nijmegen","Enschede","Haarlem","Arnhem","Zaanstad","Apeldoorn","Amersfoort","Maastricht","Dordrecht","Leiden","Zoetermeer"],
+  "Belgium": ["Brussels","Antwerp","Ghent","Charleroi","Liège","Bruges","Namur","Leuven","Mons","Aalst"],
+  "Poland": ["Warsaw","Kraków","Łódź","Wrocław","Poznań","Gdańsk","Szczecin","Bydgoszcz","Lublin","Białystok"],
+  "Austria": ["Vienna","Graz","Linz","Salzburg","Innsbruck","Klagenfurt","Villach","Wels","Sankt Pölten","Dornbirn"],
+  "Switzerland": ["Zurich","Geneva","Basel","Bern","Lausanne","Winterthur","Lucerne","St. Gallen","Lugano","Biel/Bienne"],
+  "Australia": ["Sydney","Melbourne","Brisbane","Perth","Adelaide","Gold Coast","Canberra","Newcastle","Wollongong","Logan City"],
+  "Canada": ["Toronto","Montreal","Vancouver","Calgary","Edmonton","Ottawa","Winnipeg","Quebec City","Hamilton","Kitchener"],
+  "India": ["Mumbai","Delhi","Bangalore","Hyderabad","Ahmedabad","Chennai","Kolkata","Surat","Pune","Jaipur","Lucknow","Kanpur","Nagpur","Indore","Thane","Bhopal","Visakhapatnam","Pimpri-Chinchwad","Patna","Vadodara"],
+  "Brazil": ["São Paulo","Rio de Janeiro","Brasília","Salvador","Fortaleza","Belo Horizonte","Manaus","Curitiba","Recife","Porto Alegre"],
+  "Mexico": ["Mexico City","Guadalajara","Monterrey","Puebla","Tijuana","León","Juárez","Zapopan","Nezahualcóyotl","Chihuahua"],
+  "China": ["Shanghai","Beijing","Chongqing","Tianjin","Guangzhou","Shenzhen","Chengdu","Wuhan","Xi'an","Hangzhou"],
+  "Japan": ["Tokyo","Yokohama","Osaka","Nagoya","Sapporo","Fukuoka","Kobe","Kawasaki","Kyoto","Saitama"],
+  "South Korea": ["Seoul","Busan","Incheon","Daegu","Daejeon","Gwangju","Suwon","Ulsan","Sejong","Changwon"],
+  "Turkey": ["Istanbul","Ankara","Izmir","Bursa","Adana","Gaziantep","Konya","Antalya","Diyarbakır","Kayseri"],
+  "Greece": ["Athens","Thessaloniki","Patras","Heraklion","Larissa","Volos","Rhodes","Ioannina","Chania","Chalcis"],
+  "Czech Republic": ["Prague","Brno","Ostrava","Plzeň","Liberec","Olomouc","Ústí nad Labem","České Budějovice","Hradec Králové","Pardubice"],
+  "Hungary": ["Budapest","Debrecen","Miskolc","Szeged","Pécs","Győr","Nyíregyháza","Kecskemét","Székesfehérvár","Szombathely"],
+  "Sweden": ["Stockholm","Gothenburg","Malmö","Uppsala","Västerås","Örebro","Linköping","Helsingborg","Jönköping","Norrköping"],
+  "Denmark": ["Copenhagen","Aarhus","Odense","Aalborg","Frederiksberg","Esbjerg","Gentofte","Gladsaxe","Randers","Kolding"],
+  "Norway": ["Oslo","Bergen","Stavanger","Trondheim","Drammen","Fredrikstad","Kristiansand","Asker","Sandnes","Tromsø"],
+  "Finland": ["Helsinki","Espoo","Tampere","Vantaa","Oulu","Turku","Jyväskylä","Lahti","Kuopio","Kouvola"],
+  "Ireland": ["Dublin","Cork","Limerick","Galway","Waterford","Drogheda","Dundalk","Swords","Bray","Navan"],
+  "Ukraine": ["Kyiv","Kharkiv","Odessa","Dnipro","Donetsk","Zaporizhzhia","Lviv","Kryvyi Rih","Mykolaiv","Mariupol"],
+  "Russia": ["Moscow","Saint Petersburg","Novosibirsk","Yekaterinburg","Kazan","Nizhny Novgorod","Chelyabinsk","Samara","Ufa","Rostov-on-Don"],
+  "South Africa": ["Johannesburg","Cape Town","Durban","Pretoria","Port Elizabeth","Bloemfontein","Nelspruit","Polokwane","Pietermaritzburg","Kimberley"],
+  "Argentina": ["Buenos Aires","Córdoba","Rosario","Mendoza","Tucumán","La Plata","Mar del Plata","Salta","Santa Fe","San Juan"],
+  "United Arab Emirates": ["Dubai","Abu Dhabi","Sharjah","Al Ain","Ajman","Ras Al Khaimah","Fujairah","Umm Al Quwain"],
 };
 
-function flagEmoji(code: string): string {
-  if (!code || code.length !== 2) return "";
-  return code.toUpperCase().split("").map(c => String.fromCodePoint(c.charCodeAt(0) + 0x1F1A5)).join("");
-}
-
-function LocationAutocomplete({ city, country, disabled, onSelect, onClear }: {
-  city: string; country: string; disabled?: boolean;
-  onSelect: (city: string, country: string) => void;
-  onClear: () => void;
+function LocationDropdowns({ country, city, disabled, onChange }: {
+  country: string; city: string; disabled?: boolean;
+  onChange: (country: string, city: string) => void;
 }) {
-  const [query, setQuery] = useState(city ? `${city}${country ? `, ${country}` : ""}` : "");
-  const [results, setResults] = useState<NominatimResult[]>([]);
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const wrapRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => { setQuery(city ? `${city}${country ? `, ${country}` : ""}` : ""); }, [city, country]);
-  useEffect(() => {
-    const h = (e: MouseEvent) => { if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false); };
-    document.addEventListener("mousedown", h);
-    return () => document.removeEventListener("mousedown", h);
-  }, []);
-
-  const search = async (q: string) => {
-    if (q.length < 2) { setResults([]); setOpen(false); return; }
-    setLoading(true);
-    try {
-      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=8&addressdetails=1&accept-language=en`;
-      const res = await fetch(url, { headers: { "User-Agent": "insixlive-website-builder/1.0" } });
-      const data: NominatimResult[] = await res.json();
-      const filtered = data.filter(r => r.class === "place" || ["city","town","village","administrative","hamlet"].includes(r.type)).slice(0, 7);
-      setResults(filtered); setOpen(filtered.length > 0);
-    } catch { setResults([]); }
-    finally { setLoading(false); }
-  };
-
-  const handleChange = (val: string) => {
-    setQuery(val);
-    if (city) onClear();
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => search(val), 350);
-  };
-  const handleSelect = (r: NominatimResult) => {
-    const c = r.address.city || r.address.town || r.address.village || r.address.municipality || r.name;
-    const co = r.address.country || "";
-    setQuery(`${c}${co ? `, ${co}` : ""}`);
-    setResults([]); setOpen(false);
-    onSelect(c, co);
-  };
+  const cities = country && CITIES_BY_COUNTRY[country] ? CITIES_BY_COUNTRY[country] : null;
 
   return (
-    <div ref={wrapRef} style={{ position: "relative" }}>
-      <div style={{ position: "relative" }}>
-        <input className="wf-input" value={query} disabled={disabled}
-          onChange={e => handleChange(e.target.value)}
-          placeholder="Search for a city…" autoComplete="off"
-          onFocus={() => { if (results.length > 0) setOpen(true); }}
-          style={{ paddingRight: 40, opacity: disabled ? 0.4 : 1 }} />
-        <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", display: "flex", gap: 4 }}>
-          {loading && <svg width="14" height="14" viewBox="0 0 14 14" style={{ animation: "spin 0.7s linear infinite" }}><circle cx="7" cy="7" r="5" fill="none" stroke="var(--wf-border)" strokeWidth="2"/><path d="M7 2a5 5 0 015 5" fill="none" stroke="var(--wf-text3)" strokeWidth="2" strokeLinecap="round"/></svg>}
-          {city && !loading && <button type="button" onClick={onClear} style={{ width: 18, height: 18, borderRadius: "50%", background: "var(--wf-surf3)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--wf-text2)" }}><IX /></button>}
-        </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 10, opacity: disabled ? 0.4 : 1 }}>
+      <div>
+        <div className="wf-blabel" style={{ marginBottom: 6 }}>Country</div>
+        <select className="wf-input" value={country} disabled={disabled}
+          onChange={e => onChange(e.target.value, "")}>
+          <option value="">Select a country…</option>
+          {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
       </div>
-      {open && results.length > 0 && (
-        <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 200, background: "var(--wf-bg2)", border: "1px solid var(--wf-border)", borderRadius: 12, boxShadow: "var(--wf-shadow)", overflow: "hidden" }}>
-          {results.map(r => {
-            const c = r.address.city || r.address.town || r.address.village || r.address.municipality || r.name;
-            const co = r.address.country || "";
-            const flag = r.address.country_code ? flagEmoji(r.address.country_code) : "";
-            const sub = [r.address.state, r.address.country].filter(Boolean).join(", ");
-            return (
-              <button key={r.place_id} type="button" onMouseDown={e => { e.preventDefault(); handleSelect(r); }}
-                style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", border: "none", borderBottom: "1px solid var(--wf-surf3)", background: "transparent", cursor: "pointer", textAlign: "left" }}
-                onMouseEnter={e => (e.currentTarget.style.background = "var(--wf-surf2)")}
-                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-                {flag && <span style={{ fontSize: 18 }}>{flag}</span>}
-                <div>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "var(--wf-text)" }}>{c}{co ? `, ${co}` : ""}</p>
-                  {sub && sub !== co && <p style={{ margin: 0, fontSize: 11, color: "var(--wf-text3)" }}>{sub}</p>}
-                </div>
-              </button>
-            );
-          })}
+      {country && (
+        <div>
+          <div className="wf-blabel" style={{ marginBottom: 6 }}>City</div>
+          {cities ? (
+            <select className="wf-input" value={city} disabled={disabled}
+              onChange={e => onChange(country, e.target.value)}>
+              <option value="">Select a city…</option>
+              {cities.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          ) : (
+            <input className="wf-input" value={city} disabled={disabled}
+              placeholder="Enter your city…"
+              onChange={e => onChange(country, e.target.value)} />
+          )}
         </div>
       )}
     </div>
@@ -1032,7 +1007,6 @@ function Step04TypeImagery({ data, setData, lang }: { data: WizardData; setData:
   const fileRef = useRef<HTMLInputElement>(null);
   const fonts   = lang === "ro" ? FONTS_RO    : FONTS;
   const imagery = lang === "ro" ? IMAGERY_STYLES_RO : IMAGERY_STYLES;
-  const heros   = lang === "ro" ? HERO_PREFS_RO     : HERO_PREFS;
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -1064,13 +1038,12 @@ function Step04TypeImagery({ data, setData, lang }: { data: WizardData; setData:
           })}
         </div>
       </Block>
-      <Block label={tr(lang,"Stil imagini","Imagery style")}>
-        <WizOptGrid cols={3} options={imagery.map(i => ({ id: i.id, name: i.name, desc: i.desc }))}
+      <Block label={tr(lang,"Stil imagini","Imagery style")} required
+        note={t.imageryStyle === "own-images"
+          ? tr(lang,"Mai târziu în formular există o secțiune dedicată unde poți încărca fotografiile tale.","Later in this form there is a dedicated section where you can upload your photos.")
+          : undefined}>
+        <WizOptGrid cols={2} options={imagery.map(i => ({ id: i.id, name: i.name, desc: i.desc }))}
           value={t.imageryStyle} onChange={v => setTypo("imageryStyle", v)} />
-      </Block>
-      <Block label={tr(lang,"Stilul secțiunii hero","Hero section style")}>
-        <WizOptGrid cols={2} options={heros.map(h => ({ id: h.id, name: h.name, desc: h.desc }))}
-          value={t.heroPreference} onChange={v => setTypo("heroPreference", v)} />
       </Block>
       <Block label="Logo" optional note={tr(lang,"PNG, SVG, JPG sau WebP · Max 5MB — AI îl plasează în antet, dimensionat pentru navigare.","PNG, SVG, JPG or WebP · Max 5MB — AI places it in the header, sized for navigation.")}>
         {l.uploaded && l.dataUrl ? (
@@ -1135,27 +1108,32 @@ function Step05Business({ data, setData, lang }: { data: WizardData; setData: Re
           aiOn={b.aboutAiRephrase} onAiToggle={v => set("aboutAiRephrase", v)} />
       </Block>
 
-      <Block label={tr(lang,"Locație","Location")} required={b.hasLocation}>
-        <LocationAutocomplete city={b.locationCity} country={b.locationCountry} disabled={!b.hasLocation}
-          onSelect={(city, country) => setData(p => ({ ...p, business: { ...p.business, locationCity: city, locationCountry: country, location: `${city}${country ? `, ${country}` : ""}` } }))}
-          onClear={() => setData(p => ({ ...p, business: { ...p.business, locationCity: "", locationCountry: "", location: "" } }))} />
-        <div style={{ marginTop: 10 }}>
-          <WizCheckRow label={tr(lang,"Nu am o locație fizică","I don't have a physical location")} on={!b.hasLocation} onToggle={v => set("hasLocation", !v)} />
-        </div>
-        {b.hasLocation && (
-          <div className="wf-maps-wrap">
+      <Block label={tr(lang,"Ai o locație fizică?","Do you have a physical location?")} required>
+        <WizOptGrid cols={2} options={[
+          { id: "yes", name: tr(lang,"Da, am o locație fizică","Yes, I have a physical location"), desc: tr(lang,"Clienții pot veni la tine","Customers can visit you") },
+          { id: "no",  name: tr(lang,"Nu, fără locație fizică","No physical location"),            desc: tr(lang,"Online sau la client","Online-only or at client's location") },
+        ]} value={b.hasLocation ? "yes" : "no"}
+          onChange={v => set("hasLocation", v === "yes")} />
+      </Block>
+
+      {b.hasLocation && (
+        <Block label={tr(lang,"Locație","Location")} required>
+          <LocationDropdowns
+            country={b.locationCountry}
+            city={b.locationCity}
+            onChange={(country, city) => setData(p => ({ ...p, business: { ...p.business, locationCountry: country, locationCity: city, location: `${city}${country ? `, ${country}` : ""}` } }))}
+          />
+          <div className="wf-maps-wrap" style={{ marginTop: 12 }}>
             <div className="wf-blabel">{tr(lang,"Link Google Maps","Google Maps link")} <span className="opt">({tr(lang,"opțional","optional")})</span></div>
             <div className="wf-maps-note">{tr(lang,'Deschide locatia in Google Maps, apasa "Distribuie" si lipeste linkul aici - il integram in site cu harta si buton de indicatii.',"Open your location in Google Maps, tap Share, and paste the link here — we embed it on the site with a map and directions button.")}</div>
             <WizInput value={b.mapsLink} onChange={v => set("mapsLink", v)} placeholder="https://maps.app.goo.gl/…" type="url" />
           </div>
-        )}
-        {b.hasLocation && (
           <div style={{ marginTop: 10 }}>
             <div className="wf-blabel">{tr(lang,"Zona de servicii","Service area")} <span className="opt">({tr(lang,"opțional","optional")})</span></div>
             <WizInput value={b.serviceArea} onChange={v => set("serviceArea", v)} placeholder={tr(lang,"ex. București și împrejurimi","e.g. Greater London, nationwide")} />
           </div>
-        )}
-      </Block>
+        </Block>
+      )}
 
       <Block>
         <div className="wf-grid2">
@@ -1178,18 +1156,10 @@ function Step05Business({ data, setData, lang }: { data: WizardData; setData: Re
       </Block>
 
       <Block>
-        <div className="wf-grid2">
-          <div>
-            <div className="wf-blabel">{tr(lang,"Ani de activitate","Years in business")} <span className="opt">({tr(lang,"opțional","optional")})</span></div>
-            <select className="wf-input" value={b.experience} onChange={e => set("experience", e.target.value)}>
-              {EXPERIENCE_OPTIONS.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
-            </select>
-          </div>
-          <div>
-            <div className="wf-blabel">{tr(lang,"Numele tău","Your name")} <span className="opt">({tr(lang,"opțional","optional")})</span></div>
-            <WizInput value={b.ownerName} onChange={v => set("ownerName", v)} placeholder={tr(lang,"Ca să ne adresăm corect","So we can address you")} />
-          </div>
-        </div>
+        <div className="wf-blabel">{tr(lang,"Ani de activitate","Years in business")} <span className="opt">({tr(lang,"opțional","optional")})</span></div>
+        <select className="wf-input" value={b.experience} onChange={e => set("experience", e.target.value)}>
+          {EXPERIENCE_OPTIONS.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
+        </select>
       </Block>
     </div>
   );
@@ -1215,6 +1185,12 @@ function Step06Goals({ data, setData, lang }: { data: WizardData; setData: React
         note={tr(lang,"Care e lucrul #1 pe care ar trebui să-l facă un vizitator?","What's the #1 thing a visitor should do?")}>
         <WizOptGrid cols={2} options={goals.map(m => ({ id: m.id, name: m.name, desc: m.desc }))}
           value={g.mainGoal} onChange={v => set("mainGoal", v)} />
+        <div style={{ marginTop: 10, padding: "10px 14px", borderRadius: 8, background: "var(--wf-surf2)", border: "1px solid var(--wf-border)", fontSize: 12.5, color: "var(--wf-text3)", lineHeight: 1.5 }}>
+          {tr(lang,
+            "Notă: Site-ul generat nu poate procesa plăți online sau rezervări direct. Vizitatorii te vor contacta telefonic sau prin email.",
+            "Note: The generated website cannot process online purchases or bookings. Visitors will contact you by phone or email."
+          )}
+        </div>
       </Block>
       <Block label={tr(lang,"Cum ar trebui să se simtă vizitatorii când ajung pe site?","How should visitors feel when they land?")}
         note={tr(lang,"Alege una — asta modelează culorile, textul și imaginile.","Pick one — this shapes colour, copy and imagery.")}>
@@ -1237,6 +1213,56 @@ function Step06Goals({ data, setData, lang }: { data: WizardData; setData: React
   );
 }
 
+// ─── Service Items Editor ─────────────────────────────────────────────────────
+
+function ServiceItemEditor({ items, onChange, lang }: {
+  items: ServiceItem[]; onChange: (v: ServiceItem[]) => void; lang: Lang;
+}) {
+  const list: ServiceItem[] = items && items.length ? items : [{ name: "", description: "", price: "", callForPrice: false }];
+
+  const set = (i: number, patch: Partial<ServiceItem>) =>
+    onChange(list.map((m, j) => j === i ? { ...m, ...patch } : m));
+  const add = () => onChange([...list, { name: "", description: "", price: "", callForPrice: false }]);
+  const del = (i: number) => {
+    const next = list.filter((_, j) => j !== i);
+    onChange(next.length ? next : [{ name: "", description: "", price: "", callForPrice: false }]);
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {list.map((item, i) => (
+        <div key={i} style={{ padding: "14px 16px", borderRadius: 10, background: "var(--wf-surf2)", border: "1px solid var(--wf-border)", display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ fontFamily: "var(--wf-mono)", fontSize: 11, color: "var(--wf-text3)" }}>{tr(lang,"Serviciu","Service")} {String(i + 1).padStart(2, "0")}</span>
+            <button type="button" className="wf-rep-del" onClick={() => del(i)} aria-label="Remove"><ITrash /></button>
+          </div>
+          <input className="wf-input" value={item.name}
+            placeholder={tr(lang,"ex. Tuns & coafat","e.g. Hair cut & styling")}
+            onChange={e => set(i, { name: e.target.value })} />
+          <textarea className="wf-textarea" value={item.description}
+            placeholder={tr(lang,"Descrie serviciul — AI va îmbunătăți textul pentru tine","Describe the service — AI will polish the copy for you")}
+            onChange={e => set(i, { description: e.target.value })}
+            style={{ minHeight: 70, resize: "vertical" as const }} />
+          {!item.callForPrice && (
+            <input className="wf-input" value={item.price}
+              placeholder={tr(lang,"Preț (ex. 150 RON, de la 200 EUR, gratuit)","Price (e.g. €50, from €30, free)")}
+              onChange={e => set(i, { price: e.target.value })} />
+          )}
+          <div className={`wf-checkrow${item.callForPrice ? " on" : ""}`}
+            onClick={() => set(i, { callForPrice: !item.callForPrice, price: "" })}
+            style={{ cursor: "pointer" }}>
+            <span className="wf-checkbox"><ICheck /></span>
+            {tr(lang,"Clienții trebuie să sune pentru a afla prețul","Customers must call to get the price")}
+          </div>
+        </div>
+      ))}
+      <button type="button" className="wf-add-item" onClick={add}>
+        <IPlus /> {tr(lang,"Adaugă un serviciu","Add a service")}
+      </button>
+    </div>
+  );
+}
+
 // ─── Step 07 — Services & Pricing ─────────────────────────────────────────────
 
 function Step07Services({ data, setData, lang }: { data: WizardData; setData: React.Dispatch<React.SetStateAction<WizardData>>; lang: Lang }) {
@@ -1245,24 +1271,61 @@ function Step07Services({ data, setData, lang }: { data: WizardData; setData: Re
     setData(p => ({ ...p, services: { ...p.services, [k]: v } }));
   const offers = lang === "ro" ? OFFERS_TYPES_RO : OFFERS_TYPES;
   const prices = lang === "ro" ? PRICE_VISIBILITY_RO : PRICE_VISIBILITY;
+  const qc = s.quoteContacts ?? { phone: "", email: "", instagram: "", facebook: "", whatsapp: "" };
+  const setQc = (k: keyof typeof qc, v: string) =>
+    setData(p => ({ ...p, services: { ...p.services, quoteContacts: { ...qc, [k]: v } } }));
 
   return (
     <div>
       <StepHead idx={7} total={11} kicker={tr(lang,"Servicii & prețuri","Services & pricing")}
         title={tr(lang,"Ce oferi","What you offer")}
-        sub={tr(lang,"Listează ce vinzi și alege cum apar prețurile. Lasă descrierile pe seama noastră, dacă vrei.","List what you sell and choose how prices appear. Leave the descriptions to us if you like.")} />
+        sub={tr(lang,"Listează serviciile tale cu o descriere și un preț opțional. Descrierile scurte sunt suficiente — AI le va îmbunătăți.","List your services with a description and optional price. Short notes are fine — AI will improve them.")} />
+
       <Block label={tr(lang,"Ce oferi?","What do you offer?")} required>
         <WizOptGrid cols={2} options={offers.map(o => ({ id: o.id, name: o.name, desc: o.desc }))}
           value={s.offersType} onChange={v => set("offersType", v)} />
+        <div style={{ marginTop: 10, padding: "10px 14px", borderRadius: 8, background: "var(--wf-surf2)", border: "1px solid var(--wf-border)", fontSize: 12.5, color: "var(--wf-text3)", lineHeight: 1.5 }}>
+          {tr(lang,
+            "Notă: Acest site nu poate procesa vânzări online. Clienții vor vedea produsele/serviciile tale și te vor contacta direct.",
+            "Note: This website cannot process online sales. Visitors will see your offerings and contact you directly."
+          )}
+        </div>
       </Block>
-      <Block label={tr(lang,"Listează principalele servicii sau produse","List your main services or products")} optional
-        note={tr(lang,"AI va genera descrieri șlefuite pentru fiecare.","AI will generate polished descriptions for each one.")}>
-        <WizRepeater items={s.list} onChange={v => set("list", v)} placeholder={tr(lang,"ex. Consultație & plan de tratament","e.g. Full website redesign")} />
+
+      <Block label={tr(lang,"Listează serviciile principale","List your main services")} optional
+        note={tr(lang,"Adaugă fiecare serviciu cu o descriere. AI va îmbunătăți textul.","Add each service with a description. AI will improve the text.")}>
+        <ServiceItemEditor
+          items={s.serviceItems ?? []}
+          onChange={v => setData(p => ({ ...p, services: { ...p.services, serviceItems: v } }))}
+          lang={lang}
+        />
       </Block>
+
       <Block label={tr(lang,"Cum ar trebui afișate prețurile?","How should pricing be shown?")}>
         <WizChipSelect options={prices.map(p => ({ id: p.id, label: p.label }))}
           value={s.priceVisibility} onChange={v => set("priceVisibility", v as string)} />
       </Block>
+
+      {s.priceVisibility === "quote" && (
+        <Block label={tr(lang,"Date de contact pentru oferte","Contact details for quotes")}
+          note={tr(lang,"Clienții vor vedea aceste date pentru a solicita o ofertă.","Visitors will see these details to request a quote.")}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {[
+              { key: "phone" as const,     label: tr(lang,"Telefon","Phone"),        ph: "+1 555 000 0000" },
+              { key: "email" as const,     label: "Email",                           ph: "hello@business.com" },
+              { key: "whatsapp" as const,  label: "WhatsApp",                        ph: "+1 555 000 0000" },
+              { key: "instagram" as const, label: "Instagram",                       ph: "@yourbusiness" },
+              { key: "facebook" as const,  label: "Facebook",                        ph: "facebook.com/yourbusiness" },
+            ].map(({ key, label, ph }) => (
+              <div key={key} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontFamily: "var(--wf-mono)", fontSize: 11.5, color: "var(--wf-text2)", width: 80, flexShrink: 0 }}>{label}</span>
+                <input className="wf-input" value={qc[key]} placeholder={ph}
+                  onChange={e => setQc(key, e.target.value)} />
+              </div>
+            ))}
+          </div>
+        </Block>
+      )}
     </div>
   );
 }
@@ -1274,6 +1337,7 @@ function Step08Pages({ data, setData, lang }: { data: WizardData; setData: React
   const selected = pg.selected || [];
   const corePages  = lang === "ro" ? CORE_PAGES_RO  : CORE_PAGES;
   const extraPages = lang === "ro" ? EXTRA_PAGES_RO : EXTRA_PAGES;
+  const allPages   = [...corePages, ...extraPages];
 
   const toggle = (id: string, required: boolean) => {
     if (required) return;
@@ -1281,11 +1345,25 @@ function Step08Pages({ data, setData, lang }: { data: WizardData; setData: React
     setData(p => ({ ...p, pages: { ...p.pages, selected: next } }));
   };
 
+  const setPageDesc = (id: string, patch: Partial<PageDesc>) =>
+    setData(p => ({
+      ...p,
+      pages: {
+        ...p.pages,
+        pageDescriptions: {
+          ...p.pages.pageDescriptions,
+          [id]: { ...{ description: "", aiRephrase: false, image: "", imageName: "" }, ...(p.pages.pageDescriptions[id] ?? {}), ...patch },
+        },
+      },
+    }));
+
+  const visiblePageIds = [...new Set(["home", ...selected])];
+
   return (
     <div>
       <StepHead idx={8} total={11} kicker={tr(lang,"Pagini & structură","Pages & structure")}
         title={tr(lang,"De ce pagini ai nevoie?","Which pages do you need?")}
-        sub={tr(lang,"Pagina Acasă este inclusă mereu. Activează-le pe celelalte, apoi adaugă orice vrei să spună AI.","Home is always included. Toggle the rest — then drop in anything you want the AI to say per section.")} />
+        sub={tr(lang,"Pagina Acasă este inclusă mereu. Activează-le pe celelalte, apoi adaugă orice vrei să spună AI pe fiecare pagină.","Home is always included. Toggle the rest — then add notes for what you want the AI to say on each page.")} />
 
       <Block label={tr(lang,"Pagini esențiale","Core pages")} note={tr(lang,"Pagina Acasă este inclusă mereu.","Home is always included.")}>
         <div className="wf-opt-grid wf-og-2">
@@ -1320,8 +1398,66 @@ function Step08Pages({ data, setData, lang }: { data: WizardData; setData: React
         </div>
       </Block>
 
-      <Block label={tr(lang,"Note suplimentare pentru AI","Additional notes for the AI")} optional
-        note={tr(lang,"Orice specific pe care vrei să-l incluzi sau să-l eviți pe orice pagină.","Anything specific you want included or avoided on any page.")}>
+      {/* Per-page content notes */}
+      <Block label={tr(lang,"Note pe pagini (opțional)","Per-page notes (optional)")} optional
+        note={tr(lang,"Adaugă ce vrei să spună AI pe fiecare pagină. Scurt e suficient — AI completează restul.","Tell the AI what to say on each page. A few words is enough — AI does the rest.")}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {visiblePageIds.map(id => {
+            const pageMeta = allPages.find(p => p.id === id);
+            if (!pageMeta) return null;
+            const desc = pg.pageDescriptions[id] ?? { description: "", aiRephrase: false, image: "", imageName: "" };
+            const isGallery      = id === "portfolio";
+            const isTestimonials = id === "testimonials";
+            const isBooking      = id === "booking";
+
+            return (
+              <div key={id} style={{ padding: "14px 16px", borderRadius: 10, background: "var(--wf-surf2)", border: "1px solid var(--wf-border)" }}>
+                <div style={{ fontFamily: "var(--wf-mono)", fontSize: 11, fontWeight: 600, color: "var(--wf-text2)", marginBottom: 8, textTransform: "uppercase" as const, letterSpacing: 0.5 }}>
+                  {pageMeta.label}
+                </div>
+
+                {isGallery && (
+                  <div style={{ marginBottom: 8, padding: "8px 12px", borderRadius: 6, background: "rgba(0,0,0,0.04)", fontSize: 12.5, color: "var(--wf-text3)", lineHeight: 1.5 }}>
+                    {tr(lang,"Pozele pe care le încarci în pasul următor (Galerie) vor apărea pe această pagină.","Photos you upload in the next step (Gallery) will appear on this page.")}
+                  </div>
+                )}
+
+                {isTestimonials && (
+                  <div className={`wf-checkrow${desc.aiRephrase ? " on" : ""}`}
+                    onClick={() => setPageDesc(id, { aiRephrase: !desc.aiRephrase })}
+                    style={{ cursor: "pointer", marginBottom: 8 }}>
+                    <span className="wf-checkbox"><ICheck /></span>
+                    {tr(lang,"Lasă AI să genereze testimoniale exemplu","Let AI write sample testimonials")}
+                  </div>
+                )}
+
+                {isBooking && (
+                  <input className="wf-input" value={desc.description.startsWith("phone:") ? desc.description.replace("phone:", "") : ""}
+                    placeholder={tr(lang,"Număr de telefon pentru rezervări (ex. +40 722 000 000)","Booking phone number (e.g. +1 555 000 0000)")}
+                    onChange={e => setPageDesc(id, { description: `phone:${e.target.value}` })}
+                    style={{ marginBottom: 4 }} />
+                )}
+
+                {!isBooking && (
+                  <textarea className="wf-textarea"
+                    value={isTestimonials ? (desc.description || "") : (desc.description || "")}
+                    placeholder={
+                      isGallery      ? tr(lang,"ex. Galerie cu lucrări, înainte și după…","e.g. Gallery of our work, before and after shots…") :
+                      isTestimonials ? tr(lang,"ex. Adaugă 2-3 testimoniale reale ale clienților…","e.g. Add 2-3 real client testimonials… (or let AI generate samples above)") :
+                      id === "home"  ? tr(lang,"ex. Evidențiază serviciul X, menționează că suntem deschis și duminica…","e.g. Highlight our X service, mention we are open Sundays…") :
+                      tr(lang,"Note pentru AI despre această pagină…","Notes for the AI about this page…")
+                    }
+                    onChange={e => setPageDesc(id, { description: e.target.value })}
+                    style={{ minHeight: 60, resize: "vertical" as const }} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </Block>
+
+      <Block label={tr(lang,"Note generale suplimentare","Additional general notes")} optional
+        note={tr(lang,"Orice specific pe care vrei să-l incluzi sau să-l eviți pe tot site-ul.","Anything specific you want included or avoided across the whole site.")}>
         <WizTextarea value={pg.additionalNotes} onChange={v => setData(p => ({ ...p, pages: { ...p.pages, additionalNotes: v } }))}
           placeholder={tr(lang,"ex. Pagina Despre noi să fie personală, fără fotografii stock clișeu…","e.g. Make the About page personal, no stock photo clichés, include our founding story…")} maxLength={600} />
       </Block>
@@ -1381,10 +1517,9 @@ function Step09Finishing({ data, setData, lang }: { data: WizardData; setData: R
   const pg = data.pages;
   const setPg = <K extends keyof WizardData["pages"]>(k: K, v: WizardData["pages"][K]) =>
     setData(p => ({ ...p, pages: { ...p.pages, [k]: v } }));
-  const ctas     = lang === "ro" ? CTA_OPTIONS_RO     : CTA_OPTIONS;
-  const tones    = lang === "ro" ? TONE_OPTIONS_RO    : TONE_OPTIONS;
-  const features = lang === "ro" ? SPECIAL_FEATURES_RO: SPECIAL_FEATURES;
-  const langs    = lang === "ro" ? LANGUAGES_RO        : LANGUAGES;
+  const ctas  = lang === "ro" ? CTA_OPTIONS_RO : CTA_OPTIONS;
+  const tones = lang === "ro" ? TONE_OPTIONS_RO : TONE_OPTIONS;
+  const langs = lang === "ro" ? LANGUAGES_RO    : LANGUAGES;
 
   return (
     <div>
@@ -1393,19 +1528,14 @@ function Step09Finishing({ data, setData, lang }: { data: WizardData; setData: R
         sub={tr(lang,"Ultimele alegeri care dau personalitate site-ului și le spun vizitatorilor exact ce să facă.","The last few choices that give your site personality and tell visitors exactly what to do.")} />
 
       <Block label={tr(lang,"Acțiunea principală (CTA)","Primary call-to-action")} required
-        note={tr(lang,"Acțiunea principală pe care vrei să o facă vizitatorii.","The main action you want visitors to take.")}>
-        <WizChipSelect options={ctas.map(c => ({ id: c.id, label: c.label }))}
-          value={pg.primaryCTA} onChange={v => setPg("primaryCTA", v as string)} />
+        note={tr(lang,"Cum vrei să te contacteze vizitatorii?","How do you want visitors to reach you?")}>
+        <WizOptGrid cols={2} options={ctas.map(c => ({ id: c.id, name: c.label }))}
+          value={pg.primaryCTA} onChange={v => setPg("primaryCTA", v)} />
       </Block>
 
       <Block label={tr(lang,"Tonul conținutului","Content tone")}>
         <WizOptGrid cols={3} options={tones.map(t => ({ id: t.id, name: t.label }))}
           value={pg.contentTone} onChange={v => setPg("contentTone", v)} />
-      </Block>
-
-      <Block label={tr(lang,"Funcții speciale de inclus","Special features to include")} optional>
-        <WizChipSelect options={features.map(f => ({ id: f.id, label: f.label }))}
-          value={pg.specialFeatures} onChange={v => setPg("specialFeatures", v as string[])} multi />
       </Block>
 
       <Block label={tr(lang,"Folosești emoji pe site?","Use emojis in your website?")}>
@@ -1426,11 +1556,94 @@ function Step09Finishing({ data, setData, lang }: { data: WizardData; setData: R
   );
 }
 
+// ─── Vercel Connect Panel ─────────────────────────────────────────────────────
+
+function VercelConnectPanel({ lang, onConnected }: { lang: Lang; onConnected: () => void }) {
+  const [token, setToken] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState("");
+
+  const handleSave = async () => {
+    if (!token.trim()) return;
+    setSaving(true); setErr("");
+    try {
+      const res = await fetch("/api/auth/vercel/save-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: token.trim() }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || "Could not save token.");
+      onConnected();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Error");
+    } finally { setSaving(false); }
+  };
+
+  return (
+    <div style={{ marginTop:16, padding:"18px 20px", borderRadius:12, background:"var(--wf-surf2)", border:"1px solid var(--wf-border)" }}>
+      <div className="wf-blabel" style={{ marginBottom:12 }}>
+        {tr(lang,"Conectează contul Vercel","Connect your Vercel account")}
+      </div>
+
+      {/* Step-by-step instructions */}
+      <div style={{ display:"flex", flexDirection:"column", gap:8, marginBottom:16 }}>
+        {[
+          { n:"1", text: tr(lang,
+              "Creează un cont gratuit pe vercel.com (dacă nu ai deja)",
+              "Create a free account at vercel.com (if you don't have one)"),
+            href: "https://vercel.com/signup" },
+          { n:"2", text: tr(lang,
+              'Mergi la vercel.com/account/tokens → "Create Token" → copiază token-ul',
+              'Go to vercel.com/account/tokens → "Create Token" → copy the token'),
+            href: "https://vercel.com/account/tokens" },
+          { n:"3", text: tr(lang,
+              "Lipește token-ul mai jos și apasă Conectează",
+              "Paste the token below and click Connect"),
+            href: null },
+        ].map(({ n, text, href }) => (
+          <div key={n} style={{ display:"flex", gap:10, alignItems:"flex-start" }}>
+            <span style={{ flexShrink:0, width:22, height:22, borderRadius:"50%", background:"var(--wf-acc)", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:800 }}>{n}</span>
+            <span style={{ fontSize:13, color:"var(--wf-text2)", lineHeight:1.4 }}>
+              {text}
+              {href && <> — <a href={href} target="_blank" rel="noopener noreferrer" style={{ color:"var(--wf-acc)", fontWeight:600 }}>{tr(lang,"deschide →","open →")}</a></>}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display:"flex", gap:8 }}>
+        <input
+          className="wf-input"
+          value={token}
+          onChange={e => setToken(e.target.value)}
+          placeholder={tr(lang,"Lipește token-ul Vercel aici…","Paste your Vercel token here…")}
+          style={{ fontFamily:"var(--wf-mono)", fontSize:13 }}
+        />
+        <button type="button" className="wf-btn wf-btn-primary"
+          onClick={handleSave} disabled={saving || !token.trim()}
+          style={{ whiteSpace:"nowrap", flexShrink:0 }}>
+          {saving ? tr(lang,"Se verifică…","Checking…") : tr(lang,"Conectează","Connect")}
+        </button>
+      </div>
+      {err && <p style={{ marginTop:8, fontSize:12.5, color:"#C43600" }}>{err}</p>}
+
+      <p style={{ marginTop:10, fontSize:11.5, color:"var(--wf-text3)", lineHeight:1.5 }}>
+        {tr(lang,
+          "Token-ul este criptat și folosit doar pentru a publica site-urile tale. Îl poți revoca oricând din setările Vercel.",
+          "The token is encrypted and only used to deploy your sites. Revoke it any time from Vercel settings."
+        )}
+      </p>
+    </div>
+  );
+}
+
 // ─── Step 11 — Review ─────────────────────────────────────────────────────────
 
-function Step10Review({ data, goTo, onGenerate, loading, vercelAuthorized, isEditMode, lang }: {
+function Step10Review({ data, goTo, onGenerate, loading, vercelAuthorized, isEditMode, lang, onVercelConnected }: {
   data: WizardData; goTo: (n: number) => void; onGenerate: () => void;
   loading: boolean; vercelAuthorized: boolean | null; isEditMode: boolean; lang: Lang;
+  onVercelConnected: () => void;
 }) {
   const dash = (v: string | undefined) => v || "—";
   const goals   = lang === "ro" ? MAIN_GOALS_RO   : MAIN_GOALS;
@@ -1551,22 +1764,18 @@ function Step10Review({ data, goTo, onGenerate, loading, vercelAuthorized, isEdi
       <div className="wf-deploy-card">
         <div className="wf-deploy-ico"><ITriangle /></div>
         <div style={{ flex: 1 }}>
-          <div className="wf-vh">Vercel {tr(lang,"conectat","connected")} <span style={{ color:"var(--wf-ok)" }}>✓</span></div>
+          <div className="wf-vh">
+            Vercel {vercelAuthorized
+              ? <><span style={{ color:"var(--wf-ok)" }}>✓ {tr(lang,"conectat","connected")}</span></>
+              : <span style={{ color:"#C43600", fontWeight:500, fontSize:13 }}> — {tr(lang,"neconectat","not connected")}</span>}
+          </div>
           <div className="wf-vd">{tr(lang,"Site-ul generat se publică direct în propriul tău proiect Vercel. Codul rămâne al tău, pentru totdeauna.","Your generated website deploys directly to your own Vercel project. You keep the code, forever.")}</div>
         </div>
-        {vercelAuthorized === false && (
-          <div style={{ display:"flex", flexDirection:"column", gap:8, marginLeft:"auto", flexShrink:0 }}>
-            <a href="https://vercel.com/signup" target="_blank" rel="noopener noreferrer"
-              style={{ fontFamily:"var(--wf-mono)",fontSize:11,fontWeight:600,padding:"7px 13px",borderRadius:7,background:"var(--wf-ok-soft)",border:"1px solid var(--wf-ok-line)",color:"var(--wf-ok)",textDecoration:"none",textAlign:"center",whiteSpace:"nowrap" }}>
-              1. {tr(lang,"Creează cont Vercel →","Create Vercel account →")}
-            </a>
-            <a href="/api/auth/vercel/authorize"
-              style={{ fontFamily:"var(--wf-mono)",fontSize:11,fontWeight:600,padding:"7px 13px",borderRadius:7,background:"var(--wf-text)",color:"#fff",textDecoration:"none",textAlign:"center",whiteSpace:"nowrap" }}>
-              2. {tr(lang,"Conectează contul →","Connect account →")}
-            </a>
-          </div>
-        )}
       </div>
+
+      {vercelAuthorized === false && (
+        <VercelConnectPanel lang={lang} onConnected={onVercelConnected} />
+      )}
 
       {isEditMode ? (
         <button type="button" className="wf-btn wf-btn-pay" onClick={onGenerate} disabled={loading} style={{ width:"100%" }}>
@@ -1578,7 +1787,7 @@ function Step10Review({ data, goTo, onGenerate, loading, vercelAuthorized, isEdi
             {tr(lang,"Continuă spre plată →","Continue to payment →")}
           </button>
           <span style={{ fontFamily:"var(--wf-mono)",fontSize:11.5,color:"var(--wf-text3)" }}>
-            {tr(lang,"59,99 € plată unică · fără editări incluse · domeniu separat pe Vercel","€59.99 one-time · no edits included · domain sold separately on Vercel")}
+            {tr(lang,"59,99 € plată unică · domeniu separat pe Vercel","€59.99 one-time · domain sold separately on Vercel")}
           </span>
         </div>
       )}
@@ -1665,8 +1874,8 @@ function PaymentOverlay({ data, onCancel, onPay, lang, paymentLoading, paymentEr
           <div className="wf-pay-price">{tr(lang,"59,99 €","€59.99")}</div>
           <div className="wf-pay-meta">
             {tr(lang,
-              "Plată unică · fără abonament · fără editări incluse. Domeniu neinclu — cumpără separat pe Vercel (~12–30 €/an).",
-              "One-time · no subscription · no edits included. Domain not included — purchase separately on Vercel (~€12–30/yr)."
+              "Plată unică · fără abonament. Domeniu neinclu — cumpără separat pe Vercel (~12–30 €/an).",
+              "One-time · no subscription. Domain not included — purchase separately on Vercel (~€12–30/yr)."
             )}
           </div>
         </div>
@@ -2007,6 +2216,7 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
                 <Step10Review
                   data={data} goTo={goTo} onGenerate={handleReviewGenerate}
                   loading={loading} vercelAuthorized={vercelAuthorized} isEditMode={isEditMode} lang={lang}
+                  onVercelConnected={() => setVercelAuthorized(true)}
                 />
               )}
             </div>

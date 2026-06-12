@@ -19,7 +19,7 @@ export async function encrypt(payload: SessionPayload): Promise<string> {
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("7d")
+    .setExpirationTime("15m")
     .sign(getEncodedKey());
 }
 
@@ -38,16 +38,25 @@ export async function decrypt(
 }
 
 export async function createSession(payload: SessionPayload): Promise<void> {
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const token = await encrypt(payload);
   const cookieStore = await cookies();
+  // Session-only cookie: no expires/maxAge so it clears when the browser is closed
   cookieStore.set("session", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    expires: expiresAt,
     sameSite: "lax",
     path: "/",
   });
+}
+
+// Call this from the client side (API route) to silently renew the session JWT
+// after user activity, keeping the 15-minute inactivity window alive.
+export async function refreshSession(): Promise<void> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("session")?.value;
+  const payload = await decrypt(token);
+  if (!payload) return;
+  await createSession(payload);
 }
 
 export async function deleteSession(): Promise<void> {

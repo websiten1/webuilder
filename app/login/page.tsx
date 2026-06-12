@@ -149,7 +149,7 @@ function LoginContent() {
               Your website.<br/>Live in 6 minutes.
             </p>
             <p style={{ fontFamily: T.font, fontSize: 15, lineHeight: 1.6, color: "rgba(255,255,255,0.5)", margin: 0, maxWidth: 300 }}>
-              Describe your business, choose your design, pay once. Code on GitHub, deployed to your Vercel. No subscriptions.
+              Describe your business, choose your design, pay once. Deployed to your Vercel. No subscriptions.
             </p>
 
             {/* Stats */}
@@ -226,7 +226,7 @@ function LoginContent() {
 
             {/* Benefits row */}
             <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 8 }}>
-              {["Your site lives on your Vercel account", "Code always on your GitHub", "No lock-in — download anytime"].map((s) => (
+              {["Your site lives on your Vercel account", "No lock-in — download anytime"].map((s) => (
                 <div key={s} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <div style={{ width: 18, height: 18, borderRadius: 9, background: T.emeraldSoft, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2 2 4-4" stroke={T.emerald2} strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>

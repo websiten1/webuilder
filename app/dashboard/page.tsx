@@ -553,7 +553,7 @@ export default function DashboardPage() {
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 40, paddingTop: 56, paddingBottom: 32, flexWrap: "wrap" }}>
             <div>
               <Eyebrow>Dashboard</Eyebrow>
-              <h1 style={{ margin: "18px 0 0", fontSize: "clamp(48px,5.5vw,72px)", fontWeight: 700, letterSpacing: -2.2, lineHeight: 0.98, color: C.ink }}>My websites</h1>
+              <h1 style={{ margin: "10px 0 0", fontSize: "clamp(28px,3vw,40px)", fontWeight: 700, letterSpacing: 1.5, lineHeight: 1.1, color: C.ink, textTransform: "uppercase" as const }}>My websites</h1>
               <p style={{ margin: "14px 0 0", maxWidth: 480, fontSize: 15, lineHeight: 1.5, color: C.muted }}>
                 Every site you&apos;ve generated with insixlive. Manage the domain, open the Vercel project, or roll a new version for €10.
               </p>

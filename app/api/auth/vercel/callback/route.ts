@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
-import { saveVercelAuth } from "@/lib/db";
+import { getSession, createSession } from "@/lib/session";
+import { getUserById, saveVercelAuth } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -15,8 +15,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${baseUrl}/generate?error=vercel_denied`);
   }
 
-  // Validate state — the cookie now holds a JSON payload
+  // Validate state and extract the userId stored at authorize time.
   const cookieRaw = request.cookies.get("vercel_oauth_state")?.value;
+  let stateUserId: string | null = null;
+
   if (cookieRaw && state) {
     try {
       const parsed = JSON.parse(cookieRaw);
@@ -24,8 +26,9 @@ export async function GET(request: NextRequest) {
         console.error("Vercel OAuth state mismatch");
         return NextResponse.redirect(`${baseUrl}/generate?error=vercel_state_mismatch`);
       }
+      stateUserId = parsed.userId ?? null;
     } catch {
-      // Cookie is old format (plain string) — compare directly
+      // Cookie is old format (plain string)
       if (cookieRaw !== state) {
         console.error("Vercel OAuth state mismatch (legacy)");
         return NextResponse.redirect(`${baseUrl}/generate?error=vercel_state_mismatch`);
@@ -37,10 +40,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${baseUrl}/generate?error=vercel_no_code`);
   }
 
+  // Prefer active session; fall back to the userId embedded in the state cookie
+  // (the JWT may have expired while the user was on Vercel's consent screen).
   const session = await getSession();
-  if (!session) {
-    // User completed Vercel OAuth but is not logged in to insixlive.
-    // Redirect to login — they can connect Vercel again after logging in.
+  const userId = session?.userId ?? stateUserId;
+
+  if (!userId) {
     return NextResponse.redirect(`${baseUrl}/login?next=vercel_connect`);
   }
 
@@ -78,10 +83,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(`${baseUrl}/generate?error=vercel_callback_failed`);
     }
 
-    await saveVercelAuth(session.userId, access_token, user_id ?? null, team_id ?? null);
+    await saveVercelAuth(userId, access_token, user_id ?? null, team_id ?? null);
 
-    // Return to generate with success flag — wizard JS will clean the URL
-    // and step is already persisted in localStorage so the user lands on step 10
+    // Re-issue a fresh session so the user is not logged out after OAuth redirect.
+    const user = await getUserById(userId);
+    if (user) {
+      await createSession({ userId: user.id, emailVerified: user.email_verified, paymentStatus: user.payment_status as "pending" | "paid" | "failed" });
+    }
+
     const response = NextResponse.redirect(`${baseUrl}/generate?vercel_authorized=true`);
     response.cookies.delete("vercel_oauth_state");
     return response;

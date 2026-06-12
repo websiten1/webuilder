@@ -31,7 +31,7 @@ const FAQ_CATEGORIES: [string, [string, string][]][] = [
     ["Is SSL included?",                "Yes. Vercel issues SSL certificates automatically once your DNS resolves."],
   ]],
   ["Changes & regeneration", [
-    ["Are edits included?",               "No. Edits are not included in the €59.99 price. If you want changes, you regenerate the website for €59.99."],
+    ["Can I update my website?",           "You can generate a new version at any time. Each generation creates a fresh AI-built website based on your updated brief."],
     ["What if I don't like the result?",  "You can regenerate at any time for €59.99. Each generation is a fresh AI-created website based on your updated brief."],
     ["Can I update my brief and regenerate?", "Yes. Update your business description, style choices, or any other details and generate a completely new version."],
   ]],

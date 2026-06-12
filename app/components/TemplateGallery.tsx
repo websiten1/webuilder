@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 /* ─── Types ─────────────────────────────────────────────────────────────────── */
 export type TemplateMapTo = {
@@ -320,362 +320,96 @@ const TEMPLATES: Template[] = [
 
 const CATEGORIES = ["All", "Healthcare", "Fitness", "Wellness", "Education", "Food & Drink", "Restaurant", "Beauty", "Legal", "Property", "Automotive", "Retail", "Creative", "Media", "Technology"];
 
-/* ─── Scaled iframe card preview ─────────────────────────────────────────────── */
-// We design at 1280px wide and scale down to fit the card.
-const DESIGN_W = 1280;
-const DESIGN_H = 820;
-
-// Only render an iframe once the card enters the viewport — prevents loading
-// 42 simultaneous iframes which crashes Safari (web process OOM killed).
-function useInView(ref: React.RefObject<HTMLDivElement | null>, rootMargin = "300px") {
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    if (!ref.current) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setInView(true); obs.disconnect(); } },
-      { rootMargin }
-    );
-    obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [ref, rootMargin]);
-  return inView;
-}
-
+/* ─── Colour swatch preview (replaces iframe preview) ───────────────────────── */
 function CardPreview({ template, cardWidth }: { template: Template; cardWidth: number }) {
-  const scale = cardWidth / DESIGN_W;
-  const displayH = Math.round(DESIGN_H * scale);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const inView = useInView(containerRef);
-
+  const displayH = Math.round(cardWidth * 0.6);
   return (
-    <div ref={containerRef} style={{ width: cardWidth, height: displayH, overflow: "hidden", position: "relative", background: template.dark ? "#0a0a0a" : "#fafafa" }}>
-      {inView ? (
-        <iframe
-          src={`/templates/${template.file}`}
-          scrolling="no"
-          style={{
-            width: DESIGN_W,
-            height: DESIGN_H,
-            border: "none",
-            transformOrigin: "top left",
-            transform: `scale(${scale})`,
-            pointerEvents: "none",
-            display: "block",
-          }}
-          title={template.name}
-        />
-      ) : (
-        <div style={{
-          position: "absolute", inset: 0,
-          background: `linear-gradient(150deg, ${template.accent}33 0%, ${template.dark ? "#111" : "#f5f3ef"} 100%)`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}>
-          <div style={{ width: 28, height: 28, borderRadius: "50%", background: template.accent, opacity: 0.5 }} />
-        </div>
-      )}
+    <div style={{
+      width: cardWidth, height: displayH, overflow: "hidden", position: "relative",
+      background: `linear-gradient(150deg, ${template.accent}55 0%, ${template.dark ? "#111" : "#f5f3ef"} 100%)`,
+      display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 8,
+    }}>
+      <div style={{ width: 36, height: 36, borderRadius: "50%", background: template.accent, opacity: 0.85, boxShadow: `0 4px 16px ${template.accent}66` }}/>
+      <div style={{ fontFamily: "system-ui,sans-serif", fontSize: 11, fontWeight: 600, color: template.dark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.35)", letterSpacing: 0.5 }}>{template.category}</div>
     </div>
   );
 }
 
 /* ─── Template card ──────────────────────────────────────────────────────────── */
-function TemplateCard({ template, isSelected, cardWidth, onPreview, onSelect }: {
+function TemplateCard({ template, isSelected, cardWidth, onSelect }: {
   template: Template;
   isSelected: boolean;
   cardWidth: number;
-  onPreview: () => void;
   onSelect: () => void;
 }) {
   const [hovered, setHovered] = useState(false);
-  const displayH = Math.round(DESIGN_H * (cardWidth / DESIGN_W));
 
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        borderRadius: 12,
-        overflow: "hidden",
-        border: isSelected ? "2.5px solid #6366f1" : "2.5px solid transparent",
-        boxShadow: isSelected
-          ? "0 0 0 4px rgba(99,102,241,0.2), 0 8px 32px rgba(10,14,20,0.12)"
-          : hovered
-          ? "0 16px 48px rgba(10,14,20,0.16)"
-          : "0 2px 8px rgba(10,14,20,0.07)",
-        transition: "box-shadow 0.2s, transform 0.2s, border-color 0.15s",
-        transform: hovered ? "translateY(-4px)" : "none",
-        cursor: "pointer",
-        background: "#fff",
-      }}
-    >
-      {/* Preview */}
-      <div style={{ position: "relative" }}>
-        <CardPreview template={template} cardWidth={cardWidth}/>
-
-        {/* Selected badge */}
-        {isSelected && (
-          <div style={{
-            position: "absolute", top: 10, right: 10,
-            width: 26, height: 26, borderRadius: 13,
-            background: "#6366f1",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 14, color: "#fff",
-            boxShadow: "0 2px 8px rgba(99,102,241,0.4)",
-          }}>✓</div>
-        )}
-
-        {/* Hover overlay */}
-        <div style={{
-          position: "absolute", inset: 0,
-          background: "rgba(10,14,20,0.65)",
-          backdropFilter: "blur(3px)",
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center",
-          gap: 10,
-          opacity: hovered ? 1 : 0,
-          transition: "opacity 0.18s",
-          pointerEvents: hovered ? "auto" : "none",
-        }}>
-          <button
-            onClick={(e) => { e.stopPropagation(); onPreview(); }}
-            style={{
-              width: 160, height: 42, borderRadius: 9,
-              border: "1.5px solid rgba(255,255,255,0.8)",
-              background: "transparent", color: "#fff",
-              fontSize: 13, fontWeight: 600, cursor: "pointer",
-              letterSpacing: 0.1,
-            }}
-          >
-            Full preview
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); onSelect(); }}
-            style={{
-              width: 160, height: 42, borderRadius: 9,
-              border: "none",
-              background: "#fff", color: "#0A0E14",
-              fontSize: 13, fontWeight: 700, cursor: "pointer",
-            }}
-          >
-            Use template
-          </button>
-        </div>
-      </div>
-
-      {/* Label row */}
-      <div style={{
-        padding: "11px 14px 12px",
-        background: "#fff",
-        borderTop: "1px solid #F0EDE8",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-      }}>
-        <div>
-          <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#0A0E14", letterSpacing: -0.2 }}>{template.name}</p>
-          <p style={{ margin: "2px 0 0", fontSize: 11, color: "#8a8c93", fontFamily: "monospace" }}>{template.category}</p>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <div style={{ width: 10, height: 10, borderRadius: 5, background: template.accent }}/>
-          {isSelected && <span style={{ fontSize: 11, color: "#6366f1", fontWeight: 600 }}>Selected</span>}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Full preview modal ─────────────────────────────────────────────────────── */
-function PreviewModal({ template, allTemplates, selectedId, onClose, onSelect }: {
-  template: Template;
-  allTemplates: Template[];
-  selectedId: string;
-  onClose: () => void;
-  onSelect: (id: string, mapTo: TemplateMapTo) => void;
-}) {
-  const idx = allTemplates.findIndex(t => t.id === template.id);
-  const [current, setCurrent] = useState(idx);
-  const t = allTemplates[current];
-  const isSelected = selectedId === t.id;
-
-  const prev = useCallback(() => setCurrent(i => (i - 1 + allTemplates.length) % allTemplates.length), [allTemplates.length]);
-  const next = useCallback(() => setCurrent(i => (i + 1) % allTemplates.length), [allTemplates.length]);
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowLeft") prev();
-      if (e.key === "ArrowRight") next();
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [onClose, prev, next]);
-
-  useEffect(() => {
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
-  }, []);
-
-  return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 9999,
-      background: "rgba(8,10,14,0.92)",
-      backdropFilter: "blur(10px)",
-      WebkitBackdropFilter: "blur(10px)",
-      display: "flex", flexDirection: "column",
-      animation: "tg-modal-in 0.2s ease-out",
-    }}>
-      {/* Top bar */}
-      <div style={{
-        height: 56, flexShrink: 0,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 24px",
-        borderBottom: "1px solid rgba(255,255,255,0.07)",
-      }}>
-        {/* Nav arrows + counter */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <button onClick={prev} style={arrowBtn}>←</button>
-          <button onClick={next} style={arrowBtn}>→</button>
-          <span style={{ fontFamily: "monospace", fontSize: 12, color: "rgba(255,255,255,0.4)" }}>
-            {current + 1} / {allTemplates.length}
-          </span>
-        </div>
-
-        {/* Template info */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 10, height: 10, borderRadius: 5, background: t.accent }}/>
-          <span style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>{t.name}</span>
-          <span style={{ fontFamily: "monospace", fontSize: 11, color: "rgba(255,255,255,0.4)", padding: "2px 8px", background: "rgba(255,255,255,0.06)", borderRadius: 4 }}>{t.category}</span>
-        </div>
-
-        {/* Actions */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <button
-            onClick={() => { onSelect(t.id, t.mapTo); onClose(); }}
-            style={{
-              height: 38, padding: "0 20px", borderRadius: 9,
-              border: isSelected ? "1px solid rgba(99,102,241,0.4)" : "none",
-              background: isSelected ? "rgba(99,102,241,0.2)" : "#fff",
-              color: isSelected ? "#a5b4fc" : "#0A0E14",
-              fontSize: 13, fontWeight: 700, cursor: "pointer",
-              display: "flex", alignItems: "center", gap: 8,
-            } as React.CSSProperties}
-          >
-            {isSelected ? "✓ Selected" : "Use this template"}
-          </button>
-          <button onClick={onClose} style={{
-            width: 38, height: 38, borderRadius: 9,
-            background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)",
-            color: "rgba(255,255,255,0.7)", fontSize: 17, cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>✕</button>
-        </div>
-      </div>
-
-      {/* Main preview area */}
-      <div style={{ flex: 1, overflow: "hidden", position: "relative", display: "flex" }}>
-        {/* Browser chrome wrapper */}
-        <div style={{
-          flex: 1, display: "flex", flexDirection: "column",
-          margin: "20px 24px",
-          borderRadius: 12, overflow: "hidden",
-          border: "1px solid rgba(255,255,255,0.1)",
-          boxShadow: "0 32px 80px rgba(0,0,0,0.6)",
-        }}>
-          {/* Browser chrome bar */}
-          <div style={{
-            height: 38, flexShrink: 0,
-            background: "#1e2028",
-            borderBottom: "1px solid rgba(255,255,255,0.06)",
-            display: "flex", alignItems: "center",
-            padding: "0 14px", gap: 8,
-          }}>
-            <div style={{ display: "flex", gap: 6 }}>
-              {["#FF5F57","#FEBC2E","#28C840"].map(c => (
-                <span key={c} style={{ width: 11, height: 11, borderRadius: 6, background: c, display: "block" }}/>
-              ))}
-            </div>
-            <div style={{
-              flex: 1, maxWidth: 420, margin: "0 auto",
-              height: 24, background: "rgba(255,255,255,0.06)",
-              borderRadius: 6, display: "flex", alignItems: "center",
-              paddingLeft: 10, gap: 6,
-            }}>
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.25)" }}>🔒</span>
-              <span style={{ fontFamily: "monospace", fontSize: 11, color: "rgba(255,255,255,0.35)" }}>
-                yourwebsite.com
-              </span>
-            </div>
-          </div>
-
-          {/* Iframe — actual template */}
-          <div style={{ flex: 1, overflow: "auto", background: t.dark ? "#0a0a0a" : "#fafafa" }}>
-            <iframe
-              key={t.id}
-              src={`/templates/${t.file}`}
-              style={{
-                width: "100%",
-                height: "100%",
-                minHeight: 900,
-                border: "none",
-                display: "block",
-              }}
-              title={`Preview: ${t.name}`}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom dot navigation */}
-      <div style={{
-        height: 48, flexShrink: 0,
-        display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-        borderTop: "1px solid rgba(255,255,255,0.06)",
-      }}>
-        {allTemplates.map((tmpl, i) => (
-          <button
-            key={tmpl.id}
-            onClick={() => setCurrent(i)}
-            title={tmpl.name}
-            style={{
-              width: i === current ? 22 : 7,
-              height: 7,
-              borderRadius: 4,
-              background: i === current ? t.accent : "rgba(255,255,255,0.2)",
-              border: "none", cursor: "pointer",
-              transition: "all 0.2s",
-            }}
-          />
-        ))}
-        <span style={{ marginLeft: 12, fontFamily: "monospace", fontSize: 10, color: "rgba(255,255,255,0.25)" }}>
-          ← → keys to navigate · Esc to close
-        </span>
-      </div>
-    </div>
-  );
-}
-
-const arrowBtn: React.CSSProperties = {
-  width: 34, height: 34, borderRadius: 8,
-  background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)",
-  color: "rgba(255,255,255,0.7)", fontSize: 15, cursor: "pointer",
-  display: "flex", alignItems: "center", justifyContent: "center",
-};
-
-/* ─── Scratch option ─────────────────────────────────────────────────────────── */
-function ScratchCard({ isSelected, cardWidth, onSelect }: {
-  isSelected: boolean; cardWidth: number; onSelect: () => void;
-}) {
-  const [hovered, setHovered] = useState(false);
-  const displayH = Math.round(DESIGN_H * (cardWidth / DESIGN_W));
   return (
     <div
       onClick={onSelect}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        borderRadius: 12, overflow: "hidden", cursor: "pointer",
+        borderRadius: 0,
+        overflow: "hidden",
+        border: isSelected ? "2.5px solid #6366f1" : "2.5px solid transparent",
+        boxShadow: isSelected
+          ? "0 0 0 4px rgba(99,102,241,0.2)"
+          : hovered
+          ? "0 8px 24px rgba(10,14,20,0.14)"
+          : "0 1px 4px rgba(10,14,20,0.07)",
+        transition: "box-shadow 0.2s, border-color 0.15s",
+        cursor: "pointer",
+        background: "#fff",
+      }}
+    >
+      {/* Colour swatch */}
+      <div style={{ position: "relative" }}>
+        <CardPreview template={template} cardWidth={cardWidth}/>
+        {isSelected && (
+          <div style={{
+            position: "absolute", top: 8, right: 8,
+            width: 22, height: 22, borderRadius: 11,
+            background: "#6366f1",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 12, color: "#fff",
+          }}>✓</div>
+        )}
+      </div>
+
+      {/* Label row */}
+      <div style={{
+        padding: "9px 12px 10px",
+        background: "#fff",
+        borderTop: "1px solid #F0EDE8",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+      }}>
+        <div>
+          <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "#0A0E14", letterSpacing: -0.1 }}>{template.name}</p>
+          <p style={{ margin: "1px 0 0", fontSize: 10, color: "#8a8c93", fontFamily: "monospace" }}>{template.category}</p>
+        </div>
+        <div style={{ width: 8, height: 8, borderRadius: 4, background: template.accent, flexShrink: 0 }}/>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Scratch option ─────────────────────────────────────────────────────────── */
+function ScratchCard({ isSelected, cardWidth, onSelect }: {
+  isSelected: boolean; cardWidth: number; onSelect: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const displayH = Math.round(cardWidth * 0.6);
+  return (
+    <div
+      onClick={onSelect}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        borderRadius: 0, overflow: "hidden", cursor: "pointer",
         border: isSelected ? "2.5px solid #6366f1" : "2.5px dashed #D8D2C2",
         boxShadow: isSelected ? "0 0 0 4px rgba(99,102,241,0.2)" : "none",
         transition: "all 0.2s",
-        transform: hovered ? "translateY(-4px)" : "none",
         background: "#fff",
       }}
     >
@@ -683,25 +417,25 @@ function ScratchCard({ isSelected, cardWidth, onSelect }: {
         height: displayH,
         background: hovered ? "#F3F0E9" : "#FAFAF7",
         display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center", gap: 14,
+        alignItems: "center", justifyContent: "center", gap: 12,
         transition: "background 0.2s",
       }}>
         <div style={{
-          width: 56, height: 56, borderRadius: 16,
+          width: 40, height: 40, borderRadius: 0,
           background: "#fff", border: "1px solid #E8E3D6",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 24, boxShadow: "0 4px 12px rgba(10,14,20,0.06)",
+          fontSize: 20, boxShadow: "0 2px 8px rgba(10,14,20,0.06)",
         }}>✦</div>
-        <div style={{ textAlign: "center", padding: "0 24px" }}>
-          <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0A0E14" }}>Start from scratch</p>
-          <p style={{ margin: "6px 0 0", fontSize: 13, color: "#6B7180", lineHeight: 1.5 }}>
-            Choose your own colours, fonts, and style in the next steps
+        <div style={{ textAlign: "center", padding: "0 16px" }}>
+          <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#0A0E14" }}>Start from scratch</p>
+          <p style={{ margin: "4px 0 0", fontSize: 11, color: "#6B7180", lineHeight: 1.4 }}>
+            Choose colours, fonts &amp; style in the next steps
           </p>
         </div>
       </div>
-      <div style={{ padding: "11px 14px 12px", background: "#fff", borderTop: "1px solid #F0EDE8" }}>
-        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#0A0E14" }}>Custom design</p>
-        <p style={{ margin: "2px 0 0", fontSize: 11, color: "#8a8c93", fontFamily: "monospace" }}>All industries</p>
+      <div style={{ padding: "9px 12px 10px", background: "#fff", borderTop: "1px solid #F0EDE8" }}>
+        <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "#0A0E14" }}>Custom design</p>
+        <p style={{ margin: "1px 0 0", fontSize: 10, color: "#8a8c93", fontFamily: "monospace" }}>All industries</p>
       </div>
     </div>
   );
@@ -712,27 +446,30 @@ export function TemplateGallery({ selectedId, onSelect }: {
   selectedId: string;
   onSelect: (id: string, mapTo: TemplateMapTo) => void;
 }) {
-  const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
   const [activeCategory, setActiveCategory] = useState("All");
   const gridRef = useRef<HTMLDivElement>(null);
   const [cardWidth, setCardWidth] = useState(200);
 
-  // Measure grid to compute card width
+  // Measure grid to compute card width — 4 cols, 12px gaps
   useEffect(() => {
     const measure = () => {
       if (!gridRef.current) return;
       const w = gridRef.current.clientWidth;
-      // 3 cols, 14px gaps
-      setCardWidth(Math.floor((w - 28) / 3));
+      setCardWidth(Math.floor((w - 36) / 4));
     };
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
   }, []);
 
-  const filtered = activeCategory === "All"
+  // Light (dark=false) templates first, then dark ones
+  const baseTemplates = activeCategory === "All"
     ? TEMPLATES
     : TEMPLATES.filter(t => t.category === activeCategory);
+  const sorted = [
+    ...baseTemplates.filter(t => !t.dark),
+    ...baseTemplates.filter(t => t.dark),
+  ];
 
   const handleClear = () => onSelect("", {
     businessType: "Restaurant", style: "minimalist",
@@ -743,22 +480,21 @@ export function TemplateGallery({ selectedId, onSelect }: {
   return (
     <>
       <style>{`
-        @keyframes tg-fade { from { opacity:0; transform:translateY(6px) } to { opacity:1; transform:translateY(0) } }
-        @keyframes tg-modal-in { from { opacity:0 } to { opacity:1 } }
-        .tg-item { animation: tg-fade 0.3s ease-out both; }
+        @keyframes tg-fade { from { opacity:0; transform:translateY(4px) } to { opacity:1; transform:translateY(0) } }
+        .tg-item { animation: tg-fade 0.25s ease-out both; }
       `}</style>
 
       {/* Category filter */}
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 18 }}>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
         {CATEGORIES.map(cat => {
           const on = activeCategory === cat;
           return (
             <button key={cat} onClick={() => setActiveCategory(cat)} style={{
-              height: 28, padding: "0 12px", borderRadius: 7,
+              height: 26, padding: "0 10px", borderRadius: 4,
               border: on ? "none" : "1px solid #E8E3D6",
               background: on ? "#0A0E14" : "transparent",
               color: on ? "#fff" : "#6B7180",
-              fontSize: 12, fontWeight: on ? 600 : 500,
+              fontSize: 11, fontWeight: on ? 600 : 500,
               cursor: "pointer", transition: "all 0.15s",
               fontFamily: "system-ui, sans-serif",
             }}>
@@ -768,70 +504,49 @@ export function TemplateGallery({ selectedId, onSelect }: {
         })}
       </div>
 
-      {/* Grid */}
-      <div
-        ref={gridRef}
-        style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}
-      >
-        {filtered.map((t, i) => (
-          <div key={t.id} className="tg-item" style={{ animationDelay: `${i * 0.035}s` }}>
+      {/* Grid — scratch first, then sorted templates */}
+      <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+        {/* Scratch card always first */}
+        {activeCategory === "All" && (
+          <div className="tg-item">
+            <ScratchCard isSelected={!selectedId} cardWidth={cardWidth} onSelect={handleClear} />
+          </div>
+        )}
+
+        {sorted.map((t, i) => (
+          <div key={t.id} className="tg-item" style={{ animationDelay: `${i * 0.025}s` }}>
             <TemplateCard
               template={t}
               isSelected={selectedId === t.id}
               cardWidth={cardWidth}
-              onPreview={() => setPreviewTemplate(t)}
               onSelect={() => onSelect(t.id, t.mapTo)}
             />
           </div>
         ))}
-
-        {activeCategory === "All" && (
-          <div className="tg-item" style={{ animationDelay: `${filtered.length * 0.035}s` }}>
-            <ScratchCard
-              isSelected={!selectedId}
-              cardWidth={cardWidth}
-              onSelect={handleClear}
-            />
-          </div>
-        )}
       </div>
 
       {/* Selection banner */}
       {selectedId && (
         <div style={{
-          marginTop: 14, padding: "10px 16px",
+          marginTop: 12, padding: "9px 14px",
           background: "rgba(99,102,241,0.08)",
           border: "1px solid rgba(99,102,241,0.22)",
-          borderRadius: 10,
+          borderRadius: 0,
           display: "flex", alignItems: "center", justifyContent: "space-between",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ color: "#6366f1", fontSize: 14 }}>✓</span>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#0A0E14" }}>
+            <span style={{ color: "#6366f1", fontSize: 13 }}>✓</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#0A0E14" }}>
               {TEMPLATES.find(t => t.id === selectedId)?.name ?? "Template"} selected
-            </span>
-            <span style={{ fontSize: 11, color: "#6B7180" }}>
-              — {TEMPLATES.find(t => t.id === selectedId)?.tagline}
             </span>
           </div>
           <button onClick={handleClear} style={{
-            fontSize: 12, color: "#6B7180", background: "none",
+            fontSize: 11, color: "#6B7180", background: "none",
             border: "none", cursor: "pointer", textDecoration: "underline",
           }}>
             Clear
           </button>
         </div>
-      )}
-
-      {/* Modal */}
-      {previewTemplate && (
-        <PreviewModal
-          template={previewTemplate}
-          allTemplates={TEMPLATES}
-          selectedId={selectedId}
-          onClose={() => setPreviewTemplate(null)}
-          onSelect={(id, mapTo) => { onSelect(id, mapTo); }}
-        />
       )}
     </>
   );

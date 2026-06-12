@@ -15,7 +15,7 @@ export default function PricingPage() {
         dark
         eyebrow="// no monthly rent"
         title={<>Transparent pricing.<br/><span style={{ color: T.green }}>No website subscriptions.</span></>}
-        sub="€59.99. One-time payment. Full ownership. No subscriptions. No edits included — regenerate anytime. Custom domains are purchased separately on Vercel (usually €12–30/year)."
+        sub="€59.99. One-time payment. Full ownership. No subscriptions. Custom domains are purchased separately on Vercel (usually €12–30/year)."
       />
 
       {/* Plan cards */}
@@ -39,7 +39,6 @@ export default function PricingPage() {
               ["Deployed directly to your own Vercel account", true],
               ["Full source code — download, edit, host anywhere", true],
               ["Mobile-responsive, SSL, fast — production-ready out of the box", true],
-              ["Edits not included — regenerate a new version anytime for €59.99", false],
               ["Custom domain not included — purchase separately on Vercel (~€12–30/yr)", false],
             ].map(([text, ok], i) => (
               <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "14px 18px", borderRadius: 12, background: ok ? P.emSoft : P.bg2, border: `1px solid ${ok ? "rgba(0,144,98,0.25)" : P.line}`, fontFamily: P.font, fontSize: 15, color: ok ? P.ink : P.muted }}>

@@ -175,7 +175,7 @@ function SiteMock({ name, kind, tint = "dark", accent = P.six, pages = [], slug 
 // ─── Plan card ─────────────────────────────────────────────────────────────
 const PLANS = [
   { id: "website", name: "Website", price: 59.99, tag: "One website. Fully yours. Forever.", cta: "Build my website", after: "Domain not included — purchase separately on Vercel", badge: null as string|null,
-    items: [["AI-generated professional website",true],["Deployed to your own Vercel account",true],["Full source code ownership — keep it forever",true],["Mobile-responsive · SSL · custom domain ready",true],["Edits not included — regenerate anytime for €59.99",false],["Custom domain not included — buy on Vercel (~€12–30/yr)",false]] as [string,boolean][] },
+    items: [["AI-generated professional website",true],["Deployed to your own Vercel account",true],["Full source code ownership — keep it forever",true],["Mobile-responsive · SSL · custom domain ready",true],["Custom domain not included — buy on Vercel (~€12–30/yr)",false]] as [string,boolean][] },
 ];
 
 function PlanCard({ plan, ctaHref }: { plan: typeof PLANS[0]; ctaHref: string }) {
@@ -219,7 +219,7 @@ const FAQ_ITEMS: [string, string][] = [
   ["Is there a subscription?",           "No. You pay €59.99 once. Vercel hosting is free for most small sites. Custom domains are purchased separately on Vercel (typically €12–30/yr)."],
   ["What happens after I pay?",          "We generate the site, push it to your Vercel, and send you the deploy URL. The whole flow takes around six minutes."],
   ["Can I connect my own domain?",       "Yes. You buy a domain separately on Vercel or any registrar (GoDaddy, Namecheap, Cloudflare, etc.) and connect it from your dashboard."],
-  ["Are edits included?",                "No. Edits are not included. If you want changes, simply regenerate a new website for €59.99."],
+  ["Can I update my website?",           "You can generate a new version of your website at any time. Each generation creates a fresh AI-built website based on your updated brief."],
   ["Can I move away from Vercel?",       "Yes. The code is a standard Next.js project — host it anywhere that runs Node or static sites."],
   ["Do you include hosting?",            "We deploy to your Vercel account. Their Hobby plan is free and works for most small sites. Hosting cost on Vercel is separate from us."],
 ];
@@ -406,7 +406,7 @@ export default function Home() {
                 Stop renting<br/><span style={{ color: T.six }}>your website.</span>
               </h1>
               <p style={{ fontFamily: P.font, fontSize: "clamp(1rem,1.5vw,20px)", lineHeight: 1.5, color: "rgba(255,255,255,0.62)", margin: "0 0 28px", maxWidth: 520 }}>
-                Generate a professional website, deploy it under your own account, and keep the code forever. €59.99. One-time. No monthly fees. No edits included — regenerate anytime.
+                Generate a professional website, deploy it under your own account, and keep the code forever. €59.99. One-time. No monthly fees.
               </p>
               <div style={{ display: "flex", gap: 10, marginBottom: 22, flexWrap: "wrap" }}>
                 <Link href={ctaHref} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(180deg,#FF6A33 0%,#E54B14 100%)", color: "#fff", padding: "16px 22px", borderRadius: 12, fontFamily: P.font, fontSize: 16, fontWeight: 600, boxShadow: "0 1px 0 rgba(255,255,255,0.20) inset,0 14px 30px rgba(255,90,31,0.32)" }}>

@@ -42,7 +42,7 @@ export default function SiteFooter() {
               ["Product",  [["How it works","/how-it-works"],["Examples","/examples"],["Pricing","/pricing"],["Domains","/domains"],["FAQ","/faq"]]],
               ["Account",  [["Log in","/login"],["Sign up","/signup"],["Dashboard","/dashboard"]]],
               ["Support",  [["Domain setup","/help/setup-custom-domain"],["Help center","/help/setup-custom-domain"]]],
-              ["Legal",    [["Terms","#"],["Privacy","#"],["Cookies","#"]]],
+              ["Legal",    [["Terms of Use","/terms"],["Privacy Policy","/privacy"]]],
             ].map(([title, items]) => (
               <div key={title as string}>
                 <div style={{ fontFamily: P.mono, fontSize: 10.5, fontWeight: 700, color: T.muted, textTransform: "uppercase" as const, letterSpacing: 0.8, marginBottom: 14 }}>{title}</div>

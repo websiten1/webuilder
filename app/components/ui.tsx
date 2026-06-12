@@ -286,7 +286,7 @@ export const FinalCTA = () => (
 // ─── PLANS + PlanCard ──────────────────────────────────────────────────────────
 
 export const PLANS = [
-  { id: "website", name: "Website", price: 59.99, tag: "One website. Fully yours. Forever.", cta: "Build my website", after: "Domain not included — purchase separately on Vercel", badge: null as string | null, items: [["AI-generated professional website",true],["Deployed to your own Vercel account",true],["Full source code ownership — keep it forever",true],["Mobile-responsive · SSL · custom domain ready",true],["Edits not included — regenerate anytime for €59.99",false],["Custom domain not included — buy on Vercel (~€12–30/yr)",false]] as [string,boolean][] },
+  { id: "website", name: "Website", price: 59.99, tag: "One website. Fully yours. Forever.", cta: "Build my website", after: "Domain not included — purchase separately on Vercel", badge: null as string | null, items: [["AI-generated professional website",true],["Deployed to your own Vercel account",true],["Full source code ownership — keep it forever",true],["Mobile-responsive · SSL · custom domain ready",true],["Custom domain not included — buy on Vercel (~€12–30/yr)",false]] as [string,boolean][] },
 ];
 
 export const PlanCard = ({ plan, compact = false }: { plan: typeof PLANS[0]; compact?: boolean }) => {

@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import "./globals.css";
 import CookieBanner from "@/app/components/CookieBanner";
 import ChatBot from "@/app/components/ChatBot";
+import InactivityWatcher from "@/app/components/InactivityWatcher";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={geist.variable}>
       <body>
         {children}
+        <InactivityWatcher />
         <CookieBanner />
         <ChatBot />
       </body>

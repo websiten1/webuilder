@@ -9,7 +9,7 @@ const HOW_DETAIL = [
   { n: "02", t: "Connect Vercel",         d: "Authorize insixlive to deploy into your Vercel account. Your website will belong to your workspace.", mock: "vercel" },
   { n: "03", t: "Describe your business", d: "Business name, services, audience, location, contact info, tone, goals.", mock: "describe" },
   { n: "04", t: "Choose the look",        d: "Visual style, colors, typography, page structure, features.", mock: "style" },
-  { n: "05", t: "Pay €59.99 one-time",    d: "Single payment through Stripe. No subscription, no recurring fees. Domain and edits not included.", mock: "plan" },
+  { n: "05", t: "Pay €59.99 one-time",    d: "Single payment through Stripe. No subscription, no recurring fees. Custom domain purchased separately on Vercel.", mock: "plan" },
   { n: "06", t: "AI generates your site", d: "Claude writes the code. The site is built with Next.js and Tailwind.", mock: "generate" },
   { n: "07", t: "Deployment",             d: "Pushed to your Vercel account. You receive a live .vercel.app URL.", mock: "deploy" },
   { n: "08", t: "Add a custom domain",    d: "Buy a domain separately on Vercel and connect it. SSL configured automatically.", mock: "domain" },
@@ -66,7 +66,6 @@ function HowMock({ kind }: { kind: string }) {
             <div style={{ marginTop: 14, fontFamily: P.mono, fontSize: 10.5, color: T.muted, lineHeight: 1.7 }}>
               <div>✓ full code ownership</div>
               <div>✓ deploys to your Vercel</div>
-              <div style={{ color: "rgba(255,255,255,0.3)" }}>✗ edits not included</div>
               <div style={{ color: "rgba(255,255,255,0.3)" }}>✗ domain not included</div>
             </div>
           </div>
