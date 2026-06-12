@@ -1555,7 +1555,7 @@ function Step10Review({ data, goTo, onGenerate, loading, vercelAuthorized, isEdi
           <div className="wf-vd">{tr(lang,"Site-ul generat se publică direct în propriul tău proiect Vercel. Codul rămâne al tău, pentru totdeauna.","Your generated website deploys directly to your own Vercel project. You keep the code, forever.")}</div>
         </div>
         {vercelAuthorized === false && (
-          <a href="/api/auth/vercel" style={{ flexShrink:0,marginLeft:"auto",fontFamily:"var(--wf-mono)",fontSize:11.5,fontWeight:600,padding:"7px 13px",borderRadius:7,background:"var(--wf-text)",color:"#fff",textDecoration:"none" }}>
+          <a href="/api/auth/vercel/authorize" style={{ flexShrink:0,marginLeft:"auto",fontFamily:"var(--wf-mono)",fontSize:11.5,fontWeight:600,padding:"7px 13px",borderRadius:7,background:"var(--wf-text)",color:"#fff",textDecoration:"none" }}>
             {tr(lang,"Conectează Vercel","Connect Vercel")}
           </a>
         )}
