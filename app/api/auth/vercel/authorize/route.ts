@@ -3,11 +3,6 @@ import { getSession } from "@/lib/session";
 import crypto from "crypto";
 
 export async function GET(request: NextRequest) {
-  const session = await getSession();
-  if (!session) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
   const clientId = process.env.VERCEL_OAUTH_CLIENT_ID;
   if (!clientId) {
     console.error("VERCEL_OAUTH_CLIENT_ID not set");
@@ -16,21 +11,28 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Always use the canonical production URL — must match exactly what is
-  // registered in the Vercel OAuth app settings.
   const baseUrl = process.env.NEXT_PUBLIC_URL || new URL(request.url).origin;
   const redirectUri = `${baseUrl}/api/auth/vercel/callback`;
 
   const state = crypto.randomBytes(16).toString("hex");
 
-  const url = new URL("https://vercel.com/oauth/authorize");
-  url.searchParams.set("client_id", clientId);
-  url.searchParams.set("redirect_uri", redirectUri);
-  url.searchParams.set("response_type", "code");
-  url.searchParams.set("state", state);
+  // If the user is not logged in to insixlive, store intent so the callback
+  // can redirect them to login → then back to /generate (already connected).
+  const session = await getSession();
+  const statePayload = JSON.stringify({
+    state,
+    loggedIn: !!session,
+    userId: session?.userId ?? null,
+  });
 
-  const response = NextResponse.redirect(url);
-  response.cookies.set("vercel_oauth_state", state, {
+  const vercelUrl = new URL("https://vercel.com/oauth/authorize");
+  vercelUrl.searchParams.set("client_id", clientId);
+  vercelUrl.searchParams.set("redirect_uri", redirectUri);
+  vercelUrl.searchParams.set("response_type", "code");
+  vercelUrl.searchParams.set("state", state);
+
+  const response = NextResponse.redirect(vercelUrl);
+  response.cookies.set("vercel_oauth_state", statePayload, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

@@ -1555,9 +1555,16 @@ function Step10Review({ data, goTo, onGenerate, loading, vercelAuthorized, isEdi
           <div className="wf-vd">{tr(lang,"Site-ul generat se publică direct în propriul tău proiect Vercel. Codul rămâne al tău, pentru totdeauna.","Your generated website deploys directly to your own Vercel project. You keep the code, forever.")}</div>
         </div>
         {vercelAuthorized === false && (
-          <a href="/api/auth/vercel/authorize" style={{ flexShrink:0,marginLeft:"auto",fontFamily:"var(--wf-mono)",fontSize:11.5,fontWeight:600,padding:"7px 13px",borderRadius:7,background:"var(--wf-text)",color:"#fff",textDecoration:"none" }}>
-            {tr(lang,"Conectează Vercel","Connect Vercel")}
-          </a>
+          <div style={{ display:"flex", flexDirection:"column", gap:8, marginLeft:"auto", flexShrink:0 }}>
+            <a href="https://vercel.com/signup" target="_blank" rel="noopener noreferrer"
+              style={{ fontFamily:"var(--wf-mono)",fontSize:11,fontWeight:600,padding:"7px 13px",borderRadius:7,background:"var(--wf-ok-soft)",border:"1px solid var(--wf-ok-line)",color:"var(--wf-ok)",textDecoration:"none",textAlign:"center",whiteSpace:"nowrap" }}>
+              1. {tr(lang,"Creează cont Vercel →","Create Vercel account →")}
+            </a>
+            <a href="/api/auth/vercel/authorize"
+              style={{ fontFamily:"var(--wf-mono)",fontSize:11,fontWeight:600,padding:"7px 13px",borderRadius:7,background:"var(--wf-text)",color:"#fff",textDecoration:"none",textAlign:"center",whiteSpace:"nowrap" }}>
+              2. {tr(lang,"Conectează contul →","Connect account →")}
+            </a>
+          </div>
         )}
       </div>
 
@@ -1717,7 +1724,11 @@ const TOTAL = 11; // 11 steps (0–10)
 
 export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) {
   const router = useRouter();
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    const saved = parseInt(localStorage.getItem("wizard_step") ?? "0", 10);
+    return Number.isFinite(saved) && saved >= 0 && saved < TOTAL ? saved : 0;
+  });
   const [data, setData] = useState<WizardData>(DEFAULT);
   const lang: Lang = data.lang ?? "ro";
   const setLang = (l: Lang) => setData(p => ({ ...p, lang: l }));
@@ -1733,7 +1744,22 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
   const scrollRef = useRef<HTMLDivElement>(null);
   const isEditMode = !!editSiteId;
 
-  // Check Vercel auth
+  // Persist step so OAuth redirect back to /generate lands on the same step
+  useEffect(() => {
+    if (!editSiteId) localStorage.setItem("wizard_step", String(step));
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  }, [step, editSiteId]);
+
+  // Check Vercel auth + handle ?vercel_authorized=true return from OAuth
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("vercel_authorized") === "true") {
+      setVercelAuthorized(true);
+      // Clean the URL without reloading
+      window.history.replaceState({}, "", "/generate");
+    }
+  }, []);
+
   useEffect(() => {
     fetch("/api/auth/me").then(r => r.json())
       .then(d => setVercelAuthorized(d.user?.vercelAuthorized ?? false))

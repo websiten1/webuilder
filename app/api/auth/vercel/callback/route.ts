@@ -8,7 +8,6 @@ export async function GET(request: NextRequest) {
   const state = searchParams.get("state");
   const error = searchParams.get("error");
 
-  // Where to redirect after success/failure — back to the wizard
   const baseUrl = process.env.NEXT_PUBLIC_URL || new URL(request.url).origin;
 
   if (error) {
@@ -16,12 +15,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${baseUrl}/generate?error=vercel_denied`);
   }
 
-  // Lenient state check — cookie may be absent if the authorize and callback
-  // ran on different domains (e.g. webuilder-rnpp.vercel.app → insixlive.com)
-  const storedState = request.cookies.get("vercel_oauth_state")?.value;
-  if (storedState && state && storedState !== state) {
-    console.error("Vercel OAuth state mismatch");
-    return NextResponse.redirect(`${baseUrl}/generate?error=vercel_state_mismatch`);
+  // Validate state — the cookie now holds a JSON payload
+  const cookieRaw = request.cookies.get("vercel_oauth_state")?.value;
+  if (cookieRaw && state) {
+    try {
+      const parsed = JSON.parse(cookieRaw);
+      if (parsed.state !== state) {
+        console.error("Vercel OAuth state mismatch");
+        return NextResponse.redirect(`${baseUrl}/generate?error=vercel_state_mismatch`);
+      }
+    } catch {
+      // Cookie is old format (plain string) — compare directly
+      if (cookieRaw !== state) {
+        console.error("Vercel OAuth state mismatch (legacy)");
+        return NextResponse.redirect(`${baseUrl}/generate?error=vercel_state_mismatch`);
+      }
+    }
   }
 
   if (!code) {
@@ -30,14 +39,14 @@ export async function GET(request: NextRequest) {
 
   const session = await getSession();
   if (!session) {
-    return NextResponse.redirect(`${baseUrl}/login`);
+    // User completed Vercel OAuth but is not logged in to insixlive.
+    // Redirect to login — they can connect Vercel again after logging in.
+    return NextResponse.redirect(`${baseUrl}/login?next=vercel_connect`);
   }
 
-  // Must match exactly what was sent in the authorize step
   const redirectUri = `${baseUrl}/api/auth/vercel/callback`;
 
   try {
-    // Vercel token endpoint requires JSON (not form-encoded)
     const tokenRes = await fetch("https://api.vercel.com/v2/oauth/token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -54,7 +63,6 @@ export async function GET(request: NextRequest) {
 
     if (!tokenRes.ok) {
       console.error("Vercel token exchange failed:", tokenRes.status, tokenBody);
-      // Pass sanitised error detail so we can debug
       const detail = encodeURIComponent(tokenRes.status + ":" + tokenBody.slice(0, 120));
       return NextResponse.redirect(`${baseUrl}/generate?error=vercel_callback_failed&detail=${detail}`);
     }
@@ -72,6 +80,8 @@ export async function GET(request: NextRequest) {
 
     await saveVercelAuth(session.userId, access_token, user_id ?? null, team_id ?? null);
 
+    // Return to generate with success flag — wizard JS will clean the URL
+    // and step is already persisted in localStorage so the user lands on step 10
     const response = NextResponse.redirect(`${baseUrl}/generate?vercel_authorized=true`);
     response.cookies.delete("vercel_oauth_state");
     return response;
