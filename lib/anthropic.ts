@@ -37,10 +37,7 @@ export async function generateWebsiteCode(prompt: string): Promise<string> {
   const apiKey = getApiKey();
   const client = new Anthropic({ apiKey });
 
-  const response = await client.messages.create({
-    model: "claude-opus-4-7",
-    max_tokens: 32000,
-    system: `You are an elite web developer and UI/UX designer specialising in Next.js. Your job is to generate a single, complete, production-ready Next.js page component.
+  const system = `You are an elite web developer and UI/UX designer specialising in Next.js. Your job is to generate a single, complete, production-ready Next.js page component.
 
 STRICT RULES:
 1. Output ONLY valid TypeScript/React code — no markdown, no explanations, no code fences.
@@ -55,18 +52,34 @@ STRICT RULES:
 10. Include a sticky nav, a compelling hero section, all requested pages/sections, and a footer.
 11. CRITICAL: The return() statement and closing brace of the default export MUST be the very last lines of the file. Never truncate the JSX. Always close every tag, every JSX expression, and the function itself.
 12. CRITICAL: Never use bare <> fragments as the root — wrap JSX in a single <div> root element.
-13. CRITICAL: All template literals inside JSX must be completely closed. Never mix unescaped < or > characters inside template literals — use &lt; / &gt; instead.`,
+13. CRITICAL: All template literals inside JSX must be completely closed. Never mix unescaped < or > characters inside template literals — use &lt; / &gt; instead.`;
+
+  let fullText = "";
+  let stopReason = "";
+
+  const stream = client.messages.stream({
+    model: "claude-opus-4-7",
+    max_tokens: 32000,
+    system,
     messages: [{ role: "user", content: prompt }],
   });
 
-  const textBlock = response.content.find((b) => b.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
+  for await (const chunk of stream) {
+    if (chunk.type === "content_block_delta" && chunk.delta.type === "text_delta") {
+      fullText += chunk.delta.text;
+    }
+    if (chunk.type === "message_delta") {
+      stopReason = chunk.delta.stop_reason ?? "";
+    }
+  }
+
+  if (!fullText) {
     throw new Error("No text content in Claude response");
   }
 
-  if (response.stop_reason === "max_tokens") {
+  if (stopReason === "max_tokens") {
     throw new Error("Generated code was too long and got cut off. Please try again or simplify your requirements.");
   }
 
-  return stripCodeFences(textBlock.text);
+  return stripCodeFences(fullText);
 }
