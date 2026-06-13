@@ -29,14 +29,23 @@ function SuccessContent() {
           throw new Error(err.error || "Payment verification failed.");
         }
 
-        // 2. Load wizard data from localStorage
+        // 2. Load wizard data — localStorage first, server draft as fallback
         const raw = localStorage.getItem("wizard_data");
-        if (!raw) {
-          // No wizard data — go to generate to start fresh
-          router.replace("/generate");
-          return;
+        let formData = null;
+        if (raw) {
+          try { formData = JSON.parse(raw); } catch { /* ignore */ }
         }
-        const formData = JSON.parse(raw);
+        if (!formData) {
+          // Fallback: fetch the draft saved to the server before payment
+          const draftRes = await fetch("/api/wizard/save-draft");
+          if (draftRes.ok) {
+            const { data } = await draftRes.json();
+            formData = data;
+          }
+        }
+        if (!formData) {
+          throw new Error("Wizard data not found. Please contact support — your payment was received.");
+        }
         const tier = localStorage.getItem("pending_tier") ?? "website";
 
         setStatus("generating");

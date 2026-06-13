@@ -2097,9 +2097,31 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentError, setPaymentError] = useState("");
 
-  const handlePayWithStripe = () => {
-    try { localStorage.setItem("pending_tier", "website"); } catch {}
-    window.location.href = STRIPE_PAYMENT_LINK;
+  const handlePayWithStripe = async () => {
+    setPaymentLoading(true);
+    setPaymentError("");
+    try {
+      // Save wizard data server-side so webhook can trigger generation
+      // even if the browser redirect back to us fails for any reason.
+      await fetch("/api/wizard/save-draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data }),
+      });
+
+      try { localStorage.setItem("pending_tier", "website"); } catch {}
+
+      const res = await fetch("/api/checkout/create-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const body = await res.json();
+      if (!res.ok || !body.url) throw new Error(body.error || "Could not start checkout.");
+      window.location.href = body.url;
+    } catch (err) {
+      setPaymentError(err instanceof Error ? err.message : "Payment error. Please try again.");
+      setPaymentLoading(false);
+    }
   };
 
   const handleReviewGenerate = () => {

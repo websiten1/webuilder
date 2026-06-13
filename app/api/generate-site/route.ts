@@ -333,22 +333,38 @@ TECHNICAL REQUIREMENTS
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession();
-    if (!session) {
-      return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+    const body = await request.json();
+    const {
+      formData,
+      tier = "website_5",
+      siteId: editSiteId,
+      userId: webhookUserId,       // set by webhook (no session cookie available)
+    } = body as {
+      formData: WizardData;
+      tier?: "website" | "website_5";
+      siteId?: string;
+      userId?: string;
+    };
+
+    // Allow webhook calls using an internal secret, or normal session-cookie calls
+    const internalSecret = request.headers.get("x-internal-secret");
+    const isWebhook = internalSecret && internalSecret === (process.env.INTERNAL_SECRET || "");
+
+    let resolvedUserId: string;
+    if (isWebhook && webhookUserId) {
+      resolvedUserId = webhookUserId;
+    } else {
+      const session = await getSession();
+      if (!session) {
+        return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+      }
+      resolvedUserId = session.userId;
     }
 
-    const user = await getUserById(session.userId);
+    const user = await getUserById(resolvedUserId);
     if (!user) {
       return NextResponse.json({ error: "User not found." }, { status: 401 });
     }
-
-    const body = await request.json();
-    const { formData, tier = "website_5", siteId: editSiteId } = body as {
-      formData: WizardData;
-      tier?: "website" | "website_5";
-      siteId?: string;          // present when updating an existing site
-    };
 
     if (!formData) {
       return NextResponse.json({ error: "Missing form data." }, { status: 400 });
@@ -372,7 +388,7 @@ export async function POST(request: NextRequest) {
 
     // ── UPDATE existing site ────────────────────────────────────────────────
     if (editSiteId) {
-      const existingSite = await getSiteById(editSiteId, session.userId);
+      const existingSite = await getSiteById(editSiteId, resolvedUserId);
       if (!existingSite) {
         return NextResponse.json({ error: "Site not found." }, { status: 404 });
       }
