@@ -6,7 +6,6 @@ function getApiKey(): string {
   const fromEnv = process.env.ANTHROPIC_API_KEY;
   if (fromEnv) return fromEnv;
 
-  // Fallback: read directly from .env.local
   const envPath = path.join(process.cwd(), ".env.local");
   try {
     const content = fs.readFileSync(envPath, "utf8");
@@ -25,19 +24,47 @@ function getApiKey(): string {
 }
 
 function stripCodeFences(text: string): string {
-  // Remove leading code fence with optional language tag
   let result = text.trim();
   result = result.replace(/^```(?:tsx?|jsx?|javascript|typescript|js|ts)?\s*\n?/i, "");
-  // Remove trailing code fence
   result = result.replace(/\n?```\s*$/m, "");
   return result.trim();
 }
 
-export async function generateWebsiteCode(prompt: string): Promise<string> {
-  const apiKey = getApiKey();
-  const client = new Anthropic({ apiKey });
+function validateCode(code: string): { valid: boolean; reason?: string } {
+  if (!code.includes("export default function")) {
+    return { valid: false, reason: "Missing export default function" };
+  }
 
-  const system = `You are an elite web developer and UI/UX designer specialising in Next.js. Your job is to generate a single, complete, production-ready Next.js page component.
+  // Brace balance check
+  let depth = 0;
+  for (const ch of code) {
+    if (ch === "{") depth++;
+    else if (ch === "}") depth--;
+    if (depth < -1) return { valid: false, reason: "Unbalanced braces (too many closing)" };
+  }
+  if (depth !== 0) {
+    return { valid: false, reason: `Unbalanced braces (depth=${depth} at end)` };
+  }
+
+  // Backtick balance (rough check — counts unescaped backticks outside strings)
+  let backticks = 0;
+  let inSingleQuote = false;
+  let inDoubleQuote = false;
+  let prev = "";
+  for (const ch of code) {
+    if (ch === "'" && !inDoubleQuote && prev !== "\\") inSingleQuote = !inSingleQuote;
+    else if (ch === '"' && !inSingleQuote && prev !== "\\") inDoubleQuote = !inDoubleQuote;
+    else if (ch === "`" && !inSingleQuote && !inDoubleQuote && prev !== "\\") backticks++;
+    prev = ch;
+  }
+  if (backticks % 2 !== 0) {
+    return { valid: false, reason: `Odd backtick count (${backticks}) — unclosed template literal` };
+  }
+
+  return { valid: true };
+}
+
+const SYSTEM = `You are an elite web developer and UI/UX designer specialising in Next.js. Your job is to generate a single, complete, production-ready Next.js page component.
 
 STRICT RULES:
 1. Output ONLY valid TypeScript/React code — no markdown, no explanations, no code fences.
@@ -61,15 +88,17 @@ STRICT RULES:
 10. Include a sticky nav, a compelling hero section, all requested pages/sections, and a footer.
 11. CRITICAL: The return() statement and closing brace of the default export MUST be the very last lines of the file. Never truncate the JSX. Always close every tag, every JSX expression, and the function itself.
 12. CRITICAL: Never use bare <> fragments as the root — wrap JSX in a single <div> root element.
-13. CRITICAL: All template literals inside JSX must be completely closed. Never mix unescaped < or > characters inside template literals — use &lt; / &gt; instead.`;
+13. CRITICAL — TEMPLATE LITERALS: Every backtick (\`) you open MUST be closed with another backtick. Never leave a template literal unclosed. The most common mistake is forgetting to close a \`...\` string inside a style object or variable before the return() — double-check every backtick pair before finishing.
+14. CRITICAL — QUOTES IN JSX STYLE PROPS: Inside JSX style={{ }} objects, use only double-quoted strings or backtick template literals. Never use single-quoted strings for property values that contain apostrophes — use double quotes instead (e.g. fontFamily: "Inter, sans-serif" not fontFamily: 'Inter, sans-serif').`;
 
+async function generateOnce(client: Anthropic, prompt: string): Promise<{ code: string; stopReason: string }> {
   let fullText = "";
   let stopReason = "";
 
   const stream = client.messages.stream({
     model: "claude-opus-4-7",
     max_tokens: 32000,
-    system,
+    system: SYSTEM,
     messages: [{ role: "user", content: prompt }],
   });
 
@@ -82,13 +111,36 @@ STRICT RULES:
     }
   }
 
-  if (!fullText) {
-    throw new Error("No text content in Claude response");
+  return { code: stripCodeFences(fullText), stopReason };
+}
+
+export async function generateWebsiteCode(prompt: string): Promise<string> {
+  const apiKey = getApiKey();
+  const client = new Anthropic({ apiKey });
+
+  const MAX_ATTEMPTS = 3;
+
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    console.log(`🤖 Generation attempt ${attempt}/${MAX_ATTEMPTS}`);
+    const { code, stopReason } = await generateOnce(client, prompt);
+
+    if (!code) throw new Error("No text content in Claude response");
+
+    if (stopReason === "max_tokens") {
+      throw new Error("Generated code was too long and got cut off. Please try again or simplify your requirements.");
+    }
+
+    const check = validateCode(code);
+    if (check.valid) {
+      console.log(`✅ Code validated on attempt ${attempt}`);
+      return code;
+    }
+
+    console.warn(`⚠️  Attempt ${attempt} failed validation: ${check.reason}`);
+    if (attempt === MAX_ATTEMPTS) {
+      throw new Error(`Generated code has syntax errors after ${MAX_ATTEMPTS} attempts: ${check.reason}. Please try again.`);
+    }
   }
 
-  if (stopReason === "max_tokens") {
-    throw new Error("Generated code was too long and got cut off. Please try again or simplify your requirements.");
-  }
-
-  return stripCodeFences(fullText);
+  throw new Error("Code generation failed");
 }
