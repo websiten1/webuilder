@@ -58,7 +58,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
+    const keyHint = (process.env.STRIPE_SECRET_KEY || "").slice(0, 12) + "...";
     console.error("Verify session error:", msg);
-    return NextResponse.json({ error: `Verification failed: ${msg}` }, { status: 500 });
+    return NextResponse.json({ error: `Verification failed: ${msg} [key: ${keyHint}]` }, { status: 500 });
   }
 }
