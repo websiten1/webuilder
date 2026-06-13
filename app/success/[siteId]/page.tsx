@@ -129,19 +129,6 @@ export default function SuccessPage() {
           </div>
         </div>
 
-        <div className="fade-up-2 glass rounded-2xl p-5 mb-8">
-          <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text3)", marginBottom: 10 }}>
-            Source code on GitHub
-          </p>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-            <a href={site.github_url} target="_blank" rel="noopener noreferrer"
-              style={{ color: "var(--text2)", fontSize: 13, fontFamily: "ui-monospace, monospace", wordBreak: "break-all", textDecoration: "none", flex: 1 }}>
-              {site.github_url}
-            </a>
-            <CopyButton text={site.github_url} />
-          </div>
-          <p style={{ fontSize: 12, color: "var(--text3)", marginTop: 8 }}>Download, fork, or edit your code anytime.</p>
-        </div>
 
         <div className="fade-up-3" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <a href={site.vercel_url} target="_blank" rel="noopener noreferrer"
@@ -169,8 +156,6 @@ export default function SuccessPage() {
           <ul style={{ display: "flex", flexDirection: "column", gap: 9 }}>
             {[
               "Website live and accessible globally",
-              "Source code on your GitHub",
-              "Edit or extend the code anytime",
               "You own it forever — no monthly fees",
               "Add a custom domain anytime",
             ].map((item) => (
@@ -184,16 +169,6 @@ export default function SuccessPage() {
           </ul>
         </div>
 
-        {/* Edit CTA */}
-        <div className="fade-up-4 glass rounded-2xl p-6 mt-4" style={{ border: "1px solid rgba(99,102,241,0.15)" }}>
-          <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: "var(--text2)" }}>Want to make changes later?</p>
-          <p style={{ fontSize: 12, color: "var(--text3)", marginBottom: 14, lineHeight: 1.6 }}>
-            Come back to your dashboard anytime. Click &quot;Request Changes&quot; for €15 per edit — Claude regenerates and redeploys in ~2 minutes.
-          </p>
-          <Link href={`/edit/${siteId}`} style={{ fontSize: 12, color: "var(--accent)", textDecoration: "none" }}>
-            Request changes →
-          </Link>
-        </div>
       </div>
     </div>
   );
