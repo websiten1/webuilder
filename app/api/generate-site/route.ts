@@ -96,13 +96,13 @@ production version of this template for the user's specific business.
   }
 }
 
-// ─── Image extraction for Claude vision ───────────────────────────────────────
+// ─── Image extraction: build vision inputs + static deployment files ──────────
 
 export type ImageInput = {
-  label: string;      // human-readable label shown to Claude
-  placeholder: string; // the path string Claude must use in src
-  base64: string;     // raw base64 (no data: prefix)
-  mediaType: string;  // e.g. "image/jpeg"
+  label: string;
+  placeholder: string;
+  base64: string;
+  mediaType: string;
 };
 
 function parseDataUrl(dataUrl: string): { base64: string; mediaType: string } | null {
@@ -111,67 +111,39 @@ function parseDataUrl(dataUrl: string): { base64: string; mediaType: string } | 
   return { mediaType: match[1], base64: match[2] };
 }
 
+function ext(mediaType: string): string {
+  const map: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif" };
+  return map[mediaType] ?? "jpg";
+}
+
 export function extractImages(formData: WizardData): ImageInput[] {
   const images: ImageInput[] = [];
 
   if (formData.logo?.uploaded && formData.logo.dataUrl) {
     const p = parseDataUrl(formData.logo.dataUrl);
-    if (p) images.push({ label: "LOGO — use src=\"/logo.png\" for this image in the navbar", placeholder: "/logo.png", ...p });
+    if (p) images.push({ label: `LOGO — use src="/logo.${ext(p.mediaType)}" in the navbar`, placeholder: `/logo.${ext(p.mediaType)}`, ...p });
   }
 
   (formData.gallery ?? []).forEach((dataUrl, i) => {
     if (dataUrl) {
       const p = parseDataUrl(dataUrl);
-      if (p) images.push({ label: `GALLERY PHOTO ${i + 1} — use src="/gallery-image-${i}"`, placeholder: `/gallery-image-${i}`, ...p });
+      if (p) images.push({ label: `GALLERY PHOTO ${i + 1} — use src="/gallery-${i}.${ext(p.mediaType)}"`, placeholder: `/gallery-${i}.${ext(p.mediaType)}`, ...p });
     }
   });
 
   (formData.galleryMembers ?? []).filter(m => m.photo).forEach((m, i) => {
     const p = parseDataUrl(m.photo);
-    if (p) images.push({ label: `TEAM PHOTO — ${m.name || `member ${i + 1}`} — use src="/team-photo-${i}"`, placeholder: `/team-photo-${i}`, ...p });
+    if (p) images.push({ label: `TEAM PHOTO of ${m.name || `member ${i + 1}`} — use src="/team-${i}.${ext(p.mediaType)}"`, placeholder: `/team-${i}.${ext(p.mediaType)}`, ...p });
   });
 
   Object.entries(formData.pages?.pageDescriptions ?? {}).forEach(([pageId, desc]) => {
     if (desc?.image) {
       const p = parseDataUrl(desc.image);
-      if (p) images.push({ label: `SECTION IMAGE for "${pageId}" page — use src="/section-image-${pageId}"`, placeholder: `/section-image-${pageId}`, ...p });
+      if (p) images.push({ label: `SECTION IMAGE for "${pageId}" — use src="/section-${pageId}.${ext(p.mediaType)}"`, placeholder: `/section-${pageId}.${ext(p.mediaType)}`, ...p });
     }
   });
 
   return images;
-}
-
-// ─── Logo / image post-processing ─────────────────────────────────────────────
-
-function embedUploads(code: string, formData: WizardData): string {
-  let result = code;
-
-  const embed = (placeholder: string, dataUrl: string) => {
-    if (result.includes(placeholder)) {
-      result = result.replaceAll(placeholder, dataUrl);
-      console.log(`📎 Replaced ${placeholder} (${Math.round(dataUrl.length / 1024)} KB)`);
-    } else {
-      console.warn(`⚠️  Placeholder not found in generated code: ${placeholder}`);
-    }
-  };
-
-  if (formData.logo?.uploaded && formData.logo.dataUrl) {
-    embed("/logo.png", formData.logo.dataUrl);
-  }
-
-  (formData.gallery ?? []).forEach((dataUrl, i) => {
-    if (dataUrl) embed(`/gallery-image-${i}`, dataUrl);
-  });
-
-  (formData.galleryMembers ?? []).forEach((m, i) => {
-    if (m.photo) embed(`/team-photo-${i}`, m.photo);
-  });
-
-  Object.entries(formData.pages?.pageDescriptions ?? {}).forEach(([pageId, desc]) => {
-    if (desc?.image) embed(`/section-image-${pageId}`, desc.image);
-  });
-
-  return result;
 }
 
 const TEMPLATE_NAMES: Record<string, string> = {
@@ -459,11 +431,11 @@ export async function POST(request: NextRequest) {
     console.log(`🖼️  Logo uploaded: ${formData.logo?.uploaded ? `yes (${formData.logo.fileName})` : "no"}`);
 
     const images = extractImages(formData);
-    console.log(`🖼️  Passing ${images.length} images to Claude: ${images.map(i => i.label.split(' — ')[0]).join(', ') || 'none'}`);
-    const rawCode = await generateWebsiteCode(prompt, images);
-    console.log("✅ Code generated, post-processing uploads...");
-    const websiteCode = embedUploads(rawCode, formData);
-    console.log("✅ Uploads embedded");
+    console.log(`🖼️  Passing ${images.length} images to Claude: ${images.map(i => i.placeholder).join(', ') || 'none'}`);
+    // Images are deployed as real static files — no base64 embedding in code
+    const staticImages = images.map(img => ({ path: img.placeholder.replace(/^\//, ""), base64: img.base64 }));
+    const websiteCode = await generateWebsiteCode(prompt, images);
+    console.log("✅ Code generated");
 
     // ── UPDATE existing site ────────────────────────────────────────────────
     if (editSiteId) {
@@ -484,6 +456,7 @@ export async function POST(request: NextRequest) {
       const deployment = await deployToVercel(existingSite.vercel_project_id!, websiteCode, {
         userToken: editToken,
         teamId: editTeamId,
+        staticImages,
       });
 
       const siteUrl = `https://${deployment.url}`;
@@ -502,16 +475,17 @@ export async function POST(request: NextRequest) {
     }
 
     // ── CREATE new site ─────────────────────────────────────────────────────
-    const projectName = `${siteName.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").slice(0, 40)}-${Date.now()}`;
+    const projectName = siteName.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 63);
     console.log("Deploying to user's Vercel...");
     const deployment = await deployToVercel(projectName, websiteCode, {
       userToken: user.vercel_access_token ?? undefined,
       teamId: user.vercel_team_id ?? undefined,
+      staticImages,
     });
     const vercelProjectId = deployment.projectId ?? projectName;
     console.log("✅ Deployed:", deployment.url, "| vercel project id:", vercelProjectId);
 
-    const siteUrl = `https://${deployment.url}`;
+    const siteUrl = `https://${projectName}.vercel.app`;
 
     const site = await saveSiteWithVercel(
       user.id,

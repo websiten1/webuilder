@@ -1,9 +1,11 @@
 // lib/vercel.ts - Vercel API integration
 
+export type StaticImage = { path: string; base64: string };
+
 export async function deployToVercel(
   projectName: string,
   code: string,
-  options?: { userToken?: string; teamId?: string | null }
+  options?: { userToken?: string; teamId?: string | null; staticImages?: StaticImage[] }
 ): Promise<{ id: string; url: string; projectId: string | null }> {
   // Prefer user's own Vercel token; fall back to app token (used by edit feature)
   const token = options?.userToken ?? process.env.VERCEL_API_TOKEN;
@@ -75,6 +77,12 @@ export async function deployToVercel(
           { file: "tsconfig.json", data: tsConfig },
           { file: "next.config.js", data: `/** @type {import('next').NextConfig} */\nmodule.exports = { typescript: { ignoreBuildErrors: true }, eslint: { ignoreDuringBuilds: true } };` },
           { file: "pages/index.tsx", data: code },
+          // Static image files — deployed to public/ so they're accessible as /logo.png etc.
+          ...(options?.staticImages ?? []).map(img => ({
+            file: `public/${img.path}`,
+            data: img.base64,
+            encoding: "base64",
+          })),
         ],
         target: "production",
         projectSettings: {
