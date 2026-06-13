@@ -2101,23 +2101,15 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
     setPaymentLoading(true);
     setPaymentError("");
     try {
-      // Save wizard data server-side so webhook can trigger generation
+      // Save wizard data server-side so the webhook can trigger generation
       // even if the browser redirect back to us fails for any reason.
       await fetch("/api/wizard/save-draft", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ data }),
       });
-
       try { localStorage.setItem("pending_tier", "website"); } catch {}
-
-      const res = await fetch("/api/checkout/create-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-      const body = await res.json();
-      if (!res.ok || !body.url) throw new Error(body.error || "Could not start checkout.");
-      window.location.href = body.url;
+      window.location.href = STRIPE_PAYMENT_LINK;
     } catch (err) {
       setPaymentError(err instanceof Error ? err.message : "Payment error. Please try again.");
       setPaymentLoading(false);
