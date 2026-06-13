@@ -96,65 +96,79 @@ production version of this template for the user's specific business.
   }
 }
 
-// ─── Logo / image post-processing ─────────────────────────────────────────────
+// ─── Image extraction for Claude vision ───────────────────────────────────────
 
-function replacePlaceholder(code: string, placeholder: string, dataUrl: string): string {
-  // Escape the placeholder for use in a regex
-  const esc = placeholder.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+export type ImageInput = {
+  label: string;      // human-readable label shown to Claude
+  placeholder: string; // the path string Claude must use in src
+  base64: string;     // raw base64 (no data: prefix)
+  mediaType: string;  // e.g. "image/jpeg"
+};
 
-  // Handle all syntactic forms Claude might generate:
-  //   src="/placeholder"           (plain HTML attr, double quotes)
-  //   src='/placeholder'           (plain HTML attr, single quotes)
-  //   src={"/placeholder"}         (JSX expression, double quotes)
-  //   src={'/placeholder'}         (JSX expression, single quotes)
-  //   url("/placeholder")          (CSS background, double quotes)
-  //   url('/placeholder')          (CSS background, single quotes)
-  //   url(/placeholder)            (CSS background, no quotes)
-  return code
-    .replace(new RegExp(`src=\\"${esc}\\"`, "g"), `src="${dataUrl}"`)
-    .replace(new RegExp(`src='${esc}'`, "g"), `src='${dataUrl}'`)
-    .replace(new RegExp(`src=\\{"\\"${esc}\\"\\"\\}`, "g"), `src="${dataUrl}"`)
-    .replace(new RegExp(`src=\\{"${esc}"\\}`, "g"), `src="${dataUrl}"`)
-    .replace(new RegExp(`src=\\{'${esc}'\\}`, "g"), `src="${dataUrl}"`)
-    .replace(new RegExp(`url\\("${esc}"\\)`, "g"), `url("${dataUrl}")`)
-    .replace(new RegExp(`url\\('${esc}'\\)`, "g"), `url('${dataUrl}')`)
-    .replace(new RegExp(`url\\(${esc}\\)`, "g"), `url(${dataUrl})`);
+function parseDataUrl(dataUrl: string): { base64: string; mediaType: string } | null {
+  const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+  if (!match) return null;
+  return { mediaType: match[1], base64: match[2] };
 }
+
+export function extractImages(formData: WizardData): ImageInput[] {
+  const images: ImageInput[] = [];
+
+  if (formData.logo?.uploaded && formData.logo.dataUrl) {
+    const p = parseDataUrl(formData.logo.dataUrl);
+    if (p) images.push({ label: "LOGO — use src=\"/logo.png\" for this image in the navbar", placeholder: "/logo.png", ...p });
+  }
+
+  (formData.gallery ?? []).forEach((dataUrl, i) => {
+    if (dataUrl) {
+      const p = parseDataUrl(dataUrl);
+      if (p) images.push({ label: `GALLERY PHOTO ${i + 1} — use src="/gallery-image-${i}"`, placeholder: `/gallery-image-${i}`, ...p });
+    }
+  });
+
+  (formData.galleryMembers ?? []).filter(m => m.photo).forEach((m, i) => {
+    const p = parseDataUrl(m.photo);
+    if (p) images.push({ label: `TEAM PHOTO — ${m.name || `member ${i + 1}`} — use src="/team-photo-${i}"`, placeholder: `/team-photo-${i}`, ...p });
+  });
+
+  Object.entries(formData.pages?.pageDescriptions ?? {}).forEach(([pageId, desc]) => {
+    if (desc?.image) {
+      const p = parseDataUrl(desc.image);
+      if (p) images.push({ label: `SECTION IMAGE for "${pageId}" page — use src="/section-image-${pageId}"`, placeholder: `/section-image-${pageId}`, ...p });
+    }
+  });
+
+  return images;
+}
+
+// ─── Logo / image post-processing ─────────────────────────────────────────────
 
 function embedUploads(code: string, formData: WizardData): string {
   let result = code;
 
-  // Replace /logo.png placeholder
+  // Simple replaceAll handles every syntax variant:
+  //   src="/logo.png"   src='/logo.png'   src={"/logo.png"}
+  //   const x = "/logo.png"   url('/logo.png')   etc.
+
   if (formData.logo?.uploaded && formData.logo.dataUrl) {
-    console.log(`📎 Embedding logo: ${formData.logo.fileName} (${Math.round(formData.logo.dataUrl.length / 1024)} KB)`);
-    result = replacePlaceholder(result, "/logo.png", formData.logo.dataUrl);
+    console.log(`📎 Embedding logo (${Math.round(formData.logo.dataUrl.length / 1024)} KB)`);
+    result = result.replaceAll("/logo.png", formData.logo.dataUrl);
   }
 
-  // Replace per-section image placeholders
-  const descs = formData.pages?.pageDescriptions ?? {};
-  for (const [pageId, desc] of Object.entries(descs)) {
-    if (desc?.image) {
-      result = replacePlaceholder(result, `/section-image-${pageId}`, desc.image);
-    }
-  }
-
-  // Replace gallery image placeholders
-  const gallery = formData.gallery ?? [];
-  gallery.forEach((dataUrl, i) => {
+  (formData.gallery ?? []).forEach((dataUrl, i) => {
     if (dataUrl) {
       console.log(`📎 Embedding gallery-image-${i} (${Math.round(dataUrl.length / 1024)} KB)`);
-      result = replacePlaceholder(result, `/gallery-image-${i}`, dataUrl);
+      result = result.replaceAll(`/gallery-image-${i}`, dataUrl);
     }
   });
 
-  // Replace team photo placeholders (stored in galleryMembers)
-  const teamMembers = formData.galleryMembers ?? [];
-  teamMembers.forEach((m, i) => {
+  (formData.galleryMembers ?? []).forEach((m, i) => {
     if (m.photo) {
       console.log(`📎 Embedding team-photo-${i} (${Math.round(m.photo.length / 1024)} KB)`);
-      result = replacePlaceholder(result, `/team-photo-${i}`, m.photo);
+      result = result.replaceAll(`/team-photo-${i}`, m.photo);
     }
   });
+
 
   return result;
 }
@@ -443,7 +457,9 @@ export async function POST(request: NextRequest) {
     console.log(`🎨 Template: ${formData.templateId || "custom"}`);
     console.log(`🖼️  Logo uploaded: ${formData.logo?.uploaded ? `yes (${formData.logo.fileName})` : "no"}`);
 
-    const rawCode = await generateWebsiteCode(prompt);
+    const images = extractImages(formData);
+    console.log(`🖼️  Passing ${images.length} images to Claude: ${images.map(i => i.label.split(' — ')[0]).join(', ') || 'none'}`);
+    const rawCode = await generateWebsiteCode(prompt, images);
     console.log("✅ Code generated, post-processing uploads...");
     const websiteCode = embedUploads(rawCode, formData);
     console.log("✅ Uploads embedded");
