@@ -483,7 +483,7 @@ export default function Home() {
             <div style={{ fontFamily: P.mono, fontSize: 11, fontWeight: 700, color: P.muted, textTransform: "uppercase" as const, letterSpacing: 0.8, marginBottom: 14 }}>Traditional website</div>
             <div style={{ fontFamily: P.font, fontSize: 32, fontWeight: 700, letterSpacing: -1, marginBottom: 4, color: P.ink }}>€1,000+</div>
             <div style={{ fontFamily: P.font, fontSize: 13, color: P.muted, marginBottom: 22 }}>upfront, plus monthly fees</div>
-            {["Weeks of back-and-forth","Locked inside a closed platform","Small changes = extra invoices","You don't fully own the result"].map(s => (
+            {["Weeks of back-and-forth","Locked inside a closed platform","Changes of generated websites are not available","You don't fully own the result"].map(s => (
               <div key={s} style={{ display: "flex", gap: 10, padding: "8px 0", fontFamily: P.font, fontSize: 14, color: P.inkSoft, borderBottom: `1px solid ${P.line}` }}>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke={P.six} strokeWidth="1.6" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 1 }}><path d="M4 4l8 8M12 4l-8 8"/></svg>
                 {s}

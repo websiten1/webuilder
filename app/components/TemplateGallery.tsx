@@ -320,17 +320,65 @@ const TEMPLATES: Template[] = [
 
 const CATEGORIES = ["All", "Healthcare", "Fitness", "Wellness", "Education", "Food & Drink", "Restaurant", "Beauty", "Legal", "Property", "Automotive", "Retail", "Creative", "Media", "Technology"];
 
-/* ─── Colour swatch preview (replaces iframe preview) ───────────────────────── */
+/* ─── Lazy iframe preview ────────────────────────────────────────────────────── */
+const IFRAME_RENDER_W = 1280; // virtual desktop width the template is built for
+
 function CardPreview({ template, cardWidth }: { template: Template; cardWidth: number }) {
-  const displayH = Math.round(cardWidth * 0.6);
-  return (
+  const displayH = Math.round(cardWidth * 0.62);
+  const scale     = cardWidth / IFRAME_RENDER_W;
+  const iframeH   = Math.round(displayH / scale);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  const [loaded,  setLoaded]  = useState(false);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { rootMargin: "200px" }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const swatch = (
     <div style={{
-      width: cardWidth, height: displayH, overflow: "hidden", position: "relative",
-      background: `linear-gradient(150deg, ${template.accent}55 0%, ${template.dark ? "#111" : "#f5f3ef"} 100%)`,
+      position: "absolute", inset: 0,
+      background: `linear-gradient(150deg, ${template.accent}44 0%, ${template.dark ? "#111" : "#f5f3ef"} 100%)`,
       display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 8,
+      transition: "opacity 0.3s",
+      opacity: loaded ? 0 : 1,
+      pointerEvents: "none",
+      zIndex: 2,
     }}>
-      <div style={{ width: 36, height: 36, borderRadius: "50%", background: template.accent, opacity: 0.85, boxShadow: `0 4px 16px ${template.accent}66` }}/>
-      <div style={{ fontFamily: "system-ui,sans-serif", fontSize: 11, fontWeight: 600, color: template.dark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.35)", letterSpacing: 0.5 }}>{template.category}</div>
+      <div style={{ width: 32, height: 32, borderRadius: "50%", background: template.accent, opacity: 0.8 }}/>
+      <div style={{ fontFamily: "system-ui,sans-serif", fontSize: 10, fontWeight: 600, color: template.dark ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.3)", letterSpacing: 0.5 }}>{template.category}</div>
+    </div>
+  );
+
+  return (
+    <div ref={containerRef} style={{ width: cardWidth, height: displayH, overflow: "hidden", position: "relative", background: template.dark ? "#111" : "#f5f3ef" }}>
+      {swatch}
+      {visible && (
+        <iframe
+          src={`/templates/${template.file}`}
+          title={template.name}
+          scrolling="no"
+          tabIndex={-1}
+          onLoad={() => setLoaded(true)}
+          style={{
+            width:  IFRAME_RENDER_W,
+            height: iframeH,
+            border: "none",
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+            pointerEvents: "none",
+            display: "block",
+          }}
+        />
+      )}
     </div>
   );
 }
