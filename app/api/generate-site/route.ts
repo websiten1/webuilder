@@ -459,8 +459,8 @@ export async function POST(request: NextRequest) {
         staticImages,
       });
 
-      const siteUrl = `https://${deployment.url}`;
       const vercelProjectId = deployment.projectId ?? existingSite.vercel_project_id!;
+      const siteUrl = `https://${existingSite.vercel_project_id}.vercel.app`;
 
       await updateSiteAfterRegeneration(
         editSiteId,
