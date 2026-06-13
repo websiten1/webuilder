@@ -39,7 +39,7 @@ export async function generateWebsiteCode(prompt: string): Promise<string> {
 
   const response = await client.messages.create({
     model: "claude-opus-4-7",
-    max_tokens: 16000,
+    max_tokens: 32000,
     system: `You are an elite web developer and UI/UX designer specialising in Next.js. Your job is to generate a single, complete, production-ready Next.js page component.
 
 STRICT RULES:
@@ -52,13 +52,20 @@ STRICT RULES:
 7. Include realistic, specific placeholder copy (not "Lorem ipsum") tailored to the business type.
 8. Add smooth CSS transitions on hover, scroll animations via CSS @keyframes where appropriate.
 9. Make it fully responsive with appropriate media queries inside the <style> tag.
-10. Include a sticky nav, a compelling hero section, all requested pages/sections, and a footer.`,
+10. Include a sticky nav, a compelling hero section, all requested pages/sections, and a footer.
+11. CRITICAL: The return() statement and closing brace of the default export MUST be the very last lines of the file. Never truncate the JSX. Always close every tag, every JSX expression, and the function itself.
+12. CRITICAL: Never use bare <> fragments as the root — wrap JSX in a single <div> root element.
+13. CRITICAL: All template literals inside JSX must be completely closed. Never mix unescaped < or > characters inside template literals — use &lt; / &gt; instead.`,
     messages: [{ role: "user", content: prompt }],
   });
 
   const textBlock = response.content.find((b) => b.type === "text");
   if (!textBlock || textBlock.type !== "text") {
     throw new Error("No text content in Claude response");
+  }
+
+  if (response.stop_reason === "max_tokens") {
+    throw new Error("Generated code was too long and got cut off. Please try again or simplify your requirements.");
   }
 
   return stripCodeFences(textBlock.text);
