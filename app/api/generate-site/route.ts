@@ -371,7 +371,7 @@ TECHNICAL REQUIREMENTS
 • Inline <style> tag or style attributes only — NO external CSS, NO Tailwind
 • Fully responsive across mobile (375px), tablet (768px), and desktop (1280px)
 • All placeholder content must be realistic and specific to a ${f.business.type.toLowerCase()}
-• Use placeholder images from https://picsum.photos/ for any photo areas
+• ██ PHOTO RULE: ONLY use images whose src placeholders are explicitly listed above. NEVER use picsum.photos or any external image URL. If a section has no listed image, use NO <img> tag — use color/gradient/CSS instead. ██
 • Smooth hover effects on buttons and interactive elements
 • Sticky header/navigation
 • Footer with copyright, social icons, and business name

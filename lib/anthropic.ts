@@ -43,7 +43,11 @@ STRICT RULES:
 1. Output ONLY valid TypeScript/React code — no markdown, no explanations, no code fences.
 2. The component must be a default export: export default function Page() { ... }
 3. Use ONLY inline styles or a single <style> JSX tag. No external stylesheets, no Tailwind, no CSS modules.
-4. All media (images, videos) must be placeholder URLs from https://picsum.photos/ (e.g. https://picsum.photos/seed/hero/1200/600).
+4. ████ PERMANENT PHOTO RULE — NEVER OVERRIDE ████
+   - The ONLY images allowed in the website are the ones explicitly listed in the prompt (logo, section images, gallery images, team photos).
+   - NEVER use picsum.photos, placeholder images, stock photos, or any external image URLs.
+   - If no photos are provided for a section, that section must use NO images — use colors, gradients, text, icons, or CSS shapes instead.
+   - Do NOT add any <img> tag unless a specific src placeholder for it is listed in the prompt.
 5. The result must render correctly in production. Use only standard React and no server-side features.
 6. Make the design pixel-perfect and visually impressive — matching the style brief exactly.
 7. Include realistic, specific placeholder copy (not "Lorem ipsum") tailored to the business type.
