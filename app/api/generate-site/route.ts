@@ -121,6 +121,26 @@ function embedUploads(code: string, formData: WizardData): string {
     }
   }
 
+  // Replace gallery image placeholders
+  const gallery = formData.gallery ?? [];
+  gallery.forEach((dataUrl, i) => {
+    if (dataUrl) {
+      result = result
+        .replace(new RegExp(`src="/gallery-image-${i}"`, "g"), `src="${dataUrl}"`)
+        .replace(new RegExp(`src='/gallery-image-${i}'`, "g"), `src='${dataUrl}'`);
+    }
+  });
+
+  // Replace team photo placeholders (stored in galleryMembers)
+  const teamMembers = formData.galleryMembers ?? [];
+  teamMembers.forEach((m, i) => {
+    if (m.photo) {
+      result = result
+        .replace(new RegExp(`src="/team-photo-${i}"`, "g"), `src="${m.photo}"`)
+        .replace(new RegExp(`src='/team-photo-${i}'`, "g"), `src='${m.photo}'`);
+    }
+  });
+
   return result;
 }
 
@@ -232,6 +252,16 @@ function buildPrompt(f: WizardData): string {
     "ai-decide": "appropriate animations for the chosen style",
   };
 
+  // Team members are stored in galleryMembers in the wizard
+  const teamMembers = (f.galleryMembers ?? []).filter(m => m.name?.trim());
+  const galleryImages = (f.gallery ?? []).filter(Boolean);
+  const socials = f.socials ?? {};
+  const socialEntries = Object.entries(socials).filter(([, v]) => v?.trim());
+
+  // Services: prefer detailed serviceItems[], fall back to simple list[]
+  const serviceItems = (f.services.serviceItems ?? []).filter(s => s.name?.trim());
+  const simpleList = (f.services.list ?? []).filter(Boolean);
+
   return `Create a complete, professional, production-ready Next.js website for a ${f.business.type.toLowerCase()} business.
 ${f.templateId ? getTemplateDesignSpec(f.templateId) : ""}
 ════════════════════════════════════════════════
@@ -239,7 +269,7 @@ BUSINESS DETAILS
 ════════════════════════════════════════════════
 Business name: ${f.business.name}
 Business type: ${f.business.type}
-Description: ${f.business.description}${f.business.location ? `\nLocation: ${f.business.location}` : ""}${f.business.serviceArea ? `\nService area: ${f.business.serviceArea}` : ""}${f.business.openingHours ? `\nOpening hours: ${f.business.openingHours}` : ""}${f.business.email ? `\nEmail: ${f.business.email}` : ""}${f.business.phone ? `\nPhone: ${f.business.phone}` : ""}${f.business.ownerName ? `\nOwner/contact name: ${f.business.ownerName}` : ""}
+Description: ${f.business.description}${f.business.locationCity || f.business.locationCountry ? `\nLocation: ${[f.business.locationCity, f.business.locationCountry].filter(Boolean).join(", ")}` : f.business.location ? `\nLocation: ${f.business.location}` : ""}${f.business.serviceArea ? `\nService area: ${f.business.serviceArea}` : ""}${f.business.email ? `\nEmail: ${f.business.email}` : ""}${f.business.hasPhone && f.business.phone ? `\nPhone: ${f.business.phone}` : ""}${f.business.ownerName ? `\nOwner/contact name: ${f.business.ownerName}` : ""}${f.business.mapsLink ? `\nGoogle Maps link: ${f.business.mapsLink} — add a "Get directions" button or embedded map section that links to this URL.` : ""}
 
 ════════════════════════════════════════════════
 GOALS & AUDIENCE
@@ -249,7 +279,9 @@ ${f.goals.mainGoal ? `Primary website goal: ${f.goals.mainGoal}` : ""}${f.goals.
 ════════════════════════════════════════════════
 SERVICES & PRICING
 ════════════════════════════════════════════════
-${f.services.offersType ? `Offers: ${f.services.offersType}` : ""}${f.services.list.filter(Boolean).length > 0 ? `\nMain services / products:\n${f.services.list.filter(Boolean).map(s => `• ${s}`).join("\n")}` : ""}${f.services.priceVisibility ? `\nPricing display: ${f.services.priceVisibility}` : ""}
+${f.services.offersType ? `Offers: ${f.services.offersType}` : ""}
+${serviceItems.length > 0 ? `Services (use these EXACTLY — do not invent others):\n${serviceItems.map(s => `• ${s.name}${s.description ? ` — ${s.description}` : ""}${s.callForPrice ? " (price: call for quote)" : s.price ? ` (price: ${s.price})` : ""}`).join("\n")}` : simpleList.length > 0 ? `Main services / products:\n${simpleList.map(s => `• ${s}`).join("\n")}` : ""}
+${f.services.priceVisibility ? `Pricing display: ${f.services.priceVisibility}` : ""}
 
 ════════════════════════════════════════════════
 DESIGN & VISUAL IDENTITY
@@ -304,11 +336,26 @@ Content tone: ${toneMap[f.pages.contentTone] || f.pages.contentTone}
 Website language: ${f.websiteLanguage || "English"} — ALL copy, headings, labels, and text on the website MUST be written entirely in ${f.websiteLanguage || "English"}. Do not include any English unless the target language IS English.
 Emojis: ${f.useEmojis ? "Yes — use emojis tastefully throughout headings and copy for personality" : "No — keep it professional, no emojis"}
 
-${f.team?.enabled && f.team.members.length > 0 ? `════════════════════════════════════════════════
+${socialEntries.length > 0 ? `════════════════════════════════════════════════
+SOCIAL MEDIA LINKS
+════════════════════════════════════════════════
+Include clickable social media icons in the footer (and optionally in the nav) linking to these EXACT URLs:
+${socialEntries.map(([platform, url]) => `• ${platform}: ${url}`).join("\n")}
+Do NOT invent social links. Only include the ones listed above.` : ""}
+
+${galleryImages.length > 0 ? `════════════════════════════════════════════════
+PHOTO GALLERY
+════════════════════════════════════════════════
+The user uploaded ${galleryImages.length} real photos for the gallery section.
+Use these EXACT placeholder src values — they will be automatically replaced with the real photos:
+${galleryImages.map((_, i) => `• src="/gallery-image-${i}"`).join("\n")}
+Display them in a responsive photo grid or gallery section. Do NOT use picsum for these — use only the /gallery-image-N placeholders above.` : ""}
+
+${teamMembers.length > 0 ? `════════════════════════════════════════════════
 TEAM MEMBERS
 ════════════════════════════════════════════════
-Include a team section featuring these people:
-${f.team.members.map((m, i) => `${i+1}. ${m.name}${m.role ? ` — ${m.role}` : ""}${m.bio ? `\n   Bio: ${m.bio}` : ""}`).join("\n")}` : ""}
+Include a team section featuring EXACTLY these people (do not invent others):
+${teamMembers.map((m, i) => `${i+1}. ${m.name}${m.role ? ` — ${m.role}` : ""}${m.photo ? `\n   Photo: use exactly src="/team-photo-${i}" — it will be replaced with the real photo automatically.` : ""}`).join("\n")}` : ""}
 
 ════════════════════════════════════════════════
 FEATURES & BEHAVIOUR

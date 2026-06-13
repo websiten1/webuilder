@@ -29,19 +29,18 @@ function SuccessContent() {
           throw new Error(err.error || "Payment verification failed.");
         }
 
-        // 2. Load wizard data — localStorage first, server draft as fallback
-        const raw = localStorage.getItem("wizard_data");
+        // 2. Load wizard data — server draft first (has full images), localStorage as fallback
         let formData = null;
-        if (raw) {
-          try { formData = JSON.parse(raw); } catch { /* ignore */ }
-        }
-        if (!formData) {
-          // Fallback: fetch the draft saved to the server before payment
+        try {
           const draftRes = await fetch("/api/wizard/save-draft");
           if (draftRes.ok) {
             const { data } = await draftRes.json();
-            formData = data;
+            if (data) formData = data;
           }
+        } catch { /* ignore */ }
+        if (!formData) {
+          const raw = localStorage.getItem("wizard_data");
+          if (raw) { try { formData = JSON.parse(raw); } catch { /* ignore */ } }
         }
         if (!formData) {
           throw new Error("Wizard data not found. Please contact support — your payment was received.");
