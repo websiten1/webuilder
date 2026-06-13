@@ -98,26 +98,43 @@ production version of this template for the user's specific business.
 
 // ─── Logo / image post-processing ─────────────────────────────────────────────
 
+function replacePlaceholder(code: string, placeholder: string, dataUrl: string): string {
+  // Escape the placeholder for use in a regex
+  const esc = placeholder.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  // Handle all syntactic forms Claude might generate:
+  //   src="/placeholder"           (plain HTML attr, double quotes)
+  //   src='/placeholder'           (plain HTML attr, single quotes)
+  //   src={"/placeholder"}         (JSX expression, double quotes)
+  //   src={'/placeholder'}         (JSX expression, single quotes)
+  //   url("/placeholder")          (CSS background, double quotes)
+  //   url('/placeholder')          (CSS background, single quotes)
+  //   url(/placeholder)            (CSS background, no quotes)
+  return code
+    .replace(new RegExp(`src=\\"${esc}\\"`, "g"), `src="${dataUrl}"`)
+    .replace(new RegExp(`src='${esc}'`, "g"), `src='${dataUrl}'`)
+    .replace(new RegExp(`src=\\{"\\"${esc}\\"\\"\\}`, "g"), `src="${dataUrl}"`)
+    .replace(new RegExp(`src=\\{"${esc}"\\}`, "g"), `src="${dataUrl}"`)
+    .replace(new RegExp(`src=\\{'${esc}'\\}`, "g"), `src="${dataUrl}"`)
+    .replace(new RegExp(`url\\("${esc}"\\)`, "g"), `url("${dataUrl}")`)
+    .replace(new RegExp(`url\\('${esc}'\\)`, "g"), `url('${dataUrl}')`)
+    .replace(new RegExp(`url\\(${esc}\\)`, "g"), `url(${dataUrl})`);
+}
+
 function embedUploads(code: string, formData: WizardData): string {
   let result = code;
 
-  // Replace /logo.png placeholder with the actual uploaded logo data URL
+  // Replace /logo.png placeholder
   if (formData.logo?.uploaded && formData.logo.dataUrl) {
-    const logoDataUrl = formData.logo.dataUrl;
-    console.log(`📎 Embedding logo: ${formData.logo.fileName} (${Math.round(logoDataUrl.length / 1024)} KB as base64)`);
-    result = result
-      .replace(/src="\/logo\.png"/g, `src="${logoDataUrl}"`)
-      .replace(/src='\/logo\.png'/g, `src='${logoDataUrl}'`);
+    console.log(`📎 Embedding logo: ${formData.logo.fileName} (${Math.round(formData.logo.dataUrl.length / 1024)} KB)`);
+    result = replacePlaceholder(result, "/logo.png", formData.logo.dataUrl);
   }
 
-  // Replace per-section image placeholders with uploaded images
+  // Replace per-section image placeholders
   const descs = formData.pages?.pageDescriptions ?? {};
   for (const [pageId, desc] of Object.entries(descs)) {
     if (desc?.image) {
-      const placeholder = `/section-image-${pageId}`;
-      result = result
-        .replace(new RegExp(`src="${placeholder}[^"]*"`, "g"), `src="${desc.image}"`)
-        .replace(new RegExp(`src='${placeholder}[^']*'`, "g"), `src='${desc.image}'`);
+      result = replacePlaceholder(result, `/section-image-${pageId}`, desc.image);
     }
   }
 
@@ -125,9 +142,8 @@ function embedUploads(code: string, formData: WizardData): string {
   const gallery = formData.gallery ?? [];
   gallery.forEach((dataUrl, i) => {
     if (dataUrl) {
-      result = result
-        .replace(new RegExp(`src="/gallery-image-${i}"`, "g"), `src="${dataUrl}"`)
-        .replace(new RegExp(`src='/gallery-image-${i}'`, "g"), `src='${dataUrl}'`);
+      console.log(`📎 Embedding gallery-image-${i} (${Math.round(dataUrl.length / 1024)} KB)`);
+      result = replacePlaceholder(result, `/gallery-image-${i}`, dataUrl);
     }
   });
 
@@ -135,9 +151,8 @@ function embedUploads(code: string, formData: WizardData): string {
   const teamMembers = formData.galleryMembers ?? [];
   teamMembers.forEach((m, i) => {
     if (m.photo) {
-      result = result
-        .replace(new RegExp(`src="/team-photo-${i}"`, "g"), `src="${m.photo}"`)
-        .replace(new RegExp(`src='/team-photo-${i}'`, "g"), `src='${m.photo}'`);
+      console.log(`📎 Embedding team-photo-${i} (${Math.round(m.photo.length / 1024)} KB)`);
+      result = replacePlaceholder(result, `/team-photo-${i}`, m.photo);
     }
   });
 

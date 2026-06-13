@@ -1011,9 +1011,9 @@ function Step04TypeImagery({ data, setData, lang }: { data: WizardData; setData:
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    const reader = new FileReader();
-    reader.onload = ev => setData(p => ({ ...p, logo: { uploaded: true, dataUrl: ev.target?.result as string, fileName: f.name } }));
-    reader.readAsDataURL(f);
+    readPhotoAsDataUrl(f, 800, dataUrl =>
+      setData(p => ({ ...p, logo: { uploaded: true, dataUrl, fileName: f.name } }))
+    );
   };
 
   return (

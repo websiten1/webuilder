@@ -48,6 +48,11 @@ STRICT RULES:
    - NEVER use picsum.photos, placeholder images, stock photos, or any external image URLs.
    - If no photos are provided for a section, that section must use NO images — use colors, gradients, text, icons, or CSS shapes instead.
    - Do NOT add any <img> tag unless a specific src placeholder for it is listed in the prompt.
+   - IMAGE SRC FORMAT: Always write src as a plain HTML string attribute, NEVER as a JSX expression.
+     RIGHT:  <img src="/gallery-image-0" alt="..." />
+     WRONG:  <img src={"/gallery-image-0"} alt="..." />
+     RIGHT (CSS):  backgroundImage: "url('/gallery-image-0')"
+     The placeholders will be swapped with real image data automatically — do not change their format.
 5. The result must render correctly in production. Use only standard React and no server-side features.
 6. Make the design pixel-perfect and visually impressive — matching the style brief exactly.
 7. Include realistic, specific placeholder copy (not "Lorem ipsum") tailored to the business type.
