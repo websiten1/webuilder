@@ -57,7 +57,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Verify session error:", error);
-    return NextResponse.json({ error: "Failed to verify payment. Please contact support." }, { status: 500 });
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("Verify session error:", msg);
+    return NextResponse.json({ error: `Verification failed: ${msg}` }, { status: 500 });
   }
 }
