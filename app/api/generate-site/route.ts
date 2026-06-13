@@ -146,29 +146,30 @@ export function extractImages(formData: WizardData): ImageInput[] {
 function embedUploads(code: string, formData: WizardData): string {
   let result = code;
 
-  // Simple replaceAll handles every syntax variant:
-  //   src="/logo.png"   src='/logo.png'   src={"/logo.png"}
-  //   const x = "/logo.png"   url('/logo.png')   etc.
+  const embed = (placeholder: string, dataUrl: string) => {
+    if (result.includes(placeholder)) {
+      result = result.replaceAll(placeholder, dataUrl);
+      console.log(`📎 Replaced ${placeholder} (${Math.round(dataUrl.length / 1024)} KB)`);
+    } else {
+      console.warn(`⚠️  Placeholder not found in generated code: ${placeholder}`);
+    }
+  };
 
   if (formData.logo?.uploaded && formData.logo.dataUrl) {
-    console.log(`📎 Embedding logo (${Math.round(formData.logo.dataUrl.length / 1024)} KB)`);
-    result = result.replaceAll("/logo.png", formData.logo.dataUrl);
+    embed("/logo.png", formData.logo.dataUrl);
   }
 
   (formData.gallery ?? []).forEach((dataUrl, i) => {
-    if (dataUrl) {
-      console.log(`📎 Embedding gallery-image-${i} (${Math.round(dataUrl.length / 1024)} KB)`);
-      result = result.replaceAll(`/gallery-image-${i}`, dataUrl);
-    }
+    if (dataUrl) embed(`/gallery-image-${i}`, dataUrl);
   });
 
   (formData.galleryMembers ?? []).forEach((m, i) => {
-    if (m.photo) {
-      console.log(`📎 Embedding team-photo-${i} (${Math.round(m.photo.length / 1024)} KB)`);
-      result = result.replaceAll(`/team-photo-${i}`, m.photo);
-    }
+    if (m.photo) embed(`/team-photo-${i}`, m.photo);
   });
 
+  Object.entries(formData.pages?.pageDescriptions ?? {}).forEach(([pageId, desc]) => {
+    if (desc?.image) embed(`/section-image-${pageId}`, desc.image);
+  });
 
   return result;
 }

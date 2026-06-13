@@ -95,7 +95,17 @@ STRICT RULES:
 11. CRITICAL: The return() statement and closing brace of the default export MUST be the very last lines of the file. Never truncate the JSX. Always close every tag, every JSX expression, and the function itself.
 12. CRITICAL: Never use bare <> fragments as the root — wrap JSX in a single <div> root element.
 13. CRITICAL — TEMPLATE LITERALS: Every backtick you open MUST be closed. Never leave a template literal unclosed. Double-check every backtick pair before finishing — unclosed template literals are the most common cause of build failures.
-14. CRITICAL — QUOTES IN JSX STYLE PROPS: Inside style={{ }} objects use double-quoted strings. Never use single-quoted strings for values that contain apostrophes.`;
+14. CRITICAL — QUOTES IN JSX STYLE PROPS: Inside style={{ }} objects use double-quoted strings. Never use single-quoted strings for values that contain apostrophes.
+15. ████ NO CONTACT/BOOKING FORMS — PERMANENT RULE ████
+    NEVER generate any HTML <form>, input fields, textarea, or booking widget for contacting the business.
+    We have no backend to receive form submissions — any form would silently fail and mislead users.
+    Instead, always use the CTA method the user specified: a phone call link (tel:), an email link (mailto:),
+    or a WhatsApp link (https://wa.me/...). A clickable button or link is the ONLY acceptable contact CTA.
+16. ████ GALLERY IMAGES — ALL MUST APPEAR ████
+    If gallery image placeholders are provided (e.g. /gallery-image-0, /gallery-image-1, …), you MUST
+    include EVERY single one as an <img> element in the gallery section. Do not skip any.
+    Each placeholder must appear exactly once in a src attribute in the generated code.
+    If 5 gallery images are provided, the gallery section must contain exactly 5 <img> elements.`;
 
 async function generateOnce(
   client: Anthropic,

@@ -453,7 +453,7 @@ const SOC_ICON_MAP: Record<string, React.ReactNode> = {
 
 const GALLERY_MAX = 12;
 
-function readPhotoAsDataUrl(file: File, maxDim: number, cb: (src: string) => void) {
+function readPhotoAsDataUrl(file: File, maxDim: number, cb: (src: string) => void, format: "jpeg" | "png" = "jpeg") {
   const url = URL.createObjectURL(file);
   const img = new Image();
   img.onload = () => {
@@ -462,9 +462,15 @@ function readPhotoAsDataUrl(file: File, maxDim: number, cb: (src: string) => voi
     const h = Math.max(1, Math.round(img.height * k));
     const canvas = document.createElement("canvas");
     canvas.width = w; canvas.height = h;
-    canvas.getContext("2d")?.drawImage(img, 0, 0, w, h);
+    const ctx = canvas.getContext("2d")!;
+    if (format === "jpeg") {
+      // Fill white background for JPEG (no transparency support)
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, w, h);
+    }
+    ctx.drawImage(img, 0, 0, w, h);
     URL.revokeObjectURL(url);
-    cb(canvas.toDataURL("image/jpeg", 0.72));
+    cb(format === "png" ? canvas.toDataURL("image/png") : canvas.toDataURL("image/jpeg", 0.82));
   };
   img.onerror = () => URL.revokeObjectURL(url);
   img.src = url;
@@ -517,7 +523,7 @@ function TeamMemberRow({ m, onChange, onDelete, lang }: {
         <span className="wf-tp-hint">{m.photo ? tr(lang,"Schimbă","Change") : tr(lang,"Poză","Photo")}</span>
       </button>
       <input ref={photoRef} type="file" accept="image/*" style={{ display:"none" }}
-        onChange={e => { const f = e.target.files?.[0]; if (f) readPhotoAsDataUrl(f, 320, src => onChange({ photo: src })); e.target.value = ""; }} />
+        onChange={e => { const f = e.target.files?.[0]; if (f) readPhotoAsDataUrl(f, 640, src => onChange({ photo: src })); e.target.value = ""; }} />
       <div className="wf-team-fields">
         <input className="wf-input" value={m.name} placeholder={tr(lang,"ex. Dr. Alina Popescu","e.g. Dr. Jane Smith")}
           onChange={e => onChange({ name: e.target.value })} />
@@ -1011,9 +1017,10 @@ function Step04TypeImagery({ data, setData, lang }: { data: WizardData; setData:
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
+    // PNG preserves transparency for logos
     readPhotoAsDataUrl(f, 800, dataUrl =>
       setData(p => ({ ...p, logo: { uploaded: true, dataUrl, fileName: f.name } }))
-    );
+    , "png");
   };
 
   return (
