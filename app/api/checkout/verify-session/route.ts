@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { createSession } from "@/lib/session";
-import { getUserById, markUserPaid } from "@/lib/db";
+import { getSession, createSession } from "@/lib/session";
+import { getUserById, getUserByEmail, markUserPaid } from "@/lib/db";
 
 function getStripe() {
   const key = process.env.STRIPE_SECRET_KEY;
@@ -25,19 +25,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Payment has not been completed yet." }, { status: 400 });
     }
 
-    // Resolve the user from the Stripe session (no auth cookie needed — the
-    // session may have expired while the user was on Stripe's checkout page).
-    const userId = checkoutSession.metadata?.userId || checkoutSession.client_reference_id;
-    if (!userId) {
-      return NextResponse.json({ error: "Could not identify user from payment." }, { status: 400 });
+    // 1. Try metadata / client_reference_id (set by Checkout Session API)
+    const metaUserId = checkoutSession.metadata?.userId || checkoutSession.client_reference_id;
+
+    // 2. Try active session cookie (set when user logged in)
+    const authSession = await getSession();
+
+    // 3. Try email from Stripe (works with Payment Links)
+    const stripeEmail = checkoutSession.customer_details?.email || checkoutSession.customer_email;
+
+    let user = null;
+
+    if (metaUserId) {
+      user = await getUserById(metaUserId);
+    }
+    if (!user && authSession?.userId) {
+      user = await getUserById(authSession.userId);
+    }
+    if (!user && stripeEmail) {
+      user = await getUserByEmail(stripeEmail);
     }
 
-    const user = await getUserById(userId);
     if (!user) {
-      return NextResponse.json({ error: "User not found." }, { status: 404 });
+      return NextResponse.json({ error: "Could not identify user from payment. Please log in and try again." }, { status: 400 });
     }
 
-    await markUserPaid(userId, sessionId, checkoutSession.customer as string | null);
+    await markUserPaid(user.id, sessionId, checkoutSession.customer as string | null);
 
     // Re-issue a fresh session so the subsequent generate-site call succeeds.
     await createSession({ userId: user.id, emailVerified: user.email_verified, paymentStatus: "paid" });
