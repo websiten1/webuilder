@@ -104,87 +104,9 @@ function TermsGate({ onAgree }: { onAgree: () => void }) {
   );
 }
 
-// ─── Vercel Gate ──────────────────────────────────────────────────────────────
-
-function VercelGate({ onConnected }: { onConnected: () => void }) {
-  const [token, setToken] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [err, setErr] = useState("");
-
-  const handleSave = async () => {
-    if (!token.trim()) return;
-    setSaving(true); setErr("");
-    try {
-      const res = await fetch("/api/auth/vercel/save-token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: token.trim() }),
-      });
-      const body = await res.json();
-      if (!res.ok) throw new Error(body.error || "Could not save token.");
-      onConnected();
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : "Error");
-    } finally { setSaving(false); }
-  };
-
-  return (
-    <Gate>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 28 }}>
-        <div style={{ width: 32, height: 32, borderRadius: 9, background: C.ink, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <span style={{ fontFamily: C.font, fontSize: 20, fontWeight: 800, color: C.accent, lineHeight: 1 }}>6</span>
-        </div>
-        <span style={{ fontSize: 17, fontWeight: 700, color: C.ink, letterSpacing: -0.4 }}>in<span style={{ color: C.accent }}>six</span>live</span>
-      </div>
-
-      <h1 style={{ fontSize: 22, fontWeight: 700, color: C.ink, letterSpacing: -0.5, marginBottom: 8 }}>Connect your Vercel account</h1>
-      <p style={{ fontSize: 14.5, color: C.muted, lineHeight: 1.6, marginBottom: 24 }}>
-        Your website will be deployed directly to your own Vercel account. Connect it now before you start building.
-      </p>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 24 }}>
-        {[
-          { n: "1", text: "Create a free account at vercel.com if you don't have one", href: "https://vercel.com/signup" },
-          { n: "2", text: 'Go to vercel.com/account/tokens → click "Create Token" → copy it', href: "https://vercel.com/account/tokens" },
-          { n: "3", text: "Paste the token below and click Connect", href: null },
-        ].map(({ n, text, href }) => (
-          <div key={n} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-            <span style={{ flexShrink: 0, width: 24, height: 24, borderRadius: "50%", background: C.accent, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800 }}>{n}</span>
-            <span style={{ fontSize: 13.5, color: C.ink, lineHeight: 1.5 }}>
-              {text}
-              {href && <> — <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: C.accent, fontWeight: 600 }}>open →</a></>}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-        <input
-          value={token}
-          onChange={e => setToken(e.target.value)}
-          placeholder="Paste your Vercel token here…"
-          style={{ flex: 1, height: 44, borderRadius: 10, border: `1px solid ${C.border}`, padding: "0 14px", fontFamily: C.mono, fontSize: 13, outline: "none", color: C.ink, background: C.bg }}
-        />
-        <button type="button" disabled={saving || !token.trim()} onClick={handleSave} style={{
-          height: 44, padding: "0 20px", borderRadius: 10, border: "none",
-          background: token.trim() ? C.ink : C.border, color: token.trim() ? "#fff" : C.muted,
-          fontFamily: C.font, fontSize: 14, fontWeight: 600, cursor: token.trim() ? "pointer" : "default",
-          whiteSpace: "nowrap" as const, flexShrink: 0, transition: "background .15s",
-        }}>
-          {saving ? "Checking…" : "Connect"}
-        </button>
-      </div>
-      {err && <p style={{ fontSize: 12.5, color: "#C43600", marginBottom: 8 }}>{err}</p>}
-      <p style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5 }}>
-        The token is encrypted and only used to deploy your sites. Revoke it any time from your Vercel account settings.
-      </p>
-    </Gate>
-  );
-}
-
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
-type Gate = "loading" | "terms" | "vercel" | "ready";
+type Gate = "loading" | "terms" | "ready";
 
 function GenerateContent() {
   const router = useRouter();
@@ -195,18 +117,11 @@ function GenerateContent() {
   useEffect(() => {
     const termsAgreed = typeof window !== "undefined" && localStorage.getItem("terms_agreed") === "1";
 
-    // Handle return from Vercel OAuth — clean the URL immediately
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("vercel_authorized") === "true") {
-      window.history.replaceState({}, "", "/generate");
-    }
-
     fetch("/api/auth/me")
       .then(r => r.json())
       .then(data => {
         if (!data.user) { router.push("/login"); return; }
         if (!termsAgreed) { setGate("terms"); return; }
-        if (!data.user.vercelAuthorized) { setGate("vercel"); return; }
         setGate("ready");
       })
       .catch(() => router.push("/login"));
@@ -214,19 +129,11 @@ function GenerateContent() {
 
   const handleTermsAgree = () => {
     localStorage.setItem("terms_agreed", "1");
-    // Re-check whether Vercel is connected
-    fetch("/api/auth/me")
-      .then(r => r.json())
-      .then(data => {
-        if (!data.user?.vercelAuthorized) { setGate("vercel"); return; }
-        setGate("ready");
-      })
-      .catch(() => setGate("vercel"));
+    setGate("ready");
   };
 
   if (gate === "loading") return <Spinner />;
   if (gate === "terms")   return <TermsGate onAgree={handleTermsAgree} />;
-  if (gate === "vercel")  return <VercelGate onConnected={() => setGate("ready")} />;
   return <GenerateWizard editSiteId={editSiteId} />;
 }
 

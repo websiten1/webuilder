@@ -444,18 +444,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Site not found." }, { status: 404 });
       }
 
-      // Smart token selection — same logic as edits/process to hit the right account
-      const vercelAuthorizedAt = user.vercel_authorized_at ? new Date(user.vercel_authorized_at) : null;
-      const siteCreatedAt = existingSite.created_at ? new Date(existingSite.created_at) : null;
-      const siteOwnedByUser = !!(user.vercel_access_token && vercelAuthorizedAt && siteCreatedAt && vercelAuthorizedAt < siteCreatedAt);
-      const editToken  = siteOwnedByUser ? (user.vercel_access_token ?? undefined) : process.env.VERCEL_API_TOKEN;
-      const editTeamId = siteOwnedByUser ? (user.vercel_team_id ?? undefined) : undefined;
-
-      console.log(`🔁 Updating site ${editSiteId}, project=${existingSite.vercel_project_id}, token=${siteOwnedByUser ? "user" : "app"}`);
+      console.log(`🔁 Updating site ${editSiteId}, project=${existingSite.vercel_project_id}`);
 
       const deployment = await deployToVercel(existingSite.vercel_project_id!, websiteCode, {
-        userToken: editToken,
-        teamId: editTeamId,
         staticImages,
       });
 
@@ -478,8 +469,6 @@ export async function POST(request: NextRequest) {
     const projectName = siteName.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 63);
     console.log("Deploying to user's Vercel...");
     const deployment = await deployToVercel(projectName, websiteCode, {
-      userToken: user.vercel_access_token ?? undefined,
-      teamId: user.vercel_team_id ?? undefined,
       staticImages,
     });
     const vercelProjectId = deployment.projectId ?? projectName;

@@ -1563,94 +1563,11 @@ function Step09Finishing({ data, setData, lang }: { data: WizardData; setData: R
   );
 }
 
-// ─── Vercel Connect Panel ─────────────────────────────────────────────────────
-
-function VercelConnectPanel({ lang, onConnected }: { lang: Lang; onConnected: () => void }) {
-  const [token, setToken] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [err, setErr] = useState("");
-
-  const handleSave = async () => {
-    if (!token.trim()) return;
-    setSaving(true); setErr("");
-    try {
-      const res = await fetch("/api/auth/vercel/save-token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: token.trim() }),
-      });
-      const body = await res.json();
-      if (!res.ok) throw new Error(body.error || "Could not save token.");
-      onConnected();
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : "Error");
-    } finally { setSaving(false); }
-  };
-
-  return (
-    <div style={{ marginTop:16, padding:"18px 20px", borderRadius:12, background:"var(--wf-surf2)", border:"1px solid var(--wf-border)" }}>
-      <div className="wf-blabel" style={{ marginBottom:12 }}>
-        {tr(lang,"Conectează contul Vercel","Connect your Vercel account")}
-      </div>
-
-      {/* Step-by-step instructions */}
-      <div style={{ display:"flex", flexDirection:"column", gap:8, marginBottom:16 }}>
-        {[
-          { n:"1", text: tr(lang,
-              "Creează un cont gratuit pe vercel.com (dacă nu ai deja)",
-              "Create a free account at vercel.com (if you don't have one)"),
-            href: "https://vercel.com/signup" },
-          { n:"2", text: tr(lang,
-              'Mergi la vercel.com/account/tokens → "Create Token" → copiază token-ul',
-              'Go to vercel.com/account/tokens → "Create Token" → copy the token'),
-            href: "https://vercel.com/account/tokens" },
-          { n:"3", text: tr(lang,
-              "Lipește token-ul mai jos și apasă Conectează",
-              "Paste the token below and click Connect"),
-            href: null },
-        ].map(({ n, text, href }) => (
-          <div key={n} style={{ display:"flex", gap:10, alignItems:"flex-start" }}>
-            <span style={{ flexShrink:0, width:22, height:22, borderRadius:"50%", background:"var(--wf-acc)", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:800 }}>{n}</span>
-            <span style={{ fontSize:13, color:"var(--wf-text2)", lineHeight:1.4 }}>
-              {text}
-              {href && <> — <a href={href} target="_blank" rel="noopener noreferrer" style={{ color:"var(--wf-acc)", fontWeight:600 }}>{tr(lang,"deschide →","open →")}</a></>}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ display:"flex", gap:8 }}>
-        <input
-          className="wf-input"
-          value={token}
-          onChange={e => setToken(e.target.value)}
-          placeholder={tr(lang,"Lipește token-ul Vercel aici…","Paste your Vercel token here…")}
-          style={{ fontFamily:"var(--wf-mono)", fontSize:13 }}
-        />
-        <button type="button" className="wf-btn wf-btn-primary"
-          onClick={handleSave} disabled={saving || !token.trim()}
-          style={{ whiteSpace:"nowrap", flexShrink:0 }}>
-          {saving ? tr(lang,"Se verifică…","Checking…") : tr(lang,"Conectează","Connect")}
-        </button>
-      </div>
-      {err && <p style={{ marginTop:8, fontSize:12.5, color:"#C43600" }}>{err}</p>}
-
-      <p style={{ marginTop:10, fontSize:11.5, color:"var(--wf-text3)", lineHeight:1.5 }}>
-        {tr(lang,
-          "Token-ul este criptat și folosit doar pentru a publica site-urile tale. Îl poți revoca oricând din setările Vercel.",
-          "The token is encrypted and only used to deploy your sites. Revoke it any time from Vercel settings."
-        )}
-      </p>
-    </div>
-  );
-}
-
 // ─── Step 11 — Review ─────────────────────────────────────────────────────────
 
-function Step10Review({ data, goTo, onGenerate, loading, vercelAuthorized, isEditMode, lang, onVercelConnected }: {
+function Step10Review({ data, goTo, onGenerate, loading, isEditMode, lang }: {
   data: WizardData; goTo: (n: number) => void; onGenerate: () => void;
-  loading: boolean; vercelAuthorized: boolean | null; isEditMode: boolean; lang: Lang;
-  onVercelConnected: () => void;
+  loading: boolean; isEditMode: boolean; lang: Lang;
 }) {
   const dash = (v: string | undefined) => v || "—";
   const goals   = lang === "ro" ? MAIN_GOALS_RO   : MAIN_GOALS;
@@ -1767,22 +1684,6 @@ function Step10Review({ data, goTo, onGenerate, loading, vercelAuthorized, isEdi
           </div>
         </div>
       </div>
-
-      <div className="wf-deploy-card">
-        <div className="wf-deploy-ico"><ITriangle /></div>
-        <div style={{ flex: 1 }}>
-          <div className="wf-vh">
-            Vercel {vercelAuthorized
-              ? <><span style={{ color:"var(--wf-ok)" }}>✓ {tr(lang,"conectat","connected")}</span></>
-              : <span style={{ color:"#C43600", fontWeight:500, fontSize:13 }}> — {tr(lang,"neconectat","not connected")}</span>}
-          </div>
-          <div className="wf-vd">{tr(lang,"Site-ul generat se publică direct în propriul tău proiect Vercel. Codul rămâne al tău, pentru totdeauna.","Your generated website deploys directly to your own Vercel project. You keep the code, forever.")}</div>
-        </div>
-      </div>
-
-      {vercelAuthorized === false && (
-        <VercelConnectPanel lang={lang} onConnected={onVercelConnected} />
-      )}
 
       {isEditMode ? (
         <button type="button" className="wf-btn wf-btn-pay" onClick={onGenerate} disabled={loading} style={{ width:"100%" }}>
@@ -1954,7 +1855,6 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
   const [error, setError] = useState("");
   const [countdown, setCountdown] = useState(100);
   const [stageMsg, setStageMsg] = useState("");
-  const [vercelAuthorized, setVercelAuthorized] = useState<boolean | null>(null);
   const [editSiteName, setEditSiteName] = useState("");
   const [showPayment, setShowPayment] = useState(false);
   const [showGenerate, setShowGenerate] = useState(false);
@@ -1967,22 +1867,6 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
     if (!editSiteId) localStorage.setItem("wizard_step", String(step));
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
   }, [step, editSiteId]);
-
-  // Check Vercel auth + handle ?vercel_authorized=true return from OAuth
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("vercel_authorized") === "true") {
-      setVercelAuthorized(true);
-      // Clean the URL without reloading
-      window.history.replaceState({}, "", "/generate");
-    }
-  }, []);
-
-  useEffect(() => {
-    fetch("/api/auth/me").then(r => r.json())
-      .then(d => setVercelAuthorized(d.user?.vercelAuthorized ?? false))
-      .catch(() => setVercelAuthorized(false));
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load edit-mode data
   useEffect(() => {
@@ -2221,8 +2105,7 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
               {step === 10 && (
                 <Step10Review
                   data={data} goTo={goTo} onGenerate={handleReviewGenerate}
-                  loading={loading} vercelAuthorized={vercelAuthorized} isEditMode={isEditMode} lang={lang}
-                  onVercelConnected={() => setVercelAuthorized(true)}
+                  loading={loading} isEditMode={isEditMode} lang={lang}
                 />
               )}
             </div>
