@@ -4,6 +4,7 @@ import "./globals.css";
 import CookieBanner from "@/app/components/CookieBanner";
 import ChatBot from "@/app/components/ChatBot";
 import InactivityWatcher from "@/app/components/InactivityWatcher";
+import { Analytics } from "@vercel/analytics/next";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <InactivityWatcher />
         <CookieBanner />
         <ChatBot />
+        <Analytics />
       </body>
     </html>
   );
