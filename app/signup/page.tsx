@@ -236,7 +236,6 @@ export default function SignupPage() {
 
   const benefits = [
     ["Your Vercel deployment", "Site lives on your own account — not ours"],
-    ["Code on GitHub", "Full source code, yours forever"],
     ["No marketing email", "Only updates about your site"],
     ["Zero lock-in", "Download and host anywhere, anytime"],
   ];
