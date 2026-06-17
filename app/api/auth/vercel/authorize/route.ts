@@ -35,7 +35,6 @@ export async function GET(request: NextRequest) {
   vercelUrl.searchParams.set("state", state);
   vercelUrl.searchParams.set("code_challenge", codeChallenge);
   vercelUrl.searchParams.set("code_challenge_method", "S256");
-  vercelUrl.searchParams.set("scope", "openid email profile offline_access");
 
   const response = NextResponse.redirect(vercelUrl);
   response.cookies.set("vercel_oauth_state", statePayload, {
