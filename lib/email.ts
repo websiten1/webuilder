@@ -18,28 +18,79 @@ export async function sendVerificationCode(
   const from =
     process.env.RESEND_FROM_EMAIL || "inSIXlive <onboarding@resend.dev>";
 
+  const baseUrl = process.env.NEXT_PUBLIC_URL || "https://insixlive.com";
+
   const { data, error } = await resend.emails.send({
     from,
     to: email,
     subject: `${code} is your inSIXlive verification code`,
-    html: `
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"></head>
-<body style="margin:0;padding:0;background:#050510;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#ffffff;">
-  <div style="max-width:480px;margin:48px auto;padding:0 24px;">
-    <p style="font-size:18px;font-weight:700;letter-spacing:-0.02em;margin:0 0 4px;">inSIXlive</p>
-    <div style="margin:32px 0;padding:32px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;">
-      <h1 style="font-size:20px;font-weight:700;margin:0 0 8px;letter-spacing:-0.02em;">Your verification code</h1>
-      <p style="color:rgba(255,255,255,0.55);margin:0 0 24px;font-size:14px;line-height:1.6;">
-        Enter this code on the inSIXlive signup page to verify your email.
-      </p>
-      <div style="background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;">
-        <p style="font-size:42px;font-weight:800;letter-spacing:0.18em;margin:0;color:#fff;font-family:ui-monospace,monospace;">${code}</p>
+    html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>inSIXlive – Verify your email</title>
+  <style>
+    @media (prefers-color-scheme: dark) {
+      body { background: #0a0a0a !important; color: #ffffff !important; }
+      .wrapper { background: #1a1a1a !important; }
+      .header { border-bottom-color: #2a2a2a !important; }
+      .subtitle { color: #b0b0b0 !important; }
+      .code-box { background: #2a2a2a !important; border-color: #3a3a3a !important; }
+      .code-box code { color: #ffffff !important; }
+      .info-box { background: #1f1f1f !important; }
+      .info-text { color: #b0b0b0 !important; }
+      .info-strong { color: #ffffff !important; }
+      .footer { background: #0f0f0f !important; border-top-color: #2a2a2a !important; }
+      .footer-muted { color: #808080 !important; }
+      .footer-link { color: #FF5A1F !important; }
+      .footer-div { color: #333333 !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:20px;background:#f8f8f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1a1a1a;">
+  <div style="max-width:600px;margin:0 auto;">
+    <div class="wrapper" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+
+      <div class="header" style="padding:32px 32px 24px;text-align:center;border-bottom:1px solid #f0f0f0;">
+        <div style="font-size:40px;font-weight:900;color:#FF5A1F;line-height:1;margin-bottom:8px;">6</div>
+        <div style="font-size:20px;font-weight:700;letter-spacing:-0.5px;">inSIXlive</div>
       </div>
-      <p style="margin:0;color:rgba(255,255,255,0.3);font-size:12px;text-align:center;">
-        Expires in 15 minutes. If you didn't sign up, ignore this email.
-      </p>
+
+      <div style="padding:40px 32px;">
+        <h2 style="font-size:28px;font-weight:700;line-height:1.2;margin:0 0 8px;letter-spacing:-0.5px;">Verify your email</h2>
+        <p class="subtitle" style="font-size:16px;line-height:1.5;margin:0 0 32px;color:#666666;">
+          Enter this code to confirm your identity and get started
+        </p>
+
+        <p style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin:0 0 12px;opacity:0.7;">Your verification code</p>
+        <div class="code-box" style="background:#f5f5f5;border:2px solid #e8e8e8;border-radius:12px;padding:24px;text-align:center;">
+          <code style="font-family:'Courier New',monospace;font-size:36px;font-weight:700;letter-spacing:10px;color:#1a1a1a;">${code}</code>
+        </div>
+        <p style="color:#999999;font-size:12px;margin:12px 0 32px;text-align:center;">This code expires in 15 minutes</p>
+
+        <div class="info-box" style="background:#fafafa;border-radius:8px;padding:20px;margin-bottom:32px;">
+          <p class="info-text" style="color:#666666;font-size:14px;line-height:1.6;margin:0;">
+            <strong class="info-strong" style="color:#1a1a1a;">Didn't request this?</strong> If you didn't sign up for an inSIXlive account, you can safely ignore this email. Your email address won't be used without your permission.
+          </p>
+        </div>
+
+        <p style="color:#999999;font-size:13px;line-height:1.6;margin:0;">
+          Need help? Contact our support team at <a href="mailto:support@insixlive.com" style="color:#FF5A1F;text-decoration:none;">support@insixlive.com</a>
+        </p>
+      </div>
+
+      <div class="footer" style="padding:24px 32px;border-top:1px solid #f0f0f0;text-align:center;background:#fafafa;">
+        <p class="footer-muted" style="color:#999999;font-size:12px;line-height:1.5;margin:0 0 12px;">© 2026 inSIXlive. All rights reserved.</p>
+        <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">
+          <a href="${baseUrl}/privacy" class="footer-link" style="color:#FF5A1F;text-decoration:none;font-size:12px;">Privacy Policy</a>
+          <span class="footer-div" style="color:#dddddd;">•</span>
+          <a href="${baseUrl}/terms" class="footer-link" style="color:#FF5A1F;text-decoration:none;font-size:12px;">Terms of Service</a>
+          <span class="footer-div" style="color:#dddddd;">•</span>
+          <a href="mailto:support@insixlive.com" class="footer-link" style="color:#FF5A1F;text-decoration:none;font-size:12px;">Contact Support</a>
+        </div>
+      </div>
+
     </div>
   </div>
 </body>
