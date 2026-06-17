@@ -114,7 +114,7 @@ const VERCEL_ERROR_MESSAGES: Record<string, string> = {
   vercel_not_configured: "Vercel OAuth is not configured. Please contact support.",
 };
 
-function VercelGate({ error }: { error: string | null }) {
+function VercelGate({ error, detail }: { error: string | null; detail: string | null }) {
   return (
     <Gate>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 28 }}>
@@ -132,6 +132,7 @@ function VercelGate({ error }: { error: string | null }) {
       {error && (
         <div style={{ background: "#FFF0EE", border: "1px solid rgba(255,90,31,.2)", borderRadius: 10, padding: "12px 14px", marginBottom: 16, fontSize: 13.5, color: "#C43600", lineHeight: 1.5 }}>
           {VERCEL_ERROR_MESSAGES[error] ?? "Something went wrong. Please try again."}
+          {detail && <div style={{ marginTop: 8, fontFamily: "monospace", fontSize: 11, wordBreak: "break-all", opacity: 0.7 }}>{detail}</div>}
         </div>
       )}
 
@@ -174,6 +175,7 @@ function GenerateContent() {
   const editSiteId = searchParams.get("edit") ?? undefined;
   const vercelJustAuthorized = searchParams.get("vercel_authorized") === "true";
   const vercelError = searchParams.get("error") ?? null;
+  const vercelDetail = searchParams.get("detail") ?? null;
   const [gate, setGate] = useState<Gate>("loading");
 
   useEffect(() => {
@@ -202,7 +204,7 @@ function GenerateContent() {
 
   if (gate === "loading") return <Spinner />;
   if (gate === "terms")   return <TermsGate onAgree={handleTermsAgree} />;
-  if (gate === "vercel")  return <VercelGate error={vercelError} />;
+  if (gate === "vercel")  return <VercelGate error={vercelError} detail={vercelDetail} />;
   return <GenerateWizard editSiteId={editSiteId} />;
 }
 
