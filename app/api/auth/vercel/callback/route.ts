@@ -51,13 +51,24 @@ export async function GET(request: NextRequest) {
 
   const redirectUri = `${baseUrl}/api/auth/vercel/callback`;
 
+  const oauthClientId = process.env.VERCEL_OAUTH_CLIENT_ID;
+  const oauthClientSecret = process.env.VERCEL_OAUTH_CLIENT_SECRET;
+
+  if (!oauthClientId || !oauthClientSecret) {
+    console.error("Missing VERCEL_OAUTH_CLIENT_ID or VERCEL_OAUTH_CLIENT_SECRET env vars");
+    const missing = [!oauthClientId && "CLIENT_ID", !oauthClientSecret && "CLIENT_SECRET"].filter(Boolean).join(",");
+    const detail = encodeURIComponent(`missing_env:${missing}`);
+    return NextResponse.redirect(`${baseUrl}/generate?error=vercel_callback_failed&detail=${detail}`);
+  }
+
   try {
+    console.log("Vercel token exchange → client_id:", oauthClientId.slice(0, 8) + "...", "redirect_uri:", redirectUri);
     const tokenRes = await fetch("https://api.vercel.com/v2/oauth/access_token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
-        client_id: process.env.VERCEL_OAUTH_CLIENT_ID ?? "",
-        client_secret: process.env.VERCEL_OAUTH_CLIENT_SECRET ?? "",
+        client_id: oauthClientId,
+        client_secret: oauthClientSecret,
         code,
         redirect_uri: redirectUri,
       }).toString(),
