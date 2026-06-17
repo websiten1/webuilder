@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateWebsiteCode } from "@/lib/anthropic";
-import { deployToVercel } from "@/lib/vercel";
+import { deployToVercel, getValidVercelToken } from "@/lib/vercel";
 import { getSession } from "@/lib/session";
 import { getUserById, saveSiteWithVercel, getSiteById, updateSiteAfterRegeneration } from "@/lib/db";
 import type { WizardData } from "@/app/components/GenerateWizard";
@@ -415,6 +415,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "User not found." }, { status: 401 });
     }
 
+    const vercelAuth = await getValidVercelToken(resolvedUserId);
+    const userVercelToken = vercelAuth?.token;
+    const userTeamId = vercelAuth?.teamId ?? undefined;
+
     if (!formData) {
       return NextResponse.json({ error: "Missing form data." }, { status: 400 });
     }
@@ -448,6 +452,8 @@ export async function POST(request: NextRequest) {
 
       const deployment = await deployToVercel(existingSite.vercel_project_id!, websiteCode, {
         staticImages,
+        userToken: userVercelToken,
+        teamId: userTeamId,
       });
 
       const vercelProjectId = deployment.projectId ?? existingSite.vercel_project_id!;
@@ -470,6 +476,8 @@ export async function POST(request: NextRequest) {
     console.log("Deploying to user's Vercel...");
     const deployment = await deployToVercel(projectName, websiteCode, {
       staticImages,
+      userToken: userVercelToken,
+      teamId: userTeamId,
     });
     const vercelProjectId = deployment.projectId ?? projectName;
     console.log("✅ Deployed:", deployment.url, "| vercel project id:", vercelProjectId);

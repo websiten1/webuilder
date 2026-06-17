@@ -329,9 +329,11 @@ export async function saveVercelAuth(
   teamId: string | null
 ): Promise<void> {
   const sql = getDb();
+  const { encryptToken } = await import("@/lib/encryption");
+  const encrypted = encryptToken(accessToken);
   await sql`
     UPDATE users
-    SET vercel_access_token = ${accessToken},
+    SET vercel_access_token = ${encrypted},
         vercel_user_id = ${vercelUserId},
         vercel_team_id = ${teamId},
         vercel_authorized = TRUE,
@@ -339,6 +341,25 @@ export async function saveVercelAuth(
         updated_at = NOW()
     WHERE id = ${userId}
   `;
+}
+
+export async function getDecryptedVercelToken(
+  userId: string
+): Promise<{ token: string; teamId: string | null } | null> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT vercel_access_token, vercel_team_id
+    FROM users
+    WHERE id = ${userId} AND vercel_authorized = TRUE
+    LIMIT 1
+  `;
+  const row = rows[0] as { vercel_access_token: string | null; vercel_team_id: string | null } | undefined;
+  if (!row?.vercel_access_token) return null;
+  const { readToken } = await import("@/lib/encryption");
+  return {
+    token: readToken(row.vercel_access_token),
+    teamId: row.vercel_team_id,
+  };
 }
 
 export async function saveSiteWithVercel(

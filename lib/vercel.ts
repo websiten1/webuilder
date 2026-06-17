@@ -2,6 +2,14 @@
 
 export type StaticImage = { path: string; base64: string };
 
+// Returns the user's decrypted OAuth token + teamId, or null if not connected.
+export async function getValidVercelToken(
+  userId: string
+): Promise<{ token: string; teamId: string | null } | null> {
+  const { getDecryptedVercelToken } = await import("@/lib/db");
+  return getDecryptedVercelToken(userId);
+}
+
 export async function deployToVercel(
   projectName: string,
   code: string,
@@ -118,12 +126,13 @@ export async function deployToVercel(
 }
 
 export async function checkDeploymentStatus(
-  deploymentId: string
+  deploymentId: string,
+  userToken?: string
 ): Promise<{ state: string; url?: string }> {
-  const token = process.env.VERCEL_API_TOKEN;
+  const token = userToken ?? process.env.VERCEL_API_TOKEN;
 
   if (!token) {
-    throw new Error("VERCEL_API_TOKEN not set");
+    throw new Error("No Vercel token available for checkDeploymentStatus");
   }
 
   try {

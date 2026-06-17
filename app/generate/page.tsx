@@ -104,14 +104,76 @@ function TermsGate({ onAgree }: { onAgree: () => void }) {
   );
 }
 
+// ─── Vercel Gate ──────────────────────────────────────────────────────────────
+
+const VERCEL_ERROR_MESSAGES: Record<string, string> = {
+  vercel_denied: "You cancelled the Vercel authorisation. Click below to try again.",
+  vercel_state_mismatch: "Something went wrong with the authorisation flow. Please try again.",
+  vercel_no_code: "Vercel did not return an authorisation code. Please try again.",
+  vercel_callback_failed: "The Vercel authorisation failed. Please try again or contact support.",
+  vercel_not_configured: "Vercel OAuth is not configured. Please contact support.",
+};
+
+function VercelGate({ error }: { error: string | null }) {
+  return (
+    <Gate>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 28 }}>
+        <div style={{ width: 32, height: 32, borderRadius: 9, background: C.ink, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ fontFamily: C.font, fontSize: 20, fontWeight: 800, color: C.accent, lineHeight: 1 }}>6</span>
+        </div>
+        <span style={{ fontSize: 17, fontWeight: 700, color: C.ink, letterSpacing: -0.4 }}>in<span style={{ color: C.accent }}>six</span>live</span>
+      </div>
+
+      <h1 style={{ fontSize: 22, fontWeight: 700, color: C.ink, letterSpacing: -0.5, marginBottom: 8 }}>Connect your Vercel account</h1>
+      <p style={{ fontSize: 14.5, color: C.muted, lineHeight: 1.6, marginBottom: 20 }}>
+        Your website will be deployed to your Vercel account. Click below to authorise access — it takes about 10 seconds.
+      </p>
+
+      {error && (
+        <div style={{ background: "#FFF0EE", border: "1px solid rgba(255,90,31,.2)", borderRadius: 10, padding: "12px 14px", marginBottom: 16, fontSize: 13.5, color: "#C43600", lineHeight: 1.5 }}>
+          {VERCEL_ERROR_MESSAGES[error] ?? "Something went wrong. Please try again."}
+        </div>
+      )}
+
+      <div style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 12, padding: "16px 18px", marginBottom: 20, display: "flex", flexDirection: "column", gap: 10 }}>
+        {[
+          { icon: "🔒", text: "We only request access to create and manage your deployments." },
+          { icon: "⚡", text: "Your site goes live on your own Vercel account — you own it completely." },
+          { icon: "🔗", text: "You can revoke access at any time from your Vercel dashboard." },
+        ].map(({ icon, text }) => (
+          <div key={text} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+            <span style={{ fontSize: 16, flexShrink: 0 }}>{icon}</span>
+            <span style={{ fontSize: 13.5, color: C.ink, lineHeight: 1.5 }}>{text}</span>
+          </div>
+        ))}
+      </div>
+
+      <a href="/api/auth/vercel/authorize" style={{
+        display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+        width: "100%", height: 48, borderRadius: 12,
+        background: C.ink, color: "#fff",
+        fontFamily: C.font, fontSize: 15, fontWeight: 600,
+        textDecoration: "none",
+      }}>
+        <svg width="18" height="16" viewBox="0 0 76 65" fill="currentColor">
+          <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" />
+        </svg>
+        Connect with Vercel
+      </a>
+    </Gate>
+  );
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
-type Gate = "loading" | "terms" | "ready";
+type Gate = "loading" | "terms" | "vercel" | "ready";
 
 function GenerateContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editSiteId = searchParams.get("edit") ?? undefined;
+  const vercelJustAuthorized = searchParams.get("vercel_authorized") === "true";
+  const vercelError = searchParams.get("error") ?? null;
   const [gate, setGate] = useState<Gate>("loading");
 
   useEffect(() => {
@@ -121,19 +183,26 @@ function GenerateContent() {
       .then(r => r.json())
       .then(data => {
         if (!data.user) { router.push("/login"); return; }
+        const vercelConnected = data.user.vercelAuthorized || vercelJustAuthorized;
         if (!termsAgreed) { setGate("terms"); return; }
+        if (!vercelConnected) { setGate("vercel"); return; }
         setGate("ready");
       })
       .catch(() => router.push("/login"));
-  }, [router]);
+  }, [router, vercelJustAuthorized]);
 
   const handleTermsAgree = () => {
     localStorage.setItem("terms_agreed", "1");
-    setGate("ready");
+    // Re-check Vercel connection before allowing into the wizard
+    fetch("/api/auth/me").then(r => r.json()).then(data => {
+      const vercelConnected = data.user?.vercelAuthorized || vercelJustAuthorized;
+      setGate(vercelConnected ? "ready" : "vercel");
+    });
   };
 
   if (gate === "loading") return <Spinner />;
   if (gate === "terms")   return <TermsGate onAgree={handleTermsAgree} />;
+  if (gate === "vercel")  return <VercelGate error={vercelError} />;
   return <GenerateWizard editSiteId={editSiteId} />;
 }
 
