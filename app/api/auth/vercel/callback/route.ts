@@ -11,8 +11,10 @@ export async function GET(request: NextRequest) {
   const baseUrl = process.env.NEXT_PUBLIC_URL || new URL(request.url).origin;
 
   if (error) {
-    console.log("Vercel OAuth denied:", error);
-    return NextResponse.redirect(`${baseUrl}/generate?error=vercel_denied`);
+    const errorDesc = searchParams.get("error_description") ?? "";
+    console.log("Vercel OAuth error:", error, errorDesc);
+    const detail = encodeURIComponent(error + (errorDesc ? ":" + errorDesc : ""));
+    return NextResponse.redirect(`${baseUrl}/generate?error=vercel_denied&detail=${detail}`);
   }
 
   // Validate state and extract the userId stored at authorize time.
