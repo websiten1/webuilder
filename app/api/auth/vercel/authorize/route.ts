@@ -15,9 +15,12 @@ export async function GET(request: NextRequest) {
   const redirectUri = `${baseUrl}/api/auth/vercel/callback`;
 
   const state = crypto.randomBytes(16).toString("hex");
+  const codeVerifier = crypto.randomBytes(43).toString("hex");
+  const codeChallenge = crypto
+    .createHash("sha256")
+    .update(codeVerifier)
+    .digest("base64url");
 
-  // If the user is not logged in to insixlive, store intent so the callback
-  // can redirect them to login → then back to /generate (already connected).
   const session = await getSession();
   const statePayload = JSON.stringify({
     state,
@@ -30,9 +33,19 @@ export async function GET(request: NextRequest) {
   vercelUrl.searchParams.set("redirect_uri", redirectUri);
   vercelUrl.searchParams.set("response_type", "code");
   vercelUrl.searchParams.set("state", state);
+  vercelUrl.searchParams.set("code_challenge", codeChallenge);
+  vercelUrl.searchParams.set("code_challenge_method", "S256");
+  vercelUrl.searchParams.set("scope", "openid email profile offline_access");
 
   const response = NextResponse.redirect(vercelUrl);
   response.cookies.set("vercel_oauth_state", statePayload, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 600,
+    path: "/",
+  });
+  response.cookies.set("vercel_code_verifier", codeVerifier, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

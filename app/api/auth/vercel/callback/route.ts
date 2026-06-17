@@ -61,15 +61,19 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${baseUrl}/generate?error=vercel_callback_failed&detail=${detail}`);
   }
 
+  const codeVerifier = request.cookies.get("vercel_code_verifier")?.value;
+
   try {
     console.log("Vercel token exchange → client_id:", oauthClientId.slice(0, 8) + "...", "redirect_uri:", redirectUri);
-    const tokenRes = await fetch("https://api.vercel.com/v2/oauth/access_token", {
+    const tokenRes = await fetch("https://api.vercel.com/login/oauth/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
+        grant_type: "authorization_code",
         client_id: oauthClientId,
         client_secret: oauthClientSecret,
         code,
+        code_verifier: codeVerifier ?? "",
         redirect_uri: redirectUri,
       }).toString(),
     });
@@ -104,6 +108,7 @@ export async function GET(request: NextRequest) {
 
     const response = NextResponse.redirect(`${baseUrl}/generate?vercel_authorized=true`);
     response.cookies.delete("vercel_oauth_state");
+    response.cookies.delete("vercel_code_verifier");
     return response;
   } catch (err) {
     console.error("Vercel callback error:", err);
