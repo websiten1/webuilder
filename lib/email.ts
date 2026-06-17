@@ -16,23 +16,23 @@ export async function sendVerificationCode(
 
   const resend = getResend();
   const from =
-    process.env.RESEND_FROM_EMAIL || "WebBuilder <onboarding@resend.dev>";
+    process.env.RESEND_FROM_EMAIL || "inSIXlive <onboarding@resend.dev>";
 
   const { data, error } = await resend.emails.send({
     from,
     to: email,
-    subject: `${code} is your WebBuilder verification code`,
+    subject: `${code} is your inSIXlive verification code`,
     html: `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
 <body style="margin:0;padding:0;background:#050510;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#ffffff;">
   <div style="max-width:480px;margin:48px auto;padding:0 24px;">
-    <p style="font-size:18px;font-weight:700;letter-spacing:-0.02em;margin:0 0 4px;">WebBuilder</p>
+    <p style="font-size:18px;font-weight:700;letter-spacing:-0.02em;margin:0 0 4px;">inSIXlive</p>
     <div style="margin:32px 0;padding:32px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;">
       <h1 style="font-size:20px;font-weight:700;margin:0 0 8px;letter-spacing:-0.02em;">Your verification code</h1>
       <p style="color:rgba(255,255,255,0.55);margin:0 0 24px;font-size:14px;line-height:1.6;">
-        Enter this code on the WebBuilder signup page to verify your email.
+        Enter this code on the inSIXlive signup page to verify your email.
       </p>
       <div style="background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;">
         <p style="font-size:42px;font-weight:800;letter-spacing:0.18em;margin:0;color:#fff;font-family:ui-monospace,monospace;">${code}</p>
@@ -63,19 +63,19 @@ export async function sendVerificationEmail(
 
   const resend = getResend();
   const from =
-    process.env.RESEND_FROM_EMAIL || "WebBuilder <onboarding@resend.dev>";
+    process.env.RESEND_FROM_EMAIL || "inSIXlive <onboarding@resend.dev>";
 
   const { data, error } = await resend.emails.send({
     from,
     to: email,
-    subject: "Verify your email — WebBuilder",
+    subject: "Verify your email — inSIXlive",
     html: `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
 <body style="margin:0;padding:0;background:#050510;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#ffffff;">
   <div style="max-width:520px;margin:48px auto;padding:0 24px;">
-    <p style="font-size:18px;font-weight:700;letter-spacing:-0.02em;margin:0 0 4px;">WebBuilder</p>
+    <p style="font-size:18px;font-weight:700;letter-spacing:-0.02em;margin:0 0 4px;">inSIXlive</p>
     <div style="margin:32px 0;padding:32px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;">
       <h1 style="font-size:22px;font-weight:700;margin:0 0 8px;letter-spacing:-0.02em;">Verify your email</h1>
       <p style="color:rgba(255,255,255,0.55);margin:0 0 28px;font-size:15px;line-height:1.6;">
@@ -117,7 +117,7 @@ export async function sendEditStartedEmail(
   console.log(`\n[Email] Edit started for ${email}: ${siteName}`);
 
   const resend = getResend();
-  const from = process.env.RESEND_FROM_EMAIL || "WebBuilder <onboarding@resend.dev>";
+  const from = process.env.RESEND_FROM_EMAIL || "inSIXlive <onboarding@resend.dev>";
 
   const { error } = await resend.emails.send({
     from,
@@ -127,7 +127,7 @@ export async function sendEditStartedEmail(
 <!DOCTYPE html><html><head><meta charset="utf-8"></head>
 <body style="margin:0;padding:0;background:#050510;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#ffffff;">
   <div style="max-width:520px;margin:48px auto;padding:0 24px;">
-    <p style="font-size:18px;font-weight:700;letter-spacing:-0.02em;margin:0 0 4px;">WebBuilder</p>
+    <p style="font-size:18px;font-weight:700;letter-spacing:-0.02em;margin:0 0 4px;">inSIXlive</p>
     <div style="margin:32px 0;padding:32px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;">
       <h1 style="font-size:20px;font-weight:700;margin:0 0 8px;">Your changes are being processed</h1>
       <p style="color:rgba(255,255,255,0.55);margin:0 0 20px;font-size:14px;line-height:1.6;">
@@ -160,7 +160,7 @@ export async function sendEditCompletedEmail(
   console.log(`\n[Email] Edit completed for ${email}: ${siteName} v${version}`);
 
   const resend = getResend();
-  const from = process.env.RESEND_FROM_EMAIL || "WebBuilder <onboarding@resend.dev>";
+  const from = process.env.RESEND_FROM_EMAIL || "inSIXlive <onboarding@resend.dev>";
 
   const { error } = await resend.emails.send({
     from,
@@ -170,7 +170,7 @@ export async function sendEditCompletedEmail(
 <!DOCTYPE html><html><head><meta charset="utf-8"></head>
 <body style="margin:0;padding:0;background:#050510;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#ffffff;">
   <div style="max-width:520px;margin:48px auto;padding:0 24px;">
-    <p style="font-size:18px;font-weight:700;letter-spacing:-0.02em;margin:0 0 4px;">WebBuilder</p>
+    <p style="font-size:18px;font-weight:700;letter-spacing:-0.02em;margin:0 0 4px;">inSIXlive</p>
     <div style="margin:32px 0;padding:32px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;">
       <div style="width:48px;height:48px;border-radius:50%;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
         <span style="color:#10b981;font-size:22px;">✓</span>
@@ -207,7 +207,7 @@ export async function sendEditFailedEmail(
   console.log(`\n[Email] Edit failed for ${email}: ${siteName}`);
 
   const resend = getResend();
-  const from = process.env.RESEND_FROM_EMAIL || "WebBuilder <onboarding@resend.dev>";
+  const from = process.env.RESEND_FROM_EMAIL || "inSIXlive <onboarding@resend.dev>";
 
   const { error } = await resend.emails.send({
     from,
@@ -217,7 +217,7 @@ export async function sendEditFailedEmail(
 <!DOCTYPE html><html><head><meta charset="utf-8"></head>
 <body style="margin:0;padding:0;background:#050510;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#ffffff;">
   <div style="max-width:520px;margin:48px auto;padding:0 24px;">
-    <p style="font-size:18px;font-weight:700;letter-spacing:-0.02em;margin:0 0 4px;">WebBuilder</p>
+    <p style="font-size:18px;font-weight:700;letter-spacing:-0.02em;margin:0 0 4px;">inSIXlive</p>
     <div style="margin:32px 0;padding:32px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;">
       <h1 style="font-size:20px;font-weight:700;margin:0 0 8px;">Edit request failed</h1>
       <p style="color:rgba(255,255,255,0.55);margin:0 0 16px;font-size:14px;line-height:1.6;">
@@ -228,7 +228,7 @@ export async function sendEditFailedEmail(
       </p>
       <a href="${retryUrl}" style="display:inline-block;background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px;">Try Again</a>
       <p style="margin:16px 0 0;font-size:12px;color:rgba(255,255,255,0.3);">
-        Questions? Reply to this email or contact support@webbuilder.app
+        Questions? Reply to this email or contact support@insixlive.com
       </p>
     </div>
   </div>
