@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     userId: session?.userId ?? null,
   });
 
-  const vercelUrl = new URL("https://vercel.com/integrations/insixlive/add");
+  const vercelUrl = new URL("https://vercel.com/integrations/insixlive/new");
   vercelUrl.searchParams.set("state", state);
 
   const response = NextResponse.redirect(vercelUrl);
