@@ -116,6 +116,11 @@ export async function getUserByVerificationToken(
   return (rows[0] as User) || null;
 }
 
+export async function updateUserPassword(userId: string, passwordHash: string): Promise<void> {
+  const sql = getDb();
+  await sql`UPDATE users SET password_hash = ${passwordHash}, updated_at = NOW() WHERE id = ${userId}`;
+}
+
 export async function verifyUserEmail(userId: string): Promise<void> {
   const sql = getDb();
   await sql`

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { createUser, getUserByEmail, saveVerificationCode } from "@/lib/db";
+import { createUser, getUserByEmail, saveVerificationCode, updateUserPassword } from "@/lib/db";
 import { sendVerificationCode } from "@/lib/email";
 
 function generateCode(): string {
@@ -42,10 +42,26 @@ export async function POST(request: NextRequest) {
 
     const existing = await getUserByEmail(email.toLowerCase());
     if (existing) {
-      return NextResponse.json(
-        { error: "An account with this email already exists." },
-        { status: 409 }
-      );
+      if (existing.email_verified) {
+        return NextResponse.json(
+          { error: "An account with this email already exists." },
+          { status: 409 }
+        );
+      }
+      // Unverified account — update password and resend code
+      const passwordHash = await bcrypt.hash(password, 12);
+      await updateUserPassword(existing.id, passwordHash);
+      const code = generateCode();
+      const codeExpires = new Date(Date.now() + 15 * 60 * 1000);
+      await saveVerificationCode(existing.id, code, codeExpires);
+      let emailWarning: string | null = null;
+      try {
+        await sendVerificationCode(email.toLowerCase(), code);
+      } catch (emailError) {
+        console.error("Code email failed:", emailError);
+        emailWarning = "Could not send the verification code. Please try again.";
+      }
+      return NextResponse.json({ success: true, emailWarning: emailWarning ?? null });
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
