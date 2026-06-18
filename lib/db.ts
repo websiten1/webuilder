@@ -249,6 +249,44 @@ export async function getSiteEditsBysite(siteId: string, userId: string): Promis
   return rows as SiteEdit[];
 }
 
+export type PaidEdit = {
+  id: string;
+  site_id: string;
+  site_name: string;
+  created_at: Date;
+  completed_at: Date | null;
+  status: SiteEdit["status"];
+};
+
+export async function getPaidEditsByUserId(userId: string): Promise<PaidEdit[]> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT se.id, se.site_id, s.name AS site_name, se.created_at, se.completed_at, se.status
+    FROM site_edits se
+    JOIN sites s ON s.id = se.site_id
+    WHERE se.user_id = ${userId}
+      AND se.stripe_session_id IS NOT NULL
+      AND se.stripe_session_id != 'free'
+      AND se.status IN ('paid', 'processing', 'completed')
+    ORDER BY se.created_at DESC
+  `;
+  return rows as PaidEdit[];
+}
+
+export async function clearVercelAuth(userId: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE users
+    SET vercel_access_token = NULL,
+        vercel_user_id = NULL,
+        vercel_team_id = NULL,
+        vercel_authorized = FALSE,
+        vercel_authorized_at = NULL,
+        updated_at = NOW()
+    WHERE id = ${userId}
+  `;
+}
+
 export async function incrementSiteVersion(siteId: string): Promise<void> {
   const sql = getDb();
   await sql`
