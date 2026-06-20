@@ -125,6 +125,38 @@ export async function deployToVercel(
   }
 }
 
+export async function setProjectEnvVars(
+  projectId: string,
+  token: string,
+  teamId: string | null | undefined,
+  vars: { key: string; value: string }[]
+): Promise<void> {
+  const url = teamId
+    ? `https://api.vercel.com/v10/projects/${projectId}/env?teamId=${teamId}&upsert=true`
+    : `https://api.vercel.com/v10/projects/${projectId}/env?upsert=true`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(
+      vars.map(v => ({
+        key: v.key,
+        value: v.value,
+        type: "encrypted",
+        target: ["production", "preview", "development"],
+      }))
+    ),
+  });
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(`Failed to set Vercel project env vars (${response.status}): ${text}`);
+  }
+}
+
 export async function checkDeploymentStatus(
   deploymentId: string,
   userToken?: string
