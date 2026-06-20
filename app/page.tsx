@@ -2,6 +2,22 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { Plus_Jakarta_Sans } from "next/font/google";
+
+// ─── Awesomic design system tokens (hero section only) ───────────────────
+const cosmica = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"], variable: "--font-cosmica" });
+const AW = {
+  obsidian: "#09090b",
+  ink:      "#18181b",
+  graphite: "#3f3f46",
+  steel:    "#71717a",
+  ash:      "#a1a1aa",
+  pebble:   "#d4d4d8",
+  fog:      "#ececee",
+  mist:     "#f4f4f5",
+  snow:     "#ffffff",
+  font:     "var(--font-cosmica), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+};
 
 // ─── Light theme tokens ────────────────────────────────────────────────────
 const P = {
@@ -68,55 +84,6 @@ function TechBadge({ children, color = T.green }: { children: React.ReactNode; c
       <span style={{ width: 5, height: 5, borderRadius: 3, background: color, boxShadow: `0 0 8px ${color}` }}/>
       {children}
     </span>
-  );
-}
-
-function TechWindow({ title, sub, status, children, style = {} }: { title: string; sub?: string; status?: React.ReactNode; children: React.ReactNode; style?: React.CSSProperties }) {
-  return (
-    <div style={{ background: T.bg, border: `1px solid ${T.line}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 28px 80px rgba(0,0,0,0.40), 0 1px 0 rgba(255,255,255,0.04) inset", display: "flex", flexDirection: "column", position: "relative", ...style }}>
-      <div style={{ height: 32, background: T.bg2, borderBottom: `1px solid ${T.line}`, display: "flex", alignItems: "center", padding: "0 12px", gap: 10, flexShrink: 0 }}>
-        <div style={{ display: "flex", gap: 6 }}>
-          {["#FF5F57","#FEBC2E","#28C840"].map(c => <div key={c} style={{ width: 11, height: 11, borderRadius: 6, background: c }}/>)}
-        </div>
-        <div style={{ flex: 1, textAlign: "center" as const, fontFamily: P.mono, fontSize: 11, color: "rgba(255,255,255,0.45)", letterSpacing: 0.3, whiteSpace: "nowrap" as const, overflow: "hidden", textOverflow: "ellipsis" }}>
-          {title}{sub && <span style={{ marginLeft: 8, color: "rgba(255,255,255,0.25)" }}>· {sub}</span>}
-        </div>
-        {status ?? <div style={{ width: 45, flexShrink: 0 }}/>}
-      </div>
-      <div style={{ flex: 1, overflow: "hidden", background: T.bg }}>{children}</div>
-    </div>
-  );
-}
-
-function Tok({ c = T.text, b = false, children }: { c?: string; b?: boolean; children: React.ReactNode }) {
-  return <span style={{ color: c, fontWeight: b ? 600 : 400 }}>{children}</span>;
-}
-
-function CL({ n, indent = 0, hi = false, children }: { n: number; indent?: number; hi?: boolean; children: React.ReactNode }) {
-  return (
-    <div style={{ display: "flex", minHeight: 20, background: hi ? "rgba(255,90,31,0.07)" : "transparent", borderLeft: hi ? `2px solid ${T.six}` : "2px solid transparent" }}>
-      <span style={{ color: T.muted, opacity: 0.45, fontFamily: P.mono, fontSize: 11, width: 30, textAlign: "right" as const, paddingRight: 12, userSelect: "none" as const, flexShrink: 0 }}>{n}</span>
-      <span style={{ fontFamily: P.mono, fontSize: 12.5, lineHeight: "20px", paddingLeft: indent * 12, whiteSpace: "pre" as const, color: T.text }}>{children}</span>
-    </div>
-  );
-}
-
-function CodeStream() {
-  return (
-    <div style={{ padding: "10px 0" }}>
-      <CL n={1}><Tok c={T.muted}>{"// app/page.tsx · generated"}</Tok></CL>
-      <CL n={2}><Tok c={T.plum} b>{"export default"}</Tok>{" "}<Tok c={T.plum} b>{"function"}</Tok>{" "}<Tok c={"#82AAFF"}>{"Page"}</Tok>{"() {"}</CL>
-      <CL n={3} indent={1}><Tok c={T.plum} b>{"return"}</Tok>{" ("}</CL>
-      <CL n={4} indent={2}>{"<"}<Tok c={"#F87171"}>{"main"}</Tok>{" "}<Tok c={T.amber}>{"className"}</Tok>{"="}<Tok c={T.green}>{'"bg-ink text-white"'}</Tok>{">"}</CL>
-      <CL n={5} indent={3}>{"<"}<Tok c={"#F87171"}>{"Hero"}</Tok></CL>
-      <CL n={6} indent={4} hi><Tok c={T.amber}>{"eyebrow"}</Tok>{"="}<Tok c={T.green}>{'"24/7 Emergency"'}</Tok></CL>
-      <CL n={7} indent={4}><Tok c={T.amber}>{"title"}</Tok>{"="}<Tok c={T.green}>{'"Burst pipe?"'}</Tok></CL>
-      <CL n={8} indent={4}><Tok c={T.amber}>{"cta"}</Tok>{"="}<Tok c={T.green}>{'"Call now"'}</Tok>{" />"}</CL>
-      <CL n={9} indent={3}>{"<"}<Tok c={"#F87171"}>{"Services"}</Tok>{" "}<Tok c={T.amber}>{"items"}</Tok>{"={services} />"}</CL>
-      <CL n={10} indent={3}>{"<"}<Tok c={"#F87171"}>{"Contact"}</Tok>{" "}<Tok c={T.amber}>{"phone"}</Tok>{"={phone} />"}</CL>
-      <CL n={11} indent={2}>{"</"}<Tok c={"#F87171"}>{"main"}</Tok>{">"}</CL>
-      <CL n={12} indent={1}>{");"}<span style={{ display: "inline-block", width: 6, height: 13, background: T.green, marginLeft: 4, verticalAlign: "middle", animation: "caret 1s infinite", boxShadow: `0 0 6px ${T.green}` }}/></CL>
-    </div>
   );
 }
 
@@ -300,7 +267,6 @@ export default function Home() {
         .tk{animation:ticker 32s linear infinite}.tk:hover{animation-play-state:paused}
         @keyframes scrollIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
         .scroll-in{opacity:0}.scroll-in.visible{animation:scrollIn .55s ease both}
-        .hero-demo{display:block}
         .nav-hamburger{display:none}
         .nav-float{display:none}
         @keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
@@ -312,7 +278,6 @@ export default function Home() {
           .nav-hamburger{display:flex!important}
           .nav-float{display:flex!important}
           .pp{padding-left:20px!important;padding-right:20px!important}
-          .hero-demo{display:none!important}
           .comp-table{overflow-x:auto}
           .comp-table>div{min-width:700px}
         }
@@ -388,70 +353,38 @@ export default function Home() {
         </Link>
       </div>
 
-      {/* ── HERO (dark) ─────────────────────────────────────────── */}
-      <section style={{ background: T.bg, color: "#fff", padding: "clamp(72px, 10vw, 120px) 0 clamp(40px, 5.3vw, 64px)", position: "relative", overflow: "hidden" }}>
-        <DotGrid opacity={0.05}/>
-        <div style={{ position: "absolute", top: -160, right: -120, width: 520, height: 520, borderRadius: 260, background: "radial-gradient(circle, rgba(255,90,31,0.35), rgba(255,90,31,0) 65%)", filter: "blur(20px)", pointerEvents: "none" }}/>
-        <div style={{ position: "absolute", bottom: -260, left: -160, width: 600, height: 600, borderRadius: 300, background: "radial-gradient(circle, rgba(74,222,128,0.10), rgba(74,222,128,0) 65%)", filter: "blur(20px)", pointerEvents: "none" }}/>
-        <div className="pp" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px", position: "relative" }}>
-          <div className="g2" style={{ display: "grid", gridTemplateColumns: "1.05fr 1.05fr", gap: 48, alignItems: "center" }}>
+      {/* ── HERO (Awesomic design system) ───────────────────────── */}
+      <section className={cosmica.variable} style={{ background: AW.mist, color: AW.ink, padding: "clamp(72px, 10vw, 120px) 0 clamp(56px, 7vw, 96px)", position: "relative" }}>
+        <div className="pp" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
+          <div className="g2" style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 48, alignItems: "center" }}>
             <div>
-              <div style={{ marginBottom: 22, display: "flex", alignItems: "center", gap: 10, fontFamily: P.mono, fontSize: 13 }}>
-                <span style={{ color: T.green }}>$</span>
-                <span style={{ color: "rgba(255,255,255,0.75)" }}>insixlive create</span>
-                <span style={{ color: T.amber }}>--name=my-site</span>
-                <span style={{ display: "inline-block", width: 7, height: 14, background: T.green, animation: "caret 1s infinite", verticalAlign: "middle" }}/>
-              </div>
-              <h1 style={{ fontFamily: P.font, fontSize: "clamp(2.8rem,5.5vw,76px)", lineHeight: 0.98, fontWeight: 700, letterSpacing: -3, color: "#fff", margin: "0 0 18px" }}>
-                Stop renting<br/><span style={{ color: T.six }}>your website.</span>
+              <h1 style={{ fontFamily: AW.font, fontSize: "clamp(2.6rem,5.5vw,64px)", lineHeight: 1.12, fontWeight: 700, color: AW.obsidian, margin: "0 0 20px" }}>
+                Stop renting<br/><span style={{ color: AW.ash }}>your website.</span>
               </h1>
-              <p style={{ fontFamily: P.font, fontSize: "clamp(1rem,1.5vw,20px)", lineHeight: 1.5, color: "rgba(255,255,255,0.62)", margin: "0 0 28px", maxWidth: 520 }}>
-                Generate a professional website, deploy it under your own account, and keep the code forever. €59.99. One-time. No monthly fees.
-              </p>
-              <div style={{ display: "flex", gap: 10, marginBottom: 22, flexWrap: "wrap" }}>
-                <Link href={ctaHref} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(180deg,#FF6A33 0%,#E54B14 100%)", color: "#fff", padding: "16px 22px", borderRadius: 12, fontFamily: P.font, fontSize: 16, fontWeight: 600, boxShadow: "0 1px 0 rgba(255,255,255,0.20) inset,0 14px 30px rgba(255,90,31,0.32)" }}>
-                  Build my website — €59.99 <ArrowR/>
-                </Link>
-                <a href="#examples" style={{ display: "inline-flex", alignItems: "center", padding: "16px 22px", borderRadius: 12, fontFamily: P.font, fontSize: 16, fontWeight: 600, background: "rgba(255,255,255,0.05)", color: "#fff", border: "1px solid rgba(255,255,255,0.10)" }}>
-                  See examples
-                </a>
-              </div>
-              <div style={{ fontFamily: P.mono, fontSize: 12, color: "rgba(255,255,255,0.45)", marginBottom: 32 }}>One-time payment · No subscriptions · Full ownership</div>
-              <div className="g3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, maxWidth: 540 }}>
+              <div className="g3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20, maxWidth: 540, marginTop: 40 }}>
                 {[["€59.99","One-time"],["~6 min","Live"],["100%","Code ownership"]].map(([v,l]) => (
-                  <div key={l} style={{ padding: "12px 16px", borderRadius: 10, background: "rgba(255,255,255,0.04)", border: `1px solid ${T.line}` }}>
-                    <div style={{ fontFamily: P.mono, fontSize: 20, fontWeight: 700, color: "#fff", letterSpacing: -0.4 }}>{v}</div>
-                    <div style={{ fontFamily: P.mono, fontSize: 10.5, color: T.muted, textTransform: "uppercase" as const, letterSpacing: 0.6, marginTop: 3 }}>{l}</div>
+                  <div key={l}>
+                    <div style={{ fontFamily: AW.font, fontSize: 40, fontWeight: 700, color: AW.obsidian, lineHeight: 1, whiteSpace: "nowrap" as const }}>{v}</div>
+                    <div style={{ fontFamily: AW.font, fontSize: 13, fontWeight: 400, color: AW.steel, lineHeight: 1.56, marginTop: 4 }}>{l}</div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Code windows */}
-            <div className="hero-demo" style={{ position: "relative", height: 540 }}>
-              <div style={{ position: "absolute", top: 0, right: 0, width: "92%", transform: "rotate(-2deg)" }}>
-                <TechWindow title="acme-plumbing — app/page.tsx" sub="claude-sonnet" status={<TechBadge>WRITING</TechBadge>} style={{ height: 360 }}>
-                  <CodeStream/>
-                </TechWindow>
+            <div>
+              <p style={{ fontFamily: AW.font, fontSize: 16, fontWeight: 400, lineHeight: 1.5, color: AW.ink, margin: "0 0 24px" }}>
+                Generate a professional website, deploy it under your own Vercel account, and keep the code forever. No monthly fees.
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <Link href={ctaHref} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, background: AW.obsidian, color: AW.snow, padding: "12px 16px", borderRadius: 36, fontFamily: AW.font, fontSize: 16, fontWeight: 500, boxShadow: "rgba(255, 255, 255, 0.5) 0px 0.5px 0px 0px inset, rgba(117, 123, 133, 0.4) 0px 9px 14px -5px inset, rgb(44, 46, 52) 0px 0px 0px 1.5px, rgba(0, 0, 0, 0.14) 0px 4px 6px 0px" }}>
+                  Build my website — €59.99 <ArrowR/>
+                </Link>
+                <a href="#examples" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: AW.snow, color: AW.graphite, border: `1px solid ${AW.graphite}`, borderRadius: 36, padding: 20, fontFamily: AW.font, fontSize: 16, fontWeight: 500 }}>
+                  See examples
+                </a>
               </div>
-              <div style={{ position: "absolute", bottom: 0, left: 0, width: "78%", transform: "rotate(3deg)" }}>
-                <TechWindow title="vercel · deploy" sub="acme-plumbing.vercel.app" status={<TechBadge>READY</TechBadge>} style={{ height: 180 }}>
-                  <div style={{ padding: "12px 14px", fontFamily: P.mono, fontSize: 11.5, lineHeight: "20px" }}>
-                    {[["00:12",T.amber,"pkg","archive · 4.1 MB"],["00:16",T.sky,"cdn","142 assets"],["00:18",T.green,"ssl","cert issued"]].map(([t,c,k,v]) => (
-                      <div key={k as string} style={{ display: "flex", gap: 10 }}>
-                        <span style={{ color: T.muted, width: 44 }}>{t}</span>
-                        <span style={{ color: c as string, fontWeight: 700, width: 36 }}>{k}</span>
-                        <span style={{ color: T.text }}>{v}</span>
-                      </div>
-                    ))}
-                    <div style={{ display: "flex", gap: 10 }}>
-                      <span style={{ color: T.muted, width: 44 }}>00:18</span>
-                      <span style={{ color: T.green, fontWeight: 700, width: 36 }}>live</span>
-                      <span style={{ color: T.green }}>https://acme-plumbing.vercel.app</span>
-                      <span style={{ display: "inline-block", width: 6, height: 13, background: T.green, animation: "caret 0.9s infinite", boxShadow: `0 0 6px ${T.green}`, alignSelf: "center" }}/>
-                    </div>
-                  </div>
-                </TechWindow>
+              <div style={{ fontFamily: AW.font, fontSize: 10, fontWeight: 500, lineHeight: 1.8, color: AW.steel, marginTop: 18 }}>
+                One-time payment · No subscriptions · Full ownership
               </div>
             </div>
           </div>
