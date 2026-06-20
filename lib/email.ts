@@ -287,3 +287,58 @@ export async function sendEditFailedEmail(
   });
   if (error) console.error("Edit failed email error:", error.message);
 }
+
+export async function sendParishCalendarSetupEmail(
+  email: string,
+  params: {
+    siteName: string;
+    adminUrl: string;
+    adminEmail: string;
+    tempPassword: string;
+    vercelProjectName: string;
+  }
+): Promise<void> {
+  const { siteName, adminUrl, adminEmail, tempPassword, vercelProjectName } = params;
+  const storageTabUrl = `https://vercel.com/dashboard/stores?filter=${encodeURIComponent(vercelProjectName)}`;
+
+  console.log(`\n[Email] Parish calendar setup for ${email}: ${siteName}`);
+
+  const resend = getResend();
+  const from = process.env.RESEND_FROM_EMAIL || "inSIXlive <onboarding@resend.dev>";
+
+  const { error } = await resend.emails.send({
+    from,
+    to: email,
+    subject: `One step left to activate your editable weekly schedule — ${siteName}`,
+    html: `
+<!DOCTYPE html><html><head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#050510;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#ffffff;">
+  <div style="max-width:520px;margin:48px auto;padding:0 24px;">
+    <p style="font-size:18px;font-weight:700;letter-spacing:-0.02em;margin:0 0 4px;">inSIXlive</p>
+    <div style="margin:32px 0;padding:32px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;">
+      <h1 style="font-size:20px;font-weight:700;margin:0 0 8px;">Your editable weekly schedule is almost ready</h1>
+      <p style="color:rgba(255,255,255,0.55);margin:0 0 20px;font-size:14px;line-height:1.6;">
+        ${siteName} now includes a "This Week" schedule page you can update yourself — no code, no redeploys. One quick one-time setup step is needed first.
+      </p>
+      <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.15);border-radius:10px;padding:14px 16px;margin-bottom:20px;">
+        <p style="margin:0 0 8px;font-weight:600;font-size:14px;">Step 1 — connect storage (about 2 minutes)</p>
+        <ol style="margin:0;padding-left:18px;color:rgba(255,255,255,0.7);font-size:13px;line-height:1.7;">
+          <li>Open your project's Storage tab: <a href="${storageTabUrl}" style="color:#a855f7;">${storageTabUrl}</a></li>
+          <li>Click "Create Database" → choose "Blob" → name it anything.</li>
+          <li>Connect it to the <b>${vercelProjectName}</b> project.</li>
+        </ol>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:14px 16px;margin-bottom:20px;">
+        <p style="margin:0 0 8px;font-weight:600;font-size:14px;">Step 2 — log in once storage is connected</p>
+        <p style="margin:0 0 4px;font-size:13px;color:rgba(255,255,255,0.55);">Admin URL: <a href="${adminUrl}" style="color:#a855f7;">${adminUrl}</a></p>
+        <p style="margin:0 0 4px;font-size:13px;color:rgba(255,255,255,0.55);">Email: <b style="color:#fff;">${adminEmail}</b></p>
+        <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.55);">Temporary password: <b style="color:#fff;">${tempPassword}</b></p>
+      </div>
+      <p style="margin:0 0 20px;font-size:12px;color:rgba(255,255,255,0.4);">You'll be asked to set a new password the first time you log in. If you log in before Step 1 is done, it just won't work yet — finish the storage step and try again.</p>
+      <a href="${adminUrl}" style="display:inline-block;background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px;">Open admin login</a>
+    </div>
+  </div>
+</body></html>`,
+  });
+  if (error) console.error("Parish calendar setup email error:", error.message);
+}
