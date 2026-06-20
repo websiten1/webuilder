@@ -317,6 +317,20 @@ export async function getSitesByUserId(userId: string): Promise<Site[]> {
   return rows as Site[];
 }
 
+export async function getSitesWithCalendarStatusByUserId(
+  userId: string
+): Promise<(Site & { parish_calendar_blob_connected: boolean | null })[]> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT s.*, pcm.blob_connected AS parish_calendar_blob_connected
+    FROM sites s
+    LEFT JOIN parish_calendar_modules pcm ON pcm.site_id = s.id
+    WHERE s.user_id = ${userId}
+    ORDER BY s.created_at DESC
+  `;
+  return rows as (Site & { parish_calendar_blob_connected: boolean | null })[];
+}
+
 export async function saveVerificationCode(
   userId: string,
   code: string,

@@ -13,6 +13,7 @@ export type DashSite = {
   accent: string;
   weight: number;
   createdAt: string;
+  calendarBlobConnected: boolean | null;
 };
 
 export type Invoice = {

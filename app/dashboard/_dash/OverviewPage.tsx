@@ -2,6 +2,7 @@
 import React from "react";
 import { Icons } from "./icons";
 import { Section, Pill, LiveBadge } from "./primitives";
+import { ParishCalendarCard } from "./ParishCalendarCard";
 import type { DashSite, PageId } from "./types";
 
 function SitePreview({ site }: { site: DashSite }) {
@@ -101,6 +102,7 @@ export function OverviewPage({
   const live = sites.filter((s) => s.status === "live").length;
   const drafts = sites.length - live;
   const domains = sites.filter((s) => s.domain).length;
+  const calendarSites = sites.filter((s) => s.calendarBlobConnected !== null);
   return (
     <div className="page view-enter">
       <div className="page-head flex">
@@ -194,6 +196,16 @@ export function OverviewPage({
           </div>
         )}
       </Section>
+
+      {calendarSites.length > 0 && (
+        <Section kicker="05" title="Editable weekly calendars">
+          <div className="list">
+            {calendarSites.map((s) => (
+              <ParishCalendarCard key={s.id} siteId={s.id} siteName={s.name} blobConnected={!!s.calendarBlobConnected} />
+            ))}
+          </div>
+        </Section>
+      )}
     </div>
   );
 }

@@ -26,6 +26,7 @@ type RawSite = {
   free_edits_remaining: number; total_edits_included: number; created_at: string;
   business_type: string | null;
   design_preferences: Record<string, unknown> | null;
+  parish_calendar_blob_connected: boolean | null;
 };
 
 const BIZ_COLORS: Record<string, string> = {
@@ -75,6 +76,7 @@ function toDashSite(s: RawSite, i: number): DashSite {
     accent: color,
     weight: 0.5 + ((i * 37) % 100) / 100,
     createdAt: s.created_at,
+    calendarBlobConnected: s.parish_calendar_blob_connected,
   };
 }
 
