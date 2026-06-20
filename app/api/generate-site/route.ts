@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateWebsiteCode } from "@/lib/anthropic";
-import { deployToVercel, getValidVercelToken } from "@/lib/vercel";
+import { deployToVercel, getValidVercelToken, setProjectEnvVars } from "@/lib/vercel";
 import { getSession } from "@/lib/session";
-import { getUserById, saveSiteWithVercel, getSiteById, updateSiteAfterRegeneration } from "@/lib/db";
+import { getUserById, saveSiteWithVercel, getSiteById, updateSiteAfterRegeneration, createParishCalendarModule } from "@/lib/db";
+import { sendParishCalendarSetupEmail } from "@/lib/email";
+import { encryptToken } from "@/lib/encryption";
 import type { WizardData } from "@/app/components/GenerateWizard";
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
+import bcrypt from "bcryptjs";
 
 export const maxDuration = 300;
 
@@ -494,6 +498,36 @@ export async function POST(request: NextRequest) {
       formData as unknown as Record<string, unknown>,
       tier
     );
+
+    if (formData.pages.calendarModuleEnabled) {
+      try {
+        const adminEmail = formData.business.email?.trim() || user.email;
+        const tempPassword = crypto.randomBytes(9).toString("base64").replace(/[^a-zA-Z0-9]/g, "").slice(0, 12);
+        const passwordHash = await bcrypt.hash(tempPassword, 10);
+        const bootstrapSecret = crypto.randomBytes(24).toString("hex");
+        const sessionSecret = crypto.randomBytes(24).toString("hex");
+
+        const projectToken = userVercelToken ?? process.env.VERCEL_API_TOKEN!;
+        await setProjectEnvVars(vercelProjectId, projectToken, userTeamId, [
+          { key: "PARISH_BOOTSTRAP_SECRET", value: bootstrapSecret },
+          { key: "PARISH_SESSION_SECRET", value: sessionSecret },
+        ]);
+
+        await createParishCalendarModule(site.id, adminEmail, passwordHash, encryptToken(bootstrapSecret));
+
+        await sendParishCalendarSetupEmail(adminEmail, {
+          siteName: site.name,
+          adminUrl: `${site.vercel_url}/admin`,
+          adminEmail,
+          tempPassword,
+          vercelProjectName: projectName,
+        });
+      } catch (err) {
+        console.error("Parish calendar module provisioning failed:", err);
+        // Do not fail site generation if this add-on setup fails — the customer
+        // already has a working website. They can retry from the dashboard.
+      }
+    }
 
     return NextResponse.json({
       success: true,
