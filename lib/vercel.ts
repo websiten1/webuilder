@@ -1,5 +1,7 @@
 // lib/vercel.ts - Vercel API integration
 
+import { PARISH_CALENDAR_DEPENDENCIES } from "@/lib/parish-calendar-templates";
+
 export type StaticImage = { path: string; base64: string };
 
 // Returns the user's decrypted OAuth token + teamId, or null if not connected.
@@ -13,7 +15,12 @@ export async function getValidVercelToken(
 export async function deployToVercel(
   projectName: string,
   code: string,
-  options?: { userToken?: string; teamId?: string | null; staticImages?: StaticImage[] }
+  options?: {
+    userToken?: string;
+    teamId?: string | null;
+    staticImages?: StaticImage[];
+    parishCalendarFiles?: Record<string, string>;
+  }
 ): Promise<{ id: string; url: string; projectId: string | null }> {
   // Prefer user's own Vercel token; fall back to app token (used by edit feature)
   const token = options?.userToken ?? process.env.VERCEL_API_TOKEN;
@@ -22,6 +29,8 @@ export async function deployToVercel(
   if (!token) {
     throw new Error("No Vercel token available. VERCEL_API_TOKEN not set.");
   }
+
+  const extraDeps = options?.parishCalendarFiles ? PARISH_CALENDAR_DEPENDENCIES : {};
 
   const packageJson = JSON.stringify(
     {
@@ -32,6 +41,7 @@ export async function deployToVercel(
         next: "^14.2.0",
         react: "^18.3.0",
         "react-dom": "^18.3.0",
+        ...extraDeps,
       },
       devDependencies: {
         typescript: "^5.0.0",
@@ -91,6 +101,7 @@ export async function deployToVercel(
             data: img.base64,
             encoding: "base64",
           })),
+          ...Object.entries(options?.parishCalendarFiles ?? {}).map(([file, data]) => ({ file, data })),
         ],
         target: "production",
         projectSettings: {
