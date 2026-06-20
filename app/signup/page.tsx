@@ -173,6 +173,12 @@ export default function SignupPage() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [emailWarning, setEmailWarning] = useState("");
 
+  // Prefill email if arriving from the homepage hero capture form
+  useEffect(() => {
+    const prefill = new URLSearchParams(window.location.search).get("email");
+    if (prefill) setEmail(prefill);
+  }, []);
+
   // Auto-verify when all 6 digits filled
   useEffect(() => {
     if (showOtp && digits.every((d) => d !== "")) {

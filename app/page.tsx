@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Plus_Jakarta_Sans } from "next/font/google";
 
 // ─── Awesomic design system tokens (hero section only) ───────────────────
@@ -239,11 +240,18 @@ function ArrowR({ color = "#fff" }: { color?: string }) {
   return <svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 7h8M8 4l3 3-3 3" stroke={color} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 }
 
+// ─── Hero cycling word ──────────────────────────────────────────────────────
+const CYCLE_WORDS = ["website.", "homepage.", "storefront.", "brand."];
+
 // ─── Page ──────────────────────────────────────────────────────────────────
 export default function Home() {
+  const router = useRouter();
   const [loggedIn, setLoggedIn] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [cycleIdx, setCycleIdx] = useState(0);
+  const [cycleVisible, setCycleVisible] = useState(true);
+  const [heroEmail, setHeroEmail] = useState("");
   useEffect(() => {
     fetch("/api/auth/me").then(r => r.json()).then(d => setLoggedIn(!!d.user)).catch(() => setLoggedIn(false));
     const obs = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("visible"); }), { threshold: 0.1 });
@@ -252,8 +260,22 @@ export default function Home() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => { obs.disconnect(); window.removeEventListener("scroll", onScroll); };
   }, []);
+  useEffect(() => {
+    const t = setInterval(() => {
+      setCycleVisible(false);
+      setTimeout(() => {
+        setCycleIdx(i => (i + 1) % CYCLE_WORDS.length);
+        setCycleVisible(true);
+      }, 300);
+    }, 2600);
+    return () => clearInterval(t);
+  }, []);
 
   const ctaHref = loggedIn ? "/dashboard" : "/signup";
+  const handleHeroEmailSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    router.push(heroEmail ? `/signup?email=${encodeURIComponent(heroEmail)}` : "/signup");
+  };
 
   return (
     <>
@@ -353,39 +375,52 @@ export default function Home() {
         </Link>
       </div>
 
-      {/* ── HERO (Awesomic design system) ───────────────────────── */}
-      <section className={cosmica.variable} style={{ background: AW.mist, color: AW.ink, padding: "clamp(72px, 10vw, 120px) 0 clamp(56px, 7vw, 96px)", position: "relative" }}>
+      {/* ── HERO (insixlive Website (Awesomic).html — Claude Design import) ── */}
+      <section className={cosmica.variable} style={{ background: AW.mist, padding: "56px 0 0", position: "relative" }}>
         <div className="pp" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
-          <div className="g2" style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 48, alignItems: "center" }}>
+          <div className="g2" style={{ display: "grid", gridTemplateColumns: "1.25fr 0.85fr", gap: 56, alignItems: "end" }}>
             <div>
-              <h1 style={{ fontFamily: AW.font, fontSize: "clamp(2.6rem,5.5vw,64px)", lineHeight: 1.12, fontWeight: 700, color: AW.obsidian, margin: "0 0 20px" }}>
-                Stop renting<br/><span style={{ color: AW.ash }}>your website.</span>
+              <h1 style={{ fontFamily: AW.font, fontSize: "clamp(2.6rem,5.5vw,64px)", lineHeight: 1.02, fontWeight: 700, letterSpacing: "-0.01em", color: AW.obsidian, margin: 0 }}>
+                Stop renting<br/>your{" "}
+                <span style={{ color: AW.ash, opacity: cycleVisible ? 1 : 0, transition: "opacity .3s ease" }}>{CYCLE_WORDS[cycleIdx]}</span>
               </h1>
-              <div className="g3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20, maxWidth: 540, marginTop: 40 }}>
-                {[["€59.99","One-time"],["~6 min","Live"],["100%","Code ownership"]].map(([v,l]) => (
-                  <div key={l}>
-                    <div style={{ fontFamily: AW.font, fontSize: 40, fontWeight: 700, color: AW.obsidian, lineHeight: 1, whiteSpace: "nowrap" as const }}>{v}</div>
-                    <div style={{ fontFamily: AW.font, fontSize: 13, fontWeight: 400, color: AW.steel, lineHeight: 1.56, marginTop: 4 }}>{l}</div>
-                  </div>
-                ))}
-              </div>
             </div>
 
-            <div>
-              <p style={{ fontFamily: AW.font, fontSize: 16, fontWeight: 400, lineHeight: 1.5, color: AW.ink, margin: "0 0 24px" }}>
-                Generate a professional website, deploy it under your own Vercel account, and keep the code forever. No monthly fees.
+            <div style={{ paddingBottom: 8 }}>
+              <p style={{ fontFamily: AW.font, fontSize: 16, fontWeight: 400, lineHeight: 1.6, color: AW.steel, margin: 0, maxWidth: "56ch" }}>
+                A complete, professional website — generated by AI and deployed to your own account. You pay once. You own the code. No monthly rent, ever.
               </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <Link href={ctaHref} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, background: AW.obsidian, color: AW.snow, padding: "12px 16px", borderRadius: 36, fontFamily: AW.font, fontSize: 16, fontWeight: 500, boxShadow: "rgba(255, 255, 255, 0.5) 0px 0.5px 0px 0px inset, rgba(117, 123, 133, 0.4) 0px 9px 14px -5px inset, rgb(44, 46, 52) 0px 0px 0px 1.5px, rgba(0, 0, 0, 0.14) 0px 4px 6px 0px" }}>
-                  Build my website — €59.99 <ArrowR/>
-                </Link>
-                <a href="#examples" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: AW.snow, color: AW.graphite, border: `1px solid ${AW.graphite}`, borderRadius: 36, padding: 20, fontFamily: AW.font, fontSize: 16, fontWeight: 500 }}>
-                  See examples
-                </a>
+              <form onSubmit={handleHeroEmailSubmit} style={{ display: "flex", gap: 8, marginTop: 22, maxWidth: 420 }}>
+                <input
+                  type="email"
+                  required
+                  value={heroEmail}
+                  onChange={e => setHeroEmail(e.target.value)}
+                  placeholder="you@yourbusiness.com"
+                  aria-label="Email"
+                  style={{ flex: 1, minWidth: 0, background: AW.snow, color: "#333", border: `1px solid ${AW.fog}`, borderRadius: 14, padding: "13px 16px", fontFamily: AW.font, fontSize: 14, fontWeight: 400, outline: "none" }}
+                />
+                <button type="submit" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: AW.obsidian, color: AW.snow, fontFamily: AW.font, fontSize: 14, fontWeight: 500, border: "none", borderRadius: 36, padding: "13px 20px", boxShadow: "rgba(255, 255, 255, 0.5) 0px 0.5px 0px 0px inset, rgba(117, 123, 133, 0.4) 0px 9px 14px -5px inset, rgb(44, 46, 52) 0px 0px 0px 1.5px, rgba(0, 0, 0, 0.14) 0px 4px 6px 0px", whiteSpace: "nowrap" as const, cursor: "pointer" }}>
+                  Get started
+                </button>
+              </form>
+              <div style={{ display: "flex", gap: 18, marginTop: 16, flexWrap: "wrap" }}>
+                <span style={{ fontFamily: AW.font, fontSize: 14, color: AW.steel, display: "inline-flex", alignItems: "center", gap: 6 }}>● Live in ~6 minutes</span>
+                <span style={{ fontFamily: AW.font, fontSize: 14, color: AW.steel, display: "inline-flex", alignItems: "center", gap: 6 }}>● One-time from €59.99</span>
               </div>
-              <div style={{ fontFamily: AW.font, fontSize: 10, fontWeight: 500, lineHeight: 1.8, color: AW.steel, marginTop: 18 }}>
-                One-time payment · No subscriptions · Full ownership
-              </div>
+            </div>
+          </div>
+
+          {/* Hero art / product preview */}
+          <div style={{ marginTop: 64, borderRadius: 48, overflow: "hidden", position: "relative", background: AW.obsidian, height: 420, boxShadow: "rgba(0, 0, 0, 0.04) 0px 4px 12px 0px" }}>
+            <div style={{ position: "absolute", inset: 0, background: "radial-gradient(120% 90% at 80% -10%, rgba(255,90,0,0.28), transparent 60%)" }}/>
+            <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 2px, transparent 2px 22px)" }}/>
+            <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", textAlign: "center" as const }}>
+              <div style={{ fontFamily: "ui-monospace, monospace", fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.4)" }}>product preview — generated site</div>
+            </div>
+            <div style={{ position: "absolute", bottom: 22, left: 22, display: "flex", gap: 6 }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontFamily: AW.font, fontSize: 12, fontWeight: 500, color: AW.snow, border: "1px solid rgba(255,255,255,0.35)", borderRadius: 12, padding: "4px 8px", backdropFilter: "blur(6px)" }}>app/page.tsx</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontFamily: AW.font, fontSize: 12, fontWeight: 500, color: AW.snow, border: "1px solid rgba(255,255,255,0.35)", borderRadius: 12, padding: "4px 8px", backdropFilter: "blur(6px)" }}>deploy · ready</span>
             </div>
           </div>
         </div>
