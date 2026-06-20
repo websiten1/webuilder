@@ -42,7 +42,7 @@ export type WizardData = {
   gallery: string[];
   galleryMembers: GalleryMember[];
   socials: Socials;
-  pages: { selected: string[]; primaryCTA: string; contentTone: string; specialFeatures: string[]; additionalNotes: string; pageDescriptions: { [id: string]: PageDesc } };
+  pages: { selected: string[]; primaryCTA: string; contentTone: string; specialFeatures: string[]; calendarModuleEnabled: boolean; additionalNotes: string; pageDescriptions: { [id: string]: PageDesc } };
   useEmojis: boolean;
   websiteLanguage: string;
   logo: { uploaded: boolean; dataUrl: string; fileName: string };
@@ -67,7 +67,7 @@ const DEFAULT: WizardData = {
   gallery: [],
   galleryMembers: [],
   socials: {},
-  pages: { selected: ["home","services","about","contact"], primaryCTA: "phone", contentTone: "professional-approachable", specialFeatures: [], additionalNotes: "", pageDescriptions: {} },
+  pages: { selected: ["home","services","about","contact"], primaryCTA: "phone", contentTone: "professional-approachable", specialFeatures: [], calendarModuleEnabled: false, additionalNotes: "", pageDescriptions: {} },
   useEmojis: false,
   websiteLanguage: "Română",
   logo: { uploaded: false, dataUrl: "", fileName: "" },
@@ -1553,6 +1553,15 @@ function Step09Finishing({ data, setData, lang }: { data: WizardData; setData: R
           onChange={v => setData(p => ({ ...p, useEmojis: v === "yes" }))} />
       </Block>
 
+      <Block label={tr(lang,"Calendar săptămânal editabil","Editable weekly calendar")}
+        note={tr(lang,"Pentru biserici, parohii sau orice afacere cu un program săptămânal recurent. Adaugă o pagină publică \"Săptămâna aceasta\" pe care o poți actualiza tu, fără cod.","For churches, parishes, or any business with a recurring weekly schedule. Adds a public \"This week\" page you can update yourself, with no code.")}>
+        <WizOptGrid cols={2} options={[
+          { id: "no",  name: tr(lang,"Nu am nevoie de asta","I don't need this") },
+          { id: "yes", name: tr(lang,"Da, adaugă programul editabil","Yes, add the editable schedule") },
+        ]} value={pg.calendarModuleEnabled ? "yes" : "no"}
+          onChange={v => setPg("calendarModuleEnabled", v === "yes")} />
+      </Block>
+
       <Block label={tr(lang,"Limba site-ului","Website language")} note={tr(lang,"Tot conținutul va fi generat în această limbă.","All content will be generated in this language.")}>
         <select className="wf-input" value={data.websiteLanguage}
           onChange={e => setData(p => ({ ...p, websiteLanguage: e.target.value }))}>
@@ -1585,6 +1594,9 @@ function Step10Review({ data, goTo, onGenerate, loading, isEditMode, lang }: {
   const fontLabel    = fonts.find(f => f.id === data.typography.fontFamily)?.name;
   const imageryLabel = imagery.find(i => i.id === data.typography.imageryStyle)?.name;
   const activePages  = (data.pages.selected || []).join(", ") || "home, services, about, contact";
+  const calendarModuleLabel = data.pages.calendarModuleEnabled
+    ? tr(lang, "Da", "Yes")
+    : tr(lang, "Nu", "No");
   const galleryCount = data.gallery.length;
   const teamList     = data.galleryMembers.filter(m => m.name.trim() || m.photo);
   const activeSocials = SOC_NETWORKS.filter(n => ((data.socials as Record<string,string>)[n.key] || "").trim());
@@ -1638,6 +1650,7 @@ function Step10Review({ data, goTo, onGenerate, loading, isEditMode, lang }: {
           { k: tr(lang,"Pagini","Pages"),      step: 7, v: activePages, small: true },
           { k: tr(lang,"CTA principal","Primary CTA"), step: 9, v: dash(ctaLabel), muted: !ctaLabel },
           { k: tr(lang,"Tonul conținutului","Content tone"), step: 9, v: dash(toneLabel), muted: !toneLabel },
+          { k: tr(lang,"Calendar editabil","Editable calendar"), step: 9, v: calendarModuleLabel },
         ].map(({ k, step, v, muted, small }) => (
           <div className="wf-rev-card" key={k}>
             <button type="button" className="wf-edit" onClick={() => goTo(step)}>{tr(lang,"Editează","Edit")}</button>
