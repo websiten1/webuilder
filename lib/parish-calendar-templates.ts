@@ -217,3 +217,288 @@ export default async function handler(_req: NextApiRequest, res: NextApiResponse
   res.status(200).json({ events: data.events.filter((e) => !e.hidden) });
 }
 `;
+
+const COMPONENT_THIS_WEEK = `import { useEffect, useState } from "react";
+
+interface ParishEvent {
+  id: string;
+  title: string;
+  dayOfWeek: number;
+  specificDate: string | null;
+  time: string;
+  recurring: boolean;
+  hidden: boolean;
+  notes: string | null;
+}
+
+function getThisWeekOccurrences(events: ParishEvent[]): { event: ParishEvent; date: Date }[] {
+  const now = new Date();
+  const startOfWeek = new Date(now);
+  startOfWeek.setHours(0, 0, 0, 0);
+  startOfWeek.setDate(now.getDate() - now.getDay());
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 7);
+
+  const occurrences: { event: ParishEvent; date: Date }[] = [];
+  for (const ev of events) {
+    if (ev.hidden) continue;
+    if (ev.recurring) {
+      const date = new Date(startOfWeek);
+      date.setDate(startOfWeek.getDate() + ev.dayOfWeek);
+      const [h, m] = ev.time.split(":").map(Number);
+      date.setHours(h, m, 0, 0);
+      occurrences.push({ event: ev, date });
+    } else if (ev.specificDate) {
+      const date = new Date(ev.specificDate);
+      const [h, m] = ev.time.split(":").map(Number);
+      date.setHours(h, m, 0, 0);
+      if (date >= startOfWeek && date < endOfWeek) occurrences.push({ event: ev, date });
+    }
+  }
+  return occurrences.sort((a, b) => a.date.getTime() - b.date.getTime());
+}
+
+export default function ThisWeekAtChurch() {
+  const [state, setState] = useState<"loading" | "ready" | "empty" | "error">("loading");
+  const [occurrences, setOccurrences] = useState<{ event: ParishEvent; date: Date }[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/parish-calendar")
+      .then((res) => { if (!res.ok) throw new Error("fetch failed"); return res.json(); })
+      .then((data: { events: ParishEvent[] }) => {
+        if (cancelled) return;
+        const occ = getThisWeekOccurrences(data.events || []);
+        setOccurrences(occ);
+        setState(occ.length > 0 ? "ready" : "empty");
+      })
+      .catch(() => { if (!cancelled) setState("error"); });
+    return () => { cancelled = true; };
+  }, []);
+
+  if (state === "loading") return null;
+
+  if (state === "error" || state === "empty") {
+    return (
+      <section style={{ padding: "48px 24px", textAlign: "center" }}>
+        <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>This Week</h2>
+        <p style={{ color: "#666" }}>Schedule coming soon — please check back.</p>
+      </section>
+    );
+  }
+
+  const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+  return (
+    <section style={{ padding: "48px 24px", maxWidth: 640, margin: "0 auto" }}>
+      <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 20, textAlign: "center" }}>This Week</h2>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {occurrences.map(({ event, date }) => (
+          <div key={event.id} style={{ display: "flex", justifyContent: "space-between", padding: "14px 18px", borderRadius: 10, background: "#f4f4f5" }}>
+            <div>
+              <div style={{ fontWeight: 600 }}>{event.title}</div>
+              {event.notes && <div style={{ fontSize: 13, color: "#71717a" }}>{event.notes}</div>}
+            </div>
+            <div style={{ textAlign: "right", fontSize: 14, color: "#3f3f46" }}>
+              <div>{dayNames[date.getDay()]}</div>
+              <div>{event.time}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+`;
+
+const PAGE_ADMIN = `import { useEffect, useState } from "react";
+
+interface ParishEvent {
+  id: string;
+  title: string;
+  dayOfWeek: number;
+  specificDate: string | null;
+  time: string;
+  recurring: boolean;
+  hidden: boolean;
+  notes: string | null;
+}
+
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+function emptyEvent(): ParishEvent {
+  return { id: crypto.randomUUID(), title: "", dayOfWeek: 0, specificDate: null, time: "09:00", recurring: true, hidden: false, notes: null };
+}
+
+export default function AdminPage() {
+  const [view, setView] = useState<"login" | "changePassword" | "events">("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [events, setEvents] = useState<ParishEvent[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
+
+  const loadEvents = async () => {
+    const res = await fetch("/api/parish-admin/events");
+    if (res.status === 401) { setView("login"); return; }
+    const data = await res.json();
+    setEvents(data.events || []);
+  };
+
+  useEffect(() => {
+    fetch("/api/parish-admin/events").then((res) => {
+      if (res.ok) { setView("events"); res.json().then((d) => setEvents(d.events || [])); }
+    });
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/parish-admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || "Login failed"); return; }
+      if (data.mustChangePassword) setView("changePassword");
+      else { await loadEvents(); setView("events"); }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (newPassword.length < 8) { setError("Password must be at least 8 characters"); return; }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/parish-admin/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || "Could not change password"); return; }
+      await loadEvents();
+      setView("events");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveEvents = async () => {
+    setSaving(true);
+    setSaveMessage("");
+    try {
+      const res = await fetch("/api/parish-admin/events", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ events }),
+      });
+      setSaveMessage(res.ok ? "Saved." : "Could not save.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const updateEvent = (id: string, patch: Partial<ParishEvent>) =>
+    setEvents((evs) => evs.map((e) => (e.id === id ? { ...e, ...patch } : e)));
+
+  const deleteEvent = (id: string) => setEvents((evs) => evs.filter((e) => e.id !== id));
+
+  const inputStyle: React.CSSProperties = { padding: "8px 10px", borderRadius: 8, border: "1px solid #d4d4d8", fontSize: 14, width: "100%" };
+
+  if (view === "login") {
+    return (
+      <div style={{ maxWidth: 360, margin: "80px auto", padding: 24, fontFamily: "-apple-system,sans-serif" }}>
+        <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>Admin login</h1>
+        <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <input style={inputStyle} type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <input style={inputStyle} type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          {error && <p style={{ color: "#dc2626", fontSize: 13, margin: 0 }}>{error}</p>}
+          <button type="submit" disabled={loading} style={{ padding: "10px 16px", borderRadius: 8, border: "none", background: "#09090b", color: "#fff", fontWeight: 600, cursor: "pointer" }}>
+            {loading ? "Logging in…" : "Log in"}
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  if (view === "changePassword") {
+    return (
+      <div style={{ maxWidth: 360, margin: "80px auto", padding: 24, fontFamily: "-apple-system,sans-serif" }}>
+        <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Set a new password</h1>
+        <p style={{ fontSize: 13, color: "#71717a", marginBottom: 16 }}>This is your first login — choose a permanent password.</p>
+        <form onSubmit={handleChangePassword} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <input style={inputStyle} type="password" placeholder="New password (min. 8 characters)" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
+          {error && <p style={{ color: "#dc2626", fontSize: 13, margin: 0 }}>{error}</p>}
+          <button type="submit" disabled={loading} style={{ padding: "10px 16px", borderRadius: 8, border: "none", background: "#09090b", color: "#fff", fontWeight: 600, cursor: "pointer" }}>
+            {loading ? "Saving…" : "Set password"}
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ maxWidth: 720, margin: "40px auto", padding: 24, fontFamily: "-apple-system,sans-serif" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 700 }}>This week's schedule</h1>
+        <button onClick={() => setEvents((evs) => [...evs, emptyEvent()])} style={{ padding: "8px 14px", borderRadius: 8, border: "1px dashed #a1a1aa", background: "transparent", cursor: "pointer" }}>
+          + Add event
+        </button>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {events.map((ev) => (
+          <div key={ev.id} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr auto auto auto", gap: 8, alignItems: "center", padding: 10, borderRadius: 8, background: ev.hidden ? "#f4f4f5" : "#fff", border: "1px solid #ececee", opacity: ev.hidden ? 0.5 : 1 }}>
+            <input style={inputStyle} value={ev.title} placeholder="Title" onChange={(e) => updateEvent(ev.id, { title: e.target.value })} />
+            <select style={inputStyle} value={ev.dayOfWeek} onChange={(e) => updateEvent(ev.id, { dayOfWeek: Number(e.target.value) })}>
+              {DAY_NAMES.map((d, i) => <option key={d} value={i}>{d}</option>)}
+            </select>
+            <input style={inputStyle} type="time" value={ev.time} onChange={(e) => updateEvent(ev.id, { time: e.target.value })} />
+            <label style={{ fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}>
+              <input type="checkbox" checked={ev.hidden} onChange={(e) => updateEvent(ev.id, { hidden: e.target.checked })} /> Hide
+            </label>
+            <button onClick={() => deleteEvent(ev.id)} style={{ padding: "6px 10px", borderRadius: 6, border: "1px solid #fca5a5", background: "#fff", color: "#dc2626", cursor: "pointer", fontSize: 12 }}>
+              Delete
+            </button>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 20, display: "flex", alignItems: "center", gap: 12 }}>
+        <button onClick={saveEvents} disabled={saving} style={{ padding: "10px 20px", borderRadius: 8, border: "none", background: "#09090b", color: "#fff", fontWeight: 600, cursor: "pointer" }}>
+          {saving ? "Saving…" : "Save"}
+        </button>
+        {saveMessage && <span style={{ fontSize: 13, color: "#71717a" }}>{saveMessage}</span>}
+      </div>
+    </div>
+  );
+}
+`;
+
+export const PARISH_CALENDAR_FILES: Record<string, string> = {
+  "types/parish.ts": TYPES_PARISH,
+  "lib/parish-blob.ts": LIB_PARISH_BLOB,
+  "lib/parish-session.ts": LIB_PARISH_SESSION,
+  "pages/api/parish-admin/bootstrap.ts": API_BOOTSTRAP,
+  "pages/api/parish-admin/admin-reset.ts": API_ADMIN_RESET,
+  "pages/api/parish-admin/login.ts": API_LOGIN,
+  "pages/api/parish-admin/change-password.ts": API_CHANGE_PASSWORD,
+  "pages/api/parish-admin/events.ts": API_EVENTS,
+  "pages/api/parish-calendar.ts": API_PUBLIC_CALENDAR,
+  "components/ThisWeekAtChurch.tsx": COMPONENT_THIS_WEEK,
+  "pages/admin.tsx": PAGE_ADMIN,
+};
+
+export const PARISH_CALENDAR_DEPENDENCIES: Record<string, string> = {
+  bcryptjs: "^3.0.3",
+  jose: "^6.2.3",
+  "@vercel/blob": "^2.4.1",
+};
