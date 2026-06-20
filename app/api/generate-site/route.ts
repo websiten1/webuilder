@@ -5,6 +5,7 @@ import { getSession } from "@/lib/session";
 import { getUserById, saveSiteWithVercel, getSiteById, updateSiteAfterRegeneration, createParishCalendarModule } from "@/lib/db";
 import { sendParishCalendarSetupEmail } from "@/lib/email";
 import { encryptToken } from "@/lib/encryption";
+import { PARISH_CALENDAR_FILES } from "@/lib/parish-calendar-templates";
 import type { WizardData } from "@/app/components/GenerateWizard";
 import fs from "fs";
 import path from "path";
@@ -368,6 +369,7 @@ FEATURES & BEHAVIOUR
 ════════════════════════════════════════════════
 ${features.length > 0 ? `Special features:\n${features.map((feat: string) => `• ${feat}`).join("\n")}` : "No additional special features."}
 Animations: ${animMap[f.design.animations] || f.design.animations}
+${f.pages.calendarModuleEnabled ? `IMPORTANT — editable weekly schedule:\nThis site includes a pre-built component at "../components/ThisWeekAtChurch" (relative to pages/index.tsx). Import it with: import ThisWeekAtChurch from "../components/ThisWeekAtChurch"; and render <ThisWeekAtChurch /> as its own section in a sensible place in the page (e.g. directly after the hero, or in a dedicated "This Week" / "Schedule" section). Do not attempt to build your own schedule UI — this component handles its own data fetching and empty states. Do not pass it any props. Do NOT add a link to "/admin" anywhere in the navigation, footer, or body content — it is a password-protected staff-only page and must not appear in any menu.` : ""}
 ${f.pages.additionalNotes ? `\nAdditional notes from client:\n${f.pages.additionalNotes}` : ""}
 
 ════════════════════════════════════════════════
@@ -482,6 +484,7 @@ export async function POST(request: NextRequest) {
       staticImages,
       userToken: userVercelToken,
       teamId: userTeamId,
+      parishCalendarFiles: formData.pages.calendarModuleEnabled ? PARISH_CALENDAR_FILES : undefined,
     });
     const vercelProjectId = deployment.projectId ?? projectName;
     console.log("✅ Deployed:", deployment.url, "| vercel project id:", vercelProjectId);
