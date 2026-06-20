@@ -46,6 +46,20 @@ export async function POST() {
     )
   `;
 
+  await sql`
+    CREATE TABLE IF NOT EXISTS parish_calendar_modules (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      site_id UUID UNIQUE REFERENCES sites(id) ON DELETE CASCADE,
+      admin_email TEXT NOT NULL,
+      admin_password_hash TEXT NOT NULL,
+      must_change_password BOOLEAN DEFAULT TRUE,
+      bootstrap_secret_encrypted TEXT NOT NULL,
+      blob_connected BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+
   return NextResponse.json({
     success: true,
     message: "Tables created (or already exist).",

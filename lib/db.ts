@@ -72,6 +72,18 @@ export type SiteEdit = {
   completed_at: Date | null;
 };
 
+export type ParishCalendarModule = {
+  id: string;
+  site_id: string;
+  admin_email: string;
+  admin_password_hash: string;
+  must_change_password: boolean;
+  bootstrap_secret_encrypted: string;
+  blob_connected: boolean;
+  created_at: Date;
+  updated_at: Date;
+};
+
 export async function getUserByEmail(email: string): Promise<User | null> {
   const sql = getDb();
   const rows = await sql`
@@ -470,4 +482,56 @@ export async function decrementFreeEdits(siteId: string): Promise<void> {
     SET free_edits_remaining = GREATEST(0, free_edits_remaining - 1)
     WHERE id = ${siteId}
   `;
+}
+
+export async function createParishCalendarModule(
+  siteId: string,
+  adminEmail: string,
+  adminPasswordHash: string,
+  bootstrapSecretEncrypted: string
+): Promise<ParishCalendarModule> {
+  const sql = getDb();
+  const rows = await sql`
+    INSERT INTO parish_calendar_modules (site_id, admin_email, admin_password_hash, bootstrap_secret_encrypted)
+    VALUES (${siteId}, ${adminEmail}, ${adminPasswordHash}, ${bootstrapSecretEncrypted})
+    RETURNING *
+  `;
+  return rows[0] as ParishCalendarModule;
+}
+
+export async function getParishCalendarModuleBySiteId(
+  siteId: string,
+  userId: string
+): Promise<ParishCalendarModule | null> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT pcm.* FROM parish_calendar_modules pcm
+    JOIN sites s ON s.id = pcm.site_id
+    WHERE pcm.site_id = ${siteId} AND s.user_id = ${userId}
+    LIMIT 1
+  `;
+  return (rows[0] as ParishCalendarModule) || null;
+}
+
+export async function setParishCalendarBlobConnected(siteId: string, connected: boolean): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE parish_calendar_modules
+    SET blob_connected = ${connected}, updated_at = NOW()
+    WHERE site_id = ${siteId}
+  `;
+}
+
+export async function resetParishCalendarAdminPassword(
+  siteId: string,
+  newPasswordHash: string
+): Promise<ParishCalendarModule> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE parish_calendar_modules
+    SET admin_password_hash = ${newPasswordHash}, must_change_password = TRUE, updated_at = NOW()
+    WHERE site_id = ${siteId}
+    RETURNING *
+  `;
+  return rows[0] as ParishCalendarModule;
 }
