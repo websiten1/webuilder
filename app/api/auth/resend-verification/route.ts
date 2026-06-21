@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     const expires = new Date(Date.now() + 15 * 60 * 1000);
 
     await saveVerificationCode(user.id, code, expires);
-    await sendVerificationCode(email.toLowerCase(), code);
+    await sendVerificationCode(email.toLowerCase(), code, user.preferred_language);
 
     return NextResponse.json({ success: true });
   } catch (error) {

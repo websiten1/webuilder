@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { createUser, getUserByEmail, saveVerificationCode, updateUserPassword } from "@/lib/db";
 import { sendVerificationCode } from "@/lib/email";
+import { detectLangFromHeader } from "@/lib/locale";
 
 function generateCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
       await saveVerificationCode(existing.id, code, codeExpires);
       let emailWarning: string | null = null;
       try {
-        await sendVerificationCode(email.toLowerCase(), code);
+        await sendVerificationCode(email.toLowerCase(), code, existing.preferred_language);
       } catch (emailError) {
         console.error("Code email failed:", emailError);
         emailWarning = "Could not send the verification code. Please try again.";
@@ -65,13 +66,15 @@ export async function POST(request: NextRequest) {
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
+    const lang = detectLangFromHeader(request.headers.get("accept-language"));
 
     // Create user — verification_token unused in new flow, but column required
     const user = await createUser(
       email.toLowerCase(),
       passwordHash,
       "unused",
-      new Date(0) // far-past expiry so the old link flow never works
+      new Date(0), // far-past expiry so the old link flow never works
+      lang
     );
 
     // Generate + store 6-digit code (15 min expiry)
@@ -82,7 +85,7 @@ export async function POST(request: NextRequest) {
     // Send code email — if it fails, account still exists, user can resend
     let emailWarning: string | null = null;
     try {
-      await sendVerificationCode(email.toLowerCase(), code);
+      await sendVerificationCode(email.toLowerCase(), code, lang);
     } catch (emailError) {
       console.error("Code email failed:", emailError);
       emailWarning = "Account created but we could not send the code. Check server console or use Resend below.";
