@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "inSIXlive — Privacy Policy",
-  description: "How inSIXlive collects, uses, and protects your personal data.",
-};
-
 type Lang = "en" | "ro";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string }>;
+}): Promise<Metadata> {
+  const sp = await searchParams;
+  const lang: Lang = sp.lang === "ro" ? "ro" : "en";
+  return lang === "ro"
+    ? { title: "inSIXlive — Politica de confidențialitate", description: "Cum colectează, folosește și protejează inSIXlive datele tale personale." }
+    : { title: "inSIXlive — Privacy Policy", description: "How inSIXlive collects, uses, and protects your personal data." };
+}
 
 const COPY = {
   en: {

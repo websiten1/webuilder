@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "inSIXlive — Terms of Service",
-  description: "Terms and conditions for using the inSIXlive website generation service.",
-};
-
 type Lang = "en" | "ro";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string }>;
+}): Promise<Metadata> {
+  const sp = await searchParams;
+  const lang: Lang = sp.lang === "ro" ? "ro" : "en";
+  return lang === "ro"
+    ? { title: "inSIXlive — Termeni și condiții", description: "Termenii și condițiile de utilizare a serviciului inSIXlive." }
+    : { title: "inSIXlive — Terms of Service", description: "Terms and conditions for using the inSIXlive website generation service." };
+}
 
 const COPY = {
   en: {
