@@ -60,6 +60,14 @@ export async function POST() {
     )
   `;
 
+  await sql`
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS preferred_language TEXT NOT NULL DEFAULT 'en'
+  `;
+  await sql`
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS email_preferences JSONB NOT NULL DEFAULT
+      '{"websiteUpdates":true,"rewards":true,"tips":false,"promotions":false}'::jsonb
+  `;
+
   return NextResponse.json({
     success: true,
     message: "Tables created (or already exist).",

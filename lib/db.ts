@@ -10,6 +10,13 @@ function getDb() {
   return neon(url);
 }
 
+export type EmailPreferences = {
+  websiteUpdates: boolean;
+  rewards: boolean;
+  tips: boolean;
+  promotions: boolean;
+};
+
 export type User = {
   id: string;
   email: string;
@@ -28,6 +35,8 @@ export type User = {
   vercel_team_id: string | null;
   vercel_authorized: boolean;
   vercel_authorized_at: Date | null;
+  preferred_language: "en" | "ro";
+  email_preferences: EmailPreferences;
   created_at: Date;
   updated_at: Date;
 };
@@ -104,15 +113,28 @@ export async function createUser(
   email: string,
   passwordHash: string,
   verificationToken: string,
-  tokenExpires: Date
+  tokenExpires: Date,
+  preferredLanguage: "en" | "ro" = "en"
 ): Promise<User> {
   const sql = getDb();
   const rows = await sql`
-    INSERT INTO users (email, password_hash, verification_token, verification_token_expires)
-    VALUES (${email}, ${passwordHash}, ${verificationToken}, ${tokenExpires})
+    INSERT INTO users (email, password_hash, verification_token, verification_token_expires, preferred_language)
+    VALUES (${email}, ${passwordHash}, ${verificationToken}, ${tokenExpires}, ${preferredLanguage})
     RETURNING *
   `;
   return rows[0] as User;
+}
+
+export async function updateUserEmailPreferences(
+  userId: string,
+  prefs: EmailPreferences
+): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE users
+    SET email_preferences = ${JSON.stringify(prefs)}::jsonb, updated_at = NOW()
+    WHERE id = ${userId}
+  `;
 }
 
 export async function getUserByVerificationToken(
