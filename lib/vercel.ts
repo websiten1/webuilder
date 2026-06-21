@@ -168,6 +168,38 @@ export async function setProjectEnvVars(
   }
 }
 
+// Creates a Blob store and connects it to the project so PARISH_CALENDAR_FILES
+// (which read/write via @vercel/blob) work without the user doing manual setup.
+// Throws if the token lacks storage scope (e.g. some Vercel Integration OAuth
+// tokens) — callers should catch this and fall back to the manual-connect flow.
+export async function createAndConnectBlobStore(
+  projectId: string,
+  token: string,
+  teamId: string | null | undefined,
+  storeName: string
+): Promise<void> {
+  const teamQuery = teamId ? `?teamId=${teamId}` : "";
+
+  const createRes = await fetch(`https://api.vercel.com/v1/storage/stores/blob${teamQuery}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ name: storeName }),
+  });
+  if (!createRes.ok) {
+    throw new Error(`Failed to create Blob store (${createRes.status}): ${await createRes.text()}`);
+  }
+  const { store } = await createRes.json();
+
+  const connectRes = await fetch(`https://api.vercel.com/v1/storage/stores/${store.id}/connections${teamQuery}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ projectId, envVarEnvironments: ["production", "preview", "development"] }),
+  });
+  if (!connectRes.ok) {
+    throw new Error(`Failed to connect Blob store (${connectRes.status}): ${await connectRes.text()}`);
+  }
+}
+
 export async function checkDeploymentStatus(
   deploymentId: string,
   userToken?: string

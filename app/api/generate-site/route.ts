@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateWebsiteCode } from "@/lib/anthropic";
-import { deployToVercel, getValidVercelToken, setProjectEnvVars } from "@/lib/vercel";
+import { deployToVercel, getValidVercelToken, setProjectEnvVars, createAndConnectBlobStore } from "@/lib/vercel";
 import { getSession } from "@/lib/session";
-import { getUserById, saveSiteWithVercel, getSiteById, updateSiteAfterRegeneration, createParishCalendarModule } from "@/lib/db";
+import { getUserById, saveSiteWithVercel, getSiteById, updateSiteAfterRegeneration, createParishCalendarModule, setParishCalendarBlobConnected } from "@/lib/db";
 import { sendParishCalendarSetupEmail, sendWebsiteCreatedEmail } from "@/lib/email";
 import { encryptToken } from "@/lib/encryption";
 import { PARISH_CALENDAR_FILES } from "@/lib/parish-calendar-templates";
@@ -517,6 +517,19 @@ export async function POST(request: NextRequest) {
         const sessionSecret = crypto.randomBytes(24).toString("hex");
 
         const projectToken = userVercelToken ?? process.env.VERCEL_API_TOKEN!;
+
+        // Try to provision Blob storage ourselves so the customer doesn't have to.
+        // Some connected Vercel accounts (OAuth integration tokens) lack storage
+        // scope — in that case this throws and we fall back to the manual-setup
+        // email exactly as before.
+        let blobConnected = false;
+        try {
+          await createAndConnectBlobStore(vercelProjectId, projectToken, userTeamId, `${projectName}-calendar`);
+          blobConnected = true;
+        } catch (blobErr) {
+          console.warn("⚠️  Could not auto-connect Blob store, falling back to manual setup:", blobErr);
+        }
+
         await setProjectEnvVars(vercelProjectId, projectToken, userTeamId, [
           { key: "PARISH_BOOTSTRAP_SECRET", value: bootstrapSecret },
           { key: "PARISH_SESSION_SECRET", value: sessionSecret },
@@ -524,12 +537,35 @@ export async function POST(request: NextRequest) {
 
         await createParishCalendarModule(site.id, adminEmail, passwordHash, encryptToken(bootstrapSecret));
 
+        if (blobConnected) {
+          // The first deployment ran before these env vars existed — Vercel only
+          // injects env vars into a deployment that's built after they're set.
+          await deployToVercel(projectName, websiteCode, {
+            staticImages,
+            userToken: userVercelToken,
+            teamId: userTeamId,
+            parishCalendarFiles: PARISH_CALENDAR_FILES,
+          });
+
+          try {
+            const bootstrapRes = await fetch(`${siteUrl}/api/parish-admin/bootstrap`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "x-bootstrap-secret": bootstrapSecret },
+              body: JSON.stringify({ email: adminEmail, passwordHash }),
+            });
+            if (bootstrapRes.ok) await setParishCalendarBlobConnected(site.id, true);
+          } catch (bootstrapErr) {
+            console.warn("⚠️  Auto-bootstrap call failed, customer can use 'Check now' on the dashboard:", bootstrapErr);
+          }
+        }
+
         await sendParishCalendarSetupEmail(adminEmail, {
           siteName: site.name,
           adminUrl: `${site.vercel_url}/admin`,
           adminEmail,
           tempPassword,
           vercelProjectName: projectName,
+          storageAlreadyConnected: blobConnected,
         });
       } catch (err) {
         console.error("Parish calendar module provisioning failed:", err);
