@@ -1,134 +1,191 @@
-import SiteNav from "@/app/components/SiteNav";
-import SiteFooter from "@/app/components/SiteFooter";
-import { P } from "@/lib/design";
+import type { Metadata } from "next";
 
-export const metadata = {
-  title: "Privacy Policy — insixlive",
-  description: "How insixlive collects, uses, and protects your personal data.",
+export const metadata: Metadata = {
+  title: "inSIXlive — Privacy Policy",
+  description: "How inSIXlive collects, uses, and protects your personal data.",
 };
 
-const S = {
-  page: { background: P.bg, color: P.ink, fontFamily: P.font, minHeight: "100vh" } as React.CSSProperties,
-  hero: { background: P.ink, padding: "72px 24px 64px", textAlign: "center" as const },
-  heroEye: { fontFamily: P.mono, fontSize: 12, letterSpacing: 2, color: "rgba(255,255,255,0.4)", textTransform: "uppercase" as const, marginBottom: 14 },
-  heroTitle: { fontFamily: P.font, fontSize: "clamp(2rem,5vw,3rem)", fontWeight: 700, color: "#fff", letterSpacing: -1, lineHeight: 1.1, margin: 0 },
-  body: { maxWidth: 780, margin: "0 auto", padding: "64px 24px 80px" },
-  updated: { fontFamily: P.mono, fontSize: 12, color: P.muted, marginBottom: 48, letterSpacing: 0.3 },
-  h2: { fontFamily: P.font, fontSize: 22, fontWeight: 700, color: P.ink, marginTop: 48, marginBottom: 12, letterSpacing: -0.4 },
-  p: { fontFamily: P.font, fontSize: 16, lineHeight: 1.75, color: P.inkSoft, marginBottom: 16 },
-  ul: { paddingLeft: 20, marginBottom: 16 },
-  li: { fontFamily: P.font, fontSize: 16, lineHeight: 1.75, color: P.inkSoft, marginBottom: 8 },
-  link: { color: P.em2, textDecoration: "underline" },
-};
+type Lang = "en" | "ro";
 
-export default function PrivacyPage() {
+const COPY = {
+  en: {
+    title: "Privacy Policy",
+    updated: "Last updated: June 21, 2026",
+    tocTitle: "Contents",
+    sections: [
+      { id: "info", title: "Information we collect" },
+      { id: "use", title: "How we use it" },
+      { id: "sharing", title: "Sharing & disclosure" },
+      { id: "cookies", title: "Cookies" },
+      { id: "security", title: "Data security" },
+      { id: "rights", title: "Your rights" },
+      { id: "retention", title: "Data retention" },
+      { id: "contact", title: "Contact us" },
+    ],
+    body: {
+      info: (
+        <>
+          <p>When you create an account and build a website with inSIXlive, we collect information you provide directly to us, including:</p>
+          <ul>
+            <li>Account details such as your name and email address.</li>
+            <li>Content you add to your website — text, images, and settings.</li>
+            <li>Usage data, such as the pages you edit and features you use.</li>
+            <li>Technical data including your browser type, device, and IP address.</li>
+          </ul>
+        </>
+      ),
+      use: <p>We use your information to operate, maintain, and improve inSIXlive, to publish and host your website, to communicate with you about your account, and to keep our platform safe and secure.</p>,
+      sharing: <p>We do not sell your personal data. We share information only with trusted service providers who help us run the platform (such as hosting and email delivery), or when required by law.</p>,
+      cookies: <p>We use cookies and similar technologies to keep you signed in, remember your preferences, and understand how the platform is used. You can control cookies through your browser settings.</p>,
+      security: <p>We use industry-standard measures to protect your data, including encryption in transit. No method of transmission is completely secure, but we work hard to safeguard your information.</p>,
+      rights: <p>You have the right to access, correct, export, or delete your personal data at any time. To exercise these rights, contact us using the details below.</p>,
+      retention: <p>We keep your information for as long as your account is active or as needed to provide our services. When you delete your account, we remove your personal data within a reasonable period, except where retention is required by law.</p>,
+      contact: <p>If you have any questions about this Privacy Policy, reach our team at <a className="inline" href="mailto:insixlive@outlook.com">insixlive@outlook.com</a>.</p>,
+    },
+  },
+  ro: {
+    title: "Politica de confidențialitate",
+    updated: "Ultima actualizare: 21 iunie 2026",
+    tocTitle: "Cuprins",
+    sections: [
+      { id: "info", title: "Informațiile pe care le colectăm" },
+      { id: "use", title: "Cum le folosim" },
+      { id: "sharing", title: "Partajare și divulgare" },
+      { id: "cookies", title: "Cookie-uri" },
+      { id: "security", title: "Securitatea datelor" },
+      { id: "rights", title: "Drepturile tale" },
+      { id: "retention", title: "Păstrarea datelor" },
+      { id: "contact", title: "Contactează-ne" },
+    ],
+    body: {
+      info: (
+        <>
+          <p>Când îți creezi un cont și construiești un site cu inSIXlive, colectăm informațiile pe care ni le furnizezi direct, inclusiv:</p>
+          <ul>
+            <li>Detalii de cont, precum numele și adresa de email.</li>
+            <li>Conținutul pe care îl adaugi pe site — text, imagini și setări.</li>
+            <li>Date de utilizare, precum paginile pe care le editezi și funcțiile pe care le folosești.</li>
+            <li>Date tehnice, inclusiv tipul de browser, dispozitivul și adresa IP.</li>
+          </ul>
+        </>
+      ),
+      use: <p>Folosim informațiile tale pentru a opera, întreține și îmbunătăți inSIXlive, pentru a-ți publica și găzdui site-ul, pentru a comunica cu tine despre contul tău și pentru a menține platforma sigură și securizată.</p>,
+      sharing: <p>Nu vindem datele tale personale. Partajăm informații doar cu furnizori de servicii de încredere care ne ajută să operăm platforma (precum găzduirea și livrarea emailurilor) sau atunci când legea o cere.</p>,
+      cookies: <p>Folosim cookie-uri și tehnologii similare pentru a te menține autentificat, a-ți reține preferințele și a înțelege cum este folosită platforma. Poți controla cookie-urile din setările browserului.</p>,
+      security: <p>Folosim măsuri conforme cu standardele industriei pentru a-ți proteja datele, inclusiv criptarea în tranzit. Nicio metodă de transmitere nu este complet sigură, dar depunem eforturi mari pentru a-ți proteja informațiile.</p>,
+      rights: <p>Ai dreptul de a accesa, corecta, exporta sau șterge datele tale personale oricând. Pentru a-ți exercita aceste drepturi, contactează-ne folosind detaliile de mai jos.</p>,
+      retention: <p>Păstrăm informațiile tale atât timp cât contul tău este activ sau cât este necesar pentru a furniza serviciile noastre. Când îți ștergi contul, eliminăm datele tale personale într-o perioadă rezonabilă, cu excepția cazurilor în care păstrarea este cerută de lege.</p>,
+      contact: <p>Dacă ai întrebări despre această Politică de confidențialitate, contactează echipa noastră la <a className="inline" href="mailto:insixlive@outlook.com">insixlive@outlook.com</a>.</p>,
+    },
+  },
+} as const satisfies Record<Lang, unknown>;
+
+const FOOTER_LABELS = {
+  en: { rights: "All rights reserved.", privacy: "Privacy Policy", terms: "Terms of Service", prefs: "Email Preferences" },
+  ro: { rights: "Toate drepturile rezervate.", privacy: "Politica de confidențialitate", terms: "Termeni și condiții", prefs: "Preferințe email" },
+} as const;
+
+export default async function PrivacyPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string }>;
+}) {
+  const sp = await searchParams;
+  const lang: Lang = sp.lang === "ro" ? "ro" : "en";
+  const c = COPY[lang];
+  const f = FOOTER_LABELS[lang];
+
   return (
-    <div style={S.page}>
-      <style>{`*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{overflow-x:hidden}body{overflow-x:hidden}`}</style>
-      <SiteNav />
+    <>
+      <style>{`
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f8; color: #1a1a1a; line-height: 1.6; }
+        .lp-page { padding: 20px; }
+        .lp-container { max-width: 720px; margin: 0 auto; }
+        .lp-wrapper { background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .lp-accent-bar { height: 6px; background: linear-gradient(90deg, #ff6b35 0%, #ffbf00 25%, #2ec4b6 50%, #3a86ff 75%, #6a4c93 100%); }
+        .lp-topbar { padding: 24px 40px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+        .lp-brand { display: flex; align-items: center; gap: 10px; }
+        .lp-brand .lp-logo { font-size: 28px; font-weight: 900; color: #ff6b35; line-height: 1; }
+        .lp-brand-name { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; color: #1a1a1a; }
+        .lp-lang-switch { display: flex; gap: 6px; }
+        .lp-lang-switch a { font-size: 13px; font-weight: 600; text-decoration: none; color: #888888; padding: 5px 12px; border: 1px solid #e8e8e8; border-radius: 20px; }
+        .lp-lang-switch a.active { background: #ff6b35; color: #ffffff; border-color: #ff6b35; }
+        .lp-content { padding: 40px; }
+        .lp-title { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; color: #1a1a1a; }
+        .lp-updated { font-size: 14px; color: #999999; margin-bottom: 32px; }
+        .lp-toc { background: #fafafa; border: 1px solid #f0f0f0; border-radius: 12px; padding: 20px 24px; margin-bottom: 36px; }
+        .lp-toc-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #999999; margin-bottom: 12px; }
+        .lp-toc ol { margin: 0; padding-left: 18px; columns: 2; column-gap: 24px; }
+        .lp-toc li { font-size: 14px; margin-bottom: 6px; break-inside: avoid; }
+        .lp-toc a { color: #ff6b35; text-decoration: none; }
+        .lp-section { margin-bottom: 32px; }
+        .lp-h2 { font-size: 19px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 10px; color: #1a1a1a; display: flex; align-items: baseline; gap: 10px; }
+        .lp-h2 .lp-num { color: #ff6b35; font-size: 15px; font-weight: 700; }
+        .lp-content p { font-size: 15px; color: #555555; margin-bottom: 12px; }
+        .lp-content ul { margin: 0 0 12px 0; padding-left: 20px; }
+        .lp-content li { font-size: 15px; color: #555555; margin-bottom: 6px; }
+        a.inline { color: #ff6b35; text-decoration: none; font-weight: 500; }
+        .lp-footer { padding: 24px 40px; border-top: 1px solid #f0f0f0; text-align: center; background: #fafafa; }
+        .lp-footer-text { color: #999999; font-size: 12px; line-height: 1.5; margin-bottom: 12px; }
+        .lp-footer-links { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+        .lp-footer-link { color: #ff6b35; text-decoration: none; font-size: 12px; }
+        .lp-divider { color: #ddd; }
+        @media (max-width: 560px) {
+          .lp-content, .lp-topbar, .lp-footer { padding-left: 24px; padding-right: 24px; }
+          .lp-toc ol { columns: 1; }
+          .lp-title { font-size: 26px; }
+        }
+      `}</style>
+      <div className="lp-page">
+        <div className="lp-container">
+          <div className="lp-wrapper">
+            <div className="lp-accent-bar" />
+            <div className="lp-topbar">
+              <div className="lp-brand">
+                <span className="lp-logo">6</span>
+                <span className="lp-brand-name">inSIXlive</span>
+              </div>
+              <div className="lp-lang-switch">
+                <a href="/privacy?lang=en" className={lang === "en" ? "active" : ""}>EN</a>
+                <a href="/privacy?lang=ro" className={lang === "ro" ? "active" : ""}>RO</a>
+              </div>
+            </div>
 
-      <div style={S.hero}>
-        <p style={S.heroEye}>// legal</p>
-        <h1 style={S.heroTitle}>Privacy Policy</h1>
+            <div className="lp-content">
+              <h1 className="lp-title">{c.title}</h1>
+              <p className="lp-updated">{c.updated}</p>
+
+              <div className="lp-toc">
+                <div className="lp-toc-title">{c.tocTitle}</div>
+                <ol>
+                  {c.sections.map((s) => (
+                    <li key={s.id}><a href={`#${s.id}`}>{s.title}</a></li>
+                  ))}
+                </ol>
+              </div>
+
+              {c.sections.map((s, i) => (
+                <section className="lp-section" id={s.id} key={s.id}>
+                  <h2 className="lp-h2"><span className="lp-num">{String(i + 1).padStart(2, "0")}</span> {s.title}</h2>
+                  {c.body[s.id as keyof typeof c.body]}
+                </section>
+              ))}
+            </div>
+
+            <div className="lp-footer">
+              <p className="lp-footer-text">© 2026 inSIXlive. {f.rights}</p>
+              <div className="lp-footer-links">
+                <a href={`/privacy?lang=${lang}`} className="lp-footer-link">{f.privacy}</a>
+                <span className="lp-divider">•</span>
+                <a href={`/terms?lang=${lang}`} className="lp-footer-link">{f.terms}</a>
+                <span className="lp-divider">•</span>
+                <a href={`/email-preferences?lang=${lang}`} className="lp-footer-link">{f.prefs}</a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <div style={S.body}>
-        <p style={S.updated}>Last updated: 12 June 2026</p>
-
-        <p style={S.p}>
-          insixlive (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) operates the website insixlive.com and provides AI-powered website generation services. This Privacy Policy explains what personal data we collect, why we collect it, and your rights regarding that data. By using our service you agree to this policy.
-        </p>
-
-        <h2 style={S.h2}>1. Who we are</h2>
-        <p style={S.p}>
-          Data controller: insixlive, reachable at <a href="mailto:support@insixlive.com" style={S.link}>support@insixlive.com</a>. If you have any questions about this policy or your data, please contact us at that address.
-        </p>
-
-        <h2 style={S.h2}>2. Data we collect</h2>
-        <p style={S.p}>We collect only what is necessary to provide the service:</p>
-        <ul style={S.ul}>
-          <li style={S.li}><strong>Account data</strong> — email address and hashed password when you create an account.</li>
-          <li style={S.li}><strong>Payment data</strong> — payments are processed by Stripe. We receive a confirmation record (Stripe session ID and payment status) but never see or store card details.</li>
-          <li style={S.li}><strong>Website generation inputs</strong> — the business information you enter in the form (business name, description, services, etc.) used solely to generate your website.</li>
-          <li style={S.li}><strong>Vercel OAuth token</strong> — if you connect your Vercel account, we store an access token to deploy your site. This token is stored encrypted and never shared with third parties.</li>
-          <li style={S.li}><strong>Usage logs</strong> — basic server logs (IP address, timestamp, route) retained for up to 30 days for security and debugging purposes.</li>
-        </ul>
-        <p style={S.p}>We do not collect, and our service is not directed to, children under the age of 13. If we become aware that a child under 13 has provided us personal data, we will delete it immediately. Parents or guardians who believe their child has provided us data should contact <a href="mailto:support@insixlive.com" style={S.link}>support@insixlive.com</a>.</p>
-
-        <h2 style={S.h2}>3. Legal bases for processing (GDPR)</h2>
-        <ul style={S.ul}>
-          <li style={S.li}><strong>Contract performance</strong> — account management, site generation, and deployment.</li>
-          <li style={S.li}><strong>Legitimate interests</strong> — security logging, fraud prevention.</li>
-          <li style={S.li}><strong>Legal obligation</strong> — where required by applicable law.</li>
-        </ul>
-
-        <h2 style={S.h2}>4. How we use your data</h2>
-        <ul style={S.ul}>
-          <li style={S.li}>Authenticate your account and protect it against unauthorised access.</li>
-          <li style={S.li}>Process your payment and generate your website.</li>
-          <li style={S.li}>Deploy your generated website to your Vercel account.</li>
-          <li style={S.li}>Send transactional emails (verification code, payment receipt) — no marketing emails unless you opt in explicitly.</li>
-          <li style={S.li}>Improve the service and fix technical issues using anonymised analytics.</li>
-        </ul>
-
-        <h2 style={S.h2}>5. Data sharing and third parties</h2>
-        <p style={S.p}>We use the following sub-processors to operate the service:</p>
-        <ul style={S.ul}>
-          <li style={S.li}><strong>Stripe</strong> — payment processing (PCI-DSS Level 1 certified).</li>
-          <li style={S.li}><strong>Vercel</strong> — hosting of insixlive.com and deployment of your site.</li>
-          <li style={S.li}><strong>Neon / PostgreSQL</strong> — encrypted database storage of account records.</li>
-          <li style={S.li}><strong>OpenAI / AI providers</strong> — your business inputs are sent to generate website content. Inputs are not retained by the AI provider for training under our enterprise agreement.</li>
-        </ul>
-        <p style={S.p}>We do not sell your personal data. We do not share it with advertisers or data brokers.</p>
-
-        <h2 style={S.h2}>6. Data retention</h2>
-        <ul style={S.ul}>
-          <li style={S.li}>Account data is retained for as long as your account exists. You may request deletion at any time (see §8).</li>
-          <li style={S.li}>Generated website files are stored on your own Vercel account once deployed; we retain a copy for 30 days in case of regeneration requests, then delete it.</li>
-          <li style={S.li}>Payment records are retained for 7 years to comply with financial regulations.</li>
-          <li style={S.li}>Server logs are retained for 30 days.</li>
-        </ul>
-
-        <h2 style={S.h2}>7. Security</h2>
-        <p style={S.p}>
-          We use HTTPS/TLS for all data in transit. Passwords are hashed with bcrypt (never stored in plain text). Session tokens are short-lived (15-minute inactivity timeout) and stored as httpOnly cookies. Access to production systems is restricted to authorised personnel only. We will notify affected users within 72 hours of discovering a data breach as required by GDPR.
-        </p>
-
-        <h2 style={S.h2}>8. Your rights</h2>
-        <p style={S.p}>Under GDPR and equivalent legislation you have the right to:</p>
-        <ul style={S.ul}>
-          <li style={S.li}><strong>Access</strong> — request a copy of the personal data we hold about you.</li>
-          <li style={S.li}><strong>Rectification</strong> — ask us to correct inaccurate data.</li>
-          <li style={S.li}><strong>Erasure</strong> — request deletion of your account and associated personal data (subject to legal retention obligations).</li>
-          <li style={S.li}><strong>Portability</strong> — receive your data in a machine-readable format.</li>
-          <li style={S.li}><strong>Restriction</strong> — ask us to pause processing in certain circumstances.</li>
-          <li style={S.li}><strong>Objection</strong> — object to processing based on legitimate interests.</li>
-          <li style={S.li}><strong>Withdraw consent</strong> — where processing is based on consent, you may withdraw it at any time.</li>
-        </ul>
-        <p style={S.p}>To exercise any of these rights, email <a href="mailto:support@insixlive.com" style={S.link}>support@insixlive.com</a>. We will respond within 30 days. You also have the right to lodge a complaint with your national data protection authority.</p>
-
-        <h2 style={S.h2}>9. Cookies</h2>
-        <p style={S.p}>
-          We use one functional cookie (&quot;session&quot;) that is strictly necessary to keep you logged in. It is httpOnly, secure, and expires when you close your browser or after 15 minutes of inactivity. We do not use advertising or tracking cookies. Our cookie banner allows you to acknowledge this.
-        </p>
-
-        <h2 style={S.h2}>10. International transfers</h2>
-        <p style={S.p}>
-          Our service infrastructure is hosted primarily in the EU. If data is processed outside the EEA (e.g. by AI providers operating in the US), we ensure appropriate safeguards are in place via Standard Contractual Clauses (SCCs) or equivalent mechanisms.
-        </p>
-
-        <h2 style={S.h2}>11. Changes to this policy</h2>
-        <p style={S.p}>
-          We may update this policy from time to time. The &quot;Last updated&quot; date at the top will reflect any changes. For material changes, we will notify you via email. Continued use of the service after the effective date constitutes acceptance of the revised policy.
-        </p>
-
-        <h2 style={S.h2}>12. Contact</h2>
-        <p style={S.p}>
-          For any privacy-related questions or requests: <a href="mailto:support@insixlive.com" style={S.link}>support@insixlive.com</a>
-        </p>
-      </div>
-
-      <SiteFooter />
-    </div>
+    </>
   );
 }
