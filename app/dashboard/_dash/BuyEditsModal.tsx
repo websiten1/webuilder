@@ -4,8 +4,9 @@ import { useRouter } from "next/navigation";
 import { Icons } from "./icons";
 import { Callout } from "./primitives";
 import type { DashSite } from "./types";
+import { tt, type Lang } from "./i18n";
 
-export function BuyEditsModal({ site, sites, onClose }: { site: DashSite | null; sites: DashSite[]; onClose: () => void }) {
+export function BuyEditsModal({ site, sites, onClose, lang }: { site: DashSite | null; sites: DashSite[]; onClose: () => void; lang: Lang }) {
   const router = useRouter();
   const go = (id: string) => {
     onClose();
@@ -19,22 +20,22 @@ export function BuyEditsModal({ site, sites, onClose }: { site: DashSite | null;
             <span className="itile accent" style={{ width: 34, height: 34 }}>
               <Icons.bolt size={18} />
             </span>
-            Buy an edit
+            {tt(lang, "Buy an edit", "Cumpără o modificare")}
           </div>
           <div className="msb">
             {site ? (
               <span>
-                Describe the change you want on <b style={{ color: "var(--text)" }}>{site.name}</b> and pay €10.00 — it&apos;s applied right away.
+                {tt(lang, "Describe the change you want on", "Descrie schimbarea pe care o dorești pentru")} <b style={{ color: "var(--text)" }}>{site.name}</b> {tt(lang, "and pay €10.00 — it's applied right away.", "și plătește 10,00 € — se aplică imediat.")}
               </span>
             ) : (
-              "Pick a site below. Each edit is €10.00, described up front and applied immediately — there's no separate credit wallet to pre-buy."
+              tt(lang, "Pick a site below. Each edit is €10.00, described up front and applied immediately — there's no separate credit wallet to pre-buy.", "Alege un site mai jos. Fiecare modificare costă 10,00 €, este descrisă din timp și aplicată imediat — nu există un portofel de credite separat de precomandat.")
             )}
           </div>
         </div>
         <div className="modal-body">
           {site ? (
-            <Callout kind="info" icon={<Icons.card />} title="Secure one-time payment">
-              You&apos;ll describe the change on the next page, then pay via Stripe before it&apos;s generated and redeployed.
+            <Callout kind="info" icon={<Icons.card />} title={tt(lang, "Secure one-time payment", "Plată unică securizată")}>
+              {tt(lang, "You'll describe the change on the next page, then pay via Stripe before it's generated and redeployed.", "Vei descrie schimbarea pe pagina următoare, apoi vei plăti prin Stripe înainte ca aceasta să fie generată și republicată.")}
             </Callout>
           ) : (
             <div className="list">
@@ -48,7 +49,7 @@ export function BuyEditsModal({ site, sites, onClose }: { site: DashSite | null;
                   <div className="site-fav" style={{ width: 32, height: 32, fontSize: 12, background: s.color }}>{s.fav}</div>
                   <div className="lcell grow">
                     <div className="lc-h">{s.name}</div>
-                    <div className="lc-s">{s.edits} free edit{s.edits === 1 ? "" : "s"} remaining</div>
+                    <div className="lc-s">{s.edits} {tt(lang, `free edit${s.edits === 1 ? "" : "s"} remaining`, `${s.edits === 1 ? "modificare gratuită" : "modificări gratuite"} rămase`)}</div>
                   </div>
                   <Icons.chevRight size={16} />
                 </button>
@@ -57,10 +58,10 @@ export function BuyEditsModal({ site, sites, onClose }: { site: DashSite | null;
           )}
         </div>
         <div className="modal-foot">
-          <div className="mf-total">{site ? <>Edit price <b>€10.00</b></> : <span style={{ color: "var(--text-3)" }}>Choose a site to continue</span>}</div>
+          <div className="mf-total">{site ? <>{tt(lang, "Edit price", "Preț modificare")} <b>€10.00</b></> : <span style={{ color: "var(--text-3)" }}>{tt(lang, "Choose a site to continue", "Alege un site pentru a continua")}</span>}</div>
           <div style={{ display: "flex", gap: 9 }}>
-            <button className="b b-quiet" onClick={onClose}>Cancel</button>
-            {site && <button className="b b-primary" onClick={() => go(site.id)}>Continue</button>}
+            <button className="b b-quiet" onClick={onClose}>{tt(lang, "Cancel", "Anulează")}</button>
+            {site && <button className="b b-primary" onClick={() => go(site.id)}>{tt(lang, "Continue", "Continuă")}</button>}
           </div>
         </div>
       </div>

@@ -17,6 +17,7 @@ import { NotificationsPage } from "./_dash/NotificationsPage";
 import { AnalyticsPage } from "./_dash/AnalyticsPage";
 import { BuyEditsModal } from "./_dash/BuyEditsModal";
 import { DeleteModal } from "./_dash/DeleteModal";
+import { tt, type Lang } from "./_dash/i18n";
 import type { DashSite, Invoice, PageId, User, VercelConnection } from "./_dash/types";
 
 type RawSite = {
@@ -80,16 +81,19 @@ function toDashSite(s: RawSite, i: number): DashSite {
   };
 }
 
-const PAGE_META: Record<PageId, { grp: string; label: string }> = {
-  overview: { grp: "Workspace", label: "Overview" },
-  analytics: { grp: "Workspace", label: "Analytics" },
-  domains: { grp: "Workspace", label: "Domains" },
-  profile: { grp: "Account", label: "Profile" },
-  security: { grp: "Account", label: "Security" },
-  connected: { grp: "Account", label: "Connected accounts" },
-  billing: { grp: "Account", label: "Billing" },
-  notifications: { grp: "Account", label: "Notifications" },
-};
+function pageMeta(lang: Lang): Record<PageId, { grp: string; label: string }> {
+  return {
+    overview: { grp: tt(lang, "Workspace", "Spațiu de lucru"), label: tt(lang, "Overview", "Prezentare") },
+    analytics: { grp: tt(lang, "Workspace", "Spațiu de lucru"), label: tt(lang, "Analytics", "Statistici") },
+    domains: { grp: tt(lang, "Workspace", "Spațiu de lucru"), label: tt(lang, "Domains", "Domenii") },
+    profile: { grp: tt(lang, "Account", "Cont"), label: tt(lang, "Profile", "Profil") },
+    security: { grp: tt(lang, "Account", "Cont"), label: tt(lang, "Security", "Securitate") },
+    connected: { grp: tt(lang, "Account", "Cont"), label: tt(lang, "Connected accounts", "Conturi conectate") },
+    billing: { grp: tt(lang, "Account", "Cont"), label: tt(lang, "Billing", "Facturare") },
+    notifications: { grp: tt(lang, "Account", "Cont"), label: tt(lang, "Notifications", "Notificări") },
+  };
+}
+const PAGE_IDS: PageId[] = ["overview", "analytics", "domains", "profile", "security", "connected", "billing", "notifications"];
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -125,7 +129,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const h = (location.hash || "").replace("#", "") as PageId;
-    if (PAGE_META[h]) setPage(h);
+    if (PAGE_IDS.includes(h)) setPage(h);
 
     (async () => {
       try {
@@ -164,15 +168,17 @@ export default function DashboardPage() {
     window.location.href = "/";
   };
 
+  const lang: Lang = user?.preferredLanguage === "ro" ? "ro" : "en";
+
   const handleDisconnectVercel = async () => {
     await fetch("/api/auth/vercel/disconnect", { method: "POST" });
     setVercel({ connected: false, account: null, email: null, teamId: null, since: null });
-    toast("Vercel disconnected");
+    toast(tt(lang, "Vercel disconnected", "Vercel deconectat"));
   };
 
   const editsLeft = useMemo(() => sites.reduce((s, x) => s + x.edits, 0), [sites]);
   const initials = user?.email?.slice(0, 2).toUpperCase() ?? "??";
-  const meta = PAGE_META[page];
+  const meta = pageMeta(lang)[page];
 
   if (loading) {
     return (
@@ -194,6 +200,7 @@ export default function DashboardPage() {
         openBuy={() => setBuy({ site: null })}
         siteCount={sites.length}
         domainCount={sites.filter((s) => s.domain).length}
+        lang={lang}
       />
       {navOpen && <div className="scrim" onClick={() => setNavOpen(false)}></div>}
       <div className="main">
@@ -207,9 +214,9 @@ export default function DashboardPage() {
             <span className="c-now">{meta.label}</span>
           </div>
           <div className="tb-spacer"></div>
-          <div className="tb-search" onClick={() => toast("Search coming soon")}>
+          <div className="tb-search" onClick={() => toast(tt(lang, "Search coming soon", "Căutare disponibilă în curând"))}>
             <Icons.search />
-            <span>Search sites…</span>
+            <span>{tt(lang, "Search sites…", "Caută site-uri…")}</span>
             <span className="kbd">⌘K</span>
           </div>
           <button className="tb-icon" onClick={() => go("notifications")}>
@@ -228,6 +235,7 @@ export default function DashboardPage() {
                 email={user?.email ?? ""}
                 initials={initials}
                 planLabel="PAYG"
+                lang={lang}
               />
             )}
           </div>
@@ -242,21 +250,23 @@ export default function DashboardPage() {
               onOpenSite={(site) => window.open(`https://${site.domain ?? site.vercel}`, "_blank")}
               onDomain={(site) => router.push(`/domains/${site.id}`)}
               lifetimeSpend={lifetimeSpend}
+              lang={lang}
             />
           )}
-          {page === "analytics" && <AnalyticsPage sites={sites} toast={toast} />}
-          {page === "domains" && <DomainsPage sites={sites} toast={toast} />}
+          {page === "analytics" && <AnalyticsPage sites={sites} toast={toast} lang={lang} />}
+          {page === "domains" && <DomainsPage sites={sites} toast={toast} lang={lang} />}
           {page === "profile" && (
             <ProfilePage
               email={user?.email ?? ""}
               initials={initials}
               joined={sites.length ? new Date(sites[sites.length - 1].createdAt).toLocaleDateString("en-GB", { month: "long", year: "numeric" }) : "—"}
               toast={toast}
+              lang={lang}
             />
           )}
-          {page === "security" && <SecurityPage toast={toast} />}
+          {page === "security" && <SecurityPage toast={toast} lang={lang} />}
           {page === "connected" && (
-            <ConnectedPage vercel={vercel} loading={vercelLoading} onDisconnect={handleDisconnectVercel} toast={toast} />
+            <ConnectedPage vercel={vercel} loading={vercelLoading} onDisconnect={handleDisconnectVercel} toast={toast} lang={lang} />
           )}
           {page === "billing" && (
             <BillingPage
@@ -267,13 +277,14 @@ export default function DashboardPage() {
               loading={billingLoading}
               hasStripeCustomer={user?.paymentStatus === "paid"}
               toast={toast}
+              lang={lang}
             />
           )}
-          {page === "notifications" && <NotificationsPage toast={toast} onDelete={() => setDel(true)} />}
+          {page === "notifications" && <NotificationsPage toast={toast} onDelete={() => setDel(true)} lang={lang} />}
         </main>
       </div>
-      {del && <DeleteModal onClose={() => setDel(false)} toast={toast} />}
-      {buy && <BuyEditsModal site={buy.site} sites={sites} onClose={() => setBuy(null)} />}
+      {del && <DeleteModal onClose={() => setDel(false)} toast={toast} lang={lang} />}
+      {buy && <BuyEditsModal site={buy.site} sites={sites} onClose={() => setBuy(null)} lang={lang} />}
       {toastMsg && (
         <div className="toast">
           <Icons.checkCircle />

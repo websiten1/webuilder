@@ -1,4 +1,4 @@
-export type User = { id: string; email: string; paymentStatus: string };
+export type User = { id: string; email: string; paymentStatus: string; preferredLanguage: "en" | "ro" };
 
 export type DashSite = {
   id: string;

@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { Icons } from "./icons";
+import { tt, type Lang } from "./i18n";
 
 export function Avatar({ initials = "??", size = 32, className = "" }: { initials?: string; size?: number; className?: string }) {
   return (
@@ -34,10 +35,10 @@ export function Pill({ kind = "", dot = false, children }: { kind?: string; dot?
   );
 }
 
-export function LiveBadge() {
+export function LiveBadge({ lang = "en" }: { lang?: Lang }) {
   return (
     <span className="pill pill-ok">
-      <span className="live-dot"></span>Live
+      <span className="live-dot"></span>{tt(lang, "Live", "Online")}
     </span>
   );
 }

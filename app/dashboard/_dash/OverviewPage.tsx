@@ -4,6 +4,7 @@ import { Icons } from "./icons";
 import { Section, Pill, LiveBadge } from "./primitives";
 import { ParishCalendarCard } from "./ParishCalendarCard";
 import type { DashSite, PageId } from "./types";
+import { tt, type Lang } from "./i18n";
 
 function SitePreview({ site }: { site: DashSite }) {
   return (
@@ -33,11 +34,13 @@ export function SiteCard({
   openBuy,
   onOpen,
   onDomain,
+  lang,
 }: {
   site: DashSite;
   openBuy: (site: DashSite) => void;
   onOpen: () => void;
   onDomain: () => void;
+  lang: Lang;
 }) {
   return (
     <div className="site" onClick={onOpen}>
@@ -49,7 +52,7 @@ export function SiteCard({
         <div className="site-info">
           <div className="site-name">
             {site.name}
-            {site.status === "live" ? <LiveBadge /> : <Pill kind="mute" dot>Draft</Pill>}
+            {site.status === "live" ? <LiveBadge lang={lang} /> : <Pill kind="mute" dot>{tt(lang, "Draft", "Ciornă")}</Pill>}
           </div>
           <div className="site-dom">{site.domain || site.vercel}</div>
         </div>
@@ -66,7 +69,7 @@ export function SiteCard({
       <div className="site-foot">
         <span className="sf-edits">
           <Icons.bolt size={13} />
-          <b>{site.edits}</b> edit{site.edits === 1 ? "" : "s"} left
+          <b>{site.edits}</b> {tt(lang, `edit${site.edits === 1 ? "" : "s"} left`, `${site.edits === 1 ? "modificare" : "modificări"} rămase`)}
         </span>
         <button
           className="b b-ghost b-sm sf-buy"
@@ -75,7 +78,7 @@ export function SiteCard({
             openBuy(site);
           }}
         >
-          Buy edits
+          {tt(lang, "Buy edits", "Cumpără modificări")}
         </button>
       </div>
     </div>
@@ -90,6 +93,7 @@ export function OverviewPage({
   onOpenSite,
   onDomain,
   lifetimeSpend,
+  lang,
 }: {
   sites: DashSite[];
   editsLeft: number;
@@ -98,6 +102,7 @@ export function OverviewPage({
   onOpenSite: (site: DashSite) => void;
   onDomain: (site: DashSite) => void;
   lifetimeSpend: number;
+  lang: Lang;
 }) {
   const live = sites.filter((s) => s.status === "live").length;
   const drafts = sites.length - live;
@@ -107,15 +112,15 @@ export function OverviewPage({
     <div className="page view-enter">
       <div className="page-head flex">
         <div>
-          <div className="kicker">// Workspace</div>
-          <h1 className="page-title">Your sites</h1>
+          <div className="kicker">// {tt(lang, "Workspace", "Spațiu de lucru")}</div>
+          <h1 className="page-title">{tt(lang, "Your sites", "Site-urile tale")}</h1>
           <p className="page-sub">
-            Every site you&apos;ve generated with insixlive — deployed to your own Vercel, yours to keep forever.
+            {tt(lang, "Every site you've generated with insixlive — deployed to your own Vercel, yours to keep forever.", "Fiecare site generat cu insixlive — publicat pe propriul tău Vercel, al tău pentru totdeauna.")}
           </p>
         </div>
         <a className="b b-primary b-lg" href="/generate">
           <Icons.plus size={16} />
-          New site
+          {tt(lang, "New site", "Site nou")}
         </a>
       </div>
 
@@ -123,30 +128,30 @@ export function OverviewPage({
         <div className="stat">
           <div className="s-k">
             <Icons.layers size={13} />
-            Total sites
+            {tt(lang, "Total sites", "Total site-uri")}
           </div>
           <div className="s-v">{sites.length}</div>
           <div className="s-d">
-            <b>{live}</b> live · {drafts} draft
+            <b>{live}</b> {tt(lang, "live", "online")} · {drafts} {tt(lang, "draft", "ciornă")}
           </div>
         </div>
         <div className="stat">
           <div className="s-k">
             <Icons.bolt size={13} />
-            Edit credits
+            {tt(lang, "Edit credits", "Credite modificări")}
           </div>
           <div className="s-v">{editsLeft}</div>
           <div className="s-d">
-            Use on any site ·{" "}
+            {tt(lang, "Use on any site", "Folosește pe orice site")} ·{" "}
             <a className="b-link" style={{ fontSize: 12 }} onClick={() => openBuy(null)}>
-              Buy more
+              {tt(lang, "Buy more", "Cumpără mai multe")}
             </a>
           </div>
         </div>
         <div className="stat">
           <div className="s-k">
             <Icons.globe size={13} />
-            Custom domains
+            {tt(lang, "Custom domains", "Domenii proprii")}
           </div>
           <div className="s-v">
             {domains}
@@ -154,54 +159,54 @@ export function OverviewPage({
           </div>
           <div className="s-d">
             <a className="b-link" style={{ fontSize: 12 }} onClick={() => go("domains")}>
-              Manage domains →
+              {tt(lang, "Manage domains →", "Gestionează domeniile →")}
             </a>
           </div>
         </div>
         <div className="stat accent">
           <div className="s-k">
             <Icons.receipt size={13} />
-            Lifetime spend
+            {tt(lang, "Lifetime spend", "Cheltuit total")}
           </div>
           <div className="s-v">€{lifetimeSpend.toFixed(2)}</div>
-          <div className="s-d">One-time · no subscriptions</div>
+          <div className="s-d">{tt(lang, "One-time · no subscriptions", "Plată unică · fără abonamente")}</div>
         </div>
       </div>
 
-      <Section kicker="04" title="All sites" action={<button className="b-link" onClick={() => go("analytics")}>View analytics →</button>}>
+      <Section kicker="04" title={tt(lang, "All sites", "Toate site-urile")} action={<button className="b-link" onClick={() => go("analytics")}>{tt(lang, "View analytics →", "Vezi statisticile →")}</button>}>
         {sites.length === 0 ? (
           <div className="empty">
             <div className="em-ic">
               <Icons.rocket size={26} />
             </div>
-            <div className="em-h">No websites yet</div>
-            <div className="em-d">Create your first AI-generated website in around six minutes, deployed live on Vercel.</div>
+            <div className="em-h">{tt(lang, "No websites yet", "Niciun site încă")}</div>
+            <div className="em-d">{tt(lang, "Create your first AI-generated website in around six minutes, deployed live on Vercel.", "Creează-ți primul site generat de AI în aproximativ șase minute, publicat live pe Vercel.")}</div>
             <a className="b b-primary" href="/generate">
               <Icons.plus size={15} />
-              Generate your first website
+              {tt(lang, "Generate your first website", "Generează-ți primul site")}
             </a>
           </div>
         ) : (
           <div className="sites">
             {sites.map((site) => (
-              <SiteCard key={site.id} site={site} openBuy={openBuy} onOpen={() => onOpenSite(site)} onDomain={() => onDomain(site)} />
+              <SiteCard key={site.id} site={site} openBuy={openBuy} onOpen={() => onOpenSite(site)} onDomain={() => onDomain(site)} lang={lang} />
             ))}
             <a className="site-new" href="/generate">
               <div className="sn-ic">
                 <Icons.plus size={22} />
               </div>
-              <div className="sn-h">Generate a new site</div>
-              <div className="sn-d">From €49.99 · one-time</div>
+              <div className="sn-h">{tt(lang, "Generate a new site", "Generează un site nou")}</div>
+              <div className="sn-d">{tt(lang, "From €49.99 · one-time", "De la 49,99 € · plată unică")}</div>
             </a>
           </div>
         )}
       </Section>
 
       {calendarSites.length > 0 && (
-        <Section kicker="05" title="Editable weekly calendars">
+        <Section kicker="05" title={tt(lang, "Editable weekly calendars", "Calendare săptămânale editabile")}>
           <div className="list">
             {calendarSites.map((s) => (
-              <ParishCalendarCard key={s.id} siteId={s.id} siteName={s.name} blobConnected={!!s.calendarBlobConnected} />
+              <ParishCalendarCard key={s.id} siteId={s.id} siteName={s.name} blobConnected={!!s.calendarBlobConnected} lang={lang} />
             ))}
           </div>
         </Section>

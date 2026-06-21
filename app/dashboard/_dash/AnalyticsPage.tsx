@@ -3,6 +3,7 @@ import React from "react";
 import { Icons } from "./icons";
 import { Section, Pill } from "./primitives";
 import type { DashSite } from "./types";
+import { tt, type Lang } from "./i18n";
 
 function fmt(n: number) {
   return Math.round(n).toLocaleString("en-US");
@@ -34,12 +35,16 @@ function genSeries(n: number, base: number, seed: number) {
   return out;
 }
 
-const TICKS: Record<string, string[]> = {
-  "24h": ["00:00", "06:00", "12:00", "18:00", "now"],
-  "7d": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-  "30d": ["30d", "24d", "18d", "12d", "6d", "now"],
-  "90d": ["90d", "72d", "54d", "36d", "18d", "now"],
-};
+function ticksFor(lang: Lang): Record<string, string[]> {
+  return {
+    "24h": ["00:00", "06:00", "12:00", "18:00", tt(lang, "now", "acum")],
+    "7d": lang === "ro"
+      ? ["Lun", "Mar", "Mie", "Joi", "Vin", "Sâm", "Dum"]
+      : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "30d": ["30d", "24d", "18d", "12d", "6d", tt(lang, "now", "acum")],
+    "90d": ["90d", "72d", "54d", "36d", "18d", tt(lang, "now", "acum")],
+  };
+}
 const TOP_PAGES = [
   { path: "/", pct: 41 }, { path: "/services", pct: 18 }, { path: "/about", pct: 12 },
   { path: "/contact", pct: 11 }, { path: "/pricing", pct: 9 }, { path: "/gallery", pct: 6 }, { path: "/blog", pct: 3 },
@@ -48,15 +53,17 @@ const REFERRERS = [
   { src: "Direct", pct: 37 }, { src: "Google", pct: 32 }, { src: "Instagram", pct: 12 },
   { src: "Facebook", pct: 8 }, { src: "maps.google.com", pct: 6 }, { src: "Bing", pct: 5 },
 ];
-const COUNTRIES = [
-  { cc: "RO", name: "Romania", pct: 63 }, { cc: "MD", name: "Moldova", pct: 10 }, { cc: "IT", name: "Italy", pct: 8 },
-  { cc: "DE", name: "Germany", pct: 7 }, { cc: "GB", name: "United Kingdom", pct: 6 }, { cc: "US", name: "United States", pct: 4 },
-];
+function countriesFor(lang: Lang) {
+  return [
+    { cc: "RO", name: tt(lang, "Romania", "România"), pct: 63 }, { cc: "MD", name: tt(lang, "Moldova", "Moldova"), pct: 10 }, { cc: "IT", name: tt(lang, "Italy", "Italia"), pct: 8 },
+    { cc: "DE", name: tt(lang, "Germany", "Germania"), pct: 7 }, { cc: "GB", name: tt(lang, "United Kingdom", "Regatul Unit"), pct: 6 }, { cc: "US", name: tt(lang, "United States", "Statele Unite"), pct: 4 },
+  ];
+}
 const BROWSERS = [
   { name: "Chrome", pct: 61 }, { name: "Safari", pct: 23 }, { name: "Edge", pct: 8 }, { name: "Firefox", pct: 5 }, { name: "Other", pct: 3 },
 ];
 
-function analyticsFor(site: DashSite, range: string) {
+function analyticsFor(site: DashSite, range: string, lang: Lang) {
   const w = site.weight || 1;
   const cfg = ({ "24h": 24, "7d": 7, "30d": 30, "90d": 13 } as Record<string, number>)[range];
   const perPoint = (range === "24h" ? 30 : range === "90d" ? 2500 : range === "30d" ? 400 : 390) * w;
@@ -87,9 +94,9 @@ function analyticsFor(site: DashSite, range: string) {
     res = 81;
   }
   return {
-    visitors, views, viewRatio, bounce, dur, deltas, series, ticks: TICKS[range],
+    visitors, views, viewRatio, bounce, dur, deltas, series, ticks: ticksFor(lang)[range],
     pages: slice(TOP_PAGES, views), referrers: slice(REFERRERS, visitors),
-    countries: slice(COUNTRIES, visitors), browsers: slice(BROWSERS, visitors),
+    countries: slice(countriesFor(lang), visitors), browsers: slice(BROWSERS, visitors),
     devices: { desktop: Math.round(visitors * 0.58), mobile: Math.round(visitors * 0.38), tablet: Math.round(visitors * 0.04) },
     vitals, res,
   };
@@ -108,7 +115,7 @@ function Delta({ value, goodWhenDown }: { value: number; goodWhenDown?: boolean 
   );
 }
 
-function Gauge({ score }: { score: number }) {
+function Gauge({ score, lang }: { score: number; lang: Lang }) {
   const R = 52;
   const C = 2 * Math.PI * R;
   const pct = score / 100;
@@ -124,15 +131,15 @@ function Gauge({ score }: { score: number }) {
       </svg>
       <div className="gv">
         <b style={{ color }}>{score}</b>
-        <span>Score</span>
+        <span>{tt(lang, "Score", "Scor")}</span>
       </div>
     </div>
   );
 }
 
-function Vital({ k, v, unit, rating, dist }: { k: string; v: string; unit: string; rating: string; dist: number[] }) {
+function Vital({ k, v, unit, rating, dist, lang }: { k: string; v: string; unit: string; rating: string; dist: number[]; lang: Lang }) {
   const cls = rating === "good" ? "vt-good" : rating === "ni" ? "vt-ni" : "vt-poor";
-  const label = rating === "good" ? "Good" : rating === "ni" ? "Needs work" : "Poor";
+  const label = rating === "good" ? tt(lang, "Good", "Bun") : rating === "ni" ? tt(lang, "Needs work", "Necesită îmbunătățiri") : tt(lang, "Poor", "Slab");
   return (
     <div className="vital">
       <div className="vt-k">
@@ -203,9 +210,9 @@ function SiteSelect({ sites, sel, onSelect }: { sites: DashSite[]; sel: string; 
   );
 }
 
-function AnalyticsBody({ site, range }: { site: DashSite; range: string }) {
+function AnalyticsBody({ site, range, lang }: { site: DashSite; range: string; lang: Lang }) {
   const [metric, setMetric] = React.useState<"visitors" | "views">("visitors");
-  const A = React.useMemo(() => analyticsFor(site, range), [site, range]);
+  const A = React.useMemo(() => analyticsFor(site, range, lang), [site, range, lang]);
   const series = metric === "views" ? A.series.map((v) => Math.round(v * A.viewRatio)) : A.series;
   const max = Math.max(...series);
   const devTotal = A.devices.desktop + A.devices.mobile + A.devices.tablet;
@@ -214,34 +221,34 @@ function AnalyticsBody({ site, range }: { site: DashSite; range: string }) {
     <>
       <div className="stats stagger">
         <div className="stat">
-          <div className="s-k"><Icons.user size={13} />Visitors</div>
+          <div className="s-k"><Icons.user size={13} />{tt(lang, "Visitors", "Vizitatori")}</div>
           <div className="s-v">{fmt(A.visitors)}</div>
-          <div className="s-d"><Delta value={A.deltas.visitors} /> vs prev</div>
+          <div className="s-d"><Delta value={A.deltas.visitors} /> {tt(lang, "vs prev", "vs. anterior")}</div>
         </div>
         <div className="stat">
-          <div className="s-k"><Icons.window size={13} />Page views</div>
+          <div className="s-k"><Icons.window size={13} />{tt(lang, "Page views", "Vizualizări de pagină")}</div>
           <div className="s-v">{fmt(A.views)}</div>
-          <div className="s-d"><Delta value={A.deltas.views} /> vs prev</div>
+          <div className="s-d"><Delta value={A.deltas.views} /> {tt(lang, "vs prev", "vs. anterior")}</div>
         </div>
         <div className="stat">
-          <div className="s-k"><Icons.trendDown size={13} />Bounce rate</div>
+          <div className="s-k"><Icons.trendDown size={13} />{tt(lang, "Bounce rate", "Rată de abandon")}</div>
           <div className="s-v">{A.bounce}<small>%</small></div>
-          <div className="s-d"><Delta value={A.deltas.bounce} goodWhenDown /> vs prev</div>
+          <div className="s-d"><Delta value={A.deltas.bounce} goodWhenDown /> {tt(lang, "vs prev", "vs. anterior")}</div>
         </div>
         <div className="stat">
-          <div className="s-k"><Icons.clock size={13} />Avg. duration</div>
+          <div className="s-k"><Icons.clock size={13} />{tt(lang, "Avg. duration", "Durată medie")}</div>
           <div className="s-v" style={{ fontSize: 23 }}>{A.dur}</div>
-          <div className="s-d"><Delta value={A.deltas.dur} /> vs prev</div>
+          <div className="s-d"><Delta value={A.deltas.dur} /> {tt(lang, "vs prev", "vs. anterior")}</div>
         </div>
       </div>
 
       <Section
         kicker="01"
-        title={metric === "views" ? "Page views" : "Visitors"}
+        title={metric === "views" ? tt(lang, "Page views", "Vizualizări de pagină") : tt(lang, "Visitors", "Vizitatori")}
         action={
           <div className="seg">
-            <button className={metric === "visitors" ? "on" : ""} onClick={() => setMetric("visitors")}>Visitors</button>
-            <button className={metric === "views" ? "on" : ""} onClick={() => setMetric("views")}>Page views</button>
+            <button className={metric === "visitors" ? "on" : ""} onClick={() => setMetric("visitors")}>{tt(lang, "Visitors", "Vizitatori")}</button>
+            <button className={metric === "views" ? "on" : ""} onClick={() => setMetric("views")}>{tt(lang, "Page views", "Vizualizări de pagină")}</button>
           </div>
         }
       >
@@ -259,64 +266,64 @@ function AnalyticsBody({ site, range }: { site: DashSite; range: string }) {
 
       <div className="grid2" style={{ marginTop: 14 }}>
         <div className="card"><div className="card-pad">
-          <div className="section-title" style={{ marginBottom: 4 }}><Icons.window size={15} style={{ color: "var(--text-3)" }} />Top pages</div>
+          <div className="section-title" style={{ marginBottom: 4 }}><Icons.window size={15} style={{ color: "var(--text-3)" }} />{tt(lang, "Top pages", "Pagini de top")}</div>
           <div className="bk">{A.pages.map((p, i) => <BkRow key={i} mono label={p.path} v={p.v} max={mx(A.pages)} total={A.views} />)}</div>
         </div></div>
         <div className="card"><div className="card-pad">
-          <div className="section-title" style={{ marginBottom: 4 }}><Icons.link size={15} style={{ color: "var(--text-3)" }} />Top referrers</div>
+          <div className="section-title" style={{ marginBottom: 4 }}><Icons.link size={15} style={{ color: "var(--text-3)" }} />{tt(lang, "Top referrers", "Surse de trafic")}</div>
           <div className="bk">{A.referrers.map((p, i) => <BkRow key={i} chip={p.src[0]} label={p.src} v={p.v} max={mx(A.referrers)} total={A.visitors} />)}</div>
         </div></div>
       </div>
 
       <div className="grid2" style={{ marginTop: 14 }}>
         <div className="card"><div className="card-pad">
-          <div className="section-title" style={{ marginBottom: 4 }}><Icons.globe size={15} style={{ color: "var(--text-3)" }} />Countries</div>
+          <div className="section-title" style={{ marginBottom: 4 }}><Icons.globe size={15} style={{ color: "var(--text-3)" }} />{tt(lang, "Countries", "Țări")}</div>
           <div className="bk">{A.countries.map((p, i) => <BkRow key={i} cc={p.cc} label={p.name} v={p.v} max={mx(A.countries)} total={A.visitors} />)}</div>
         </div></div>
         <div className="card"><div className="card-pad">
-          <div className="section-title" style={{ marginBottom: 12 }}><Icons.device size={15} style={{ color: "var(--text-3)" }} />Devices</div>
+          <div className="section-title" style={{ marginBottom: 12 }}><Icons.device size={15} style={{ color: "var(--text-3)" }} />{tt(lang, "Devices", "Dispozitive")}</div>
           <div className="split">
             <i style={{ width: (A.devices.desktop / devTotal) * 100 + "%", background: "var(--accent)" }}></i>
             <i style={{ width: (A.devices.mobile / devTotal) * 100 + "%", background: "#2b3240" }}></i>
             <i style={{ width: (A.devices.tablet / devTotal) * 100 + "%", background: "var(--violet)" }}></i>
           </div>
           <div className="legend">
-            <span className="lg"><span className="sw" style={{ background: "var(--accent)" }}></span>Desktop <b>{Math.round((A.devices.desktop / devTotal) * 100)}%</b></span>
-            <span className="lg"><span className="sw" style={{ background: "#2b3240" }}></span>Mobile <b>{Math.round((A.devices.mobile / devTotal) * 100)}%</b></span>
-            <span className="lg"><span className="sw" style={{ background: "var(--violet)" }}></span>Tablet <b>{Math.round((A.devices.tablet / devTotal) * 100)}%</b></span>
+            <span className="lg"><span className="sw" style={{ background: "var(--accent)" }}></span>{tt(lang, "Desktop", "Desktop")} <b>{Math.round((A.devices.desktop / devTotal) * 100)}%</b></span>
+            <span className="lg"><span className="sw" style={{ background: "#2b3240" }}></span>{tt(lang, "Mobile", "Mobil")} <b>{Math.round((A.devices.mobile / devTotal) * 100)}%</b></span>
+            <span className="lg"><span className="sw" style={{ background: "var(--violet)" }}></span>{tt(lang, "Tablet", "Tabletă")} <b>{Math.round((A.devices.tablet / devTotal) * 100)}%</b></span>
           </div>
-          <div className="section-title" style={{ margin: "22px 0 4px" }}><Icons.window size={15} style={{ color: "var(--text-3)" }} />Browsers</div>
+          <div className="section-title" style={{ margin: "22px 0 4px" }}><Icons.window size={15} style={{ color: "var(--text-3)" }} />{tt(lang, "Browsers", "Browsere")}</div>
           <div className="bk">{A.browsers.map((p, i) => <BkRow key={i} label={p.name} v={p.v} max={mx(A.browsers)} total={A.visitors} />)}</div>
         </div></div>
       </div>
 
-      <Section kicker="02" title="Speed Insights" desc="Core Web Vitals · real users">
+      <Section kicker="02" title={tt(lang, "Speed Insights", "Statistici de viteză")} desc={tt(lang, "Core Web Vitals · real users", "Core Web Vitals · utilizatori reali")}>
         <div className="card res-card">
-          <Gauge score={A.res} />
+          <Gauge score={A.res} lang={lang} />
           <div>
-            <div className="section-title" style={{ marginBottom: 6 }}>Real Experience Score</div>
+            <div className="section-title" style={{ marginBottom: 6 }}>{tt(lang, "Real Experience Score", "Scor de experiență reală")}</div>
             <p style={{ margin: 0, fontSize: 13.5, color: "var(--text-2)", lineHeight: 1.55, maxWidth: "48ch" }}>
-              Measured from real visits over the last {range}. {A.res >= 90 ? "Visitors are getting a fast, stable experience." : "A couple of metrics need attention to reach “Good”."}
+              {tt(lang, `Measured from real visits over the last ${range}.`, `Măsurat din vizite reale din ultimele ${range}.`)} {A.res >= 90 ? tt(lang, "Visitors are getting a fast, stable experience.", "Vizitatorii beneficiază de o experiență rapidă și stabilă.") : tt(lang, "A couple of metrics need attention to reach “Good”.", "Câțiva indicatori necesită atenție pentru a atinge nivelul „Bun”.")}
             </p>
             <div style={{ display: "flex", gap: 8, marginTop: 13, flexWrap: "wrap" }}>
-              {A.res >= 90 ? <Pill kind="ok" dot>Good</Pill> : <Pill kind="warn" dot>Needs improvement</Pill>}
+              {A.res >= 90 ? <Pill kind="ok" dot>{tt(lang, "Good", "Bun")}</Pill> : <Pill kind="warn" dot>{tt(lang, "Needs improvement", "Necesită îmbunătățiri")}</Pill>}
               <span className="poweredby"><Icons.vercel />Vercel Speed Insights</span>
             </div>
           </div>
         </div>
         <div className="vitals" style={{ marginTop: 14 }}>
-          <Vital k="LCP" {...A.vitals.lcp} />
-          <Vital k="INP" {...A.vitals.inp} />
-          <Vital k="CLS" {...A.vitals.cls} />
-          <Vital k="FCP" {...A.vitals.fcp} />
-          <Vital k="TTFB" {...A.vitals.ttfb} />
+          <Vital k="LCP" {...A.vitals.lcp} lang={lang} />
+          <Vital k="INP" {...A.vitals.inp} lang={lang} />
+          <Vital k="CLS" {...A.vitals.cls} lang={lang} />
+          <Vital k="FCP" {...A.vitals.fcp} lang={lang} />
+          <Vital k="TTFB" {...A.vitals.ttfb} lang={lang} />
         </div>
       </Section>
     </>
   );
 }
 
-export function AnalyticsPage({ sites, toast }: { sites: DashSite[]; toast: (m: string) => void }) {
+export function AnalyticsPage({ sites, toast, lang }: { sites: DashSite[]; toast: (m: string) => void; lang: Lang }) {
   const live = sites.filter((s) => s.status === "live");
   const initial = (live[0] || sites[0])?.id ?? "";
   const [sel, setSel] = React.useState(initial);
@@ -328,13 +335,13 @@ export function AnalyticsPage({ sites, toast }: { sites: DashSite[]; toast: (m: 
     return (
       <div className="page view-enter">
         <div className="page-head">
-          <div className="kicker">// Workspace</div>
-          <h1 className="page-title">Analytics</h1>
+          <div className="kicker">// {tt(lang, "Workspace", "Spațiu de lucru")}</div>
+          <h1 className="page-title">{tt(lang, "Analytics", "Statistici")}</h1>
         </div>
         <div className="empty">
           <div className="em-ic"><Icons.rocket size={26} /></div>
-          <div className="em-h">No sites yet</div>
-          <div className="em-d">Generate your first website to see analytics here.</div>
+          <div className="em-h">{tt(lang, "No sites yet", "Niciun site încă")}</div>
+          <div className="em-d">{tt(lang, "Generate your first website to see analytics here.", "Generează primul tău site pentru a vedea statisticile aici.")}</div>
         </div>
       </div>
     );
@@ -344,9 +351,9 @@ export function AnalyticsPage({ sites, toast }: { sites: DashSite[]; toast: (m: 
     <div className="page view-enter">
       <div className="page-head flex">
         <div>
-          <div className="kicker">// Workspace</div>
-          <h1 className="page-title">Analytics</h1>
-          <p className="page-sub">Demo data shown below — connect Vercel Web Analytics &amp; Speed Insights on a site&apos;s Vercel project for real numbers.</p>
+          <div className="kicker">// {tt(lang, "Workspace", "Spațiu de lucru")}</div>
+          <h1 className="page-title">{tt(lang, "Analytics", "Statistici")}</h1>
+          <p className="page-sub">{tt(lang, "Demo data shown below — connect Vercel Web Analytics & Speed Insights on a site's Vercel project for real numbers.", "Datele de mai jos sunt demonstrative — conectează Vercel Web Analytics și Speed Insights pe proiectul Vercel al unui site pentru cifre reale.")}</p>
         </div>
         <div className="an-toolbar">
           <SiteSelect sites={sites} sel={sel} onSelect={setSel} />
@@ -356,12 +363,12 @@ export function AnalyticsPage({ sites, toast }: { sites: DashSite[]; toast: (m: 
       {site.status === "draft" ? (
         <div className="empty">
           <div className="em-ic"><Icons.rocket size={26} /></div>
-          <div className="em-h">No analytics yet</div>
-          <div className="em-d"><b style={{ color: "var(--text-2)" }}>{site.name}</b> is still a draft.</div>
-          <button className="b b-primary" onClick={() => toast("Open the site to publish it")}><Icons.rocket size={15} />Publish site</button>
+          <div className="em-h">{tt(lang, "No analytics yet", "Nicio statistică încă")}</div>
+          <div className="em-d"><b style={{ color: "var(--text-2)" }}>{site.name}</b> {tt(lang, "is still a draft.", "este încă o ciornă.")}</div>
+          <button className="b b-primary" onClick={() => toast(tt(lang, "Open the site to publish it", "Deschide site-ul pentru a-l publica"))}><Icons.rocket size={15} />{tt(lang, "Publish site", "Publică site-ul")}</button>
         </div>
       ) : (
-        <AnalyticsBody site={site} range={range} />
+        <AnalyticsBody site={site} range={range} lang={lang} />
       )}
     </div>
   );

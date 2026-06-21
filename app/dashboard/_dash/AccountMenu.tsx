@@ -3,6 +3,7 @@ import React from "react";
 import { Icons } from "./icons";
 import { Avatar } from "./primitives";
 import type { PageId } from "./types";
+import { tt, type Lang } from "./i18n";
 
 export function AccountMenu({
   go,
@@ -11,6 +12,7 @@ export function AccountMenu({
   email,
   initials,
   planLabel,
+  lang,
 }: {
   go: (p: PageId) => void;
   close: () => void;
@@ -18,6 +20,7 @@ export function AccountMenu({
   email: string;
   initials: string;
   planLabel: string;
+  lang: Lang;
 }) {
   React.useEffect(() => {
     const h = (e: MouseEvent) => {
@@ -47,19 +50,19 @@ export function AccountMenu({
         <span className="menu-plan">{planLabel}</span>
       </div>
       <div className="menu-sect">
-        {item(Icons.user, "Profile", () => { go("profile"); close(); })}
-        {item(Icons.shield, "Security", () => { go("security"); close(); })}
-        {item(Icons.plug, "Connected accounts", () => { go("connected"); close(); }, <span className="mi-r">Vercel</span>)}
-        {item(Icons.card, "Billing", () => { go("billing"); close(); })}
+        {item(Icons.user, tt(lang, "Profile", "Profil"), () => { go("profile"); close(); })}
+        {item(Icons.shield, tt(lang, "Security", "Securitate"), () => { go("security"); close(); })}
+        {item(Icons.plug, tt(lang, "Connected accounts", "Conturi conectate"), () => { go("connected"); close(); }, <span className="mi-r">Vercel</span>)}
+        {item(Icons.card, tt(lang, "Billing", "Facturare"), () => { go("billing"); close(); })}
       </div>
       <div className="menu-sect">
-        {item(Icons.question, "Help & Support", () => { window.location.href = "mailto:support@insixlive.com"; close(); })}
+        {item(Icons.question, tt(lang, "Help & Support", "Ajutor și asistență"), () => { window.location.href = "mailto:support@insixlive.com"; close(); })}
         {item(Icons.ext, "insixlive.com", () => { window.open("https://insixlive.com", "_blank"); close(); })}
       </div>
       <div className="menu-sect">
         <button className="menu-item danger" onClick={onLogout}>
           <Icons.logout />
-          Log out
+          {tt(lang, "Log out", "Deconectare")}
         </button>
       </div>
     </div>

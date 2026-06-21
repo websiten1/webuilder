@@ -21,6 +21,7 @@ export async function GET() {
         emailVerified: user.email_verified,
         paymentStatus: user.payment_status,
         vercelAuthorized: user.vercel_authorized ?? false,
+        preferredLanguage: user.preferred_language,
       },
     });
   } catch (error) {

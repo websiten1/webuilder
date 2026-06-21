@@ -2,8 +2,9 @@
 import React from "react";
 import { Icons } from "./icons";
 import { Field } from "./primitives";
+import { tt, type Lang } from "./i18n";
 
-export function DeleteModal({ onClose, toast }: { onClose: () => void; toast: (m: string) => void }) {
+export function DeleteModal({ onClose, toast, lang }: { onClose: () => void; toast: (m: string) => void; lang: Lang }) {
   const [val, setVal] = React.useState("");
   const ok = val.trim().toLowerCase() === "delete";
   return (
@@ -28,15 +29,15 @@ export function DeleteModal({ onClose, toast }: { onClose: () => void; toast: (m
           <div className="itile lg" style={{ color: "var(--danger)", borderColor: "var(--danger-line)", background: "var(--danger-soft)", marginBottom: 16 }}>
             <Icons.trash size={24} />
           </div>
-          <h2 style={{ margin: "0 0 8px", fontSize: 20, fontWeight: 800, letterSpacing: "-.02em" }}>Delete your account?</h2>
+          <h2 style={{ margin: "0 0 8px", fontSize: 20, fontWeight: 800, letterSpacing: "-.02em" }}>{tt(lang, "Delete your account?", "Ștergi contul?")}</h2>
           <p style={{ margin: "0 0 18px", fontSize: 14, color: "var(--text-2)", lineHeight: 1.55 }}>
-            This removes your billing history, edit credits and account profile. Your{" "}
-            <b style={{ color: "var(--text)" }}>generated code stays yours</b> — it already lives in your own Vercel and repos.
+            {tt(lang, "This removes your billing history, edit credits and account profile. Your", "Această acțiune elimină istoricul de facturare, creditele de modificare și profilul contului. Codul tău")}{" "}
+            <b style={{ color: "var(--text)" }}>{tt(lang, "generated code stays yours", "generat rămâne al tău")}</b> {tt(lang, "— it already lives in your own Vercel and repos.", "— trăiește deja în propriul tău Vercel și repo-uri.")}
           </p>
           <Field
             label={
               <span>
-                Type <b className="mono" style={{ color: "var(--danger)" }}>delete</b> to confirm
+                {tt(lang, "Type", "Scrie")} <b className="mono" style={{ color: "var(--danger)" }}>delete</b> {tt(lang, "to confirm", "pentru a confirma")}
               </span>
             }
           >
@@ -45,17 +46,17 @@ export function DeleteModal({ onClose, toast }: { onClose: () => void; toast: (m
         </div>
         <div className="row" style={{ justifyContent: "flex-end", gap: 9 }}>
           <button className="b b-quiet" onClick={onClose}>
-            Cancel
+            {tt(lang, "Cancel", "Anulează")}
           </button>
           <button
             className="b b-danger-solid"
             disabled={!ok}
             onClick={() => {
               onClose();
-              toast("Account deletion isn't wired up yet — contact support@insixlive.com");
+              toast(tt(lang, "Account deletion isn't wired up yet — contact support@insixlive.com", "Ștergerea contului nu este încă implementată — contactează support@insixlive.com"));
             }}
           >
-            Delete account
+            {tt(lang, "Delete account", "Șterge contul")}
           </button>
         </div>
       </div>
