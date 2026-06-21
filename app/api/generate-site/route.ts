@@ -3,7 +3,7 @@ import { generateWebsiteCode } from "@/lib/anthropic";
 import { deployToVercel, getValidVercelToken, setProjectEnvVars } from "@/lib/vercel";
 import { getSession } from "@/lib/session";
 import { getUserById, saveSiteWithVercel, getSiteById, updateSiteAfterRegeneration, createParishCalendarModule } from "@/lib/db";
-import { sendParishCalendarSetupEmail } from "@/lib/email";
+import { sendParishCalendarSetupEmail, sendWebsiteCreatedEmail } from "@/lib/email";
 import { encryptToken } from "@/lib/encryption";
 import { PARISH_CALENDAR_FILES } from "@/lib/parish-calendar-templates";
 import type { WizardData } from "@/app/components/GenerateWizard";
@@ -501,6 +501,12 @@ export async function POST(request: NextRequest) {
       formData as unknown as Record<string, unknown>,
       tier
     );
+
+    try {
+      await sendWebsiteCreatedEmail(user.email, { siteName: site.name, siteUrl }, user.preferred_language);
+    } catch (emailError) {
+      console.error("Website created email failed:", emailError);
+    }
 
     if (formData.pages.calendarModuleEnabled) {
       try {
