@@ -359,10 +359,69 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         .aw .foot-bottom { display: flex; align-items: center; justify-content: space-between; padding-top: 24px; flex-wrap: wrap; gap: 12px; }
         .aw .foot-bottom span { font-size: 12px; color: var(--color-steel); }
 
-        .aw .reveal { opacity: 0; transform: translateY(18px); }
-        .aw .reveal.in { opacity: 1; transform: translateY(0); transition: opacity .6s ease, transform .6s var(--ease-spring); }
+        /* ── Bionova: blur fade-up (reveal upgrade) ── */
+        .aw .reveal { opacity: 0; transform: translateY(24px); filter: blur(4px); }
+        .aw .reveal.in { opacity: 1; transform: translateY(0); filter: blur(0); transition: opacity .7s cubic-bezier(0.16,1,0.3,1), transform .7s cubic-bezier(0.16,1,0.3,1), filter .7s ease; }
+
+        /* ── ViralMedia: liquid-glass ── */
+        .aw .liquid-glass { background: rgba(255,255,255,0.01); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); box-shadow: inset 0 1px 1px rgba(255,255,255,0.1); position: relative; overflow: hidden; }
+        .aw .liquid-glass::before { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.4px; background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+
+        /* ── Axion: TextRoll button ── */
+        .aw .btn-roll .roll-inner { display: inline-flex; flex-direction: column; overflow: hidden; height: 1.3em; vertical-align: bottom; }
+        .aw .btn-roll .roll-inner span { display: flex; flex-direction: column; transition: transform .5s cubic-bezier(0.25,0.1,0.25,1); }
+        .aw .btn-roll .roll-inner span::after { content: attr(data-text); }
+        .aw .btn-roll:hover .roll-inner span { transform: translateY(-50%); }
+        .aw .btn-roll .btn-circle { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.18); display: inline-flex; align-items: center; justify-content: center; transition: transform .5s cubic-bezier(0.25,0.1,0.25,1); flex-shrink: 0; }
+        .aw .btn-roll:hover .btn-circle { transform: rotate(-45deg); }
+
+        /* ── Axion: section badge ── */
+        .aw .sec-badge { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+        .aw .sec-badge .s-num { width: 26px; height: 26px; border-radius: 50%; background: var(--color-obsidian); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+        .aw .sec-badge .s-label { border: 1px solid var(--color-pebble); border-radius: 9999px; padding: 4px 14px; font-size: 12px; font-weight: 500; color: var(--color-graphite); }
+        .aw .on-dark .sec-badge .s-num { background: rgba(255,255,255,0.15); }
+        .aw .on-dark .sec-badge .s-label { border-color: rgba(255,255,255,0.2); color: var(--color-ash); }
+
+        /* ── Guardnet: glow blob ── */
+        .aw .glow-blob { position: absolute; border-radius: 50%; filter: blur(60px); pointer-events: none; z-index: 0; }
+
+        /* ── Guardnet: gradient pill CTA ── */
+        .aw .btn-grad-pill { position: relative; border-radius: 9999px; padding: 2px; background: linear-gradient(90deg, #FA8453 0%, #F8C9B2 100%); display: inline-flex; }
+        .aw .btn-grad-pill .gp-inner { border-radius: 9999px; background: var(--color-obsidian); padding: 12px 28px; font-size: var(--text-body); font-weight: 500; color: #fff; cursor: pointer; font-family: inherit; border: none; transition: background .2s ease; white-space: nowrap; }
+        .aw .btn-grad-pill:hover .gp-inner { background: #111; }
+        .aw .btn-grad-fill { border-radius: 9999px; background: linear-gradient(90deg, #FA8453 0%, #F8C9B2 100%); padding: 13px 28px; font-size: var(--text-body); font-weight: 600; color: #000; border: none; cursor: pointer; font-family: inherit; transition: opacity .2s ease; white-space: nowrap; }
+        .aw .btn-grad-fill:hover { opacity: 0.88; }
+
+        /* ── Aurora: step card ── */
+        .aw .step-aurora { border-radius: 20px; padding: 22px 24px; display: flex; flex-direction: column; gap: 10px; position: relative; border: 1px solid var(--color-fog); background: var(--color-snow); transition: border-color .25s ease, box-shadow .25s ease; }
+        .aw .step-aurora:hover { border-color: var(--color-pebble); box-shadow: 0 6px 28px rgba(0,0,0,0.07); }
+        .aw .step-aurora .sa-num { width: 34px; height: 34px; border-radius: 50%; background: var(--color-obsidian); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+        .aw .step-aurora h4 { font-size: var(--text-subheading); font-weight: 600; margin: 0; color: var(--color-obsidian); }
+        .aw .step-aurora p { font-size: var(--text-body); color: var(--color-steel); margin: 0; line-height: 1.5; }
+        .aw .step-aurora.is-live { background: var(--color-obsidian); border-color: var(--color-obsidian); }
+        .aw .step-aurora.is-live .sa-num { background: rgba(255,255,255,0.12); }
+        .aw .step-aurora.is-live h4 { color: #fff; }
+        .aw .step-aurora.is-live p { color: rgba(255,255,255,0.55); }
+
+        /* ── Axion: hover-expand pill on tiles ── */
+        .aw .tile-pill { position: absolute; bottom: 18px; left: 18px; z-index: 3; display: flex; height: 36px; width: 36px; align-items: center; justify-content: center; overflow: hidden; border-radius: 9999px; background: rgba(255,255,255,0.9); transition: width .32s cubic-bezier(0.25,0.1,0.25,1); backdrop-filter: blur(4px); }
+        .aw .tile:hover .tile-pill { width: 130px; }
+        .aw .tile-pill .tp-text { white-space: nowrap; padding-left: 12px; font-size: 12px; font-weight: 600; color: var(--color-obsidian); opacity: 0; transition: opacity .18s ease .1s; }
+        .aw .tile:hover .tile-pill .tp-text { opacity: 1; }
+        .aw .tile-pill .tp-icon { position: absolute; right: 10px; transform: rotate(-45deg); transition: transform .32s ease; }
+        .aw .tile:hover .tile-pill .tp-icon { transform: rotate(0deg); }
+
+        /* ── ViralMedia: scroll-reveal words ── */
+        .aw .word-reveal .word { opacity: 0.15; transition: opacity .4s ease; display: inline; }
+        .aw .word-reveal.in .word { opacity: 1; }
+
+        /* ── Guardnet: stat card on dark ── */
+        .aw .stat-dark { display: flex; flex-direction: column; gap: 6px; }
+        .aw .stat-dark .sd-num { font-size: clamp(2.5rem,5vw,3.5rem); font-weight: 700; color: var(--color-snow); letter-spacing: -0.03em; line-height: 1; }
+        .aw .stat-dark .sd-lbl { font-size: var(--text-body); color: rgba(255,255,255,0.5); line-height: 1.4; }
+
         @media (prefers-reduced-motion: reduce) {
-          .aw .reveal { opacity: 1; transform: none; }
+          .aw .reveal { opacity: 1; transform: none; filter: none; }
           .aw .logo-track { animation: none; }
         }
 
@@ -465,7 +524,13 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
               </h1>
               <form className="email-row reveal" onSubmit={handleHeroEmailSubmit} style={{ justifyContent: "center", maxWidth: 460 }}>
                 <input type="email" required value={heroEmail} onChange={e => setHeroEmail(e.target.value)} placeholder={copy.hero.emailPlaceholder} aria-label="Email" />
-                <button className="btn btn-primary" type="submit">{copy.hero.submitLabel}</button>
+                {/* Axion TextRoll on primary CTA */}
+                <button className="btn btn-primary btn-roll" type="submit">
+                  <span className="roll-inner"><span data-text={copy.hero.submitLabel}>{copy.hero.submitLabel}</span></span>
+                  <span className="btn-circle" aria-hidden>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                  </span>
+                </button>
               </form>
             </div>
 
@@ -487,12 +552,19 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         {/* ─── Dark problem panel ─── */}
         <section className="pad-y">
           <div className="container">
-            <div className="dark-panel reveal" style={{ padding: 56 }}>
-              <div className="grid-2" style={{ gap: 56, alignItems: "center" }}>
+            <div className="dark-panel on-dark reveal" style={{ padding: 56, overflow: "hidden", position: "relative" }}>
+              {/* Guardnet glow blobs */}
+              <div className="glow-blob" style={{ width: 360, height: 360, top: -100, right: -80, background: "rgba(100,206,251,0.07)" }}/>
+              <div className="glow-blob" style={{ width: 280, height: 280, bottom: -80, left: -60, background: "rgba(74,222,128,0.06)" }}/>
+              <div className="grid-2" style={{ gap: 56, alignItems: "center", position: "relative" }}>
                 <div>
-                  <span className="eyebrow" style={{ color: "var(--color-ash)" }}>{copy.problem.eyebrow}</span>
-                  <h2 className="heading on-dark" style={{ color: "var(--color-snow)" }}>{copy.problem.heading[0]}<br/><span className="muted-fg light">{copy.problem.heading[1]}</span></h2>
-                  <p className="lead" style={{ color: "var(--color-ash)" }}>{copy.problem.lead}</p>
+                  {/* Axion section badge */}
+                  <div className="sec-badge">
+                    <span className="s-num">01</span>
+                    <span className="s-label">{copy.problem.eyebrow}</span>
+                  </div>
+                  <h2 className="heading-lg" style={{ color: "var(--color-snow)", marginBottom: 16 }}>{copy.problem.heading[0]}<br/><span style={{ color: "rgba(255,255,255,0.38)", fontWeight: 300 }}>{copy.problem.heading[1]}</span></h2>
+                  <p className="lead" style={{ color: "var(--color-ash)", marginTop: 0 }}>{copy.problem.lead}</p>
                 </div>
                 <div>
                   {copy.problem.rows.map(([lead, key]) => (
@@ -508,16 +580,24 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         <section className="pad-y" id="solution">
           <div className="container">
             <div className="reveal">
-              <span className="eyebrow">{copy.solution.eyebrow}</span>
+              {/* Axion section badge */}
+              <div className="sec-badge">
+                <span className="s-num">02</span>
+                <span className="s-label">{copy.solution.eyebrow}</span>
+              </div>
               <h2 className="heading-lg">{copy.solution.heading[0]}<br/><span className="muted-fg light">{copy.solution.heading[1]}</span></h2>
               <p className="lead">{copy.solution.lead}</p>
             </div>
             <div className="grid-3" style={{ marginTop: 48 }}>
               {copy.solution.features.map((f, i) => (
-                <div className="card feature reveal" key={f.t}>
-                  <div className="icon-tile"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">{FEATURE_ICONS[i]?.circle && <circle cx="12" cy="12" r="9"/>}<path d={FEATURE_ICONS[i]?.d}/></svg></div>
-                  <h3>{f.t}</h3>
-                  <p>{f.b}</p>
+                <div className="card feature reveal" key={f.t} style={{ position: "relative", overflow: "hidden" }}>
+                  {/* Guardnet glow blob on alternating cards */}
+                  {i % 2 === 0 && <div className="glow-blob" style={{ width: 180, height: 180, top: -40, right: -40, background: i === 0 ? "rgba(100,206,251,0.13)" : "rgba(74,222,128,0.11)" }}/>}
+                  <div style={{ position: "relative" }}>
+                    <div className="icon-tile"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">{FEATURE_ICONS[i]?.circle && <circle cx="12" cy="12" r="9"/>}<path d={FEATURE_ICONS[i]?.d}/></svg></div>
+                    <h3>{f.t}</h3>
+                    <p>{f.b}</p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -528,14 +608,19 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         <section className="pad-y" id="how" style={{ background: "var(--color-snow)" }}>
           <div className="container">
             <div className="reveal">
-              <span className="eyebrow">{copy.how.eyebrow}</span>
+              {/* Axion section badge */}
+              <div className="sec-badge">
+                <span className="s-num">03</span>
+                <span className="s-label">{copy.how.eyebrow}</span>
+              </div>
               <h2 className="heading-lg">{copy.how.heading[0]}<br/><span className="muted-fg light">{copy.how.heading[1]}</span></h2>
               <p className="lead">{copy.how.lead}</p>
             </div>
+            {/* Aurora step cards */}
             <div className="steps" style={{ marginTop: 48 }}>
               {copy.how.steps.map(([t, s], i) => (
-                <div className={`step reveal${i === copy.how.steps.length - 1 ? " live" : ""}`} key={STEP_NUMS[i]} style={i === copy.how.steps.length - 1 ? { position: "relative", overflow: "hidden" } : undefined}>
-                  <div className="num">{STEP_NUMS[i]}</div>
+                <div className={`step-aurora reveal${i === copy.how.steps.length - 1 ? " is-live" : ""}`} key={STEP_NUMS[i]}>
+                  <span className="sa-num">{i + 1}</span>
                   <h4>{t}</h4>
                   <p>{s}</p>
                   {i === copy.how.steps.length - 1 && <span className="badge badge-ember" style={{ position: "absolute", top: 20, right: 20 }}>{copy.how.liveBadge}</span>}
@@ -549,10 +634,18 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         <section className="pad-y" id="examples">
           <div className="container" style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 18, flexWrap: "wrap" }}>
             <div className="reveal">
-              <span className="eyebrow">{copy.examples.eyebrow}</span>
+              {/* Axion section badge */}
+              <div className="sec-badge">
+                <span className="s-num">04</span>
+                <span className="s-label">{copy.examples.eyebrow}</span>
+              </div>
               <h2 className="heading-lg">{copy.examples.heading[0]}<br/>{copy.examples.heading[1]}</h2>
             </div>
-            <a className="btn btn-outline reveal" href="#pricing">{copy.examples.viewAll} <ArrowIcon/></a>
+            {/* Axion TextRoll on outline CTA */}
+            <a className="btn btn-outline btn-roll reveal" href="#pricing">
+              <span className="roll-inner"><span data-text={copy.examples.viewAll}>{copy.examples.viewAll}</span></span>
+              <ArrowIcon/>
+            </a>
           </div>
 
           <div className="tiles" style={{ marginTop: 40 }}>
@@ -566,6 +659,13 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                 <div className="scrim"></div>
                 <span className="preview-tag" style={TILE_VISUALS[i]?.tagColor ? { color: TILE_VISUALS[i]?.tagColor } : undefined}>// {copy.examples.previewTag}</span>
                 {TILE_VISUALS[i]?.glow && <div style={{ position: "absolute", inset: 0, background: TILE_VISUALS[i]?.glow }}/>}
+                {/* Axion hover-expand pill */}
+                <div className="tile-pill">
+                  <span className="tp-text">View project</span>
+                  <span className="tp-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={`var(--color-obsidian)`} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                  </span>
+                </div>
                 <div className="body">
                   <h3 className="t-title">{tile.name}</h3>
                   <div className="t-badges">
@@ -578,11 +678,17 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         </section>
 
         {/* ─── Stats ─── */}
-        <section className="pad-y" style={{ background: "var(--color-snow)" }}>
-          <div className="container">
-            <div className="stats">
-              {copy.stats.map(([num, lbl]) => (
-                <div className="stat reveal" key={lbl}><div className="num">{num}</div><div className="lbl">{lbl}</div></div>
+        <section className="pad-y" style={{ background: "var(--color-obsidian)", position: "relative", overflow: "hidden" }}>
+          {/* Guardnet glow blobs */}
+          <div className="glow-blob" style={{ width: 500, height: 500, top: "50%", left: "50%", transform: "translate(-50%,-50%)", background: "rgba(100,206,251,0.06)" }}/>
+          <div className="glow-blob" style={{ width: 300, height: 300, top: -80, right: 80, background: "rgba(74,222,128,0.05)" }}/>
+          <div className="container" style={{ position: "relative" }}>
+            <div className="stats" style={{ gap: 0 }}>
+              {copy.stats.map(([num, lbl], i) => (
+                <div className="stat-dark reveal" key={lbl} style={i < copy.stats.length - 1 ? { borderRight: "1px solid rgba(255,255,255,0.08)", paddingRight: 32 } : { paddingLeft: 32 }}>
+                  <div className="sd-num">{num}</div>
+                  <div className="sd-lbl">{lbl}</div>
+                </div>
               ))}
             </div>
           </div>
@@ -592,7 +698,9 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         <section className="pad-y">
           <div className="container">
             <div className="dark-panel on-dark reveal" style={{ padding: 56, overflow: "hidden", position: "relative" }}>
-              <div style={{ position: "absolute", top: -160, right: -120, width: 480, height: 480, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,90,0,0.18), transparent 65%)" }}/>
+              {/* Guardnet glow blobs — multiple layers for depth */}
+              <div className="glow-blob" style={{ width: 500, height: 500, top: -160, right: -120, background: "rgba(74,222,128,0.09)" }}/>
+              <div className="glow-blob" style={{ width: 300, height: 300, bottom: -80, left: -60, background: "rgba(100,206,251,0.07)" }}/>
               <div className="grid-2" style={{ gap: 56, alignItems: "center", position: "relative" }}>
                 <div>
                   <span className="eyebrow">{copy.ownership.eyebrow}</span>
@@ -718,7 +826,11 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         <section className="pad-y" id="proof">
           <div className="container">
             <div className="reveal">
-              <span className="eyebrow">{copy.proof.eyebrow}</span>
+              {/* Axion section badge */}
+              <div className="sec-badge">
+                <span className="s-num">05</span>
+                <span className="s-label">{copy.proof.eyebrow}</span>
+              </div>
               <h2 className="heading-lg">{copy.proof.heading[0]}<br/><span className="muted-fg light">{copy.proof.heading[1]}</span></h2>
               <p className="lead">{copy.proof.lead}</p>
             </div>
@@ -741,13 +853,17 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         <section className="pad-y" id="faq" style={{ background: "var(--color-snow)" }}>
           <div className="container" style={{ maxWidth: 920 }}>
             <div className="reveal">
-              <span className="eyebrow">{copy.faq.eyebrow}</span>
+              {/* Axion section badge */}
+              <div className="sec-badge">
+                <span className="s-num">06</span>
+                <span className="s-label">{copy.faq.eyebrow}</span>
+              </div>
               <h2 className="heading-lg">{copy.faq.heading}</h2>
               <p className="lead">{copy.faq.lead}</p>
             </div>
-            <div className="faq">
+            <div className="faq reveal">
               {copy.faq.items.map(([q, a], i) => (
-                <div className={`faq-item${openFaq === i ? " open" : ""}`} key={q}>
+                <div className={`faq-item${openFaq === i ? " open" : ""}`} key={q} style={{ borderRadius: openFaq === i ? 16 : 0, transition: "border-radius .3s ease", marginBottom: openFaq === i ? 4 : 0 }}>
                   <button className="faq-q" onClick={() => setOpenFaq(openFaq === i ? -1 : i)}>{q}<span className="pm"></span></button>
                   <div className="faq-a"><p>{a}</p></div>
                 </div>
@@ -760,14 +876,22 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         <section className="pad-y">
           <div className="container">
             <div className="dark-panel on-dark final reveal" style={{ padding: "80px 56px", overflow: "hidden", position: "relative", borderRadius: "var(--radius-hero)" }}>
-              <div style={{ position: "absolute", top: -200, left: "50%", transform: "translateX(-50%)", width: 760, height: 760, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,90,0,0.22), transparent 60%)" }}/>
+              {/* Guardnet multi-layer glow */}
+              <div className="glow-blob" style={{ width: 700, height: 700, top: "50%", left: "50%", transform: "translate(-50%,-55%)", background: "rgba(250,132,83,0.14)" }}/>
+              <div className="glow-blob" style={{ width: 300, height: 300, bottom: -60, right: 60, background: "rgba(100,206,251,0.08)" }}/>
               <div style={{ position: "relative" }}>
                 <span className="eyebrow">{copy.final.eyebrow}</span>
                 <h2 className="display-sm on-dark">{copy.final.heading}</h2>
-                <p className="lead" style={{ margin: "0 auto 8px", maxWidth: "48ch" }}>{copy.final.lead}</p>
+                <p className="lead" style={{ margin: "0 auto 32px", maxWidth: "48ch" }}>{copy.final.lead}</p>
                 <div className="cta-row">
-                  <Link className="btn btn-primary" href={ctaHref}>{primaryLabel}</Link>
-                  <a className="btn btn-dark-rect" href="#pricing">{copy.final.secondaryCta}</a>
+                  {/* Guardnet gradient fill + Axion TextRoll */}
+                  <Link href={ctaHref} className="btn btn-grad-fill btn-roll" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                    <span className="roll-inner"><span data-text={primaryLabel}>{primaryLabel}</span></span>
+                  </Link>
+                  {/* Guardnet gradient pill outline */}
+                  <a href="#pricing" className="btn-grad-pill">
+                    <span className="gp-inner">{copy.final.secondaryCta}</span>
+                  </a>
                 </div>
               </div>
             </div>
