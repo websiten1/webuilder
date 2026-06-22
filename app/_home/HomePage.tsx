@@ -207,18 +207,20 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         .aw .wordmark .mark { width: 28px; height: 28px; border-radius: 9px; background: var(--color-obsidian); color: var(--color-snow); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px; }
         .aw .wordmark .six { color: var(--color-ember); }
 
-        .aw .hero { padding: 56px 0 0; }
-        .aw .hero-grid { display: grid; grid-template-columns: 1.25fr 0.85fr; gap: 56px; align-items: end; }
-        .aw .hero h1 { font-size: var(--text-display); line-height: 1.02; font-weight: 700; color: var(--color-obsidian); margin: 0; letter-spacing: -0.01em; }
-        .aw .cycle { color: var(--color-ash); transition: opacity .3s ease; }
-        .aw .hero-right { padding-bottom: 8px; }
-        .aw .email-row { display: flex; gap: 8px; margin-top: 22px; max-width: 420px; }
-        .aw .email-row input { flex: 1; min-width: 0; background: var(--color-snow); color: #333; border: 1px solid var(--color-fog); border-radius: var(--radius-input); padding: 13px 16px; font-family: var(--font-cosmica); font-size: var(--text-body); font-weight: 400; outline: none; }
-        .aw .email-row input::placeholder { color: var(--color-ash); }
-        .aw .email-row input:focus { outline: none; border-color: var(--color-graphite); }
-        .aw .hero-meta { display: flex; gap: 18px; margin-top: 16px; flex-wrap: wrap; }
-        .aw .hero-meta span { font-size: var(--text-body); color: var(--color-steel); display: inline-flex; align-items: center; gap: 6px; }
-        .aw .hero-art { margin-top: 64px; border-radius: var(--radius-hero); overflow: hidden; position: relative; background: var(--color-obsidian); height: 420px; box-shadow: var(--shadow-md); }
+        /* ── Video hero ── */
+        .aw .hero { position: relative; height: 100vh; min-height: 640px; display: flex; flex-direction: column; overflow: hidden; padding: 0; }
+        .aw .hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+        .aw .hero-vignette { position: absolute; inset: 0; pointer-events: none; z-index: 1; background: linear-gradient(180deg, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.48) 40%, rgba(0,0,0,0.84) 100%); }
+        .aw .hero-inner { position: relative; z-index: 10; display: flex; flex-direction: column; height: 100%; padding: 36px 0 32px; }
+        .aw .hero-top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        /* ── ShinyText ── */
+        @keyframes aw-shiny { from { background-position: 200% 0%; } to { background-position: -200% 0%; } }
+        .aw .shiny-text { display: inline; background-image: linear-gradient(100deg, #ff5a00 0%, #ff5a00 30%, #ffffff 50%, #ff5a00 70%, #ff5a00 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; animation: aw-shiny 3s linear infinite; transition: opacity .3s ease; }
+        /* ── Email row (works on both dark hero and page) ── */
+        .aw .email-row { display: flex; gap: 8px; margin-top: 22px; max-width: 460px; }
+        .aw .email-row input { flex: 1; min-width: 0; background: rgba(255,255,255,0.12); color: var(--color-snow); border: 1px solid rgba(255,255,255,0.28); border-radius: var(--radius-input); padding: 13px 16px; font-family: var(--font-cosmica); font-size: var(--text-body); font-weight: 400; outline: none; backdrop-filter: blur(8px); }
+        .aw .email-row input::placeholder { color: rgba(255,255,255,0.5); }
+        .aw .email-row input:focus { outline: none; border-color: rgba(255,255,255,0.6); }
 
         .aw .logo-strip { overflow: hidden; padding: 28px 0; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
         .aw .logo-track { display: flex; gap: 56px; width: max-content; animation: aw-scroll-left 34s linear infinite; }
@@ -340,9 +342,11 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
 
         @media (max-width: 920px) {
           .aw-mobile-scale { --text-display: 44px; --text-display-sm: 38px; --text-heading-lg: 32px; --text-heading: 26px; }
-          .aw .hero-grid, .aw .grid-3, .aw .grid-2, .aw .steps, .aw .stats, .aw .compare, .aw .plans, .aw .foot-top { grid-template-columns: 1fr; }
+          .aw .hero-top-row, .aw .grid-3, .aw .grid-2, .aw .steps, .aw .stats, .aw .compare, .aw .plans, .aw .foot-top { grid-template-columns: 1fr; }
+          .aw .hero-top-row p:last-child { text-align: left; }
           .aw .stats { grid-template-columns: 1fr 1fr; }
           .aw .nav .links { display: none; }
+          .aw .email-row { max-width: 100%; }
         }
       `}</style>
 
@@ -371,34 +375,44 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
 
         {/* ─── Hero ─── */}
         <header className="hero">
-          <div className="container">
-            <div className="hero-grid">
-              <div className="reveal">
-                <h1>{copy.hero.headline1}<br/>{copy.hero.headlineLead}<span className="cycle" style={{ opacity: cycleVisible ? 1 : 0 }}>{copy.hero.cycleWords[cycleIdx]}</span></h1>
-              </div>
-              <div className="hero-right reveal">
-                <p className="lead" style={{ marginTop: 0 }}>{copy.hero.lead}</p>
-                <form className="email-row" onSubmit={handleHeroEmailSubmit}>
-                  <input type="email" required value={heroEmail} onChange={e => setHeroEmail(e.target.value)} placeholder={copy.hero.emailPlaceholder} aria-label="Email" />
-                  <button className="btn btn-primary" type="submit">{copy.hero.submitLabel}</button>
-                </form>
-                <div className="hero-meta">
-                  <span>{copy.hero.liveIn}</span>
-                  <span>{copy.hero.oneTimeFrom}</span>
-                </div>
-              </div>
+          {/* Background video */}
+          <video autoPlay loop muted playsInline className="hero-video">
+            <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_105406_16f4600d-7a92-4292-b96e-b19156c7830a.mp4" type="video/mp4" />
+          </video>
+          <div className="hero-vignette" aria-hidden />
+
+          <div className="container hero-inner">
+            {/* Top two-col info row */}
+            <div className="hero-top-row">
+              <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.72)", margin: 0, lineHeight: 1.55, maxWidth: "44ch" }}>
+                {copy.hero.lead}
+              </p>
+              <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.72)", margin: 0, textAlign: "right" as const, fontWeight: 500 }}>
+                {copy.hero.liveIn}&nbsp;&nbsp;·&nbsp;&nbsp;{copy.hero.oneTimeFrom}
+              </p>
             </div>
 
-            <div className="hero-art reveal">
-              <div style={{ position: "absolute", inset: 0, background: "radial-gradient(120% 90% at 80% -10%, rgba(255,90,0,0.28), transparent 60%)" }}/>
-              <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 2px, transparent 2px 22px)" }}/>
-              <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", textAlign: "center" as const }}>
-                <div style={{ fontFamily: "ui-monospace,monospace", fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.4)" }}>{copy.hero.previewLabel}</div>
-              </div>
-              <div style={{ position: "absolute", bottom: 22, left: 22, display: "flex", gap: 6 }}>
-                <span className="badge badge-overlay">app/page.tsx</span>
-                <span className="badge badge-overlay">{copy.hero.deployReady}</span>
-              </div>
+            {/* Centre — headline + form */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" as const }}>
+              <p style={{ fontSize: "var(--text-body)", textTransform: "uppercase" as const, letterSpacing: "0.14em", color: "rgba(255,255,255,0.65)", margin: "0 0 24px", fontWeight: 600 }}>
+                {copy.hero.previewLabel}
+              </p>
+              <h1 className="reveal" style={{ fontSize: "clamp(2.8rem, 8vw, 7rem)", fontWeight: 700, lineHeight: 0.9, letterSpacing: "-0.02em", color: "var(--color-snow)", margin: 0 }}>
+                <span style={{ display: "block" }}>{copy.hero.headline1}</span>
+                <span style={{ display: "block" }}>
+                  {copy.hero.headlineLead}<span className="shiny-text" style={{ opacity: cycleVisible ? 1 : 0 }}>{copy.hero.cycleWords[cycleIdx]}</span>
+                </span>
+              </h1>
+              <form className="email-row reveal" onSubmit={handleHeroEmailSubmit} style={{ justifyContent: "center", maxWidth: 460 }}>
+                <input type="email" required value={heroEmail} onChange={e => setHeroEmail(e.target.value)} placeholder={copy.hero.emailPlaceholder} aria-label="Email" />
+                <button className="btn btn-primary" type="submit">{copy.hero.submitLabel}</button>
+              </form>
+            </div>
+
+            {/* Bottom badges */}
+            <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
+              <span className="badge badge-overlay">app/page.tsx</span>
+              <span className="badge badge-overlay">{copy.hero.deployReady}</span>
             </div>
           </div>
         </header>
