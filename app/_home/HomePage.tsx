@@ -665,10 +665,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           <div className="container hero-inner">
             {/* Top two-col info row */}
             <div className="hero-top-row">
-              <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.72)", margin: 0, lineHeight: 1.55, maxWidth: "44ch" }}>
-                {copy.hero.lead}
-              </p>
-              <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.72)", margin: 0, textAlign: "right" as const, fontWeight: 500 }}>
+<p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.72)", margin: 0, textAlign: "right" as const, fontWeight: 500 }}>
                 {copy.hero.liveIn}&nbsp;&nbsp;·&nbsp;&nbsp;{copy.hero.oneTimeFrom}
               </p>
             </div>
