@@ -420,6 +420,94 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         .aw .stat-dark .sd-num { font-size: clamp(2.5rem,5vw,3.5rem); font-weight: 700; color: var(--color-snow); letter-spacing: -0.03em; line-height: 1; }
         .aw .stat-dark .sd-lbl { font-size: var(--text-body); color: rgba(255,255,255,0.5); line-height: 1.4; }
 
+        /* ── ViralMedia: manifesto text ── */
+        .aw .manifesto-text { font-size: clamp(2rem,4vw,3.2rem); font-weight: 700; line-height: 1.15; color: var(--color-snow); letter-spacing: -0.025em; margin: 0; }
+        .aw .manifesto-text .dim { color: rgba(255,255,255,0.25); font-weight: 300; }
+
+        /* ── Guardnet: dark bento grid ── */
+        .aw .bento { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .aw .bento-col { display: flex; flex-direction: column; gap: 16px; }
+        .aw .bento-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 32px; position: relative; overflow: hidden; transition: border-color .28s ease, background .28s ease; flex: 1; }
+        .aw .bento-card:hover { border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); }
+        .aw .bento-card .bento-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; flex-shrink: 0; }
+        .aw .bento-card h3 { font-size: var(--text-heading-sm); font-weight: 600; color: var(--color-snow); margin: 0 0 10px; }
+        .aw .bento-card p { font-size: var(--text-body); color: rgba(255,255,255,0.45); line-height: 1.6; margin: 0; }
+
+        /* ── Aurora: step timeline ── */
+        .aw .step-timeline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; position: relative; }
+        .aw .step-timeline::before { content: ''; position: absolute; top: 24px; left: 16.67%; right: 16.67%; height: 1px; background: linear-gradient(90deg, transparent 0%, var(--color-pebble) 15%, var(--color-pebble) 85%, transparent 100%); }
+        .aw .step-t { padding: 0 28px 0 0; position: relative; }
+        .aw .step-t .st-num { width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid var(--color-pebble); background: var(--color-snow); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: var(--color-obsidian); margin-bottom: 28px; position: relative; z-index: 1; }
+        .aw .step-t.is-live .st-num { background: var(--color-obsidian); color: #fff; border-color: var(--color-obsidian); box-shadow: 0 0 0 6px rgba(9,9,11,0.1); }
+        .aw .step-t h4 { font-size: var(--text-heading-sm); font-weight: 600; color: var(--color-obsidian); margin: 0 0 10px; }
+        .aw .step-t p { font-size: var(--text-body); color: var(--color-steel); margin: 0; line-height: 1.55; }
+        .aw .step-t.is-live h4 { color: var(--color-obsidian); }
+
+        /* ── Axion: case study grid ── */
+        .aw .cs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .aw .cs-col { display: flex; flex-direction: column; gap: 16px; }
+        .aw .cs-card { border-radius: 24px; overflow: hidden; position: relative; cursor: pointer; min-height: 260px; }
+        .aw .cs-card.cs-featured { min-height: 560px; }
+        .aw .cs-bg { position: absolute; inset: 0; }
+        .aw .cs-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.75) 100%); transition: opacity .3s ease; }
+        .aw .cs-card:hover .cs-scrim { opacity: 0.85; }
+        .aw .cs-body { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 28px; }
+        .aw .cs-tag { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
+        .aw .cs-title { font-size: var(--text-heading-sm); font-weight: 600; color: #fff; margin: 0 0 14px; }
+        .aw .cs-pill { display: inline-flex; height: 36px; width: 36px; align-items: center; justify-content: center; overflow: hidden; border-radius: 9999px; background: rgba(255,255,255,0.9); transition: width .32s cubic-bezier(0.25,0.1,0.25,1); position: absolute; top: 22px; right: 22px; z-index: 3; }
+        .aw .cs-card:hover .cs-pill { width: 120px; }
+        .aw .cs-pill .cp-text { white-space: nowrap; padding-right: 14px; font-size: 12px; font-weight: 600; color: var(--color-obsidian); opacity: 0; transition: opacity .18s ease .1s; }
+        .aw .cs-card:hover .cs-pill .cp-text { opacity: 1; }
+        .aw .cs-pill .cp-icon { position: absolute; left: 11px; transform: rotate(-45deg); transition: transform .32s ease; }
+        .aw .cs-card:hover .cs-pill .cp-icon { transform: rotate(0deg); }
+
+        /* ── Ownership statement (ViralMedia flip) ── */
+        .aw .own-statement { font-size: clamp(2.2rem,4vw,3.6rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; color: var(--color-obsidian); margin: 0; }
+        .aw .own-statement .accent { color: #4ade80; }
+        .aw .terminal-card { background: var(--color-obsidian); border-radius: 20px; padding: 24px; border: 1px solid rgba(255,255,255,0.07); }
+        .aw .terminal-label { font-size: 11px; color: rgba(255,255,255,0.3); margin-bottom: 10px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
+        .aw .terminal-body { font-family: ui-monospace,monospace; font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.7; }
+
+        /* ── Guardnet: compare dark split ── */
+        .aw .compare-dark { display: grid; grid-template-columns: 1fr 1fr; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.07); }
+        .aw .compare-col { padding: 44px 40px; }
+        .aw .compare-col.legacy { background: rgba(255,255,255,0.03); }
+        .aw .compare-col.ours { background: rgba(255,255,255,0.06); position: relative; overflow: hidden; }
+        .aw .compare-big-price { font-size: clamp(2.4rem,4.5vw,3.6rem); font-weight: 700; letter-spacing: -0.03em; color: var(--color-snow); margin: 10px 0 4px; line-height: 1; }
+        .aw .compare-col.legacy .compare-big-price { color: rgba(255,255,255,0.2); text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.15); }
+        .aw .compare-row { display: flex; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid rgba(255,255,255,0.06); font-size: var(--text-body); color: rgba(255,255,255,0.4); }
+        .aw .compare-col.ours .compare-row { color: rgba(255,255,255,0.75); }
+        .aw .cx { color: rgba(255,255,255,0.18); flex-shrink: 0; }
+        .aw .ck { color: #4ade80; flex-shrink: 0; }
+
+        /* ── ViralMedia: dark testimonial cards ── */
+        .aw .dark-quote { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 32px; position: relative; overflow: hidden; display: flex; flex-direction: column; transition: border-color .25s ease; }
+        .aw .dark-quote:hover { border-color: rgba(255,255,255,0.15); }
+        .aw .dark-quote .big-q { font-size: 5rem; line-height: 0.7; color: #64CEFB; font-weight: 800; display: block; height: 40px; margin-bottom: 20px; }
+        .aw .dark-quote p { font-size: var(--text-body-lg); line-height: 1.6; color: rgba(255,255,255,0.72); margin: 0 0 24px; flex: 1; }
+        .aw .dark-quote .dq-author { display: flex; align-items: center; gap: 12px; }
+        .aw .dark-quote .dq-av { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+        .aw .dark-quote .dq-name { font-size: var(--text-body); font-weight: 600; color: var(--color-snow); }
+        .aw .dark-quote .dq-biz { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+        /* ── Footer dark (ViralMedia) ── */
+        .aw .foot-dark { background: var(--color-obsidian); padding: 80px 0 40px; }
+        .aw .foot-dark .foot-top { border-color: rgba(255,255,255,0.07); }
+        .aw .foot-dark .foot-col h5 { color: rgba(255,255,255,0.35); }
+        .aw .foot-dark .foot-col a { color: rgba(255,255,255,0.6); }
+        .aw .foot-dark .foot-col a:hover { color: #fff; }
+        .aw .foot-dark .foot-bottom { border-color: rgba(255,255,255,0.07); }
+        .aw .foot-dark .foot-bottom span { color: rgba(255,255,255,0.3); }
+
+        /* ── Pricing featured: Bionova glow border ── */
+        .aw .plan.bionova-featured { background: transparent; border-radius: var(--radius-card); padding: 2px; background: linear-gradient(135deg, rgba(100,206,251,0.6) 0%, rgba(74,222,128,0.4) 50%, rgba(250,132,83,0.5) 100%); }
+        .aw .plan.bionova-featured .bf-inner { background: var(--color-obsidian); border-radius: calc(var(--radius-card) - 2px); padding: 32px 28px; height: 100%; display: flex; flex-direction: column; }
+        .aw .plan.bionova-featured .pamount { color: var(--color-snow); }
+        .aw .plan.bionova-featured .pname, .aw .plan.bionova-featured .ptag, .aw .plan.bionova-featured .pafter { color: rgba(255,255,255,0.45); }
+        .aw .plan.bionova-featured .pamount small { color: rgba(255,255,255,0.45); }
+        .aw .plan.bionova-featured li { color: var(--color-snow); }
+        .aw .plan.bionova-featured li .tick { background: rgba(255,255,255,0.08); }
+
         @media (prefers-reduced-motion: reduce) {
           .aw .reveal { opacity: 1; transform: none; filter: none; }
           .aw .logo-track { animation: none; }
@@ -428,10 +516,15 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         @media (max-width: 920px) {
           .aw-mobile-scale { --text-display: 44px; --text-display-sm: 38px; --text-heading-lg: 32px; --text-heading: 26px; }
           .aw .hero-top-row, .aw .grid-3, .aw .grid-2, .aw .steps, .aw .stats, .aw .compare, .aw .plans, .aw .foot-top { grid-template-columns: 1fr; }
+          .aw .bento, .aw .cs-grid, .aw .compare-dark, .aw .step-timeline { grid-template-columns: 1fr; }
           .aw .hero-top-row p:last-child { text-align: left; }
           .aw .stats { grid-template-columns: 1fr 1fr; }
+          .aw .stat-dark { padding-right: 0 !important; padding-left: 0 !important; border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 20px; }
           .aw .nav .links { display: none; }
           .aw .email-row { max-width: 100%; }
+          .aw .step-timeline::before { display: none; }
+          .aw .step-t { padding: 0; margin-bottom: 32px; }
+          .aw .compare-col { padding: 28px 24px; }
         }
       `}</style>
 
@@ -542,138 +635,188 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           </div>
         </header>
 
-        {/* ─── Logo strip ─── */}
-        <div className="logo-strip">
-          <div className="logo-track">
-            {[...LOGOS, ...LOGOS].map((l, i) => <span className="logo" key={`${l}-${i}`}>{l}</span>)}
+        {/* ─── Logo strip (dark, flows from hero) ─── */}
+        <div style={{ background: "var(--color-obsidian)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="logo-strip">
+            <div className="logo-track">
+              {[...LOGOS, ...LOGOS].map((l, i) => <span className="logo" key={`${l}-${i}`} style={{ color: "rgba(255,255,255,0.3)", fontWeight: 500 }}>{l}</span>)}
+            </div>
           </div>
         </div>
 
-        {/* ─── Dark problem panel ─── */}
-        <section className="pad-y">
-          <div className="container">
-            <div className="dark-panel on-dark reveal" style={{ padding: 56, overflow: "hidden", position: "relative" }}>
-              {/* Guardnet glow blobs */}
-              <div className="glow-blob" style={{ width: 360, height: 360, top: -100, right: -80, background: "rgba(100,206,251,0.07)" }}/>
-              <div className="glow-blob" style={{ width: 280, height: 280, bottom: -80, left: -60, background: "rgba(74,222,128,0.06)" }}/>
-              <div className="grid-2" style={{ gap: 56, alignItems: "center", position: "relative" }}>
-                <div>
-                  {/* Axion section badge */}
-                  <div className="sec-badge">
-                    <span className="s-num">01</span>
-                    <span className="s-label">{copy.problem.eyebrow}</span>
+        {/* ─── Problem: ViralMedia full-bleed dark manifesto ─── */}
+        <section style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }}>
+          <div className="glow-blob" style={{ width: 700, height: 700, top: "50%", left: "30%", transform: "translateY(-50%)", background: "rgba(100,206,251,0.05)" }}/>
+          <div className="container" style={{ position: "relative" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+              {/* Left: manifesto */}
+              <div>
+                <div className="sec-badge reveal">
+                  <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>01</span>
+                  <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.5)" }}>{copy.problem.eyebrow}</span>
+                </div>
+                <h2 className="manifesto-text reveal">
+                  {copy.problem.heading[0]}<br/><span className="dim">{copy.problem.heading[1]}</span>
+                </h2>
+                <p className="reveal" style={{ fontSize: "var(--text-body-lg)", color: "rgba(255,255,255,0.45)", lineHeight: 1.6, marginTop: 24, maxWidth: "44ch" }}>{copy.problem.lead}</p>
+              </div>
+              {/* Right: numbered pain points */}
+              <div>
+                {copy.problem.rows.map(([lead, key], i) => (
+                  <div className="reveal" key={key} style={{ padding: "22px 0", borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", gap: 24, alignItems: "flex-start" }}>
+                    <span style={{ fontSize: "clamp(1.6rem,2.5vw,2.2rem)", fontWeight: 800, color: "rgba(255,255,255,0.08)", lineHeight: 1, flexShrink: 0, minWidth: 52, letterSpacing: "-0.04em" }}>
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <div>
+                      <p style={{ margin: 0, fontSize: "var(--text-subheading)", color: "rgba(255,255,255,0.35)", fontWeight: 300, lineHeight: 1.4 }}>{lead}</p>
+                      <p style={{ margin: 0, fontSize: "var(--text-subheading)", color: "var(--color-snow)", fontWeight: 600, lineHeight: 1.4 }}>{key}</p>
+                    </div>
                   </div>
-                  <h2 className="heading-lg" style={{ color: "var(--color-snow)", marginBottom: 16 }}>{copy.problem.heading[0]}<br/><span style={{ color: "rgba(255,255,255,0.38)", fontWeight: 300 }}>{copy.problem.heading[1]}</span></h2>
-                  <p className="lead" style={{ color: "var(--color-ash)", marginTop: 0 }}>{copy.problem.lead}</p>
-                </div>
-                <div>
-                  {copy.problem.rows.map(([lead, key]) => (
-                    <div className="problem-row" key={key}><span className="dotmark"><span></span></span><p><span className="li">{lead}</span> <span className="key">{key}</span></p></div>
-                  ))}
-                </div>
+                ))}
               </div>
             </div>
           </div>
         </section>
 
-        {/* ─── Solution feature cards ─── */}
-        <section className="pad-y" id="solution">
-          <div className="container">
-            <div className="reveal">
-              {/* Axion section badge */}
+        {/* ─── Solution: Guardnet dark bento grid ─── */}
+        <section style={{ background: "#0c0c0e", padding: "100px 0", position: "relative", overflow: "hidden" }} id="solution">
+          <div className="glow-blob" style={{ width: 500, height: 500, top: -100, right: -80, background: "rgba(100,206,251,0.07)" }}/>
+          <div className="container" style={{ position: "relative" }}>
+            <div className="reveal" style={{ marginBottom: 56 }}>
               <div className="sec-badge">
-                <span className="s-num">02</span>
-                <span className="s-label">{copy.solution.eyebrow}</span>
+                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>02</span>
+                <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.solution.eyebrow}</span>
               </div>
-              <h2 className="heading-lg">{copy.solution.heading[0]}<br/><span className="muted-fg light">{copy.solution.heading[1]}</span></h2>
-              <p className="lead">{copy.solution.lead}</p>
+              <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.025em" }}>
+                {copy.solution.heading[0]}<br/><span style={{ color: "rgba(255,255,255,0.28)", fontWeight: 300 }}>{copy.solution.heading[1]}</span>
+              </h2>
             </div>
-            <div className="grid-3" style={{ marginTop: 48 }}>
-              {copy.solution.features.map((f, i) => (
-                <div className="card feature reveal" key={f.t} style={{ position: "relative", overflow: "hidden" }}>
-                  {/* Guardnet glow blob on alternating cards */}
-                  {i % 2 === 0 && <div className="glow-blob" style={{ width: 180, height: 180, top: -40, right: -40, background: i === 0 ? "rgba(100,206,251,0.13)" : "rgba(74,222,128,0.11)" }}/>}
-                  <div style={{ position: "relative" }}>
-                    <div className="icon-tile"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">{FEATURE_ICONS[i]?.circle && <circle cx="12" cy="12" r="9"/>}<path d={FEATURE_ICONS[i]?.d}/></svg></div>
+            {/* Asymmetric bento: tall featured card left + 2 stacked right */}
+            <div className="bento">
+              {/* Featured tall card */}
+              <div className="bento-card reveal" style={{ display: "flex", flexDirection: "column", minHeight: 420 }}>
+                <div className="glow-blob" style={{ width: 280, height: 280, top: -60, right: -40, background: "rgba(100,206,251,0.12)" }}/>
+                <div className="bento-icon" style={{ background: "rgba(100,206,251,0.1)", color: "#64CEFB" }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    {FEATURE_ICONS[0]?.circle && <circle cx="12" cy="12" r="9"/>}<path d={FEATURE_ICONS[0]?.d}/>
+                  </svg>
+                </div>
+                <h3>{copy.solution.features[0].t}</h3>
+                <p>{copy.solution.features[0].b}</p>
+                <div style={{ flex: 1 }}/>
+                {/* Decorative number */}
+                <div style={{ fontSize: "clamp(6rem,10vw,9rem)", fontWeight: 800, color: "rgba(255,255,255,0.03)", lineHeight: 1, letterSpacing: "-0.06em", userSelect: "none", marginTop: 16 }}>01</div>
+              </div>
+              {/* Two stacked smaller cards */}
+              <div className="bento-col">
+                {copy.solution.features.slice(1).map((f, i) => (
+                  <div className="bento-card reveal" key={f.t} style={{ flex: 1 }}>
+                    <div className="glow-blob" style={{ width: 200, height: 200, bottom: -50, left: -40, background: i === 0 ? "rgba(74,222,128,0.09)" : "rgba(250,132,83,0.09)" }}/>
+                    <div className="bento-icon" style={{ background: i === 0 ? "rgba(74,222,128,0.1)" : "rgba(250,132,83,0.1)", color: i === 0 ? "#4ade80" : "#FA8453" }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        {FEATURE_ICONS[i + 1]?.circle && <circle cx="12" cy="12" r="9"/>}<path d={FEATURE_ICONS[i + 1]?.d}/>
+                      </svg>
+                    </div>
                     <h3>{f.t}</h3>
                     <p>{f.b}</p>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ─── How it works ─── */}
-        <section className="pad-y" id="how" style={{ background: "var(--color-snow)" }}>
+        {/* ─── How it works: Aurora horizontal timeline ─── */}
+        <section style={{ background: "var(--color-mist)", padding: "100px 0" }} id="how">
           <div className="container">
-            <div className="reveal">
-              {/* Axion section badge */}
-              <div className="sec-badge">
+            <div className="reveal" style={{ textAlign: "center", marginBottom: 72 }}>
+              <div className="sec-badge" style={{ justifyContent: "center" }}>
                 <span className="s-num">03</span>
                 <span className="s-label">{copy.how.eyebrow}</span>
               </div>
-              <h2 className="heading-lg">{copy.how.heading[0]}<br/><span className="muted-fg light">{copy.how.heading[1]}</span></h2>
-              <p className="lead">{copy.how.lead}</p>
+              <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-obsidian)", margin: "0 auto", letterSpacing: "-0.025em", maxWidth: "18ch" }}>
+                {copy.how.heading[0]}<br/><span style={{ color: "var(--color-steel)", fontWeight: 300 }}>{copy.how.heading[1]}</span>
+              </h2>
             </div>
-            {/* Aurora step cards */}
-            <div className="steps" style={{ marginTop: 48 }}>
+            {/* Aurora step timeline */}
+            <div className="step-timeline">
               {copy.how.steps.map(([t, s], i) => (
-                <div className={`step-aurora reveal${i === copy.how.steps.length - 1 ? " is-live" : ""}`} key={STEP_NUMS[i]}>
-                  <span className="sa-num">{i + 1}</span>
+                <div className={`step-t reveal${i === copy.how.steps.length - 1 ? " is-live" : ""}`} key={STEP_NUMS[i]}>
+                  <div className="st-num">{i + 1}</div>
                   <h4>{t}</h4>
                   <p>{s}</p>
-                  {i === copy.how.steps.length - 1 && <span className="badge badge-ember" style={{ position: "absolute", top: 20, right: 20 }}>{copy.how.liveBadge}</span>}
+                  {i === copy.how.steps.length - 1 && (
+                    <span className="badge badge-ember" style={{ marginTop: 14, display: "inline-flex" }}>{copy.how.liveBadge}</span>
+                  )}
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ─── Portfolio tiles ─── */}
-        <section className="pad-y" id="examples">
-          <div className="container" style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 18, flexWrap: "wrap" }}>
-            <div className="reveal">
-              {/* Axion section badge */}
-              <div className="sec-badge">
-                <span className="s-num">04</span>
-                <span className="s-label">{copy.examples.eyebrow}</span>
-              </div>
-              <h2 className="heading-lg">{copy.examples.heading[0]}<br/>{copy.examples.heading[1]}</h2>
-            </div>
-            {/* Axion TextRoll on outline CTA */}
-            <a className="btn btn-outline btn-roll reveal" href="#pricing">
-              <span className="roll-inner"><span data-text={copy.examples.viewAll}>{copy.examples.viewAll}</span></span>
-              <ArrowIcon/>
-            </a>
-          </div>
-
-          <div className="tiles" style={{ marginTop: 40 }}>
-            {copy.examples.tiles.map((tile, i) => TILE_VISUALS[i]?.orchid ? (
-              <div className="tile orchid" key={`orchid-${i}`}>
-                <span className="preview-tag">// {copy.examples.decorativeTag}</span>
-                <p className="decor">{copy.examples.decorText[0]}<br/>{copy.examples.decorText[1]}</p>
-              </div>
-            ) : (
-              <div className="tile" style={{ background: TILE_VISUALS[i]?.bg }} key={tile.name}>
-                <div className="scrim"></div>
-                <span className="preview-tag" style={TILE_VISUALS[i]?.tagColor ? { color: TILE_VISUALS[i]?.tagColor } : undefined}>// {copy.examples.previewTag}</span>
-                {TILE_VISUALS[i]?.glow && <div style={{ position: "absolute", inset: 0, background: TILE_VISUALS[i]?.glow }}/>}
-                {/* Axion hover-expand pill */}
-                <div className="tile-pill">
-                  <span className="tp-text">View project</span>
-                  <span className="tp-icon">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={`var(--color-obsidian)`} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                  </span>
+        {/* ─── Portfolio: Axion case study grid (dark) ─── */}
+        <section style={{ background: "var(--color-obsidian)", padding: "100px 0" }} id="examples">
+          <div className="container">
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 18, flexWrap: "wrap", marginBottom: 48 }}>
+              <div className="reveal">
+                <div className="sec-badge">
+                  <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>04</span>
+                  <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.examples.eyebrow}</span>
                 </div>
-                <div className="body">
-                  <h3 className="t-title">{tile.name}</h3>
-                  <div className="t-badges">
-                    {tile.badges?.map(b => <span className="badge badge-overlay" key={b}>{b}</span>)}
+                <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.025em" }}>
+                  {copy.examples.heading[0]}<br/>{copy.examples.heading[1]}
+                </h2>
+              </div>
+              <a className="btn btn-roll reveal" href="#pricing" style={{ color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: "var(--radius-card)", padding: "12px 20px", fontSize: "var(--text-body)", fontWeight: 500 }}>
+                <span className="roll-inner"><span data-text={copy.examples.viewAll}>{copy.examples.viewAll}</span></span>
+                <ArrowIcon/>
+              </a>
+            </div>
+            {/* Case study grid */}
+            <div className="cs-grid">
+              {/* Featured tall tile */}
+              <div className="cs-card cs-featured reveal" style={{ background: TILE_VISUALS[0]?.bg || "#1a1a2e" }}>
+                {TILE_VISUALS[0]?.glow && <div className="cs-bg" style={{ background: TILE_VISUALS[0]?.glow }}/>}
+                <div className="cs-scrim"/>
+                <div className="cs-pill">
+                  <span className="cp-text">View project</span>
+                  <span className="cp-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-obsidian)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+                </div>
+                <div className="cs-body">
+                  <div className="cs-tag">// {copy.examples.previewTag}</div>
+                  <h3 className="cs-title">{copy.examples.tiles[0]?.name}</h3>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {copy.examples.tiles[0]?.badges?.map(b => <span className="badge badge-overlay" key={b}>{b}</span>)}
                   </div>
                 </div>
               </div>
-            ))}
+              {/* Right column */}
+              <div className="cs-col">
+                {copy.examples.tiles.slice(1).map((tile, i) => TILE_VISUALS[i + 1]?.orchid ? (
+                  <div key={`orchid-${i}`} className="reveal" style={{ background: "var(--color-orchid-flash)", borderRadius: 24, padding: 36, flex: 1, minHeight: 200, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+                    <p style={{ fontSize: "clamp(1.6rem,2.5vw,2rem)", fontWeight: 700, color: "#fff", margin: 0, lineHeight: 1.1 }}>
+                      {copy.examples.decorText[0]}<br/>{copy.examples.decorText[1]}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="cs-card reveal" key={tile.name} style={{ background: TILE_VISUALS[i + 1]?.bg || "#111827", flex: 1 }}>
+                    {TILE_VISUALS[i + 1]?.glow && <div className="cs-bg" style={{ background: TILE_VISUALS[i + 1]?.glow }}/>}
+                    <div className="cs-scrim"/>
+                    <div className="cs-pill">
+                      <span className="cp-text">View project</span>
+                      <span className="cp-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-obsidian)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+                    </div>
+                    <div className="cs-body">
+                      <div className="cs-tag">// {copy.examples.previewTag}</div>
+                      <h3 className="cs-title">{tile.name}</h3>
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                        {tile.badges?.map(b => <span className="badge badge-overlay" key={b}>{b}</span>)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
@@ -694,96 +837,133 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           </div>
         </section>
 
-        {/* ─── Ownership (dark) ─── */}
-        <section className="pad-y">
+        {/* ─── Ownership: ViralMedia bold statement (white, flipped from dark) ─── */}
+        <section style={{ background: "var(--color-snow)", padding: "100px 0" }}>
           <div className="container">
-            <div className="dark-panel on-dark reveal" style={{ padding: 56, overflow: "hidden", position: "relative" }}>
-              {/* Guardnet glow blobs — multiple layers for depth */}
-              <div className="glow-blob" style={{ width: 500, height: 500, top: -160, right: -120, background: "rgba(74,222,128,0.09)" }}/>
-              <div className="glow-blob" style={{ width: 300, height: 300, bottom: -80, left: -60, background: "rgba(100,206,251,0.07)" }}/>
-              <div className="grid-2" style={{ gap: 56, alignItems: "center", position: "relative" }}>
-                <div>
-                  <span className="eyebrow">{copy.ownership.eyebrow}</span>
-                  <h2 className="heading on-dark">{copy.ownership.heading[0]}<br/><span style={{ color: "#4ade80" }}>{copy.ownership.heading[1]}</span></h2>
-                  <p className="lead">{copy.ownership.lead}</p>
-                  <div style={{ marginTop: 28, display: "flex", gap: 10, flexWrap: "wrap" }}>
-                    {copy.ownership.badges.map(b => <span className="badge badge-dark" key={b}>{b}</span>)}
-                  </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
+              {/* Left: bold statement */}
+              <div className="reveal">
+                <div className="sec-badge">
+                  <span className="s-num">05</span>
+                  <span className="s-label">{copy.ownership.eyebrow}</span>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                  <div className="card-muted" style={{ background: "var(--color-slate)", color: "var(--color-snow)" }}>
-                    <div style={{ fontSize: 12, color: "var(--color-pebble)", marginBottom: 6 }}>{copy.ownership.repoLabel}</div>
-                    <div style={{ fontFamily: "ui-monospace,monospace", fontSize: 13, color: "var(--color-pebble)" }}>{copy.ownership.repoFiles}</div>
+                <h2 className="own-statement">
+                  {copy.ownership.heading[0]}<br/><span className="accent">{copy.ownership.heading[1]}</span>
+                </h2>
+                <p style={{ fontSize: "var(--text-body-lg)", color: "var(--color-steel)", lineHeight: 1.6, marginTop: 24, maxWidth: "44ch" }}>{copy.ownership.lead}</p>
+                <div style={{ marginTop: 28, display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  {copy.ownership.badges.map(b => <span className="badge badge-dark" key={b}>{b}</span>)}
+                </div>
+              </div>
+              {/* Right: terminal cards */}
+              <div className="reveal" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <div className="terminal-card">
+                  <div className="terminal-label">{copy.ownership.repoLabel}</div>
+                  <div className="terminal-body">{copy.ownership.repoFiles}</div>
+                </div>
+                <div className="terminal-card" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div>
+                    <div className="terminal-label">{copy.ownership.deployLabel}</div>
+                    <div style={{ fontWeight: 600, color: "var(--color-snow)", fontSize: "var(--text-body)" }}>{copy.ownership.deployUrl}</div>
                   </div>
-                  <div className="card-muted" style={{ background: "var(--color-slate)", color: "var(--color-snow)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div><div style={{ fontSize: 12, color: "var(--color-pebble)", marginBottom: 4 }}>{copy.ownership.deployLabel}</div><div style={{ fontWeight: 600 }}>{copy.ownership.deployUrl}</div></div>
-                    <span className="badge badge-overlay" style={{ borderColor: "rgba(74,222,128,0.5)", color: "#4ade80" }}>{copy.ownership.readyBadge}</span>
-                  </div>
+                  <span className="badge" style={{ background: "rgba(74,222,128,0.12)", color: "#4ade80", border: "1px solid rgba(74,222,128,0.3)" }}>{copy.ownership.readyBadge}</span>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ─── The math / compare ─── */}
-        <section className="pad-y" style={{ background: "var(--color-snow)" }}>
-          <div className="container">
-            <div className="reveal">
-              <span className="eyebrow">{copy.math.eyebrow}</span>
-              <h2 className="heading-lg">{copy.math.heading}</h2>
-              <p className="lead">{copy.math.lead}</p>
-            </div>
-            <div className="compare">
-              <div className="card reveal">
-                <div className="col-head">{copy.math.traditional.colHead}</div>
-                <div className="price">{copy.math.traditional.price}</div>
-                <div className="price-sub">{copy.math.traditional.priceSub}</div>
-                {copy.math.traditional.rows.map(r => <div className="row" key={r}><span className="x">✕</span> {r}</div>)}
+        {/* ─── Compare: Guardnet dark split panel ─── */}
+        <section style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }}>
+          <div className="glow-blob" style={{ width: 450, height: 450, top: "50%", right: -60, transform: "translateY(-50%)", background: "rgba(74,222,128,0.07)" }}/>
+          <div className="container" style={{ position: "relative" }}>
+            <div className="reveal" style={{ marginBottom: 56 }}>
+              <div className="sec-badge">
+                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>06</span>
+                <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.math.eyebrow}</span>
               </div>
-              <div className="dark-panel ins reveal" style={{ padding: 28, overflow: "hidden", position: "relative" }}>
-                <div style={{ position: "absolute", top: -80, right: -60, width: 240, height: 240, borderRadius: "50%", background: "radial-gradient(circle, rgba(74,222,128,0.28), transparent 65%)" }}/>
+              <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.025em" }}>{copy.math.heading}</h2>
+              <p style={{ color: "rgba(255,255,255,0.4)", marginTop: 12, fontSize: "var(--text-body-lg)", maxWidth: "56ch" }}>{copy.math.lead}</p>
+            </div>
+            <div className="compare-dark reveal">
+              {/* Legacy / Agency */}
+              <div className="compare-col legacy">
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.12em", color: "rgba(255,255,255,0.22)", marginBottom: 6 }}>{copy.math.traditional.colHead}</div>
+                <div className="compare-big-price">{copy.math.traditional.price}</div>
+                <div style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.22)", marginBottom: 32 }}>{copy.math.traditional.priceSub}</div>
+                {copy.math.traditional.rows.map(r => (
+                  <div className="compare-row" key={r}><span className="cx">✕</span>{r}</div>
+                ))}
+              </div>
+              {/* insixlive */}
+              <div className="compare-col ours">
+                <div className="glow-blob" style={{ width: 320, height: 320, top: -80, right: -60, background: "rgba(74,222,128,0.11)" }}/>
                 <div style={{ position: "relative" }}>
-                  <span className="badge badge-dark" style={{ marginBottom: 14 }}>{copy.math.insixlive.badge}</span>
-                  <div className="price">{copy.math.insixlive.price}</div>
-                  <div className="price-sub">{copy.math.insixlive.priceSub}</div>
-                  {copy.math.insixlive.rows.map(r => <div className="row" key={r}><span className="check">✓</span> {r}</div>)}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.12em", color: "rgba(255,255,255,0.45)" }}>{copy.math.insixlive.badge}</div>
+                    <span className="badge badge-ember">{copy.math.insixlive.badge}</span>
+                  </div>
+                  <div className="compare-big-price" style={{ color: "var(--color-snow)", textDecoration: "none" }}>{copy.math.insixlive.price}</div>
+                  <div style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.4)", marginBottom: 32 }}>{copy.math.insixlive.priceSub}</div>
+                  {copy.math.insixlive.rows.map(r => (
+                    <div className="compare-row" key={r}><span className="ck">✓</span>{r}</div>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ─── Pricing ─── */}
-        <section className="pad-y" id="pricing">
-          <div className="container" style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 18, flexWrap: "wrap" }}>
-            <div className="reveal">
-              <span className="eyebrow">{copy.pricing.eyebrow}</span>
-              <h2 className="heading-lg">{copy.pricing.heading[0]}<br/><span className="muted-fg light">{copy.pricing.heading[1]}</span></h2>
-            </div>
-          </div>
+        {/* ─── Pricing: Bionova glow-border featured ─── */}
+        <section style={{ background: "var(--color-mist)", padding: "100px 0" }} id="pricing">
           <div className="container">
-            <div className="plans" style={{ marginTop: 40 }}>
-              {copy.pricing.plans.map(p => (
-                <div className={p.featured ? "plan featured reveal" : "card plan reveal"} key={p.name}>
-                  <div style={p.featured ? { position: "relative", display: "flex", flexDirection: "column", height: "100%" } : undefined}>
-                    {p.featured && <div style={{ position: "absolute", top: -60, right: -60, width: 220, height: 220, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,90,0,0.4), transparent 65%)" }}/>}
-                    <div className="plan-head" style={{ position: "relative" }}>
-                      <span className="pname">{p.name}</span>
-                      {p.featured && <span className="badge badge-ember">{copy.pricing.popularBadge}</span>}
+            <div className="reveal" style={{ marginBottom: 48 }}>
+              <div className="sec-badge">
+                <span className="s-num">07</span>
+                <span className="s-label">{copy.pricing.eyebrow}</span>
+              </div>
+              <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-obsidian)", margin: 0, letterSpacing: "-0.025em" }}>
+                {copy.pricing.heading[0]}<br/><span style={{ color: "var(--color-steel)", fontWeight: 300 }}>{copy.pricing.heading[1]}</span>
+              </h2>
+            </div>
+            <div className="plans">
+              {copy.pricing.plans.map(p => p.featured ? (
+                /* Bionova gradient-border featured card */
+                <div className="plan bionova-featured reveal" key={p.name}>
+                  <div className="bf-inner">
+                    <div className="glow-blob" style={{ width: 280, height: 280, top: -60, right: -60, background: "rgba(100,206,251,0.15)" }}/>
+                    <div style={{ position: "relative" }}>
+                      <div className="plan-head">
+                        <span className="pname">{p.name}</span>
+                        <span className="badge badge-ember">{copy.pricing.popularBadge}</span>
+                      </div>
+                      <div className="pamount">{p.price} <small>one-time</small></div>
+                      <div className="ptag">{p.tag}</div>
+                      <ul>
+                        {p.items.map(it => <li key={it}><span className="tick"><CheckMark/></span> {it}</li>)}
+                        {p.muted && <li><span className="tick" style={{ color: "rgba(255,255,255,0.25)" }}>–</span> {p.muted}</li>}
+                      </ul>
+                      <Link className="btn btn-grad-fill" href={ctaHref} style={{ justifyContent: "center", width: "100%", display: "flex" }}>{p.cta}</Link>
+                      <div className="pafter" style={{ marginTop: 14, fontSize: 12, textAlign: "center" as const }}>{p.after}</div>
                     </div>
-                    <div className="pamount" style={{ position: "relative" }}>{p.price} <small>one-time</small></div>
-                    <div className="ptag">{p.tag}</div>
-                    <ul>
-                      {p.items.map(it => <li key={it}><span className="tick"><CheckMark/></span> {it}</li>)}
-                      {p.muted && <li><span className="tick" style={{ color: "var(--color-ash)" }}>–</span> {p.muted}</li>}
-                    </ul>
-                    <Link className={p.featured ? "btn btn-primary" : "btn btn-outline"} href={ctaHref} style={{ justifyContent: "center", width: "100%" }}>{p.cta}</Link>
-                    <div className="pafter">{p.after}</div>
                   </div>
+                </div>
+              ) : (
+                <div className="card plan reveal" key={p.name}>
+                  <div className="plan-head">
+                    <span className="pname">{p.name}</span>
+                  </div>
+                  <div className="pamount">{p.price} <small>one-time</small></div>
+                  <div className="ptag">{p.tag}</div>
+                  <ul>
+                    {p.items.map(it => <li key={it}><span className="tick"><CheckMark/></span> {it}</li>)}
+                    {p.muted && <li><span className="tick" style={{ color: "var(--color-ash)" }}>–</span> {p.muted}</li>}
+                  </ul>
+                  <Link className="btn btn-outline" href={ctaHref} style={{ justifyContent: "center", width: "100%" }}>{p.cta}</Link>
+                  <div className="pafter">{p.after}</div>
                 </div>
               ))}
             </div>
-
             <div className="card-muted reveal" style={{ marginTop: 22, display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", padding: "16px 22px" }}>
               <span className="badge badge-dark">{copy.pricing.note.badge}</span>
               <span style={{ fontSize: "var(--text-body)", color: "var(--color-graphite)" }}>{copy.pricing.note.text}</span>
@@ -822,26 +1002,30 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           </div>
         </section>
 
-        {/* ─── Testimonials ─── */}
-        <section className="pad-y" id="proof">
-          <div className="container">
-            <div className="reveal">
-              {/* Axion section badge */}
+        {/* ─── Testimonials: ViralMedia dark large-quote style ─── */}
+        <section style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }} id="proof">
+          <div className="glow-blob" style={{ width: 600, height: 600, top: "50%", left: "50%", transform: "translate(-50%,-50%)", background: "rgba(100,206,251,0.05)" }}/>
+          <div className="container" style={{ position: "relative" }}>
+            <div className="reveal" style={{ marginBottom: 56 }}>
               <div className="sec-badge">
-                <span className="s-num">05</span>
-                <span className="s-label">{copy.proof.eyebrow}</span>
+                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>08</span>
+                <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.proof.eyebrow}</span>
               </div>
-              <h2 className="heading-lg">{copy.proof.heading[0]}<br/><span className="muted-fg light">{copy.proof.heading[1]}</span></h2>
-              <p className="lead">{copy.proof.lead}</p>
+              <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.025em" }}>
+                {copy.proof.heading[0]}<br/><span style={{ color: "rgba(255,255,255,0.28)", fontWeight: 300 }}>{copy.proof.heading[1]}</span>
+              </h2>
             </div>
-            <div className="grid-3" style={{ marginTop: 48 }}>
+            <div className="grid-3" style={{ gap: 16 }}>
               {copy.proof.testimonials.map(t => (
-                <div className="card quote-card reveal" key={t.name}>
-                  <div className="qmark">&quot;</div>
+                <div className="dark-quote reveal" key={t.name}>
+                  <span className="big-q">&ldquo;</span>
                   <p>{t.quote}</p>
-                  <div className="who">
-                    <div className="av">{t.initials}</div>
-                    <div><div className="nm">{t.name}</div><div className="bz">{t.biz}</div></div>
+                  <div className="dq-author">
+                    <div className="dq-av">{t.initials}</div>
+                    <div>
+                      <div className="dq-name">{t.name}</div>
+                      <div className="dq-biz">{t.biz}</div>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -855,7 +1039,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
             <div className="reveal">
               {/* Axion section badge */}
               <div className="sec-badge">
-                <span className="s-num">06</span>
+                <span className="s-num">09</span>
                 <span className="s-label">{copy.faq.eyebrow}</span>
               </div>
               <h2 className="heading-lg">{copy.faq.heading}</h2>
@@ -898,13 +1082,19 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           </div>
         </section>
 
-        {/* ─── Footer ─── */}
-        <footer>
+        {/* ─── Footer: ViralMedia dark 4-col ─── */}
+        <footer className="foot-dark">
           <div className="container">
-            <div className="foot-top">
+            <div className="foot-top" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 1fr", gap: 32, paddingBottom: 40, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
               <div className="foot-col">
-                <a className="wordmark" href="#top" style={{ marginBottom: 14, display: "inline-flex" }}><span className="mark">6</span>insix<span className="six">live</span></a>
-                <p style={{ fontSize: "var(--text-body)", color: "var(--color-steel)", maxWidth: "32ch", margin: 0 }}>{copy.footer.blurb}</p>
+                {/* Logo mark */}
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                  <span style={{ width: 34, height: 34, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(255,255,255,0.7)", display: "block" }}/>
+                  </span>
+                  <span style={{ fontSize: 15, fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>insixlive</span>
+                </div>
+                <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.35)", maxWidth: "32ch", margin: 0, lineHeight: 1.6 }}>{copy.footer.blurb}</p>
               </div>
               <div className="foot-col">
                 <h5>{copy.footer.productHeader}</h5>
@@ -922,7 +1112,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                 <Link href={signInHref}>{signInLabel}</Link>
               </div>
             </div>
-            <div className="foot-bottom">
+            <div className="foot-bottom" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 24, flexWrap: "wrap", gap: 12 }}>
               <span>{copy.footer.copyright}</span>
               <span>{copy.footer.builtWith}</span>
             </div>
