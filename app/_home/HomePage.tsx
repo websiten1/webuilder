@@ -499,6 +499,30 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         .aw .foot-dark .foot-bottom { border-color: rgba(255,255,255,0.07); }
         .aw .foot-dark .foot-bottom span { color: rgba(255,255,255,0.3); }
 
+        /* ── Bionova: floating shape animations ── */
+        @keyframes aw-float-y { 0%, 100% { transform: translateY(0px) rotate(var(--s-rot,0deg)); } 50% { transform: translateY(-16px) rotate(var(--s-rot,0deg)); } }
+        @keyframes aw-float-xy { 0%, 100% { transform: translate(0,0) rotate(var(--s-rot,0deg)); } 33% { transform: translate(9px,-14px) rotate(var(--s-rot,0deg)); } 66% { transform: translate(-7px,-8px) rotate(var(--s-rot,0deg)); } }
+        @keyframes aw-pulse-out { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(1.75); opacity: 0; } }
+        .aw .bio-pill { position: absolute; pointer-events: none; border-radius: 9999px; }
+        .aw .bio-rect { position: absolute; pointer-events: none; border-radius: 22px; }
+        .aw .bio-ring { position: absolute; pointer-events: none; border-radius: 50%; }
+        .aw .bio-sq { position: absolute; pointer-events: none; border-radius: 16px; }
+        .aw .float-a { animation: aw-float-y var(--s-dur,7s) ease-in-out infinite var(--s-delay,0s); }
+        .aw .float-b { animation: aw-float-xy var(--s-dur,9s) ease-in-out infinite var(--s-delay,0s); }
+
+        /* ── Bionova: pulsing concentric rings (behind headlines) ── */
+        .aw .pulse-origin { position: absolute; pointer-events: none; border-radius: 50%; }
+        .aw .pulse-origin .pr { position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(100,206,251,0.22); animation: aw-pulse-out 3.2s ease-out infinite; }
+        .aw .pulse-origin .pr:nth-child(2) { inset: -40%; border-color: rgba(100,206,251,0.12); animation-delay: 1.1s; }
+        .aw .pulse-origin .pr:nth-child(3) { inset: -80%; border-color: rgba(100,206,251,0.06); animation-delay: 2.2s; }
+
+        /* ── Guardnet: status pulse dot ── */
+        @keyframes aw-dot-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.6); } 60% { box-shadow: 0 0 0 9px rgba(74,222,128,0); } }
+        .aw .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; display: inline-block; flex-shrink: 0; animation: aw-dot-pulse 2s ease-out infinite; }
+
+        /* ── Guardnet: dot-grid overlay (use as child div) ── */
+        .aw .gn-dots-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 0; background-image: radial-gradient(circle, rgba(255,255,255,0.065) 1px, transparent 1px); background-size: 32px 32px; }
+
         /* ── Pricing featured: Bionova glow border ── */
         .aw .plan.bionova-featured { background: transparent; border-radius: var(--radius-card); padding: 2px; background: linear-gradient(135deg, rgba(100,206,251,0.6) 0%, rgba(74,222,128,0.4) 50%, rgba(250,132,83,0.5) 100%); }
         .aw .plan.bionova-featured .bf-inner { background: var(--color-obsidian); border-radius: calc(var(--radius-card) - 2px); padding: 32px 28px; height: 100%; display: flex; flex-direction: column; }
@@ -593,6 +617,16 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           </video>
           <div className="hero-vignette" aria-hidden />
 
+          {/* ── Bionova floating shapes over vignette ── */}
+          <div className="bio-pill float-a" style={{ width: 320, height: 56, top: "18%", left: "-4%", background: "rgba(255,255,255,0.018)", border: "1px solid rgba(255,255,255,0.07)", zIndex: 3, "--s-rot": "14deg", "--s-dur": "8s" } as React.CSSProperties}/>
+          <div className="bio-pill float-b" style={{ width: 180, height: 38, bottom: "30%", right: "1%", background: "rgba(100,206,251,0.035)", border: "1px solid rgba(100,206,251,0.12)", zIndex: 3, "--s-rot": "-21deg", "--s-dur": "10s", "--s-delay": "1.5s" } as React.CSSProperties}/>
+          <div className="bio-rect float-a" style={{ width: 100, height: 100, top: "40%", right: "7%", background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", zIndex: 3, "--s-dur": "9s", "--s-delay": "0.8s" } as React.CSSProperties}/>
+          <div className="bio-pill float-b" style={{ width: 80, height: 24, top: "65%", left: "12%", background: "rgba(74,222,128,0.04)", border: "1px solid rgba(74,222,128,0.1)", zIndex: 3, "--s-rot": "8deg", "--s-dur": "7s", "--s-delay": "3s" } as React.CSSProperties}/>
+          {/* Bionova pulsing concentric rings centered on headline */}
+          <div className="pulse-origin" style={{ width: 220, height: 220, top: "50%", left: "50%", transform: "translate(-50%,-50%)", zIndex: 2 }}>
+            <div className="pr"/><div className="pr"/><div className="pr"/>
+          </div>
+
           <div className="container hero-inner">
             {/* Top two-col info row */}
             <div className="hero-top-row">
@@ -646,6 +680,10 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
 
         {/* ─── Problem: ViralMedia full-bleed dark manifesto ─── */}
         <section style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }}>
+          <div className="gn-dots-overlay"/>
+          <div className="bio-pill float-a" style={{ width: 260, height: 48, top: "12%", right: "-3%", background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.065)", "--s-rot": "-18deg", "--s-dur": "9s" } as React.CSSProperties}/>
+          <div className="bio-rect float-b" style={{ width: 90, height: 90, bottom: "18%", left: "4%", background: "rgba(100,206,251,0.02)", border: "1px solid rgba(100,206,251,0.08)", "--s-dur": "11s", "--s-delay": "2s" } as React.CSSProperties}/>
+          <div className="bio-pill float-a" style={{ width: 140, height: 28, bottom: "38%", right: "8%", background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.05)", "--s-rot": "10deg", "--s-dur": "8s", "--s-delay": "1s" } as React.CSSProperties}/>
           <div className="glow-blob" style={{ width: 700, height: 700, top: "50%", left: "30%", transform: "translateY(-50%)", background: "rgba(100,206,251,0.05)" }}/>
           <div className="container" style={{ position: "relative" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
@@ -680,6 +718,10 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
 
         {/* ─── Solution: Guardnet dark bento grid ─── */}
         <section style={{ background: "#0c0c0e", padding: "100px 0", position: "relative", overflow: "hidden" }} id="solution">
+          <div className="gn-dots-overlay"/>
+          <div className="bio-pill float-b" style={{ width: 200, height: 42, top: "8%", left: "2%", background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.06)", "--s-rot": "22deg", "--s-dur": "10s" } as React.CSSProperties}/>
+          <div className="bio-rect float-a" style={{ width: 70, height: 120, bottom: "15%", right: "3%", background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.05)", "--s-dur": "9s", "--s-delay": "1.5s" } as React.CSSProperties}/>
+          <div className="bio-ring float-a" style={{ width: 180, height: 180, bottom: "10%", left: "8%", border: "1px solid rgba(100,206,251,0.07)", "--s-dur": "12s", "--s-delay": "0.5s" } as React.CSSProperties}/>
           <div className="glow-blob" style={{ width: 500, height: 500, top: -100, right: -80, background: "rgba(100,206,251,0.07)" }}/>
           <div className="container" style={{ position: "relative" }}>
             <div className="reveal" style={{ marginBottom: 56 }}>
@@ -694,7 +736,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
             {/* Asymmetric bento: tall featured card left + 2 stacked right */}
             <div className="bento">
               {/* Featured tall card */}
-              <div className="bento-card reveal" style={{ display: "flex", flexDirection: "column", minHeight: 420 }}>
+              <div className="bento-card reveal" style={{ display: "flex", flexDirection: "column", minHeight: 420, transitionDelay: "0s" }}>
                 <div className="glow-blob" style={{ width: 280, height: 280, top: -60, right: -40, background: "rgba(100,206,251,0.12)" }}/>
                 <div className="bento-icon" style={{ background: "rgba(100,206,251,0.1)", color: "#64CEFB" }}>
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -710,7 +752,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
               {/* Two stacked smaller cards */}
               <div className="bento-col">
                 {copy.solution.features.slice(1).map((f, i) => (
-                  <div className="bento-card reveal" key={f.t} style={{ flex: 1 }}>
+                  <div className="bento-card reveal" key={f.t} style={{ flex: 1, transitionDelay: `${(i + 1) * 0.12}s` }}>
                     <div className="glow-blob" style={{ width: 200, height: 200, bottom: -50, left: -40, background: i === 0 ? "rgba(74,222,128,0.09)" : "rgba(250,132,83,0.09)" }}/>
                     <div className="bento-icon" style={{ background: i === 0 ? "rgba(74,222,128,0.1)" : "rgba(250,132,83,0.1)", color: i === 0 ? "#4ade80" : "#FA8453" }}>
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -741,8 +783,11 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
             {/* Aurora step timeline */}
             <div className="step-timeline">
               {copy.how.steps.map(([t, s], i) => (
-                <div className={`step-t reveal${i === copy.how.steps.length - 1 ? " is-live" : ""}`} key={STEP_NUMS[i]}>
-                  <div className="st-num">{i + 1}</div>
+                <div className={`step-t reveal${i === copy.how.steps.length - 1 ? " is-live" : ""}`} key={STEP_NUMS[i]} style={{ transitionDelay: `${i * 0.1}s` }}>
+                  <div className="st-num" style={{ position: "relative" }}>
+                    {i + 1}
+                    {i === copy.how.steps.length - 1 && <span className="status-dot" style={{ position: "absolute", top: -2, right: -2 }}/>}
+                  </div>
                   <h4>{t}</h4>
                   <p>{s}</p>
                   {i === copy.how.steps.length - 1 && (
@@ -755,7 +800,10 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         </section>
 
         {/* ─── Portfolio: Axion case study grid (dark) ─── */}
-        <section style={{ background: "var(--color-obsidian)", padding: "100px 0" }} id="examples">
+        <section style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }} id="examples">
+          <div className="gn-dots-overlay"/>
+          <div className="bio-pill float-a" style={{ width: 180, height: 36, top: "6%", right: "5%", background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.06)", "--s-rot": "12deg", "--s-dur": "8s" } as React.CSSProperties}/>
+          <div className="bio-ring float-b" style={{ width: 220, height: 220, bottom: "8%", right: "2%", border: "1px solid rgba(100,206,251,0.06)", "--s-dur": "13s", "--s-delay": "2s" } as React.CSSProperties}/>
           <div className="container">
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 18, flexWrap: "wrap", marginBottom: 48 }}>
               <div className="reveal">
@@ -822,6 +870,9 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
 
         {/* ─── Stats ─── */}
         <section className="pad-y" style={{ background: "var(--color-obsidian)", position: "relative", overflow: "hidden" }}>
+          <div className="gn-dots-overlay"/>
+          <div className="bio-pill float-a" style={{ width: 300, height: 50, top: "10%", left: "-6%", background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", "--s-rot": "8deg", "--s-dur": "10s" } as React.CSSProperties}/>
+          <div className="bio-pill float-b" style={{ width: 120, height: 32, bottom: "12%", right: "-1%", background: "rgba(74,222,128,0.03)", border: "1px solid rgba(74,222,128,0.08)", "--s-rot": "-15deg", "--s-dur": "8s", "--s-delay": "1s" } as React.CSSProperties}/>
           {/* Guardnet glow blobs */}
           <div className="glow-blob" style={{ width: 500, height: 500, top: "50%", left: "50%", transform: "translate(-50%,-50%)", background: "rgba(100,206,251,0.06)" }}/>
           <div className="glow-blob" style={{ width: 300, height: 300, top: -80, right: 80, background: "rgba(74,222,128,0.05)" }}/>
@@ -875,6 +926,9 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
 
         {/* ─── Compare: Guardnet dark split panel ─── */}
         <section style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }}>
+          <div className="gn-dots-overlay"/>
+          <div className="bio-rect float-a" style={{ width: 80, height: 80, top: "8%", left: "5%", background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.05)", "--s-dur": "9s" } as React.CSSProperties}/>
+          <div className="bio-pill float-b" style={{ width: 220, height: 44, bottom: "10%", left: "2%", background: "rgba(74,222,128,0.025)", border: "1px solid rgba(74,222,128,0.08)", "--s-rot": "6deg", "--s-dur": "11s", "--s-delay": "1.5s" } as React.CSSProperties}/>
           <div className="glow-blob" style={{ width: 450, height: 450, top: "50%", right: -60, transform: "translateY(-50%)", background: "rgba(74,222,128,0.07)" }}/>
           <div className="container" style={{ position: "relative" }}>
             <div className="reveal" style={{ marginBottom: 56 }}>
@@ -1004,6 +1058,9 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
 
         {/* ─── Testimonials: ViralMedia dark large-quote style ─── */}
         <section style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }} id="proof">
+          <div className="gn-dots-overlay"/>
+          <div className="bio-pill float-a" style={{ width: 300, height: 52, top: "7%", right: "-2%", background: "rgba(255,255,255,0.013)", border: "1px solid rgba(255,255,255,0.06)", "--s-rot": "-12deg", "--s-dur": "10s" } as React.CSSProperties}/>
+          <div className="bio-ring float-b" style={{ width: 160, height: 160, bottom: "15%", left: "3%", border: "1px solid rgba(100,206,251,0.07)", "--s-dur": "12s", "--s-delay": "1s" } as React.CSSProperties}/>
           <div className="glow-blob" style={{ width: 600, height: 600, top: "50%", left: "50%", transform: "translate(-50%,-50%)", background: "rgba(100,206,251,0.05)" }}/>
           <div className="container" style={{ position: "relative" }}>
             <div className="reveal" style={{ marginBottom: 56 }}>
@@ -1016,8 +1073,8 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
               </h2>
             </div>
             <div className="grid-3" style={{ gap: 16 }}>
-              {copy.proof.testimonials.map(t => (
-                <div className="dark-quote reveal" key={t.name}>
+              {copy.proof.testimonials.map((t, i) => (
+                <div className="dark-quote reveal" key={t.name} style={{ transitionDelay: `${i * 0.1}s` }}>
                   <span className="big-q">&ldquo;</span>
                   <p>{t.quote}</p>
                   <div className="dq-author">
@@ -1060,6 +1117,17 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         <section className="pad-y">
           <div className="container">
             <div className="dark-panel on-dark final reveal" style={{ padding: "80px 56px", overflow: "hidden", position: "relative", borderRadius: "var(--radius-hero)" }}>
+              {/* Guardnet dot-grid */}
+              <div className="gn-dots-overlay"/>
+              {/* Bionova pulsing origin ring — centered behind headline */}
+              <div className="pulse-origin" style={{ width: 260, height: 260, top: "50%", left: "50%", transform: "translate(-50%,-50%)", zIndex: 1 }}>
+                <div className="pr"/><div className="pr"/><div className="pr"/>
+              </div>
+              {/* Bionova large floating shapes */}
+              <div className="bio-pill float-a" style={{ width: 400, height: 70, top: "-6%", left: "-8%", background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.065)", "--s-rot": "15deg", "--s-dur": "9s" } as React.CSSProperties}/>
+              <div className="bio-pill float-b" style={{ width: 260, height: 48, bottom: "-4%", right: "-4%", background: "rgba(100,206,251,0.03)", border: "1px solid rgba(100,206,251,0.1)", "--s-rot": "-20deg", "--s-dur": "11s", "--s-delay": "1.5s" } as React.CSSProperties}/>
+              <div className="bio-rect float-a" style={{ width: 140, height: 140, top: "8%", right: "5%", background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.05)", "--s-dur": "10s", "--s-delay": "0.5s" } as React.CSSProperties}/>
+              <div className="bio-ring float-b" style={{ width: 280, height: 280, bottom: "-20%", left: "5%", border: "1px solid rgba(255,255,255,0.04)", "--s-dur": "14s", "--s-delay": "2s" } as React.CSSProperties}/>
               {/* Guardnet multi-layer glow */}
               <div className="glow-blob" style={{ width: 700, height: 700, top: "50%", left: "50%", transform: "translate(-50%,-55%)", background: "rgba(250,132,83,0.14)" }}/>
               <div className="glow-blob" style={{ width: 300, height: 300, bottom: -60, right: 60, background: "rgba(100,206,251,0.08)" }}/>
@@ -1083,8 +1151,10 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         </section>
 
         {/* ─── Footer: ViralMedia dark 4-col ─── */}
-        <footer className="foot-dark">
-          <div className="container">
+        <footer className="foot-dark" style={{ position: "relative", overflow: "hidden" }}>
+          <div className="gn-dots-overlay" style={{ opacity: 0.7 }}/>
+          <div className="bio-pill float-a" style={{ width: 340, height: 54, top: "15%", right: "-5%", background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.05)", "--s-rot": "-10deg", "--s-dur": "12s" } as React.CSSProperties}/>
+          <div className="container" style={{ position: "relative" }}>
             <div className="foot-top" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 1fr", gap: 32, paddingBottom: 40, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
               <div className="foot-col">
                 {/* Logo mark */}
