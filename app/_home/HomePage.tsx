@@ -1,1298 +1,381 @@
 "use client";
 
-import Link from "next/link";
-import Script from "next/script";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { DM_Sans } from "next/font/google";
 import type { HomeCopy } from "./copy";
 
-// ─── Bionova HLS stream URLs ──────────────────────────────────────────────────
-const HLS_STREAMS = {
-  heroCard:   "https://stream.mux.com/1RdbcBtpEUK6501pc6yaIvwo9UfSnOg02k1uHxat00xR3w.m3u8",
-  locations:  "https://stream.mux.com/t1TbTB8M1VYHkhxBuap4A8Vm1x015HTHyuQxqchDBago.m3u8",
-  scientists: "https://stream.mux.com/6yvj9SR5bjmXq9N3ak7gy427RwUs8R2ZoH4ndA7Q1018.m3u8",
-} as const;
+// ─── Guardnet video assets (exact CloudFront CDN) ─────────────────────────────
+const HERO_VIDEO     = "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260421_074215_f4339e1c-0b1a-4f60-98b2-90e3d7840cb7.mp4";
+const SECURITY_VIDEO = "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260421_072418_508a7d2e-396d-4f6f-9d42-ec920fcf7755.mp4";
+const BENEFITS_VIDEO = "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260421_072701_f6a01abb-eb30-4559-9d6e-774362defbc3.mp4";
 
-// ─── insixlive Website (Awesomic) — ported from Claude Design ─────────────
-// Source: claude.ai/design/p/019e130a-b156-7a53-9abe-2feed797f07c
-//         files "insixlive Website (Awesomic).html" / "... RO (Awesomic).html"
-const cosmica = DM_Sans({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"], variable: "--font-cosmica" });
+const GRADIENT_CTA = "linear-gradient(90deg, #FA8453 0%, #F8C9B2 100%)";
 
-const LOGOS = ["Acme Plumbing", "Maria's Hair", "Lia Photo", "Bistro Marin", "Kohl Dental", "Forge Fitness", "Sole Café"];
-
-const FEATURE_ICONS: { d: string; circle?: boolean }[] = [
-  { d: "M12 3v18M3 12h18 M5 7l14 10M5 17l14-10" },
-  { d: "M3 16l9-13 9 13H3z M8 16h8" },
-  { d: "M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16" },
-  { d: "M12 7v5l3 2", circle: true },
-  { d: "M3 12h18M12 3a13 13 0 010 18M12 3a13 13 0 000 18", circle: true },
-  { d: "M3 12L12 3l9 9-9 9z" },
-];
-
-const STEP_NUMS = ["01", "02", "03", "04", "05", "06"];
-
-const DP_NAV = [
-  { label: "Home",          href: "/" },
-  { label: "About Us",      href: "/about" },
-  { label: "Courses",       href: "/courses" },
-  { label: "Instructors",   href: "/instructors" },
-  { label: "Testimonials",  href: "/testimonials" },
-  { label: "Blog",          href: "/blog" },
-  { label: "Contact us",    href: "/contact", arrow: true },
+const NAV = [
+  { label: "produs",    href: "#securitate" },
+  { label: "industrii", href: "#industrii" },
+  { label: "beneficii", href: "#beneficii" },
+  { label: "contact",   href: "#contact" },
 ] as const;
 
-const PORTFOLIO_IMAGES = [
-  { img: "https://motionsites.ai/assets/hero-grow-ai-preview-BlQ8tAQ-.gif",        cat: "Trades & Services" },
-  { img: "https://motionsites.ai/assets/hero-evr-ventures-preview-DZxeVFEX.gif",   cat: "Beauty & Lifestyle" },
-  { img: "https://motionsites.ai/assets/hero-wealth-preview-B70idl_u.gif",         cat: "Food & Hospitality" },
-  { img: "https://motionsites.ai/assets/hero-neuralyn-preview-Br4FRDQA.gif",       cat: "Portfolio & Creative" },
-];
-
-const TILE_VISUALS: { bg: string; glow?: string; tagColor?: string; orchid?: boolean }[] = [
-  { bg: "linear-gradient(160deg,#1a0e09,#09090b)", glow: "radial-gradient(80% 60% at 50% 30%, rgba(255,90,0,0.45), transparent 70%)" },
-  { bg: "linear-gradient(160deg,#f4f4f5,#d4d4d8)", tagColor: "rgba(0,0,0,0.4)" },
-  { bg: "", orchid: true },
-  { bg: "linear-gradient(160deg,#241a10,#09090b)", glow: "radial-gradient(80% 60% at 50% 40%, rgba(251,191,36,0.32), transparent 70%)" },
-  { bg: "linear-gradient(160deg,#eae6dd,#cfc8b8)", tagColor: "rgba(0,0,0,0.4)" },
-  { bg: "linear-gradient(160deg,#0a1a12,#09090b)", glow: "radial-gradient(80% 60% at 50% 40%, rgba(74,222,128,0.3), transparent 70%)" },
-];
-
-function CheckMark() {
-  return <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8.5l3.5 3.5L13 5"/></svg>;
-}
-function ArrowIcon() {
-  return <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>;
+// ─── Logo mark (Guardnet SVG adapted for insixlive) ───────────────────────────
+function LogoMark({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 256 256" className={className} fill="white" aria-hidden>
+      <path d="M 128 192 L 128 256 L 64.5 256 L 32 223 L 0 192 L 0 128 L 64 128 Z M 256 192 L 256 256 L 192.5 256 L 160 223 L 128 192 L 128 128 L 192 128 Z M 128 64 L 128 128 L 64.5 128 L 32 95 L 0 64 L 0 0 L 64 0 Z M 256 64 L 256 128 L 192.5 128 L 160 95 L 128 64 L 128 0 L 192 0 Z" />
+    </svg>
+  );
 }
 
-// ─── Page ──────────────────────────────────────────────────────────────────
-export default function HomePage({ copy }: { copy: HomeCopy }) {
+// ─── Page ─────────────────────────────────────────────────────────────────────
+export default function HomePage({ copy: _copy }: { copy: HomeCopy }) {
   const router = useRouter();
-
-  // ── Bionova HLS video refs ──
-  const bioHeroRef = useRef<HTMLVideoElement>(null);
-  const bioLocRef  = useRef<HTMLVideoElement>(null);
-  const bioSciRef  = useRef<HTMLVideoElement>(null);
-
-  const initBioHls = useCallback(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const Hls = (window as any).Hls;
-    if (!Hls) return;
-    const streams = [
-      { ref: bioHeroRef, src: HLS_STREAMS.heroCard },
-      { ref: bioLocRef,  src: HLS_STREAMS.locations },
-      { ref: bioSciRef,  src: HLS_STREAMS.scientists },
-    ];
-    for (const { ref, src } of streams) {
-      const video = ref.current;
-      if (!video) continue;
-      if (Hls.isSupported()) {
-        const hls = new Hls({ enableWorker: false });
-        hls.loadSource(src);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => { void video.play().catch(() => undefined); });
-      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = src;
-        void video.play().catch(() => undefined);
-      }
-    }
-  }, []);
-
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [cycleIdx, setCycleIdx] = useState(0);
-  const [cycleVisible, setCycleVisible] = useState(true);
-  const [heroEmail, setHeroEmail] = useState("");
-  const [openFaq, setOpenFaq] = useState(0);
+  const [email, setEmail] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
 
-  useEffect(() => {
-    fetch("/api/auth/me").then(r => r.json()).then(d => setLoggedIn(!!d.user)).catch(() => setLoggedIn(false));
-  }, []);
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      setCycleVisible(false);
-      setTimeout(() => {
-        setCycleIdx(i => (i + 1) % copy.hero.cycleWords.length);
-        setCycleVisible(true);
-      }, 300);
-    }, 2600);
-    return () => clearInterval(t);
-  }, [copy.hero.cycleWords.length]);
-
-  useEffect(() => {
-    const els = document.querySelectorAll(".reveal");
-    if (!("IntersectionObserver" in window)) { els.forEach(e => e.classList.add("in")); return; }
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
-    }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
-    els.forEach(e => io.observe(e));
-    return () => io.disconnect();
-  }, []);
-
-  const ctaHref = loggedIn ? "/dashboard" : "/signup";
-  const signInHref = loggedIn ? "/dashboard" : "/login";
-  const signInLabel = loggedIn ? copy.dashboardLabel : copy.signIn;
-  const primaryLabel = loggedIn ? copy.dashboardLabel : copy.getStarted;
-
-  const handleHeroEmailSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    router.push(heroEmail ? `/signup?email=${encodeURIComponent(heroEmail)}` : "/signup");
+    router.push(email ? `/signup?email=${encodeURIComponent(email)}` : "/signup");
   };
 
   return (
-    <div className={cosmica.variable}>
-      {/* hls.js for Bionova video streams */}
-      <Script
-        src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"
-        strategy="afterInteractive"
-        onLoad={initBioHls}
-      />
+    <div style={{ fontFamily: "'Futura Md BT Medium', system-ui, -apple-system, sans-serif", background: "#000", color: "#fff" }}>
       <style>{`
-        :root {
-          /* ── Apple SF Pro palette ── */
-          --color-obsidian: #1d1d1f;
-          --color-ink: #1d1d1f;
-          --color-graphite: #3a3a3c;
-          --color-slate: #48484a;
-          --color-steel: #6e6e73;
-          --color-ash: #86868b;
-          --color-pebble: #c7c7cc;
-          --color-fog: #e5e5ea;
-          --color-mist: #f5f5f7;
-          --color-snow: #ffffff;
-          --color-ember: #ff5a00;
-          --color-orchid-flash: #fe45e2;
-          --apple-blue: #0071e3;
-          --apple-blue-hover: #0077ed;
-          --apple-blue-dark: #2997ff;
-
-          /* ── SF Pro system font ── */
-          --sf: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-          --font-cosmica: var(--sf);
-
-          --text-caption: 11px;
-          --text-body: 14px;
-          --text-body-lg: 17px;
-          --text-subheading: 19px;
-          --text-heading-sm: 21px;
-          --text-heading: 32px;
-          --text-heading-lg: 40px;
-          --text-display-sm: 56px;
-          --text-display: 64px;
-
-          --page-max-width: 1200px;
-          --section-gap: 80px;
-
-          --radius-hero: 18px;
-          --radius-pill: 10000px;
-          --radius-card: 18px;
-          --radius-card-compact: 14px;
-          --radius-icon: 14px;
-          --radius-badge: 980px;
-          --radius-input: 980px;
-
-          --shadow-primary: 0 4px 12px rgba(0,0,0,0.15);
-          --shadow-card-inset: inset 0 0.5px 0 rgba(255,255,255,0.6);
-          --shadow-card-hi: 0 1px 3px rgba(0,0,0,0.08), 0 0 0 0.5px rgba(0,0,0,0.05);
-          --shadow-md: 0 4px 24px rgba(0,0,0,0.06);
-
-          --ease-spring: cubic-bezier(0.25, 0.1, 0.25, 1);
-        }
-
-        *, *::before, *::after { box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        html, body { margin: 0; padding: 0; }
-        body {
-          background: #fff;
-          font-family: var(--sf);
-          color: var(--color-ink);
-          font-size: var(--text-body-lg);
-          line-height: 1.47059;
-          -webkit-font-smoothing: antialiased;
-          text-rendering: optimizeLegibility;
-          letter-spacing: -0.022em;
-        }
-        .aw a { color: inherit; text-decoration: none; }
-        .aw button { font-family: var(--sf); cursor: pointer; }
-        .aw img { display: block; max-width: 100%; }
-
-        .aw .container { max-width: var(--page-max-width); margin: 0 auto; padding: 0 24px; }
-
-        .aw .eyebrow { display: inline-block; font-size: var(--text-caption); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--apple-blue); margin-bottom: 12px; }
-        .aw .display { font-size: clamp(2.8rem,5.5vw,4rem); line-height: 1.05; font-weight: 700; color: var(--color-obsidian); margin: 0; letter-spacing: -0.03em; }
-        .aw .display-sm { font-size: clamp(2.2rem,4vw,3.2rem); line-height: 1.07; font-weight: 700; color: var(--color-obsidian); margin: 0; letter-spacing: -0.025em; }
-        .aw .heading-lg { font-size: clamp(1.8rem,3vw,2.6rem); line-height: 1.1; font-weight: 700; color: var(--color-obsidian); margin: 0; letter-spacing: -0.022em; }
-        .aw .heading { font-size: clamp(1.4rem,2.2vw,2rem); line-height: 1.15; font-weight: 700; color: var(--color-obsidian); margin: 0; letter-spacing: -0.02em; }
-        .aw .lead { font-size: var(--text-body-lg); line-height: 1.58824; color: var(--color-steel); margin: 18px 0 0; max-width: 56ch; letter-spacing: -0.022em; }
-        .aw .light { font-weight: 300; }
-        .aw .muted-fg { color: var(--color-ash); }
-        .aw .on-dark { color: var(--color-snow); }
-        .aw .on-dark .lead { color: rgba(255,255,255,0.6); }
-        .aw .on-dark .heading, .aw .on-dark .heading-lg, .aw .on-dark .display, .aw .on-dark .display-sm { color: var(--color-snow); }
-        .aw .on-dark .eyebrow { color: var(--apple-blue-dark); }
-
-        .aw .btn { display: inline-flex; align-items: center; gap: 6px; font-family: var(--sf); white-space: nowrap; transition: opacity .2s ease; border: none; cursor: pointer; }
-        .aw .btn:active { opacity: 0.85; }
-        .aw .btn-primary { background: var(--apple-blue); color: #fff; font-size: 17px; font-weight: 400; letter-spacing: -0.022em; border: none; border-radius: var(--radius-badge); padding: 12px 22px; }
-        .aw .btn-primary:hover { background: var(--apple-blue-hover); }
-        .aw .btn-outline { background: rgba(0,113,227,0.08); color: var(--apple-blue); font-size: 17px; font-weight: 400; letter-spacing: -0.022em; border: none; border-radius: var(--radius-badge); padding: 12px 22px; }
-        .aw .btn-outline:hover { background: rgba(0,113,227,0.14); }
-        .aw .btn-dark-rect { background: rgba(255,255,255,0.1); color: #fff; font-size: 17px; font-weight: 400; letter-spacing: -0.022em; border: 1px solid rgba(255,255,255,0.16); border-radius: var(--radius-badge); padding: 12px 22px; }
-        .aw .btn-ghost { background: transparent; color: var(--apple-blue); font-size: var(--text-body-lg); font-weight: 400; letter-spacing: -0.022em; border: none; padding: 0; display: inline-flex; align-items: center; gap: 4px; }
-        .aw .btn-ghost svg { transition: transform .2s ease; }
-        .aw .btn-ghost:hover svg { transform: translateX(3px); }
-
-        .aw .badge { display: inline-flex; align-items: center; gap: 5px; font-family: var(--sf); font-size: 12px; font-weight: 400; letter-spacing: -0.01em; border-radius: var(--radius-badge); padding: 5px 12px; line-height: 1.2; }
-        .aw .badge-dark { background: rgba(255,255,255,0.12); color: #f5f5f7; backdrop-filter: blur(8px); }
-        .aw .badge-overlay { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.9); border: 0.5px solid rgba(255,255,255,0.22); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-        .aw .badge-ember { background: var(--color-ember); color: var(--color-snow); font-weight: 500; }
-
-        .aw .card { background: var(--color-snow); border-radius: var(--radius-card); padding: 28px; box-shadow: var(--shadow-card-hi), var(--shadow-card-inset); }
-        .aw .card-muted { background: var(--color-fog); border-radius: var(--radius-card-compact); padding: 24px; }
-        .aw .dark-panel { background: var(--color-obsidian); border-radius: var(--radius-card); color: var(--color-snow); }
-
-        .aw section { position: relative; }
-        .aw .pad-y { padding: 80px 0; }
-
-        .aw .icon-tile { width: 48px; height: 48px; border-radius: 16px; background: var(--color-mist); display: flex; align-items: center; justify-content: center; color: var(--color-ink); flex-shrink: 0; }
-        .aw .dark-panel .icon-tile { background: rgba(255,255,255,0.06); color: var(--color-snow); }
-
-        .aw .banner { margin: 16px auto 0; max-width: calc(var(--page-max-width) - 48px); background: rgba(24,24,27,0.92); color: var(--color-snow); border-radius: var(--radius-hero); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; gap: 14px; padding: 10px 22px; font-size: var(--text-body); font-weight: 400; flex-wrap: wrap; text-align: center; }
-        .aw .banner .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-ember); flex-shrink: 0; }
-        .aw .banner a { color: var(--color-ash); font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
-        .aw .banner a:hover { color: var(--color-snow); }
-
-        /* ── Apple-style nav ── */
-        .dp-nav-header {
-          position: fixed; inset: 0; bottom: auto; z-index: 50;
-          background: rgba(22,22,23,0.82);
-          backdrop-filter: saturate(180%) blur(20px);
-          -webkit-backdrop-filter: saturate(180%) blur(20px);
-          border-bottom: 1px solid rgba(255,255,255,0.08);
-          padding: 0 24px;
-          height: 44px;
-          display: flex; align-items: center;
-        }
-        .dp-nav-inner { max-width: 1080px; margin: 0 auto; width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-        .dp-logo { display: flex; align-items: center; color: #f5f5f7; text-decoration: none; flex-shrink: 0; }
-        .dp-logo-mark { display: none; }
-        .dp-logo-name { font-family: var(--sf); font-size: 17px; font-weight: 600; letter-spacing: -0.022em; color: #f5f5f7; }
-        .dp-pill { display: flex; align-items: center; gap: 0; background: none; border: none; border-radius: 0; padding: 0; }
-        .dp-pill a { font-family: var(--sf); font-size: 12px; font-weight: 400; letter-spacing: -0.01em; color: rgba(245,245,247,0.72); text-decoration: none; padding: 0 10px; white-space: nowrap; transition: color .15s ease; }
-        .dp-pill a:hover { color: #f5f5f7; }
-        .dp-pill a svg { display: none; }
-        .dp-hamburger { display: none; background: none; border: none; color: #f5f5f7; cursor: pointer; padding: 0; width: 36px; height: 36px; align-items: center; justify-content: center; }
-        /* mobile overlay */
-        .dp-backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); opacity: 0; transition: opacity .25s ease; pointer-events: none; }
-        .dp-backdrop.open { opacity: 1; pointer-events: auto; }
-        .dp-drawer { position: fixed; right: 0; top: 44px; z-index: 70; height: calc(100dvh - 44px); width: 100%; transform: translateY(-8px); opacity: 0; transition: transform .3s ease, opacity .3s ease; background: rgba(22,22,23,0.96); backdrop-filter: blur(20px); display: flex; flex-direction: column; pointer-events: none; }
-        .dp-drawer.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
-        .dp-drawer-head { display: none; }
-        .dp-drawer-links { display: flex; flex-direction: column; padding: 8px 0; }
-        .dp-drawer-links a { font-family: var(--sf); font-size: 17px; font-weight: 400; letter-spacing: -0.022em; color: rgba(245,245,247,0.85); text-decoration: none; padding: 13px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); transition: color .15s ease; }
-        .dp-drawer-links a:hover { color: #f5f5f7; }
-        .dp-close { display: none; }
-        @media (max-width: 860px) { .dp-pill { display: none; } .dp-hamburger { display: flex; } }
-
-        /* ── Video hero ── */
-        .aw .hero { position: relative; height: 100vh; min-height: 640px; display: flex; flex-direction: column; overflow: hidden; padding: 0; }
-        .aw .hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
-        .aw .hero-vignette { position: absolute; inset: 0; pointer-events: none; z-index: 1; background: linear-gradient(180deg, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.42) 40%, rgba(0,0,0,0.88) 100%); }
-        .aw .hero-inner { position: relative; z-index: 10; display: flex; flex-direction: column; height: 100%; padding: 56px 0 40px; }
-        .aw .hero-top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        /* ── Hero heading: Apple bold ── */
-        .aw .hero h1 { font-family: var(--sf); font-size: clamp(3.2rem,7vw,6rem); font-weight: 700; line-height: 1.04; letter-spacing: -0.03em; color: #fff; margin: 0; }
-        /* ── ShinyText ── */
-        @keyframes aw-shiny { from { background-position: 200% 0%; } to { background-position: -200% 0%; } }
-        .aw .shiny-text { display: inline; background-image: linear-gradient(100deg, #64CEFB 0%, #64CEFB 30%, #ffffff 50%, #64CEFB 70%, #64CEFB 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; animation: aw-shiny 3s linear infinite; }
-        /* ── Apple-style email row ── */
-        .aw .email-row { display: flex; gap: 8px; margin-top: 28px; max-width: 480px; }
-        .aw .email-row input { flex: 1; min-width: 0; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.22); border-radius: var(--radius-input); padding: 12px 18px; font-family: var(--sf); font-size: 17px; font-weight: 400; letter-spacing: -0.022em; outline: none; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: border-color .2s ease; }
-        .aw .email-row input::placeholder { color: rgba(255,255,255,0.45); }
-        .aw .email-row input:focus { border-color: rgba(255,255,255,0.55); }
-
-        .aw .logo-strip { overflow: hidden; padding: 28px 0; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
-        .aw .logo-track { display: flex; gap: 56px; width: max-content; animation: aw-scroll-left 34s linear infinite; }
-        .aw .logo-track .logo { font-size: var(--text-heading-sm); font-weight: 600; color: var(--color-ash); white-space: nowrap; }
-        @keyframes aw-scroll-left { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-        .aw .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-        .aw .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .aw .feature h3 { font-size: var(--text-heading-sm); font-weight: 600; margin: 18px 0 6px; color: var(--color-obsidian); }
-        .aw .feature p { font-size: var(--text-body); color: var(--color-steel); line-height: 1.56; margin: 0; }
-
-        .aw .problem-row { display: flex; align-items: center; gap: 16px; padding: 18px 0; border-top: 1px solid rgba(255,255,255,0.08); }
-        .aw .problem-row:first-child { border-top: none; }
-        .aw .problem-row .dotmark { width: 28px; height: 28px; border-radius: 50%; background: var(--color-graphite); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-        .aw .problem-row .dotmark span { width: 8px; height: 8px; border-radius: 50%; background: var(--color-ash); }
-        .aw .problem-row p { margin: 0; font-size: var(--text-subheading); line-height: 1.45; }
-        .aw .problem-row .li { color: var(--color-ash); font-weight: 300; }
-        .aw .problem-row .key { color: var(--color-snow); font-weight: 600; }
-
-        .aw .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-        .aw .step { background: var(--color-snow); border-radius: var(--radius-card); padding: 24px 20px; box-shadow: var(--shadow-card-hi); position: relative; border: 0.5px solid rgba(0,0,0,0.08); }
-        .aw .step .num { font-family: var(--sf); font-size: var(--text-caption); font-weight: 600; letter-spacing: 0.06em; color: var(--color-ash); margin-bottom: 14px; text-transform: uppercase; }
-        .aw .step.live .num { color: var(--apple-blue); }
-        .aw .step h4 { font-family: var(--sf); font-size: var(--text-subheading); font-weight: 600; margin: 0 0 6px; color: var(--color-obsidian); letter-spacing: -0.022em; }
-        .aw .step p { font-family: var(--sf); font-size: var(--text-body); color: var(--color-steel); margin: 0; line-height: 1.5; letter-spacing: -0.014em; }
-
-        .aw .tiles { display: flex; gap: 18px; overflow-x: auto; padding: 8px 24px 24px; scroll-snap-type: x mandatory; -ms-overflow-style: none; scrollbar-width: none; }
-        .aw .tiles::-webkit-scrollbar { display: none; }
-        .aw .tile { position: relative; flex-shrink: 0; width: 320px; height: 440px; border-radius: var(--radius-card); overflow: hidden; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: flex-end; transition: transform .3s var(--ease-spring); }
-        .aw .tile:hover { transform: translateY(-6px); }
-        .aw .tile .scrim { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 35%, rgba(0,0,0,0.72)); z-index: 1; }
-        .aw .tile .preview-tag { position: absolute; top: 18px; left: 18px; z-index: 2; font-size: var(--text-caption); letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.6); font-weight: 600; }
-        .aw .tile .body { position: relative; z-index: 2; padding: 22px; }
-        .aw .tile .t-title { font-size: var(--text-heading-sm); font-weight: 600; color: var(--color-snow); margin: 0 0 10px; }
-        .aw .tile .t-badges { display: flex; gap: 6px; flex-wrap: wrap; }
-        .aw .tile.orchid { background: var(--color-orchid-flash); justify-content: center; align-items: flex-start; padding: 36px; }
-        .aw .tile.orchid .scrim { display: none; }
-        .aw .tile.orchid .decor { font-size: var(--text-display-sm); line-height: 1.05; font-weight: 700; color: var(--color-snow); margin: 0; }
-        .aw .tile.orchid .preview-tag { color: rgba(255,255,255,0.7); }
-
-        .aw .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
-        .aw .stat .num { font-size: var(--text-heading-lg); font-weight: 700; color: var(--color-obsidian); line-height: 1; letter-spacing: -0.02em; }
-        .aw .stat .lbl { font-size: 13px; font-weight: 400; color: var(--color-steel); margin-top: 8px; line-height: 1.4; }
-        .aw .on-dark .stat .num { color: var(--color-snow); }
-        .aw .on-dark .stat .lbl { color: var(--color-ash); }
-
-        .aw .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 44px; }
-        .aw .compare .col-head { font-size: var(--text-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--color-steel); margin-bottom: 14px; }
-        .aw .compare .price { font-size: var(--text-heading); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 2px; }
-        .aw .compare .price-sub { font-size: var(--text-body); color: var(--color-steel); margin-bottom: 22px; }
-        .aw .compare .row { display: flex; gap: 10px; align-items: flex-start; padding: 9px 0; font-size: var(--text-body); }
-        .aw .compare .x { color: var(--color-ember); flex-shrink: 0; margin-top: 2px; }
-        .aw .compare .check { color: #4ade80; flex-shrink: 0; margin-top: 2px; }
-        .aw .compare .ins .price, .aw .compare .ins .row { color: var(--color-snow); }
-        .aw .compare .ins .price-sub { color: var(--color-ash); }
-
-        .aw .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: stretch; }
-        .aw .plan { position: relative; display: flex; flex-direction: column; }
-        .aw .plan .pname { font-size: var(--text-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--color-steel); }
-        .aw .plan .pamount { font-size: var(--text-display-sm); font-weight: 700; letter-spacing: -0.03em; line-height: 1; margin: 14px 0 2px; }
-        .aw .plan .pamount small { font-size: var(--text-body); font-weight: 400; color: var(--color-steel); letter-spacing: 0; }
-        .aw .plan .ptag { font-size: var(--text-body); color: var(--color-steel); margin-bottom: 22px; }
-        .aw .plan ul { list-style: none; margin: 0 0 24px; padding: 0; display: flex; flex-direction: column; gap: 11px; flex: 1; }
-        .aw .plan li { display: flex; gap: 10px; align-items: flex-start; font-size: var(--text-body); color: var(--color-graphite); }
-        .aw .plan li .tick { width: 18px; height: 18px; border-radius: 9px; background: var(--color-mist); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
-        .aw .plan .pafter { margin-top: 14px; font-size: 12px; color: var(--color-steel); text-align: center; }
-        .aw .plan.featured { background: var(--color-obsidian); color: var(--color-snow); border-radius: var(--radius-card); padding: 32px 28px; overflow: hidden; }
-        .aw .plan.featured .pamount, .aw .plan.featured li { color: var(--color-snow); }
-        .aw .plan.featured .pname, .aw .plan.featured .ptag, .aw .plan.featured .pamount small, .aw .plan.featured .pafter { color: var(--color-ash); }
-        .aw .plan.featured li .tick { background: rgba(255,255,255,0.08); }
-        .aw .plan-head { display: flex; align-items: center; justify-content: space-between; }
-
-        .aw .domain-card { display: flex; flex-direction: column; gap: 12px; }
-        .aw .domain-bar { display: flex; align-items: center; gap: 12px; background: var(--color-snow); border-radius: var(--radius-input); padding: 14px 18px; box-shadow: var(--shadow-card-inset); }
-        .aw .domain-bar .lock { color: var(--color-steel); }
-        .aw .domain-bar .url { font-size: var(--text-body-lg); font-weight: 500; }
-        .aw .domain-bar .url b { color: var(--color-obsidian); }
-        .aw .domain-bar .url span { color: var(--color-ash); }
-        .aw .domain-bar .status { margin-left: auto; font-size: 12px; font-weight: 600; color: #16a34a; display: inline-flex; align-items: center; gap: 6px; }
-
-        .aw .quote-card { display: flex; flex-direction: column; }
-        .aw .quote-card .qmark { font-size: 44px; line-height: 0.6; font-weight: 700; color: var(--color-pebble); height: 24px; }
-        .aw .quote-card p { font-size: var(--text-body-lg); line-height: 1.55; color: var(--color-ink); margin: 0 0 22px; flex: 1; }
-        .aw .quote-card .who { display: flex; align-items: center; gap: 12px; }
-        .aw .quote-card .av { width: 38px; height: 38px; border-radius: 50%; background: var(--color-fog); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--color-ink); flex-shrink: 0; }
-        .aw .quote-card .nm { font-size: var(--text-body); font-weight: 600; }
-        .aw .quote-card .bz { font-size: 12px; color: var(--color-steel); }
-
-        .aw .faq { margin-top: 36px; border-top: 1px solid var(--color-fog); }
-        .aw .faq-item { border-bottom: 1px solid var(--color-fog); }
-        .aw .faq-q { width: 100%; background: none; border: none; text-align: left; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 4px; font-size: var(--text-subheading); font-weight: 500; color: var(--color-obsidian); }
-        .aw .faq-q .pm { width: 22px; height: 22px; flex-shrink: 0; position: relative; }
-        .aw .faq-q .pm::before, .aw .faq-q .pm::after { content: ""; position: absolute; background: var(--color-steel); transition: transform .3s var(--ease-spring), opacity .3s ease; }
-        .aw .faq-q .pm::before { left: 4px; right: 4px; top: 50%; height: 1.5px; transform: translateY(-50%); }
-        .aw .faq-q .pm::after { top: 4px; bottom: 4px; left: 50%; width: 1.5px; transform: translateX(-50%); }
-        .aw .faq-item.open .pm::after { transform: translateX(-50%) scaleY(0); opacity: 0; }
-        .aw .faq-a { display: grid; grid-template-rows: 0fr; overflow: hidden; transition: grid-template-rows .35s ease; }
-        .aw .faq-a > p { margin: 0; padding: 0 48px 22px 4px; font-size: var(--text-body-lg); line-height: 1.6; color: var(--color-steel); min-height: 0; overflow: hidden; }
-        .aw .faq-item.open .faq-a { grid-template-rows: 1fr; }
-
-        .aw .final { text-align: center; }
-        .aw .final .display-sm { margin: 0 auto 22px; max-width: 14ch; }
-        .aw .final .cta-row { display: flex; gap: 12px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
-
-        .aw footer { padding: 64px 0 40px; }
-        .aw .foot-top { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 32px; padding-bottom: 40px; border-bottom: 1px solid var(--color-fog); }
-        .aw .foot-col h5 { font-size: var(--text-caption); text-transform: uppercase; letter-spacing: 0.12em; color: var(--color-steel); margin: 0 0 16px; font-weight: 700; }
-        .aw .foot-col a { display: block; font-size: var(--text-body); color: var(--color-ink); padding: 6px 0; }
-        .aw .foot-col a:hover { color: var(--color-ember); }
-        .aw .foot-bottom { display: flex; align-items: center; justify-content: space-between; padding-top: 24px; flex-wrap: wrap; gap: 12px; }
-        .aw .foot-bottom span { font-size: 12px; color: var(--color-steel); }
-
-        /* ── Bionova: blur fade-up (reveal upgrade) ── */
-        .aw .reveal { opacity: 0; transform: translateY(24px); filter: blur(4px); }
-        .aw .reveal.in { opacity: 1; transform: translateY(0); filter: blur(0); transition: opacity .7s cubic-bezier(0.16,1,0.3,1), transform .7s cubic-bezier(0.16,1,0.3,1), filter .7s ease; }
-
-        /* ── ViralMedia: liquid-glass ── */
-        .aw .liquid-glass { background: rgba(255,255,255,0.01); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); box-shadow: inset 0 1px 1px rgba(255,255,255,0.1); position: relative; overflow: hidden; }
-        .aw .liquid-glass::before { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.4px; background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
-
-        /* ── Apple CTA button (TextRoll) ── */
-        .aw .btn-roll { background: var(--apple-blue); border-radius: var(--radius-badge); padding: 12px 22px; font-size: 17px; font-weight: 400; letter-spacing: -0.022em; }
-        .aw .btn-roll:hover { background: var(--apple-blue-hover); opacity: 1; }
-        .aw .btn-roll .roll-inner { display: inline-flex; flex-direction: column; overflow: hidden; height: 1.3em; vertical-align: bottom; }
-        .aw .btn-roll .roll-inner span { display: flex; flex-direction: column; transition: transform .4s ease; }
-        .aw .btn-roll .roll-inner span::after { content: attr(data-text); }
-        .aw .btn-roll:hover .roll-inner span { transform: translateY(-50%); }
-        .aw .btn-roll .btn-circle { width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.2); display: inline-flex; align-items: center; justify-content: center; transition: transform .4s ease; flex-shrink: 0; }
-        .aw .btn-roll:hover .btn-circle { transform: rotate(-45deg); }
-
-        /* ── Apple-style eyebrow labels ── */
-        .aw .sec-badge { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-        .aw .sec-badge .s-num { display: none; }
-        .aw .sec-badge .s-label { font-family: var(--sf); font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--apple-blue); border: none; padding: 0; border-radius: 0; background: none; }
-        .aw .on-dark .sec-badge .s-label { color: var(--apple-blue-dark); }
-
-        /* ── Guardnet: glow blob ── */
-        .aw .glow-blob { position: absolute; border-radius: 50%; filter: blur(60px); pointer-events: none; z-index: 0; }
-
-        /* ── Guardnet: gradient pill CTA ── */
-        .aw .btn-grad-pill { position: relative; border-radius: 9999px; padding: 2px; background: linear-gradient(90deg, #FA8453 0%, #F8C9B2 100%); display: inline-flex; }
-        .aw .btn-grad-pill .gp-inner { border-radius: 9999px; background: var(--color-obsidian); padding: 12px 28px; font-size: var(--text-body); font-weight: 500; color: #fff; cursor: pointer; font-family: inherit; border: none; transition: background .2s ease; white-space: nowrap; }
-        .aw .btn-grad-pill:hover .gp-inner { background: #111; }
-        .aw .btn-grad-fill { border-radius: 9999px; background: linear-gradient(90deg, #FA8453 0%, #F8C9B2 100%); padding: 13px 28px; font-size: var(--text-body); font-weight: 600; color: #000; border: none; cursor: pointer; font-family: inherit; transition: opacity .2s ease; white-space: nowrap; }
-        .aw .btn-grad-fill:hover { opacity: 0.88; }
-
-        /* ── Aurora: step card ── */
-        .aw .step-aurora { border-radius: 20px; padding: 22px 24px; display: flex; flex-direction: column; gap: 10px; position: relative; border: 1px solid var(--color-fog); background: var(--color-snow); transition: border-color .25s ease, box-shadow .25s ease; }
-        .aw .step-aurora:hover { border-color: var(--color-pebble); box-shadow: 0 6px 28px rgba(0,0,0,0.07); }
-        .aw .step-aurora .sa-num { width: 34px; height: 34px; border-radius: 50%; background: var(--color-obsidian); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
-        .aw .step-aurora h4 { font-size: var(--text-subheading); font-weight: 600; margin: 0; color: var(--color-obsidian); }
-        .aw .step-aurora p { font-size: var(--text-body); color: var(--color-steel); margin: 0; line-height: 1.5; }
-        .aw .step-aurora.is-live { background: var(--color-obsidian); border-color: var(--color-obsidian); }
-        .aw .step-aurora.is-live .sa-num { background: rgba(255,255,255,0.12); }
-        .aw .step-aurora.is-live h4 { color: #fff; }
-        .aw .step-aurora.is-live p { color: rgba(255,255,255,0.55); }
-
-        /* ── Axion: hover-expand pill on tiles ── */
-        .aw .tile-pill { position: absolute; bottom: 18px; left: 18px; z-index: 3; display: flex; height: 36px; width: 36px; align-items: center; justify-content: center; overflow: hidden; border-radius: 9999px; background: rgba(255,255,255,0.9); transition: width .32s cubic-bezier(0.25,0.1,0.25,1); backdrop-filter: blur(4px); }
-        .aw .tile:hover .tile-pill { width: 130px; }
-        .aw .tile-pill .tp-text { white-space: nowrap; padding-left: 12px; font-size: 12px; font-weight: 600; color: var(--color-obsidian); opacity: 0; transition: opacity .18s ease .1s; }
-        .aw .tile:hover .tile-pill .tp-text { opacity: 1; }
-        .aw .tile-pill .tp-icon { position: absolute; right: 10px; transform: rotate(-45deg); transition: transform .32s ease; }
-        .aw .tile:hover .tile-pill .tp-icon { transform: rotate(0deg); }
-
-        /* ── ViralMedia: scroll-reveal words ── */
-        .aw .word-reveal .word { opacity: 0.15; transition: opacity .4s ease; display: inline; }
-        .aw .word-reveal.in .word { opacity: 1; }
-
-        /* ── Guardnet: stat card on dark ── */
-        .aw .stat-dark { display: flex; flex-direction: column; gap: 6px; }
-        .aw .stat-dark .sd-num { font-size: clamp(2.5rem,5vw,3.5rem); font-weight: 700; color: var(--color-snow); letter-spacing: -0.03em; line-height: 1; }
-        .aw .stat-dark .sd-lbl { font-size: var(--text-body); color: rgba(255,255,255,0.5); line-height: 1.4; }
-
-        /* ── ViralMedia: manifesto text ── */
-        .aw .manifesto-text { font-family: var(--sf); font-size: clamp(2rem,4vw,3.2rem); font-weight: 700; line-height: 1.1; color: var(--color-snow); letter-spacing: -0.03em; margin: 0; }
-        .aw .manifesto-text .dim { color: rgba(255,255,255,0.22); font-weight: 300; }
-
-        /* ── Guardnet: dark bento grid ── */
-        .aw .bento { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .aw .bento-col { display: flex; flex-direction: column; gap: 16px; }
-        .aw .bento-card { background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 28px; position: relative; overflow: hidden; transition: border-color .2s ease, background .2s ease; flex: 1; }
-        .aw .bento-card:hover { border-color: rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); }
-        .aw .bento-card .bento-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; flex-shrink: 0; }
-        .aw .bento-card h3 { font-family: var(--sf); font-size: var(--text-heading-sm); font-weight: 600; color: var(--color-snow); margin: 0 0 8px; letter-spacing: -0.022em; }
-        .aw .bento-card p { font-family: var(--sf); font-size: var(--text-body); color: rgba(255,255,255,0.42); line-height: 1.55; margin: 0; letter-spacing: -0.014em; }
-
-        /* ── Aurora: step timeline ── */
-        .aw .step-timeline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; position: relative; }
-        .aw .step-timeline::before { content: ''; position: absolute; top: 24px; left: 16.67%; right: 16.67%; height: 1px; background: linear-gradient(90deg, transparent 0%, var(--color-pebble) 15%, var(--color-pebble) 85%, transparent 100%); }
-        .aw .step-t { padding: 0 28px 0 0; position: relative; }
-        .aw .step-t .st-num { width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid var(--color-pebble); background: var(--color-snow); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: var(--color-obsidian); margin-bottom: 28px; position: relative; z-index: 1; }
-        .aw .step-t.is-live .st-num { background: var(--color-obsidian); color: #fff; border-color: var(--color-obsidian); box-shadow: 0 0 0 6px rgba(9,9,11,0.1); }
-        .aw .step-t h4 { font-size: var(--text-heading-sm); font-weight: 600; color: var(--color-obsidian); margin: 0 0 10px; }
-        .aw .step-t p { font-size: var(--text-body); color: var(--color-steel); margin: 0; line-height: 1.55; }
-        .aw .step-t.is-live h4 { color: var(--color-obsidian); }
-
-        /* ── Axion: case study grid ── */
-        .aw .cs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .aw .cs-col { display: flex; flex-direction: column; gap: 16px; }
-        .aw .cs-card { border-radius: 24px; overflow: hidden; position: relative; cursor: pointer; min-height: 260px; }
-        .aw .cs-card.cs-featured { min-height: 560px; }
-        .aw .cs-bg { position: absolute; inset: 0; }
-        .aw .cs-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.75) 100%); transition: opacity .3s ease; }
-        .aw .cs-card:hover .cs-scrim { opacity: 0.85; }
-        .aw .cs-body { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 28px; }
-        .aw .cs-tag { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
-        .aw .cs-title { font-size: var(--text-heading-sm); font-weight: 600; color: #fff; margin: 0 0 14px; }
-        .aw .cs-pill { display: inline-flex; height: 36px; width: 36px; align-items: center; justify-content: center; overflow: hidden; border-radius: 9999px; background: rgba(255,255,255,0.9); transition: width .32s cubic-bezier(0.25,0.1,0.25,1); position: absolute; top: 22px; right: 22px; z-index: 3; }
-        .aw .cs-card:hover .cs-pill { width: 120px; }
-        .aw .cs-pill .cp-text { white-space: nowrap; padding-right: 14px; font-size: 12px; font-weight: 600; color: var(--color-obsidian); opacity: 0; transition: opacity .18s ease .1s; }
-        .aw .cs-card:hover .cs-pill .cp-text { opacity: 1; }
-        .aw .cs-pill .cp-icon { position: absolute; left: 11px; transform: rotate(-45deg); transition: transform .32s ease; }
-        .aw .cs-card:hover .cs-pill .cp-icon { transform: rotate(0deg); }
-
-        /* ── ViralMedia: selected work image grid ── */
-        .aw .vm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        .aw .vm-card { display: flex; flex-direction: column; gap: 14px; cursor: pointer; }
-        .aw .vm-img { border-radius: 20px; overflow: hidden; aspect-ratio: 4/3; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); }
-        .aw .vm-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s cubic-bezier(0.33,1,0.68,1); }
-        .aw .vm-card:hover .vm-img img { transform: scale(1.04); }
-        .aw .vm-title { font-size: var(--text-subheading); font-weight: 600; color: var(--color-snow); margin: 0; }
-        .aw .vm-category { font-size: var(--text-body); color: rgba(255,255,255,0.4); margin: 4px 0 0; }
-
-        /* ── Bionova: hero stat cards ── */
-        .aw .bio-cards { display: grid; grid-template-rows: auto auto; gap: 16px; margin: 48px 0 56px; }
-        .aw .bio-card-main { position: relative; overflow: hidden; border-radius: 24px; background: #000; padding: 32px; display: flex; flex-direction: column; justify-content: space-between; min-height: 260px; }
-        .aw .bio-card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .aw .bio-card-sm { position: relative; overflow: hidden; border-radius: 24px; background: #000; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; min-height: 260px; }
-        .aw .bc-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
-        .aw .bc-vid-sm-loc { position: absolute; left: 50%; top: 50%; width: 100%; height: 100%; object-fit: cover; transform: translate(-50%,-50%) scale(1.5); z-index: 0; }
-        .aw .bc-vid-sm-sci { position: absolute; left: 50%; top: 50%; width: 100%; height: 100%; object-fit: cover; transform: translate(-50%,-50%) scale(2.8); z-index: 0; }
-        .aw .bc-content { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-        .aw .bc-tag { display: inline-block; padding: 4px 12px; border-radius: 999px; background: #fff; color: #09090b; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: lowercase; width: fit-content; }
-        .aw .bc-arrow { width: 40px; height: 40px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: opacity .2s; text-decoration: none; }
-        .aw .bc-arrow:hover { opacity: 0.85; }
-        .aw .bc-stat { font-size: clamp(4.5rem,9vw,7rem); font-weight: 300; color: #fff; line-height: 1; letter-spacing: -0.04em; margin: 0; }
-        @media (max-width: 920px) {
-          .aw .vm-grid { grid-template-columns: 1fr; }
-          .aw .bio-card-row { grid-template-columns: 1fr; }
-          .aw .bio-card-sm, .aw .bio-card-main { min-height: 200px; }
-        }
-
-        /* ── Ownership statement (ViralMedia flip) ── */
-        .aw .own-statement { font-size: clamp(2.2rem,4vw,3.6rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; color: var(--color-obsidian); margin: 0; }
-        .aw .own-statement .accent { color: #4ade80; }
-        .aw .terminal-card { background: var(--color-obsidian); border-radius: 20px; padding: 24px; border: 1px solid rgba(255,255,255,0.07); }
-        .aw .terminal-label { font-size: 11px; color: rgba(255,255,255,0.3); margin-bottom: 10px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
-        .aw .terminal-body { font-family: ui-monospace,monospace; font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.7; }
-
-        /* ── Guardnet: compare dark split ── */
-        .aw .compare-dark { display: grid; grid-template-columns: 1fr 1fr; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.07); }
-        .aw .compare-col { padding: 44px 40px; }
-        .aw .compare-col.legacy { background: rgba(255,255,255,0.03); }
-        .aw .compare-col.ours { background: rgba(255,255,255,0.06); position: relative; overflow: hidden; }
-        .aw .compare-big-price { font-size: clamp(2.4rem,4.5vw,3.6rem); font-weight: 700; letter-spacing: -0.03em; color: var(--color-snow); margin: 10px 0 4px; line-height: 1; }
-        .aw .compare-col.legacy .compare-big-price { color: rgba(255,255,255,0.2); text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.15); }
-        .aw .compare-row { display: flex; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid rgba(255,255,255,0.06); font-size: var(--text-body); color: rgba(255,255,255,0.4); }
-        .aw .compare-col.ours .compare-row { color: rgba(255,255,255,0.75); }
-        .aw .cx { color: rgba(255,255,255,0.18); flex-shrink: 0; }
-        .aw .ck { color: #4ade80; flex-shrink: 0; }
-
-        /* ── ViralMedia: dark testimonial cards ── */
-        .aw .dark-quote { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 32px; position: relative; overflow: hidden; display: flex; flex-direction: column; transition: border-color .25s ease; }
-        .aw .dark-quote:hover { border-color: rgba(255,255,255,0.15); }
-        .aw .dark-quote .big-q { font-size: 5rem; line-height: 0.7; color: #64CEFB; font-weight: 800; display: block; height: 40px; margin-bottom: 20px; }
-        .aw .dark-quote p { font-size: var(--text-body-lg); line-height: 1.6; color: rgba(255,255,255,0.72); margin: 0 0 24px; flex: 1; }
-        .aw .dark-quote .dq-author { display: flex; align-items: center; gap: 12px; }
-        .aw .dark-quote .dq-av { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
-        .aw .dark-quote .dq-name { font-size: var(--text-body); font-weight: 600; color: var(--color-snow); }
-        .aw .dark-quote .dq-biz { font-size: 12px; color: rgba(255,255,255,0.4); }
-
-        /* ── Footer dark (ViralMedia) ── */
-        .aw .foot-dark { background: var(--color-obsidian); padding: 80px 0 40px; }
-        .aw .foot-dark .foot-top { border-color: rgba(255,255,255,0.07); }
-        .aw .foot-dark .foot-col h5 { color: rgba(255,255,255,0.35); }
-        .aw .foot-dark .foot-col a { color: rgba(255,255,255,0.6); }
-        .aw .foot-dark .foot-col a:hover { color: #fff; }
-        .aw .foot-dark .foot-bottom { border-color: rgba(255,255,255,0.07); }
-        .aw .foot-dark .foot-bottom span { color: rgba(255,255,255,0.3); }
-
-        /* ── Bionova: floating shape animations ── */
-        @keyframes aw-float-y { 0%, 100% { transform: translateY(0px) rotate(var(--s-rot,0deg)); } 50% { transform: translateY(-16px) rotate(var(--s-rot,0deg)); } }
-        @keyframes aw-float-xy { 0%, 100% { transform: translate(0,0) rotate(var(--s-rot,0deg)); } 33% { transform: translate(9px,-14px) rotate(var(--s-rot,0deg)); } 66% { transform: translate(-7px,-8px) rotate(var(--s-rot,0deg)); } }
-        @keyframes aw-pulse-out { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(1.75); opacity: 0; } }
-        .aw .bio-pill { position: absolute; pointer-events: none; border-radius: 9999px; }
-        .aw .bio-rect { position: absolute; pointer-events: none; border-radius: 22px; }
-        .aw .bio-ring { position: absolute; pointer-events: none; border-radius: 50%; }
-        .aw .bio-sq { position: absolute; pointer-events: none; border-radius: 16px; }
-        .aw .float-a { animation: aw-float-y var(--s-dur,7s) ease-in-out infinite var(--s-delay,0s); }
-        .aw .float-b { animation: aw-float-xy var(--s-dur,9s) ease-in-out infinite var(--s-delay,0s); }
-
-        /* ── Bionova: pulsing concentric rings (behind headlines) ── */
-        .aw .pulse-origin { position: absolute; pointer-events: none; border-radius: 50%; }
-        .aw .pulse-origin .pr { position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(100,206,251,0.22); animation: aw-pulse-out 3.2s ease-out infinite; }
-        .aw .pulse-origin .pr:nth-child(2) { inset: -40%; border-color: rgba(100,206,251,0.12); animation-delay: 1.1s; }
-        .aw .pulse-origin .pr:nth-child(3) { inset: -80%; border-color: rgba(100,206,251,0.06); animation-delay: 2.2s; }
-
-        /* ── Guardnet: status pulse dot ── */
-        @keyframes aw-dot-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.6); } 60% { box-shadow: 0 0 0 9px rgba(74,222,128,0); } }
-        .aw .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; display: inline-block; flex-shrink: 0; animation: aw-dot-pulse 2s ease-out infinite; }
-
-        /* ── Guardnet: dot-grid overlay (use as child div) ── */
-        .aw .gn-dots-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 0; background-image: radial-gradient(circle, rgba(255,255,255,0.065) 1px, transparent 1px); background-size: 32px 32px; }
-
-        /* ── Pricing featured: Bionova glow border ── */
-        .aw .plan.bionova-featured { background: transparent; border-radius: var(--radius-card); padding: 2px; background: linear-gradient(135deg, rgba(100,206,251,0.6) 0%, rgba(74,222,128,0.4) 50%, rgba(250,132,83,0.5) 100%); }
-        .aw .plan.bionova-featured .bf-inner { background: var(--color-obsidian); border-radius: calc(var(--radius-card) - 2px); padding: 32px 28px; height: 100%; display: flex; flex-direction: column; }
-        .aw .plan.bionova-featured .pamount { color: var(--color-snow); }
-        .aw .plan.bionova-featured .pname, .aw .plan.bionova-featured .ptag, .aw .plan.bionova-featured .pafter { color: rgba(255,255,255,0.45); }
-        .aw .plan.bionova-featured .pamount small { color: rgba(255,255,255,0.45); }
-        .aw .plan.bionova-featured li { color: var(--color-snow); }
-        .aw .plan.bionova-featured li .tick { background: rgba(255,255,255,0.08); }
-
-        @media (prefers-reduced-motion: reduce) {
-          .aw .reveal { opacity: 1; transform: none; filter: none; }
-          .aw .logo-track { animation: none; }
-        }
-
-        @media (max-width: 920px) {
-          .aw-mobile-scale { --text-display: 44px; --text-display-sm: 38px; --text-heading-lg: 32px; --text-heading: 26px; }
-          .aw .hero-top-row, .aw .grid-3, .aw .grid-2, .aw .steps, .aw .stats, .aw .compare, .aw .plans, .aw .foot-top { grid-template-columns: 1fr; }
-          .aw .bento, .aw .cs-grid, .aw .compare-dark, .aw .step-timeline { grid-template-columns: 1fr; }
-          .aw .hero-top-row p:last-child { text-align: left; }
-          .aw .stats { grid-template-columns: 1fr 1fr; }
-          .aw .stat-dark { padding-right: 0 !important; padding-left: 0 !important; border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 20px; }
-          .aw .nav .links { display: none; }
-          .aw .email-row { max-width: 100%; }
-          .aw .step-timeline::before { display: none; }
-          .aw .step-t { padding: 0; margin-bottom: 32px; }
-          .aw .compare-col { padding: 28px 24px; }
-        }
+        @import url('https://db.onlinewebfonts.com/c/e55e9079ee863276569c8a68d776ef04?family=Futura+Md+BT+Medium');
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; background: #000; }
+        body { background: #000; color: #fff; -webkit-font-smoothing: antialiased; }
+        a { color: inherit; text-decoration: none; }
+        button { font-family: inherit; cursor: pointer; border: none; background: none; padding: 0; }
+        video { display: block; }
+        input, textarea { font-family: inherit; }
+        .gn-hero-title { letter-spacing: -0.04em; line-height: 0.95; }
       `}</style>
 
-      <div className={`aw aw-mobile-scale ${cosmica.variable}`}>
-        {/* ─── Nav (DesignPro fixed dark pill) ─── */}
-        <header className="dp-nav-header">
-          <div className="dp-nav-inner">
-            {/* Logo */}
-            <a className="dp-logo" href="/" aria-label="insixlive home">
-              <span className="dp-logo-mark"><span /></span>
-              <span className="dp-logo-name">insixlive</span>
+      {/* ─── Navbar ──────────────────────────────────────────────────────── */}
+      <nav className="absolute left-0 right-0 top-0 z-20 flex items-center justify-between px-3 pt-4 sm:px-6 sm:pt-6 md:px-10">
+        <a href="/" className="flex items-center gap-2 rounded-full py-2.5 pl-3 pr-4 sm:gap-2.5 sm:py-3 sm:pl-4 sm:pr-6"
+          style={{ background: "rgba(23,23,23,0.9)", backdropFilter: "blur(12px)" }}>
+          <LogoMark className="h-4 w-4 sm:h-5 sm:w-5" />
+          <span className="text-xs text-white sm:text-sm" style={{ letterSpacing: "-0.02em" }}>insixlive</span>
+        </a>
+
+        {/* Desktop nav */}
+        <div className="hidden rounded-full px-3 py-2 md:flex" style={{ background: "rgba(23,23,23,0.9)", backdropFilter: "blur(12px)" }}>
+          {NAV.map(link => (
+            <a key={link.href} href={link.href}
+              className="rounded-full px-5 py-2 text-sm transition-colors hover:text-white"
+              style={{ color: "rgba(163,163,163,1)", letterSpacing: "-0.01em" }}>
+              {link.label}
             </a>
+          ))}
+        </div>
 
-            {/* Desktop pill */}
-            <nav className="dp-pill" aria-label="Primary">
-              {DP_NAV.map(item => (
-                <a key={item.href} href={item.href}>
-                  {item.label}
-                  {"arrow" in item && item.arrow && (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                  )}
-                </a>
-              ))}
-            </nav>
+        <div className="flex items-center gap-3">
+          <a href="/signup"
+            className="rounded-full px-4 py-2.5 text-xs text-black transition-colors hover:bg-neutral-200 sm:px-6 sm:py-3 sm:text-sm"
+            style={{ background: "#fff", letterSpacing: "-0.01em" }}>
+            începe azi
+          </a>
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="flex h-10 w-10 items-center justify-center rounded-full md:hidden"
+            style={{ background: "rgba(23,23,23,0.9)", backdropFilter: "blur(12px)" }}
+            aria-label="meniu">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
+              <path d="M3 12h18M3 6h18M3 18h18"/>
+            </svg>
+          </button>
+        </div>
+      </nav>
 
-            {/* Mobile hamburger */}
-            <button className="dp-hamburger" onClick={() => setMenuOpen(true)} aria-label="Open menu">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      {/* Mobile menu */}
+      {menuOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "rgba(0,0,0,0.96)", backdropFilter: "blur(20px)" }}>
+          <div className="flex items-center justify-between px-5 pt-5">
+            <span className="text-sm font-medium text-white">insixlive</span>
+            <button onClick={() => setMenuOpen(false)} style={{ color: "rgba(255,255,255,0.7)" }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
             </button>
           </div>
-        </header>
-
-        {/* Mobile backdrop */}
-        <div className={`dp-backdrop${menuOpen ? " open" : ""}`} onClick={() => setMenuOpen(false)} aria-hidden />
-
-        {/* Mobile drawer */}
-        <aside className={`dp-drawer${menuOpen ? " open" : ""}`} aria-label="Mobile menu">
-          <div className="dp-drawer-head">
-            <a className="dp-logo" href="/" onClick={() => setMenuOpen(false)}>
-              <span className="dp-logo-mark"><span /></span>
-              <span className="dp-logo-name">insixlive</span>
-            </a>
-            <button className="dp-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-            </button>
-          </div>
-          <nav className="dp-drawer-links">
-            {DP_NAV.map(item => (
-              <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>
-                {item.label}
-                {"arrow" in item && item.arrow && (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                )}
+          <nav className="flex flex-1 flex-col px-5 pt-10" style={{ gap: 2 }}>
+            {NAV.map(link => (
+              <a key={link.href} href={link.href} onClick={() => setMenuOpen(false)}
+                className="py-4 text-2xl font-light lowercase text-white"
+                style={{ borderBottom: "1px solid rgba(255,255,255,0.07)", letterSpacing: "-0.03em" }}>
+                {link.label}
               </a>
             ))}
           </nav>
-        </aside>
-
-        <span id="top"></span>
-
-        {/* ─── Hero ─── */}
-        <header className="hero">
-          {/* Background video */}
-          <video autoPlay loop muted playsInline className="hero-video">
-            <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_105406_16f4600d-7a92-4292-b96e-b19156c7830a.mp4" type="video/mp4" />
-          </video>
-          <div className="hero-vignette" aria-hidden />
-
-          {/* ── Bionova floating shapes over vignette ── */}
-          <div className="bio-pill float-a" style={{ width: 320, height: 56, top: "18%", left: "-4%", background: "rgba(255,255,255,0.018)", border: "1px solid rgba(255,255,255,0.07)", zIndex: 3, "--s-rot": "14deg", "--s-dur": "8s" } as React.CSSProperties}/>
-          <div className="bio-pill float-b" style={{ width: 180, height: 38, bottom: "30%", right: "1%", background: "rgba(100,206,251,0.035)", border: "1px solid rgba(100,206,251,0.12)", zIndex: 3, "--s-rot": "-21deg", "--s-dur": "10s", "--s-delay": "1.5s" } as React.CSSProperties}/>
-          <div className="bio-rect float-a" style={{ width: 100, height: 100, top: "40%", right: "7%", background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", zIndex: 3, "--s-dur": "9s", "--s-delay": "0.8s" } as React.CSSProperties}/>
-          <div className="bio-pill float-b" style={{ width: 80, height: 24, top: "65%", left: "12%", background: "rgba(74,222,128,0.04)", border: "1px solid rgba(74,222,128,0.1)", zIndex: 3, "--s-rot": "8deg", "--s-dur": "7s", "--s-delay": "3s" } as React.CSSProperties}/>
-          {/* Bionova pulsing concentric rings centered on headline */}
-          <div className="pulse-origin" style={{ width: 220, height: 220, top: "50%", left: "50%", transform: "translate(-50%,-50%)", zIndex: 2 }}>
-            <div className="pr"/><div className="pr"/><div className="pr"/>
+          <div className="p-5">
+            <a href="/signup" onClick={() => setMenuOpen(false)}
+              className="block rounded-full py-4 text-center text-sm lowercase text-black"
+              style={{ background: GRADIENT_CTA }}>
+              începe azi
+            </a>
           </div>
+        </div>
+      )}
 
-          <div className="container hero-inner">
-            {/* Centre — hardcoded headline */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" as const }}>
-              <h1 className="reveal" style={{ fontSize: "clamp(2.8rem, 8vw, 7rem)", fontWeight: 700, lineHeight: 0.9, letterSpacing: "-0.02em", color: "var(--color-snow)", margin: "0 0 0" }}>
-                <span style={{ display: "block" }}>Professional websites.</span>
-                <span style={{ display: "block" }}>Deployed to your domain.</span>
-              </h1>
-              <form className="email-row reveal" onSubmit={handleHeroEmailSubmit} style={{ justifyContent: "center", maxWidth: 460 }}>
-                <input type="email" required value={heroEmail} onChange={e => setHeroEmail(e.target.value)} placeholder={copy.hero.emailPlaceholder} aria-label="Email" />
-                {/* Axion TextRoll on primary CTA */}
-                <button className="btn btn-primary btn-roll" type="submit">
-                  <span className="roll-inner"><span data-text={copy.hero.submitLabel}>{copy.hero.submitLabel}</span></span>
-                  <span className="btn-circle" aria-hidden>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                  </span>
-                </button>
-              </form>
-            </div>
+      {/* ─── Hero ────────────────────────────────────────────────────────── */}
+      <section id="hero" className="relative min-h-screen w-full overflow-hidden bg-black" style={{ height: "100svh" }}>
+        <video className="absolute inset-0 h-full w-full object-cover" src={HERO_VIDEO} autoPlay loop muted playsInline />
 
-            {/* Bottom badges */}
-            <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
-              <span className="badge badge-overlay">app/page.tsx</span>
-              <span className="badge badge-overlay">{copy.hero.deployReady}</span>
+        <div className="relative mx-auto h-full w-full" style={{ maxWidth: 1320 }}>
+          {/* Staggered giant words */}
+          <h1 className="gn-hero-title absolute left-3 text-white sm:left-4 md:left-10"
+            style={{ top: "18%", fontSize: "clamp(3.5rem, 18vw, 18vw)", fontWeight: 500 }}>
+            website-uri
+          </h1>
+          <h1 className="gn-hero-title absolute right-3 text-white sm:right-4 md:right-10"
+            style={{ top: "38%", fontSize: "clamp(3.5rem, 18vw, 18vw)", fontWeight: 500 }}>
+            în 6
+          </h1>
+          <h1 className="gn-hero-title absolute text-white"
+            style={{ top: "58%", left: "clamp(5%, 18%, 28%)", fontSize: "clamp(3.5rem, 18vw, 18vw)", fontWeight: 500 }}>
+            minute
+          </h1>
+
+          {/* Description */}
+          <p className="absolute text-white/90"
+            style={{ left: "clamp(16px, 4vw, 40px)", top: "47%", maxWidth: "clamp(200px, 28vw, 340px)", fontSize: "clamp(13px, 1.4vw, 18px)", fontWeight: 300, lineHeight: 1.55, letterSpacing: "-0.01em" }}>
+            construim website-uri profesionale,<br/>implementate în contul tău Vercel<br/>în mai puțin de 6 minute
+          </p>
+
+          {/* Stat — bottom left */}
+          <div className="absolute" style={{ bottom: "clamp(80px, 10vw, 96px)", left: "clamp(16px, 4vw, 40px)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div>
+                <p style={{ fontSize: "clamp(1.5rem, 3.5vw, 3.5rem)", fontWeight: 500, letterSpacing: "-0.04em", lineHeight: 1 }}>+1k</p>
+                <p style={{ marginTop: 4, fontSize: "clamp(10px, 1vw, 14px)", fontWeight: 300, color: "rgba(255,255,255,0.6)", letterSpacing: "-0.01em" }}>website-uri lansate</p>
+              </div>
+              <span className="hidden md:block" style={{ height: 1, width: 96, background: "rgba(255,255,255,0.35)", transform: "rotate(-20deg)" }} aria-hidden />
             </div>
           </div>
-        </header>
 
-        {/* ─── Logo strip (dark, flows from hero) ─── */}
-        <div style={{ background: "var(--color-obsidian)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          <div className="logo-strip">
-            <div className="logo-track">
-              {[...LOGOS, ...LOGOS].map((l, i) => <span className="logo" key={`${l}-${i}`} style={{ color: "rgba(255,255,255,0.3)", fontWeight: 500 }}>{l}</span>)}
+          {/* Stat — top right */}
+          <div className="absolute" style={{ top: "20%", right: "clamp(16px, 4vw, 40px)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span className="hidden md:block" style={{ height: 1, width: 96, background: "rgba(255,255,255,0.35)", transform: "rotate(20deg)" }} aria-hidden />
+              <div>
+                <p style={{ fontSize: "clamp(1.5rem, 3.5vw, 3.5rem)", fontWeight: 500, letterSpacing: "-0.04em", lineHeight: 1 }}>€49.99</p>
+                <p style={{ marginTop: 4, fontSize: "clamp(10px, 1vw, 14px)", fontWeight: 300, color: "rgba(255,255,255,0.6)", letterSpacing: "-0.01em" }}>plată unică</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Stat — bottom right */}
+          <div className="absolute" style={{ bottom: "clamp(80px, 10vw, 96px)", right: "clamp(16px, 4vw, 40px)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span className="hidden md:block" style={{ height: 1, width: 96, background: "rgba(255,255,255,0.35)", transform: "rotate(-20deg)" }} aria-hidden />
+              <div>
+                <p style={{ fontSize: "clamp(1.5rem, 3.5vw, 3.5rem)", fontWeight: 500, letterSpacing: "-0.04em", lineHeight: 1 }}>6min</p>
+                <p style={{ marginTop: 4, fontSize: "clamp(10px, 1vw, 14px)", fontWeight: 300, color: "rgba(255,255,255,0.6)", letterSpacing: "-0.01em" }}>timp mediu</p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* ─── Problem: ViralMedia full-bleed dark manifesto ─── */}
-        <section style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }}>
-          <div className="gn-dots-overlay"/>
-          <div className="bio-pill float-a" style={{ width: 260, height: 48, top: "12%", right: "-3%", background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.065)", "--s-rot": "-18deg", "--s-dur": "9s" } as React.CSSProperties}/>
-          <div className="bio-rect float-b" style={{ width: 90, height: 90, bottom: "18%", left: "4%", background: "rgba(100,206,251,0.02)", border: "1px solid rgba(100,206,251,0.08)", "--s-dur": "11s", "--s-delay": "2s" } as React.CSSProperties}/>
-          <div className="bio-pill float-a" style={{ width: 140, height: 28, bottom: "38%", right: "8%", background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.05)", "--s-rot": "10deg", "--s-dur": "8s", "--s-delay": "1s" } as React.CSSProperties}/>
-          <div className="glow-blob" style={{ width: 700, height: 700, top: "50%", left: "30%", transform: "translateY(-50%)", background: "rgba(100,206,251,0.05)" }}/>
-          <div className="container" style={{ position: "relative" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
-              {/* Left: manifesto */}
-              <div>
-                <div className="sec-badge reveal">
-                  <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>01</span>
-                  <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.5)" }}>{copy.problem.eyebrow}</span>
-                </div>
-                <h2 className="manifesto-text reveal">
-                  {copy.problem.heading[0]}<br/><span className="dim">{copy.problem.heading[1]}</span>
-                </h2>
-                <p className="reveal" style={{ fontSize: "var(--text-body-lg)", color: "rgba(255,255,255,0.45)", lineHeight: 1.6, marginTop: 24, maxWidth: "44ch" }}>{copy.problem.lead}</p>
-              </div>
-              {/* Right: numbered pain points */}
-              <div>
-                {copy.problem.rows.map(([lead, key], i) => (
-                  <div className="reveal" key={key} style={{ padding: "22px 0", borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", gap: 24, alignItems: "flex-start" }}>
-                    <span style={{ fontSize: "clamp(1.6rem,2.5vw,2.2rem)", fontWeight: 800, color: "rgba(255,255,255,0.08)", lineHeight: 1, flexShrink: 0, minWidth: 52, letterSpacing: "-0.04em" }}>
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <div>
-                      <p style={{ margin: 0, fontSize: "var(--text-subheading)", color: "rgba(255,255,255,0.35)", fontWeight: 300, lineHeight: 1.4 }}>{lead}</p>
-                      <p style={{ margin: 0, fontSize: "var(--text-subheading)", color: "var(--color-snow)", fontWeight: 600, lineHeight: 1.4 }}>{key}</p>
-                    </div>
-                  </div>
-                ))}
+        {/* Bottom fade */}
+        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-b from-transparent to-black" aria-hidden />
+      </section>
+
+      {/* ─── Security / Cum funcționează ────────────────────────────────── */}
+      <section id="securitate" className="relative w-full overflow-hidden bg-black" style={{ height: "100svh", minHeight: 600, scrollMarginTop: 96 }}>
+        <video className="absolute inset-0 h-full w-full object-cover" src={SECURITY_VIDEO} autoPlay loop muted playsInline />
+
+        {/* Top fade from black */}
+        <div className="pointer-events-none absolute left-0 right-0 top-0 z-10 h-48 bg-gradient-to-b from-black to-transparent" aria-hidden />
+
+        <div className="relative mx-auto h-full w-full" style={{ maxWidth: 1100 }}>
+          {/* Floating pill tab bar */}
+          <div className="absolute left-1/2 z-20 -translate-x-1/2" style={{ top: "clamp(24px, 5vw, 40px)", width: "max-content", maxWidth: "95vw" }}>
+            <div style={{ background: "rgba(23,23,23,0.8)", backdropFilter: "blur(12px)", borderRadius: 9999, padding: "8px 8px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <a href="/signup" style={{ display: "inline-block", whiteSpace: "nowrap", borderRadius: 9999, padding: "8px 20px", fontSize: "clamp(11px, 1.1vw, 14px)", color: "rgba(255,255,255,0.85)", letterSpacing: "-0.01em", fontWeight: 300 }}>
+                  generare automată
+                </a>
+                <a href="/signup" style={{ display: "inline-block", whiteSpace: "nowrap", borderRadius: 9999, padding: "8px 20px", fontSize: "clamp(11px, 1.1vw, 14px)", color: "#000", background: GRADIENT_CTA, letterSpacing: "-0.01em", fontWeight: 400 }}>
+                  rulează demo
+                </a>
               </div>
             </div>
           </div>
-        </section>
 
-        {/* ─── Solution: Guardnet dark bento grid ─── */}
-        <section style={{ background: "#0c0c0e", padding: "100px 0", position: "relative", overflow: "hidden" }} id="solution">
-          <div className="gn-dots-overlay"/>
-          <div className="bio-pill float-b" style={{ width: 200, height: 42, top: "8%", left: "2%", background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.06)", "--s-rot": "22deg", "--s-dur": "10s" } as React.CSSProperties}/>
-          <div className="bio-rect float-a" style={{ width: 70, height: 120, bottom: "15%", right: "3%", background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.05)", "--s-dur": "9s", "--s-delay": "1.5s" } as React.CSSProperties}/>
-          <div className="bio-ring float-a" style={{ width: 180, height: 180, bottom: "10%", left: "8%", border: "1px solid rgba(100,206,251,0.07)", "--s-dur": "12s", "--s-delay": "0.5s" } as React.CSSProperties}/>
-          <div className="glow-blob" style={{ width: 500, height: 500, top: -100, right: -80, background: "rgba(100,206,251,0.07)" }}/>
-          <div className="container" style={{ position: "relative" }}>
-            <div className="reveal" style={{ marginBottom: 0 }}>
-              <div className="sec-badge">
-                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>02</span>
-                <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.solution.eyebrow}</span>
-              </div>
-              <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.025em" }}>
-                {copy.solution.heading[0]}<br/><span style={{ color: "rgba(255,255,255,0.28)", fontWeight: 300 }}>{copy.solution.heading[1]}</span>
-              </h2>
+          {/* Left text */}
+          <p className="absolute text-white/80"
+            style={{ left: "clamp(16px, 6vw, 64px)", top: "clamp(55%, 56%, 60%)", maxWidth: "clamp(240px, 35vw, 440px)", fontSize: "clamp(13px, 1.4vw, 18px)", fontWeight: 300, lineHeight: 1.6, letterSpacing: "-0.01em" }}>
+            generăm website-ul tău complet cu AI, cu design profesional și cod curat, implementat direct în contul tău
+          </p>
+
+          {/* Right text */}
+          <p className="absolute text-white/90"
+            style={{ right: "clamp(16px, 6vw, 64px)", top: "clamp(26%, 34%, 36%)", maxWidth: "clamp(240px, 40vw, 500px)", fontSize: "clamp(13px, 1.4vw, 18px)", fontWeight: 300, lineHeight: 1.6, letterSpacing: "-0.01em" }}>
+            Prin colaborarea cu insixlive, o afacere mică poate lansa o prezență online profesională în câteva minute. Design modern, copywriting optimizat și implementare automată pe Vercel — fără costuri lunare.
+          </p>
+        </div>
+      </section>
+
+      {/* ─── Industries / Companiile ─────────────────────────────────────── */}
+      <section id="industrii" className="relative w-full bg-black" style={{ scrollMarginTop: 96, padding: "clamp(48px,8vw,80px) clamp(16px,4vw,40px)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "clamp(12px, 1.5vw, 16px)" }} className="md:grid-cols-4">
+          {[
+            { label: "HoReCa",   glow: "#1e3a8a", pos: "top-left" },
+            { label: "retail",   glow: "#FA8453", glow2: "#F5D547", pos: "top-left" },
+            { label: "servicii", glow: "#F5D547", pos: "bottom-left" },
+            { label: "medical",  glow: "#1e3a8a", pos: "right" },
+          ].map(item => (
+            <div key={item.label} style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", height: "clamp(96px, 12vw, 144px)", overflow: "hidden", borderRadius: 16, background: "#0a0a0a" }}>
+              {item.pos === "top-left" && <div style={{ position: "absolute", top: -96, left: -96, width: 160, height: 160, borderRadius: "50%", background: item.glow, opacity: 0.4, filter: "blur(48px)" }} />}
+              {item.glow2 && <div style={{ position: "absolute", bottom: -96, right: -96, width: 160, height: 160, borderRadius: "50%", background: item.glow2, opacity: 0.25, filter: "blur(48px)" }} />}
+              {item.pos === "bottom-left" && <div style={{ position: "absolute", bottom: -96, left: -96, width: 160, height: 160, borderRadius: "50%", background: item.glow, opacity: 0.3, filter: "blur(48px)" }} />}
+              {item.pos === "right" && <div style={{ position: "absolute", right: -112, top: "50%", transform: "translateY(-50%)", width: 192, height: 192, borderRadius: "50%", background: item.glow, opacity: 0.4, filter: "blur(48px)" }} />}
+              <span style={{ position: "relative", zIndex: 10, fontSize: "clamp(1.1rem, 2.5vw, 1.9rem)", fontWeight: 600, letterSpacing: "-0.03em", color: "#fff" }}>{item.label}</span>
             </div>
+          ))}
+        </div>
 
-            {/* ── Bionova stat cards — exact HLS videos from Bionova ── */}
-            <div className="bio-cards reveal" style={{ transitionDelay: "0.12s" }}>
-              {/* Main card — heroCard HLS stream (purple organic shape) */}
-              <div className="bio-card-main">
-                <video ref={bioHeroRef} className="bc-vid" autoPlay muted loop playsInline preload="auto" aria-hidden />
-                <div className="bc-content">
-                  <h3 style={{ fontSize: "clamp(1.4rem,2.6vw,2.2rem)", fontWeight: 400, color: "#fff", margin: 0, lineHeight: 1.2, maxWidth: "34ch" }}>
-                    Dacă ești gata să lansezi website-ul tău, hai să vorbim.
-                  </h3>
-                  <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16 }}>
-                    <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.85)", margin: 0, maxWidth: "44ch", lineHeight: 1.65 }}>
-                      De la brief la lansare — AI generează codul și îl deployează în propriul tău cont Vercel.
-                    </p>
-                    <a href="/signup" className="bc-arrow" aria-label="Comenză">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#09090b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
-                    </a>
-                  </div>
-                </div>
-              </div>
+        <div style={{ marginTop: "clamp(64px, 10vw, 112px)", display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "space-between", gap: 32 }} className="md:flex-row md:items-center md:ml-auto md:w-[70%]">
+          <p style={{ maxWidth: 400, fontSize: "clamp(13px, 1.4vw, 18px)", fontWeight: 300, lineHeight: 1.6, color: "rgba(255,255,255,0.65)", letterSpacing: "-0.01em" }}>
+            generăm website-uri profesionale pentru orice tip de afacere mică, cu design adaptat industriei tale
+          </p>
+          <div style={{ position: "relative", borderRadius: 9999, padding: 1.5, background: GRADIENT_CTA, flexShrink: 0 }}>
+            <a href="/signup" style={{ display: "block", borderRadius: 9999, background: "#000", padding: "10px 32px", fontSize: 14, color: "#fff", letterSpacing: "-0.01em", fontWeight: 300, whiteSpace: "nowrap" }}>
+              rulează demo
+            </a>
+          </div>
+        </div>
+      </section>
 
-              {/* Two small cards */}
-              <div className="bio-card-row">
-                {/* locations HLS stream (blue oval) */}
-                <div className="bio-card-sm">
-                  <video ref={bioLocRef} className="bc-vid-sm-loc" autoPlay muted loop playsInline preload="auto" aria-hidden />
-                  <div className="bc-content">
-                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-                      <span className="bc-tag">industrii</span>
-                      <a href="/signup" className="bc-arrow" style={{ width: 36, height: 36 }} aria-label="Comenză">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#09090b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
-                      </a>
-                    </div>
-                    <div>
-                      <h3 style={{ fontSize: "clamp(1.1rem,1.8vw,1.5rem)", fontWeight: 400, color: "#fff", margin: "0 0 8px", lineHeight: 1.2 }}>Antreprenori din România</h3>
-                      <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.8)", margin: 0, lineHeight: 1.6 }}>HoReCa, retail, servicii și medical — digitalizate rapid.</p>
-                    </div>
-                  </div>
-                </div>
+      {/* ─── Benefits / Beneficii ────────────────────────────────────────── */}
+      <section id="beneficii" className="relative w-full bg-black" style={{ scrollMarginTop: 96, padding: "clamp(48px,8vw,80px) clamp(16px,4vw,40px)" }}>
+        <h2 style={{ marginBottom: "clamp(48px,8vw,96px)", textAlign: "center", fontSize: "clamp(2rem, 4vw, 3.2rem)", fontWeight: 300, letterSpacing: "-0.04em", color: "#fff" }}>
+          beneficii cheie
+        </h2>
 
-                {/* scientists HLS stream (lime texture) */}
-                <div className="bio-card-sm">
-                  <video ref={bioSciRef} className="bc-vid-sm-sci" autoPlay muted loop playsInline preload="auto" aria-hidden />
-                  <div className="bc-content">
-                    <span className="bc-tag">minute</span>
-                    <div>
-                      <p className="bc-stat">6</p>
-                      <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.8)", margin: "8px 0 0", lineHeight: 1.6 }}>Timp mediu de la brief la website live și implementat.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Asymmetric bento: tall featured card left + 2 stacked right */}
-            <div className="bento">
-              {/* Featured tall card */}
-              <div className="bento-card reveal" style={{ display: "flex", flexDirection: "column", minHeight: 420, transitionDelay: "0s" }}>
-                <div className="glow-blob" style={{ width: 280, height: 280, top: -60, right: -40, background: "rgba(100,206,251,0.12)" }}/>
-                <div className="bento-icon" style={{ background: "rgba(100,206,251,0.1)", color: "#64CEFB" }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    {FEATURE_ICONS[0]?.circle && <circle cx="12" cy="12" r="9"/>}<path d={FEATURE_ICONS[0]?.d}/>
-                  </svg>
-                </div>
-                <h3>{copy.solution.features[0].t}</h3>
-                <p>{copy.solution.features[0].b}</p>
-                <div style={{ flex: 1 }}/>
-                {/* Decorative number */}
-                <div style={{ fontSize: "clamp(6rem,10vw,9rem)", fontWeight: 800, color: "rgba(255,255,255,0.03)", lineHeight: 1, letterSpacing: "-0.06em", userSelect: "none", marginTop: 16 }}>01</div>
-              </div>
-              {/* Two stacked smaller cards */}
-              <div className="bento-col">
-                {copy.solution.features.slice(1).map((f, i) => (
-                  <div className="bento-card reveal" key={f.t} style={{ flex: 1, transitionDelay: `${(i + 1) * 0.12}s` }}>
-                    <div className="glow-blob" style={{ width: 200, height: 200, bottom: -50, left: -40, background: i === 0 ? "rgba(74,222,128,0.09)" : "rgba(250,132,83,0.09)" }}/>
-                    <div className="bento-icon" style={{ background: i === 0 ? "rgba(74,222,128,0.1)" : "rgba(250,132,83,0.1)", color: i === 0 ? "#4ade80" : "#FA8453" }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                        {FEATURE_ICONS[i + 1]?.circle && <circle cx="12" cy="12" r="9"/>}<path d={FEATURE_ICONS[i + 1]?.d}/>
-                      </svg>
-                    </div>
-                    <h3>{f.t}</h3>
-                    <p>{f.b}</p>
-                  </div>
-                ))}
-              </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "clamp(12px, 1.5vw, 16px)" }} className="md:grid-cols-3">
+          {/* Card 1 */}
+          <div style={{ position: "relative", height: "clamp(380px, 35vw, 460px)", overflow: "hidden", borderRadius: 16, background: "#0a0a0a", padding: "clamp(24px, 3vw, 32px)" }}>
+            <div style={{ position: "absolute", top: "50%", left: -420, width: 460, height: 460, transform: "translateY(-50%)", borderRadius: "50%", background: "#1e3a8a", opacity: 0.4, filter: "blur(60px)" }} />
+            <div style={{ position: "relative", zIndex: 10 }}>
+              <h3 style={{ fontSize: "clamp(1.1rem, 1.8vw, 1.5rem)", fontWeight: 300, lineHeight: 1.3, letterSpacing: "-0.025em", color: "#fff" }}>
+                generare cod<br/>și implementare automată
+              </h3>
+              <p style={{ marginTop: "clamp(48px, 8vw, 80px)", maxWidth: 280, fontSize: "clamp(12px, 1vw, 14px)", fontWeight: 300, lineHeight: 1.6, color: "rgba(255,255,255,0.65)", letterSpacing: "-0.01em" }}>
+                AI generează întregul cod sursă al website-ului și îl implementează automat în contul tău Vercel — fără să trebuiască să știi programare.
+              </p>
             </div>
           </div>
-        </section>
 
-        {/* ─── How it works: Aurora horizontal timeline ─── */}
-        <section style={{ background: "var(--color-mist)", padding: "100px 0" }} id="how">
-          <div className="container">
-            <div className="reveal" style={{ textAlign: "center", marginBottom: 72 }}>
-              <div className="sec-badge" style={{ justifyContent: "center" }}>
-                <span className="s-num">03</span>
-                <span className="s-label">{copy.how.eyebrow}</span>
-              </div>
-              <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-obsidian)", margin: "0 auto", letterSpacing: "-0.025em", maxWidth: "18ch" }}>
-                {copy.how.heading[0]}<br/><span style={{ color: "var(--color-steel)", fontWeight: 300 }}>{copy.how.heading[1]}</span>
-              </h2>
+          {/* Card 2 — video */}
+          <div style={{ position: "relative", display: "flex", flexDirection: "column", height: "clamp(380px, 35vw, 460px)", overflow: "hidden", borderRadius: 16, background: "#0a0a0a" }}>
+            <div style={{ position: "relative", width: "100%", overflow: "hidden", height: "75%" }}>
+              <video style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }} src={BENEFITS_VIDEO} autoPlay loop muted playsInline />
+              <div style={{ pointerEvents: "none", position: "absolute", bottom: 0, left: 0, right: 0, height: 128, background: "linear-gradient(to bottom, transparent, #0a0a0a)" }} aria-hidden />
             </div>
-            {/* Aurora step timeline */}
-            <div className="step-timeline">
-              {copy.how.steps.map(([t, s], i) => (
-                <div className={`step-t reveal${i === copy.how.steps.length - 1 ? " is-live" : ""}`} key={STEP_NUMS[i]} style={{ transitionDelay: `${i * 0.1}s` }}>
-                  <div className="st-num" style={{ position: "relative" }}>
-                    {i + 1}
-                    {i === copy.how.steps.length - 1 && <span className="status-dot" style={{ position: "absolute", top: -2, right: -2 }}/>}
-                  </div>
-                  <h4>{t}</h4>
-                  <p>{s}</p>
-                  {i === copy.how.steps.length - 1 && (
-                    <span className="badge badge-ember" style={{ marginTop: 14, display: "inline-flex" }}>{copy.how.liveBadge}</span>
-                  )}
-                </div>
+            <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "flex-start", padding: "clamp(24px, 3vw, 32px)" }}>
+              <h3 style={{ fontSize: "clamp(1.1rem, 1.8vw, 1.5rem)", fontWeight: 300, lineHeight: 1.3, letterSpacing: "-0.025em", color: "#fff" }}>
+                design profesional<br/>adaptat afacerii tale
+              </h3>
+            </div>
+          </div>
+
+          {/* Card 3 */}
+          <div style={{ position: "relative", display: "flex", flexDirection: "column", height: "clamp(380px, 35vw, 460px)", overflow: "hidden", borderRadius: 16, background: "#0a0a0a", padding: "clamp(24px, 3vw, 32px)" }}>
+            <div style={{ position: "absolute", top: -112, right: -112, width: 224, height: 224, borderRadius: "50%", background: "#1e3a8a", opacity: 0.4, filter: "blur(60px)" }} />
+            <div style={{ position: "relative", zIndex: 10, display: "flex", height: "100%", flexDirection: "column" }}>
+              <h3 style={{ fontSize: "clamp(1.1rem, 1.8vw, 1.5rem)", fontWeight: 300, lineHeight: 1.3, letterSpacing: "-0.025em", color: "#fff" }}>
+                cod sursă<br/>proprietatea ta
+              </h3>
+              <p style={{ marginTop: "auto", maxWidth: 320, fontSize: "clamp(12px, 1vw, 14px)", fontWeight: 300, lineHeight: 1.6, color: "rgba(255,255,255,0.65)", letterSpacing: "-0.01em" }}>
+                Primești codul sursă complet. Fără lock-in, fără abonamente ascunse. Hosted pe contul tău Vercel pentru totdeauna.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Pricing ─────────────────────────────────────────────────────── */}
+      <section id="preturi" className="relative w-full bg-black" style={{ scrollMarginTop: 96, padding: "clamp(48px,8vw,80px) clamp(16px,4vw,40px)" }}>
+        <div style={{ maxWidth: 560, margin: "0 auto", textAlign: "center" }}>
+          <h2 style={{ marginBottom: 16, fontSize: "clamp(2rem, 4vw, 3.2rem)", fontWeight: 300, letterSpacing: "-0.04em", color: "#fff" }}>
+            un singur preț
+          </h2>
+          <p style={{ marginBottom: 48, fontSize: "clamp(13px, 1.4vw, 18px)", fontWeight: 300, color: "rgba(255,255,255,0.5)", letterSpacing: "-0.01em" }}>
+            fără abonamente, fără surprize
+          </p>
+
+          <div style={{ position: "relative", borderRadius: 16, background: "#0a0a0a", padding: "clamp(32px, 5vw, 56px)", overflow: "hidden" }}>
+            <div style={{ position: "absolute", top: -80, left: "50%", transform: "translateX(-50%)", width: 160, height: 160, borderRadius: "50%", background: "#FA8453", opacity: 0.18, filter: "blur(60px)" }} />
+            <p style={{ fontSize: "clamp(4rem, 9vw, 7rem)", fontWeight: 500, letterSpacing: "-0.04em", lineHeight: 1, color: "#fff" }}>€49.99</p>
+            <p style={{ marginTop: 8, fontSize: 13, fontWeight: 300, color: "rgba(255,255,255,0.4)", letterSpacing: "-0.01em" }}>plată unică</p>
+            <ul style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 12, textAlign: "left" }}>
+              {[
+                "website profesional generat de AI",
+                "implementare în contul tău Vercel",
+                "cod sursă complet — al tău",
+                "design responsiv pentru mobile",
+                "SEO de bază inclus",
+              ].map(item => (
+                <li key={item} style={{ display: "flex", gap: 12, fontSize: "clamp(13px, 1.1vw, 15px)", fontWeight: 300, color: "rgba(255,255,255,0.7)", letterSpacing: "-0.01em" }}>
+                  <span style={{ color: "#FA8453", flexShrink: 0 }}>✓</span> {item}
+                </li>
               ))}
-            </div>
+            </ul>
+            <a href="/signup" style={{ display: "block", marginTop: 32, borderRadius: 9999, padding: "14px 0", textAlign: "center", fontSize: 14, fontWeight: 500, color: "#000", background: GRADIENT_CTA, letterSpacing: "-0.01em" }}>
+              începe acum
+            </a>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* ─── Portfolio: Axion case study grid (dark) ─── */}
-        <section style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }} id="examples">
-          <div className="gn-dots-overlay"/>
-          <div className="bio-pill float-a" style={{ width: 180, height: 36, top: "6%", right: "5%", background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.06)", "--s-rot": "12deg", "--s-dur": "8s" } as React.CSSProperties}/>
-          <div className="bio-ring float-b" style={{ width: 220, height: 220, bottom: "8%", right: "2%", border: "1px solid rgba(100,206,251,0.06)", "--s-dur": "13s", "--s-delay": "2s" } as React.CSSProperties}/>
-          <div className="container">
-            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 18, flexWrap: "wrap", marginBottom: 48 }}>
-              <div className="reveal">
-                <div className="sec-badge">
-                  <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>04</span>
-                  <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.examples.eyebrow}</span>
-                </div>
-                <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.025em" }}>
-                  {copy.examples.heading[0]}<br/>{copy.examples.heading[1]}
-                </h2>
-              </div>
-              <a className="btn btn-roll reveal" href="#pricing" style={{ color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: "var(--radius-card)", padding: "12px 20px", fontSize: "var(--text-body)", fontWeight: 500 }}>
-                <span className="roll-inner"><span data-text={copy.examples.viewAll}>{copy.examples.viewAll}</span></span>
-                <ArrowIcon/>
-              </a>
-            </div>
-            {/* ViralMedia "Selected Work" image grid */}
-            <div className="vm-grid">
-              {PORTFOLIO_IMAGES.map((p, i) => {
-                const tile = copy.examples.tiles[i];
-                return (
-                  <div className="vm-card reveal" key={p.img} style={{ transitionDelay: `${i * 0.1}s` }}>
-                    <div className="vm-img">
-                      <img src={p.img} alt={tile?.name || p.cat} loading="lazy"/>
-                    </div>
-                    <div>
-                      <h3 className="vm-title">{tile?.name || p.cat}</h3>
-                      <p className="vm-category">{tile?.badges?.[0] || p.cat}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
+      {/* ─── Contact ─────────────────────────────────────────────────────── */}
+      <section id="contact" className="relative w-full bg-black" style={{ scrollMarginTop: 96, padding: "clamp(48px,8vw,80px) clamp(16px,4vw,40px)" }}>
+        <div style={{ maxWidth: 560, margin: "0 auto" }}>
+          <h2 style={{ marginBottom: 16, fontSize: "clamp(2rem, 4vw, 3.2rem)", fontWeight: 300, letterSpacing: "-0.04em", color: "#fff" }}>
+            hai să vorbim
+          </h2>
+          <p style={{ marginBottom: 40, fontSize: "clamp(13px, 1.4vw, 18px)", fontWeight: 300, color: "rgba(255,255,255,0.5)", letterSpacing: "-0.01em" }}>
+            spune-ne despre afacerea ta
+          </p>
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <input
+              type="email" required value={email} onChange={e => setEmail(e.target.value)}
+              placeholder="email@afacereata.ro"
+              style={{ width: "100%", borderRadius: 12, background: "#0a0a0a", padding: "16px 20px", fontSize: 14, fontWeight: 300, color: "rgba(255,255,255,0.85)", border: "1px solid rgba(255,255,255,0.1)", outline: "none", letterSpacing: "-0.01em", transition: "border-color .2s" }}
+              onFocus={e => e.target.style.borderColor = "rgba(255,255,255,0.28)"}
+              onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.1)"}
+            />
+            <textarea
+              rows={4} placeholder="Descrie-ți afacerea..."
+              style={{ width: "100%", borderRadius: 12, background: "#0a0a0a", padding: "16px 20px", fontSize: 14, fontWeight: 300, color: "rgba(255,255,255,0.85)", border: "1px solid rgba(255,255,255,0.1)", outline: "none", letterSpacing: "-0.01em", resize: "vertical", transition: "border-color .2s" }}
+              onFocus={e => e.target.style.borderColor = "rgba(255,255,255,0.28)"}
+              onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.1)"}
+            />
+            <button type="submit" style={{ borderRadius: 9999, padding: "14px 0", fontSize: 14, fontWeight: 500, color: "#000", background: GRADIENT_CTA, letterSpacing: "-0.01em", cursor: "pointer" }}>
+              trimite mesaj
+            </button>
+          </form>
+        </div>
+      </section>
 
-        {/* ─── Stats ─── */}
-        <section className="pad-y" style={{ background: "var(--color-obsidian)", position: "relative", overflow: "hidden" }}>
-          <div className="gn-dots-overlay"/>
-          <div className="bio-pill float-a" style={{ width: 300, height: 50, top: "10%", left: "-6%", background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", "--s-rot": "8deg", "--s-dur": "10s" } as React.CSSProperties}/>
-          <div className="bio-pill float-b" style={{ width: 120, height: 32, bottom: "12%", right: "-1%", background: "rgba(74,222,128,0.03)", border: "1px solid rgba(74,222,128,0.08)", "--s-rot": "-15deg", "--s-dur": "8s", "--s-delay": "1s" } as React.CSSProperties}/>
-          {/* Guardnet glow blobs */}
-          <div className="glow-blob" style={{ width: 500, height: 500, top: "50%", left: "50%", transform: "translate(-50%,-50%)", background: "rgba(100,206,251,0.06)" }}/>
-          <div className="glow-blob" style={{ width: 300, height: 300, top: -80, right: 80, background: "rgba(74,222,128,0.05)" }}/>
-          <div className="container" style={{ position: "relative" }}>
-            <div className="stats" style={{ gap: 0 }}>
-              {copy.stats.map(([num, lbl], i) => (
-                <div className="stat-dark reveal" key={lbl} style={i < copy.stats.length - 1 ? { borderRight: "1px solid rgba(255,255,255,0.08)", paddingRight: 32 } : { paddingLeft: 32 }}>
-                  <div className="sd-num">{num}</div>
-                  <div className="sd-lbl">{lbl}</div>
-                </div>
-              ))}
-            </div>
+      {/* ─── Footer ──────────────────────────────────────────────────────── */}
+      <footer style={{ width: "100%", background: "#000", padding: "clamp(24px,4vw,32px) clamp(16px,4vw,40px)", borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
+          <a href="/" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <LogoMark className="h-4 w-4" />
+            <span style={{ fontSize: 14, fontWeight: 500, color: "#fff", letterSpacing: "-0.02em" }}>insixlive</span>
+          </a>
+          <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+            {NAV.map(link => (
+              <a key={link.href} href={link.href} style={{ fontSize: 13, fontWeight: 300, color: "rgba(255,255,255,0.4)", letterSpacing: "-0.01em" }}>{link.label}</a>
+            ))}
+            <a href="/privacy" style={{ fontSize: 13, fontWeight: 300, color: "rgba(255,255,255,0.4)", letterSpacing: "-0.01em" }}>confidențialitate</a>
           </div>
-        </section>
-
-        {/* ─── Ownership: ViralMedia bold statement (white, flipped from dark) ─── */}
-        <section style={{ background: "var(--color-snow)", padding: "100px 0" }}>
-          <div className="container">
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
-              {/* Left: bold statement */}
-              <div className="reveal">
-                <div className="sec-badge">
-                  <span className="s-num">05</span>
-                  <span className="s-label">{copy.ownership.eyebrow}</span>
-                </div>
-                <h2 className="own-statement">
-                  {copy.ownership.heading[0]}<br/><span className="accent">{copy.ownership.heading[1]}</span>
-                </h2>
-                <p style={{ fontSize: "var(--text-body-lg)", color: "var(--color-steel)", lineHeight: 1.6, marginTop: 24, maxWidth: "44ch" }}>{copy.ownership.lead}</p>
-                <div style={{ marginTop: 28, display: "flex", gap: 10, flexWrap: "wrap" }}>
-                  {copy.ownership.badges.map(b => <span className="badge badge-dark" key={b}>{b}</span>)}
-                </div>
-              </div>
-              {/* Right: terminal cards */}
-              <div className="reveal" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                <div className="terminal-card">
-                  <div className="terminal-label">{copy.ownership.repoLabel}</div>
-                  <div className="terminal-body">{copy.ownership.repoFiles}</div>
-                </div>
-                <div className="terminal-card" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <div>
-                    <div className="terminal-label">{copy.ownership.deployLabel}</div>
-                    <div style={{ fontWeight: 600, color: "var(--color-snow)", fontSize: "var(--text-body)" }}>{copy.ownership.deployUrl}</div>
-                  </div>
-                  <span className="badge" style={{ background: "rgba(74,222,128,0.12)", color: "#4ade80", border: "1px solid rgba(74,222,128,0.3)" }}>{copy.ownership.readyBadge}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ─── Compare: Guardnet dark split panel ─── */}
-        <section style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }}>
-          <div className="gn-dots-overlay"/>
-          <div className="bio-rect float-a" style={{ width: 80, height: 80, top: "8%", left: "5%", background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.05)", "--s-dur": "9s" } as React.CSSProperties}/>
-          <div className="bio-pill float-b" style={{ width: 220, height: 44, bottom: "10%", left: "2%", background: "rgba(74,222,128,0.025)", border: "1px solid rgba(74,222,128,0.08)", "--s-rot": "6deg", "--s-dur": "11s", "--s-delay": "1.5s" } as React.CSSProperties}/>
-          <div className="glow-blob" style={{ width: 450, height: 450, top: "50%", right: -60, transform: "translateY(-50%)", background: "rgba(74,222,128,0.07)" }}/>
-          <div className="container" style={{ position: "relative" }}>
-            <div className="reveal" style={{ marginBottom: 56 }}>
-              <div className="sec-badge">
-                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>06</span>
-                <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.math.eyebrow}</span>
-              </div>
-              <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.025em" }}>{copy.math.heading}</h2>
-              <p style={{ color: "rgba(255,255,255,0.4)", marginTop: 12, fontSize: "var(--text-body-lg)", maxWidth: "56ch" }}>{copy.math.lead}</p>
-            </div>
-            <div className="compare-dark reveal">
-              {/* Legacy / Agency */}
-              <div className="compare-col legacy">
-                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.12em", color: "rgba(255,255,255,0.22)", marginBottom: 6 }}>{copy.math.traditional.colHead}</div>
-                <div className="compare-big-price">{copy.math.traditional.price}</div>
-                <div style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.22)", marginBottom: 32 }}>{copy.math.traditional.priceSub}</div>
-                {copy.math.traditional.rows.map(r => (
-                  <div className="compare-row" key={r}><span className="cx">✕</span>{r}</div>
-                ))}
-              </div>
-              {/* insixlive */}
-              <div className="compare-col ours">
-                <div className="glow-blob" style={{ width: 320, height: 320, top: -80, right: -60, background: "rgba(74,222,128,0.11)" }}/>
-                <div style={{ position: "relative" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.12em", color: "rgba(255,255,255,0.45)" }}>{copy.math.insixlive.badge}</div>
-                    <span className="badge badge-ember">{copy.math.insixlive.badge}</span>
-                  </div>
-                  <div className="compare-big-price" style={{ color: "var(--color-snow)", textDecoration: "none" }}>{copy.math.insixlive.price}</div>
-                  <div style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.4)", marginBottom: 32 }}>{copy.math.insixlive.priceSub}</div>
-                  {copy.math.insixlive.rows.map(r => (
-                    <div className="compare-row" key={r}><span className="ck">✓</span>{r}</div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ─── Pricing: Bionova glow-border featured ─── */}
-        <section style={{ background: "var(--color-mist)", padding: "100px 0" }} id="pricing">
-          <div className="container">
-            <div className="reveal" style={{ marginBottom: 48 }}>
-              <div className="sec-badge">
-                <span className="s-num">07</span>
-                <span className="s-label">{copy.pricing.eyebrow}</span>
-              </div>
-              <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-obsidian)", margin: 0, letterSpacing: "-0.025em" }}>
-                {copy.pricing.heading[0]}<br/><span style={{ color: "var(--color-steel)", fontWeight: 300 }}>{copy.pricing.heading[1]}</span>
-              </h2>
-            </div>
-            <div className="plans">
-              {copy.pricing.plans.map(p => p.featured ? (
-                /* Bionova gradient-border featured card */
-                <div className="plan bionova-featured reveal" key={p.name}>
-                  <div className="bf-inner">
-                    <div className="glow-blob" style={{ width: 280, height: 280, top: -60, right: -60, background: "rgba(100,206,251,0.15)" }}/>
-                    <div style={{ position: "relative" }}>
-                      <div className="plan-head">
-                        <span className="pname">{p.name}</span>
-                        <span className="badge badge-ember">{copy.pricing.popularBadge}</span>
-                      </div>
-                      <div className="pamount">{p.price} <small>one-time</small></div>
-                      <div className="ptag">{p.tag}</div>
-                      <ul>
-                        {p.items.map(it => <li key={it}><span className="tick"><CheckMark/></span> {it}</li>)}
-                        {p.muted && <li><span className="tick" style={{ color: "rgba(255,255,255,0.25)" }}>–</span> {p.muted}</li>}
-                      </ul>
-                      <Link className="btn btn-grad-fill" href={ctaHref} style={{ justifyContent: "center", width: "100%", display: "flex" }}>{p.cta}</Link>
-                      <div className="pafter" style={{ marginTop: 14, fontSize: 12, textAlign: "center" as const }}>{p.after}</div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="card plan reveal" key={p.name}>
-                  <div className="plan-head">
-                    <span className="pname">{p.name}</span>
-                  </div>
-                  <div className="pamount">{p.price} <small>one-time</small></div>
-                  <div className="ptag">{p.tag}</div>
-                  <ul>
-                    {p.items.map(it => <li key={it}><span className="tick"><CheckMark/></span> {it}</li>)}
-                    {p.muted && <li><span className="tick" style={{ color: "var(--color-ash)" }}>–</span> {p.muted}</li>}
-                  </ul>
-                  <Link className="btn btn-outline" href={ctaHref} style={{ justifyContent: "center", width: "100%" }}>{p.cta}</Link>
-                  <div className="pafter">{p.after}</div>
-                </div>
-              ))}
-            </div>
-            <div className="card-muted reveal" style={{ marginTop: 22, display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", padding: "16px 22px" }}>
-              <span className="badge badge-dark">{copy.pricing.note.badge}</span>
-              <span style={{ fontSize: "var(--text-body)", color: "var(--color-graphite)" }}>{copy.pricing.note.text}</span>
-            </div>
-          </div>
-        </section>
-
-        {/* ─── Domains ─── */}
-        <section className="pad-y" id="domains" style={{ background: "var(--color-snow)" }}>
-          <div className="container">
-            <div className="grid-2" style={{ gap: 48, alignItems: "center" }}>
-              <div className="reveal">
-                <span className="eyebrow">{copy.domains.eyebrow}</span>
-                <h2 className="heading-lg">{copy.domains.heading[0]}<br/><span className="muted-fg light">{copy.domains.heading[1]}</span></h2>
-                <p className="lead">{copy.domains.lead.split(copy.domains.exampleDomain)[0]}<b style={{ color: "var(--color-obsidian)" }}>{copy.domains.exampleDomain}</b>{copy.domains.lead.split(copy.domains.exampleDomain)[1]}</p>
-                <div style={{ marginTop: 24, display: "flex", gap: 10, flexWrap: "wrap" }}>
-                  {copy.domains.registrars.map(r => <span className="badge badge-dark" key={r}>{r}</span>)}
-                </div>
-              </div>
-              <div className="domain-card reveal">
-                <div className="domain-bar">
-                  <svg className="lock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>
-                  <span className="url"><span>https://</span><b>{copy.domains.bar1.domain.split(".")[0]}</b><span>.{copy.domains.bar1.domain.split(".").slice(1).join(".")}</span></span>
-                  <span className="status">{copy.domains.bar1.status}</span>
-                </div>
-                <div style={{ textAlign: "center" as const, color: "var(--color-ash)" }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
-                </div>
-                <div className="domain-bar">
-                  <svg className="lock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>
-                  <span className="url"><span>https://</span><b>{copy.domains.bar2.domain.split(".")[0]}</b><span>.{copy.domains.bar2.domain.split(".").slice(1).join(".")}</span></span>
-                  <span className="status">{copy.domains.bar2.status}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ─── Testimonials: ViralMedia dark large-quote style ─── */}
-        <section style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }} id="proof">
-          <div className="gn-dots-overlay"/>
-          <div className="bio-pill float-a" style={{ width: 300, height: 52, top: "7%", right: "-2%", background: "rgba(255,255,255,0.013)", border: "1px solid rgba(255,255,255,0.06)", "--s-rot": "-12deg", "--s-dur": "10s" } as React.CSSProperties}/>
-          <div className="bio-ring float-b" style={{ width: 160, height: 160, bottom: "15%", left: "3%", border: "1px solid rgba(100,206,251,0.07)", "--s-dur": "12s", "--s-delay": "1s" } as React.CSSProperties}/>
-          <div className="glow-blob" style={{ width: 600, height: 600, top: "50%", left: "50%", transform: "translate(-50%,-50%)", background: "rgba(100,206,251,0.05)" }}/>
-          <div className="container" style={{ position: "relative" }}>
-            <div className="reveal" style={{ marginBottom: 56 }}>
-              <div className="sec-badge">
-                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>08</span>
-                <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.proof.eyebrow}</span>
-              </div>
-              <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.025em" }}>
-                {copy.proof.heading[0]}<br/><span style={{ color: "rgba(255,255,255,0.28)", fontWeight: 300 }}>{copy.proof.heading[1]}</span>
-              </h2>
-            </div>
-            <div className="grid-3" style={{ gap: 16 }}>
-              {copy.proof.testimonials.map((t, i) => (
-                <div className="dark-quote reveal" key={t.name} style={{ transitionDelay: `${i * 0.1}s` }}>
-                  <span className="big-q">&ldquo;</span>
-                  <p>{t.quote}</p>
-                  <div className="dq-author">
-                    <div className="dq-av">{t.initials}</div>
-                    <div>
-                      <div className="dq-name">{t.name}</div>
-                      <div className="dq-biz">{t.biz}</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ─── FAQ ─── */}
-        <section className="pad-y" id="faq" style={{ background: "var(--color-snow)" }}>
-          <div className="container" style={{ maxWidth: 920 }}>
-            <div className="reveal">
-              {/* Axion section badge */}
-              <div className="sec-badge">
-                <span className="s-num">09</span>
-                <span className="s-label">{copy.faq.eyebrow}</span>
-              </div>
-              <h2 className="heading-lg">{copy.faq.heading}</h2>
-              <p className="lead">{copy.faq.lead}</p>
-            </div>
-            <div className="faq reveal">
-              {copy.faq.items.map(([q, a], i) => (
-                <div className={`faq-item${openFaq === i ? " open" : ""}`} key={q} style={{ borderRadius: openFaq === i ? 16 : 0, transition: "border-radius .3s ease", marginBottom: openFaq === i ? 4 : 0 }}>
-                  <button className="faq-q" onClick={() => setOpenFaq(openFaq === i ? -1 : i)}>{q}<span className="pm"></span></button>
-                  <div className="faq-a"><p>{a}</p></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ─── Final CTA ─── */}
-        <section className="pad-y">
-          <div className="container">
-            <div className="dark-panel on-dark final reveal" style={{ padding: "80px 56px", overflow: "hidden", position: "relative", borderRadius: "var(--radius-hero)" }}>
-              {/* Guardnet dot-grid */}
-              <div className="gn-dots-overlay"/>
-              {/* Bionova pulsing origin ring — centered behind headline */}
-              <div className="pulse-origin" style={{ width: 260, height: 260, top: "50%", left: "50%", transform: "translate(-50%,-50%)", zIndex: 1 }}>
-                <div className="pr"/><div className="pr"/><div className="pr"/>
-              </div>
-              {/* Bionova large floating shapes */}
-              <div className="bio-pill float-a" style={{ width: 400, height: 70, top: "-6%", left: "-8%", background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.065)", "--s-rot": "15deg", "--s-dur": "9s" } as React.CSSProperties}/>
-              <div className="bio-pill float-b" style={{ width: 260, height: 48, bottom: "-4%", right: "-4%", background: "rgba(100,206,251,0.03)", border: "1px solid rgba(100,206,251,0.1)", "--s-rot": "-20deg", "--s-dur": "11s", "--s-delay": "1.5s" } as React.CSSProperties}/>
-              <div className="bio-rect float-a" style={{ width: 140, height: 140, top: "8%", right: "5%", background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.05)", "--s-dur": "10s", "--s-delay": "0.5s" } as React.CSSProperties}/>
-              <div className="bio-ring float-b" style={{ width: 280, height: 280, bottom: "-20%", left: "5%", border: "1px solid rgba(255,255,255,0.04)", "--s-dur": "14s", "--s-delay": "2s" } as React.CSSProperties}/>
-              {/* Guardnet multi-layer glow */}
-              <div className="glow-blob" style={{ width: 700, height: 700, top: "50%", left: "50%", transform: "translate(-50%,-55%)", background: "rgba(250,132,83,0.14)" }}/>
-              <div className="glow-blob" style={{ width: 300, height: 300, bottom: -60, right: 60, background: "rgba(100,206,251,0.08)" }}/>
-              <div style={{ position: "relative" }}>
-                <span className="eyebrow">{copy.final.eyebrow}</span>
-                <h2 className="display-sm on-dark">{copy.final.heading}</h2>
-                <p className="lead" style={{ margin: "0 auto 32px", maxWidth: "48ch" }}>{copy.final.lead}</p>
-                <div className="cta-row">
-                  {/* Guardnet gradient fill + Axion TextRoll */}
-                  <Link href={ctaHref} className="btn btn-grad-fill btn-roll" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-                    <span className="roll-inner"><span data-text={primaryLabel}>{primaryLabel}</span></span>
-                  </Link>
-                  {/* Guardnet gradient pill outline */}
-                  <a href="#pricing" className="btn-grad-pill">
-                    <span className="gp-inner">{copy.final.secondaryCta}</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ─── Footer: ViralMedia dark 4-col ─── */}
-        <footer className="foot-dark" style={{ position: "relative", overflow: "hidden" }}>
-          <div className="gn-dots-overlay" style={{ opacity: 0.7 }}/>
-          <div className="bio-pill float-a" style={{ width: 340, height: 54, top: "15%", right: "-5%", background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.05)", "--s-rot": "-10deg", "--s-dur": "12s" } as React.CSSProperties}/>
-          <div className="container" style={{ position: "relative" }}>
-            <div className="foot-top" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 1fr", gap: 32, paddingBottom: 40, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-              <div className="foot-col">
-                {/* Logo mark */}
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-                  <span style={{ width: 34, height: 34, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(255,255,255,0.7)", display: "block" }}/>
-                  </span>
-                  <span style={{ fontSize: 15, fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>insixlive</span>
-                </div>
-                <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.35)", maxWidth: "32ch", margin: 0, lineHeight: 1.6 }}>{copy.footer.blurb}</p>
-              </div>
-              <div className="foot-col">
-                <h5>{copy.footer.productHeader}</h5>
-                {copy.navLinks.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
-              </div>
-              <div className="foot-col">
-                <h5>{copy.footer.companyHeader}</h5>
-                <a href="#proof">{copy.footer.customers}</a>
-                <Link href={ctaHref}>{copy.footer.waitlist}</Link>
-                <a href="#solution">{copy.footer.whyInsixlive}</a>
-              </div>
-              <div className="foot-col">
-                <h5>{copy.footer.startHeader}</h5>
-                <Link href={ctaHref}>{copy.footer.createSite}</Link>
-                <Link href={signInHref}>{signInLabel}</Link>
-              </div>
-            </div>
-            <div className="foot-bottom" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 24, flexWrap: "wrap", gap: 12 }}>
-              <span>{copy.footer.copyright}</span>
-              <span>{copy.footer.builtWith}</span>
-            </div>
-          </div>
-        </footer>
-      </div>
+          <p style={{ fontSize: 12, fontWeight: 300, color: "rgba(255,255,255,0.3)", letterSpacing: "-0.01em" }}>© {new Date().getFullYear()} insixlive</p>
+        </div>
+      </footer>
     </div>
   );
 }
