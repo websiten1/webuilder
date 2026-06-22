@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { DM_Sans } from "next/font/google";
+import { DM_Sans, Poppins } from "next/font/google";
 import type { HomeCopy } from "./copy";
 
 // ─── insixlive Website (Awesomic) — ported from Claude Design ─────────────
 // Source: claude.ai/design/p/019e130a-b156-7a53-9abe-2feed797f07c
 //         files "insixlive Website (Awesomic).html" / "... RO (Awesomic).html"
 const cosmica = DM_Sans({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"], variable: "--font-cosmica" });
+const poppins = Poppins({ subsets: ["latin", "latin-ext"], weight: ["300", "400", "500", "600", "700"], variable: "--font-poppins" });
 
 const LOGOS = ["Acme Plumbing", "Maria's Hair", "Lia Photo", "Bistro Marin", "Kohl Dental", "Forge Fitness", "Sole Café"];
 
@@ -567,6 +568,49 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         .aw .plan.bionova-featured li { color: var(--color-snow); }
         .aw .plan.bionova-featured li .tick { background: rgba(255,255,255,0.08); }
 
+        /* ── Bionova: 2-col white hero ── */
+        .aw .bv-hero { min-height: 100vh; display: flex; flex-direction: column; background: #fff; color: hsl(0,0%,17%); }
+        .aw .bv-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; flex: 1; align-items: stretch; padding: 100px 64px 80px; }
+        .aw .bv-left { display: flex; flex-direction: column; justify-content: space-between; }
+        .aw .bv-h1 { font-family: var(--font-poppins), system-ui, sans-serif; font-size: clamp(2rem, 3.6vw, 4.5rem); font-weight: 400; line-height: 1.08; letter-spacing: -0.02em; color: hsl(0,0%,17%); margin: 0; }
+        .aw .bv-h1 span { display: block; }
+        .aw .bv-pill-img { display: inline-block; width: 80px; height: 40px; border-radius: 999px; background-size: cover; background-position: center; vertical-align: middle; margin-right: 10px; }
+        .aw .bv-work-btn { display: inline-flex; align-items: center; gap: 7px; border: 2px solid hsl(0,0%,17%); border-radius: 999px; padding: 6px 16px; font-size: 14px; font-weight: 500; background: none; cursor: pointer; font-family: var(--font-poppins), system-ui, sans-serif; color: hsl(0,0%,17%); margin-left: 10px; vertical-align: middle; white-space: nowrap; }
+        .aw .bv-ctas { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding-top: 28px; }
+        .aw .bv-cta-primary { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; background: hsl(213,85%,68%); padding: 13px 26px; font-size: 14px; font-weight: 600; color: #fff; text-decoration: none; font-family: var(--font-poppins), system-ui, sans-serif; transition: opacity .2s ease; }
+        .aw .bv-cta-primary:hover { opacity: 0.88; }
+        .aw .bv-cta-secondary { font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; color: hsl(0,0%,17%); font-family: var(--font-poppins), system-ui, sans-serif; }
+        .aw .bv-footer { margin-top: 48px; }
+        .aw .bv-desc { font-size: 14px; line-height: 1.65; color: rgba(44,44,44,0.62); margin: 0 0 28px; max-width: 400px; font-family: var(--font-poppins), system-ui, sans-serif; }
+        .aw .bv-brands { display: flex; flex-wrap: wrap; gap: 20px; font-family: var(--font-poppins), system-ui, sans-serif; font-size: 20px; font-weight: 700; letter-spacing: -0.03em; color: rgba(44,44,44,0.65); }
+        .aw .bv-right { display: flex; flex-direction: column; gap: 14px; }
+        .aw .bv-card-main { position: relative; min-height: 220px; flex: 1; overflow: hidden; border-radius: 24px; background: #000; padding: 32px; display: flex; flex-direction: column; justify-content: space-between; }
+        .aw .bv-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+        .aw .bv-vid-sm { position: absolute; left: 50%; top: 50%; width: 100%; height: 100%; object-fit: cover; transform: translate(-50%,-50%) scale(1.5); z-index: 0; }
+        .aw .bv-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.75) 100%); z-index: 1; }
+        .aw .bv-card-body { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+        .aw .bv-card-main h2 { color: #fff; font-size: clamp(1.1rem, 1.7vw, 1.45rem); font-weight: 400; line-height: 1.3; margin: 0 0 auto; max-width: 320px; font-family: var(--font-poppins), system-ui, sans-serif; }
+        .aw .bv-card-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-top: 24px; }
+        .aw .bv-card-sub { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.55; max-width: 240px; font-family: var(--font-poppins), system-ui, sans-serif; }
+        .aw .bv-circle { width: 40px; height: 40px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; text-decoration: none; transition: opacity .2s; color: #09090b; }
+        .aw .bv-circle:hover { opacity: 0.85; }
+        .aw .bv-card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .aw .bv-card-sm { position: relative; min-height: 200px; overflow: hidden; border-radius: 24px; background: #000; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+        .aw .bv-tag { display: inline-block; padding: 4px 12px; border-radius: 999px; background: #fff; color: #09090b; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: lowercase; width: fit-content; font-family: var(--font-poppins), system-ui, sans-serif; }
+        .aw .bv-sm-top { display: flex; align-items: flex-start; justify-content: space-between; }
+        .aw .bv-sm-bot h3 { color: #fff; font-size: clamp(0.9rem, 1.3vw, 1.1rem); font-weight: 400; margin: 0 0 6px; font-family: var(--font-poppins), system-ui, sans-serif; }
+        .aw .bv-sm-bot p { font-size: 12px; color: rgba(255,255,255,0.72); margin: 0; line-height: 1.5; font-family: var(--font-poppins), system-ui, sans-serif; }
+        .aw .bv-stat { font-size: clamp(3rem, 5vw, 5rem); font-weight: 300; color: #fff; line-height: 1; letter-spacing: -0.04em; margin: 0 0 8px; font-family: var(--font-poppins), system-ui, sans-serif; }
+        @keyframes bv-fade-up { from { opacity: 0; transform: translateY(20px); filter: blur(4px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
+        .aw .bv-anim-l { animation: bv-fade-up 700ms cubic-bezier(0.16,1,0.3,1) both; }
+        .aw .bv-anim-r { animation: bv-fade-up 700ms cubic-bezier(0.16,1,0.3,1) 150ms both; }
+        @media (max-width: 1024px) {
+          .aw .bv-inner { grid-template-columns: 1fr; padding: 90px 24px 48px; }
+          .aw .bv-card-main { min-height: 260px; }
+          .aw .bv-footer { margin-top: 28px; }
+        }
+        @media (max-width: 640px) { .aw .bv-card-row { grid-template-columns: 1fr; } }
+
         @media (prefers-reduced-motion: reduce) {
           .aw .reveal { opacity: 1; transform: none; filter: none; }
           .aw .logo-track { animation: none; }
@@ -587,7 +631,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         }
       `}</style>
 
-      <div className={`aw aw-mobile-scale ${cosmica.variable}`}>
+      <div className={`aw aw-mobile-scale ${cosmica.variable} ${poppins.variable}`}>
         {/* ─── Nav (DesignPro fixed dark pill) ─── */}
         <header className="dp-nav-header">
           <div className="dp-nav-inner">
@@ -644,50 +688,118 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
 
         <span id="top"></span>
 
-        {/* ─── Hero ─── */}
-        <header className="hero">
-          {/* Background video */}
-          <video autoPlay loop muted playsInline className="hero-video">
-            <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_105406_16f4600d-7a92-4292-b96e-b19156c7830a.mp4" type="video/mp4" />
-          </video>
-          <div className="hero-vignette" aria-hidden />
+        {/* ─── Hero (Bionova 2-col, white, Romanian) ─── */}
+        <section id="home" className="bv-hero">
+          <div className="bv-inner">
 
-          {/* ── Bionova floating shapes over vignette ── */}
-          <div className="bio-pill float-a" style={{ width: 320, height: 56, top: "18%", left: "-4%", background: "rgba(255,255,255,0.018)", border: "1px solid rgba(255,255,255,0.07)", zIndex: 3, "--s-rot": "14deg", "--s-dur": "8s" } as React.CSSProperties}/>
-          <div className="bio-pill float-b" style={{ width: 180, height: 38, bottom: "30%", right: "1%", background: "rgba(100,206,251,0.035)", border: "1px solid rgba(100,206,251,0.12)", zIndex: 3, "--s-rot": "-21deg", "--s-dur": "10s", "--s-delay": "1.5s" } as React.CSSProperties}/>
-          <div className="bio-rect float-a" style={{ width: 100, height: 100, top: "40%", right: "7%", background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", zIndex: 3, "--s-dur": "9s", "--s-delay": "0.8s" } as React.CSSProperties}/>
-          <div className="bio-pill float-b" style={{ width: 80, height: 24, top: "65%", left: "12%", background: "rgba(74,222,128,0.04)", border: "1px solid rgba(74,222,128,0.1)", zIndex: 3, "--s-rot": "8deg", "--s-dur": "7s", "--s-delay": "3s" } as React.CSSProperties}/>
-          {/* Bionova pulsing concentric rings centered on headline */}
-          <div className="pulse-origin" style={{ width: 220, height: 220, top: "50%", left: "50%", transform: "translate(-50%,-50%)", zIndex: 2 }}>
-            <div className="pr"/><div className="pr"/><div className="pr"/>
-          </div>
-
-          <div className="container hero-inner">
-            {/* Centre — hardcoded headline */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" as const }}>
-              <h1 className="reveal" style={{ fontSize: "clamp(2.8rem, 8vw, 7rem)", fontWeight: 700, lineHeight: 0.9, letterSpacing: "-0.02em", color: "var(--color-snow)", margin: "0 0 0" }}>
-                <span style={{ display: "block" }}>Professional websites.</span>
-                <span style={{ display: "block" }}>Deployed to your domain.</span>
-              </h1>
-              <form className="email-row reveal" onSubmit={handleHeroEmailSubmit} style={{ justifyContent: "center", maxWidth: 460 }}>
-                <input type="email" required value={heroEmail} onChange={e => setHeroEmail(e.target.value)} placeholder={copy.hero.emailPlaceholder} aria-label="Email" />
-                {/* Axion TextRoll on primary CTA */}
-                <button className="btn btn-primary btn-roll" type="submit">
-                  <span className="roll-inner"><span data-text={copy.hero.submitLabel}>{copy.hero.submitLabel}</span></span>
-                  <span className="btn-circle" aria-hidden>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            {/* LEFT */}
+            <div className="bv-left bv-anim-l">
+              <div>
+                <h1 className="bv-h1">
+                  <span>
+                    <span
+                      className="bv-pill-img"
+                      style={{ backgroundImage: "url(https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=100&fit=crop&auto=format)" }}
+                      aria-hidden
+                    />
+                    Website-uri
                   </span>
-                </button>
-              </form>
+                  <span>profesionale,</span>
+                  <span style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+                    implementate
+                    <button type="button" className="bv-work-btn" onClick={() => { const el = document.getElementById("how"); el?.scrollIntoView({ behavior: "smooth" }); }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                      Cum funcționează
+                    </button>
+                  </span>
+                  <span>în contul tău.</span>
+                </h1>
+
+                <div className="bv-ctas">
+                  <a href={ctaHref} className="bv-cta-primary">
+                    Începe acum
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+                  </a>
+                  <a href={ctaHref} className="bv-cta-secondary">Solicită o demonstrație</a>
+                </div>
+              </div>
+
+              <div className="bv-footer">
+                <p className="bv-desc">
+                  insixlive lucrează cu antreprenorii mici pentru a transforma un brief în website profesional complet — implementat în contul tău Vercel, cu cod care îți aparține.
+                </p>
+                <div className="bv-brands">
+                  <span>HoReCa</span>
+                  <span>Retail</span>
+                  <span>Servicii</span>
+                  <span>Medical</span>
+                </div>
+              </div>
             </div>
 
-            {/* Bottom badges */}
-            <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
-              <span className="badge badge-overlay">app/page.tsx</span>
-              <span className="badge badge-overlay">{copy.hero.deployReady}</span>
+            {/* RIGHT: video cards */}
+            <div className="bv-right bv-anim-r">
+
+              {/* Main large card */}
+              <div className="bv-card-main">
+                <video className="bv-vid" autoPlay muted loop playsInline aria-hidden>
+                  <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260506_081238_406ed0e3-5d83-436e-a512-0bbff7ec5b95.mp4" type="video/mp4"/>
+                </video>
+                <div className="bv-overlay"/>
+                <div className="bv-card-body">
+                  <h2>Dacă ești gata să lansezi website-ul tău, hai să vorbim.</h2>
+                  <div className="bv-card-foot">
+                    <p className="bv-card-sub">De la brief la lansare — AI generează codul și îl deployează în contul tău Vercel.</p>
+                    <a href={ctaHref} className="bv-circle" aria-label="Începe acum">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Two small cards */}
+              <div className="bv-card-row">
+
+                {/* Industrii */}
+                <div className="bv-card-sm">
+                  <video className="bv-vid-sm" autoPlay muted loop playsInline aria-hidden>
+                    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_105406_16f4600d-7a92-4292-b96e-b19156c7830a.mp4" type="video/mp4"/>
+                  </video>
+                  <div className="bv-overlay" style={{ background: "linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.72) 100%)" }}/>
+                  <div className="bv-card-body">
+                    <div className="bv-sm-top">
+                      <span className="bv-tag">industrii</span>
+                      <a href={ctaHref} className="bv-circle" aria-label="Explorează">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+                      </a>
+                    </div>
+                    <div className="bv-sm-bot">
+                      <h3>Antreprenori din România</h3>
+                      <p>Afaceri locale digitalizate rapid și eficient.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Minute */}
+                <div className="bv-card-sm">
+                  <video className="bv-vid-sm" autoPlay muted loop playsInline aria-hidden style={{ transform: "translate(-50%,-50%) scale(2.8)" }}>
+                    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260506_081238_406ed0e3-5d83-436e-a512-0bbff7ec5b95.mp4" type="video/mp4"/>
+                  </video>
+                  <div className="bv-overlay" style={{ background: "rgba(0,0,0,0.55)" }}/>
+                  <div className="bv-card-body">
+                    <span className="bv-tag">minute</span>
+                    <div className="bv-sm-bot">
+                      <p className="bv-stat">6</p>
+                      <p>Timp mediu de la brief la website live și implementat.</p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
             </div>
+
           </div>
-        </header>
+        </section>
 
         {/* ─── Logo strip (dark, flows from hero) ─── */}
         <div style={{ background: "var(--color-obsidian)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
