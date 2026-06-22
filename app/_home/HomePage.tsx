@@ -663,16 +663,13 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           </div>
 
           <div className="container hero-inner">
-            {/* Centre — Bionova typography, hardcoded */}
+            {/* Centre — hardcoded headline */}
             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" as const }}>
-              <h1 className="reveal" style={{ fontSize: "clamp(3.2rem, 8.5vw, 8rem)", fontWeight: 400, lineHeight: 1.05, letterSpacing: "-0.03em", color: "#fff", margin: "0 0 28px" }}>
+              <h1 className="reveal" style={{ fontSize: "clamp(2.8rem, 8vw, 7rem)", fontWeight: 700, lineHeight: 0.9, letterSpacing: "-0.02em", color: "var(--color-snow)", margin: "0 0 0" }}>
                 <span style={{ display: "block" }}>Professional websites.</span>
-                <span style={{ display: "block", fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.72)" }}>Deployed to your domain.</span>
+                <span style={{ display: "block" }}>Deployed to your domain.</span>
               </h1>
-              <p className="reveal" style={{ fontSize: "clamp(0.95rem, 1.5vw, 1.1rem)", color: "rgba(255,255,255,0.55)", lineHeight: 1.75, maxWidth: "44ch", margin: "0 0 40px", fontWeight: 300, transitionDelay: "0.1s" }}>
-                insixlive partners with small business owners to translate a brief into a complete professional website—deployed to your own Vercel account, with code you own outright.
-              </p>
-              <form className="email-row reveal" onSubmit={handleHeroEmailSubmit} style={{ justifyContent: "center", maxWidth: 460, transitionDelay: "0.2s" }}>
+              <form className="email-row reveal" onSubmit={handleHeroEmailSubmit} style={{ justifyContent: "center", maxWidth: 460 }}>
                 <input type="email" required value={heroEmail} onChange={e => setHeroEmail(e.target.value)} placeholder={copy.hero.emailPlaceholder} aria-label="Email" />
                 {/* Axion TextRoll on primary CTA */}
                 <button className="btn btn-primary btn-roll" type="submit">
