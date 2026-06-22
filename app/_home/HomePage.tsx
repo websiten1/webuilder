@@ -377,13 +377,6 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
       `}</style>
 
       <div className={`aw aw-mobile-scale ${cosmica.variable}`}>
-        {/* ─── Announcement banner ─── */}
-        <div className="banner">
-          <span className="dot"></span>
-          <span>{copy.banner.text}</span>
-          <Link href={ctaHref}>{copy.banner.cta} <ArrowIcon/></Link>
-        </div>
-
         {/* ─── Nav (DesignPro fixed dark pill) ─── */}
         <header className="dp-nav-header">
           <div className="dp-nav-inner">
