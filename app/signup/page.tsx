@@ -243,11 +243,15 @@ export default function SignupPage() {
         .au-fade { animation: au-fade-up 0.65s cubic-bezier(0.16,1,0.3,1) both; }
         .au-left { display: flex !important; }
         .au-right { padding: 48px 64px; }
+        .au-mobile-logo { display: none !important; }
         @media (max-width: 1024px) {
           .au-left { display: none !important; }
-          .au-right { padding: 48px 24px !important; min-height: 100vh; align-items: flex-start !important; }
+          .au-mobile-logo { display: flex !important; }
+          .au-right { padding: 32px 24px 48px !important; min-height: 100vh; align-items: flex-start !important; justify-content: flex-start !important; }
+          .au-right-inner { padding-top: 8px !important; }
         }
         @media (max-width: 480px) {
+          .au-right { padding: 24px 20px 40px !important; }
           .au-otp { width: 42px !important; height: 54px !important; font-size: 1.4rem !important; }
         }
       `}</style>
@@ -271,24 +275,24 @@ export default function SignupPage() {
             {/* Bottom-heavy vignette */}
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.88) 100%)", zIndex: 1 }}/>
 
+            {/* Logo — pinned to top-left */}
+            <div style={{ position: "absolute", top: 36, left: 40, zIndex: 3, display: "flex", alignItems: "center", gap: 10 }}>
+              <Mark size={32}/>
+              <span style={{ fontFamily: A.font, fontSize: 18, fontWeight: 700, color: A.white, letterSpacing: -0.5 }}>
+                in<span style={{ color: A.six }}>six</span>live
+              </span>
+            </div>
+
             {/* Bottom content */}
             <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", gap: 28 }}>
 
-              {/* Logo */}
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <Mark size={28}/>
-                <span style={{ fontFamily: A.font, fontSize: 17, fontWeight: 700, color: A.white, letterSpacing: -0.5 }}>
-                  in<span style={{ color: A.six }}>six</span>live
-                </span>
-              </div>
-
               {/* Headline + sub */}
               <div>
-                <h1 style={{ fontFamily: A.font, fontSize: "clamp(1.9rem,2.8vw,2.5rem)", fontWeight: 500, letterSpacing: -0.5, color: A.white, lineHeight: 1.1, marginBottom: 10 }}>
+                <h1 style={{ fontFamily: A.font, fontSize: "clamp(2rem,2.8vw,2.6rem)", fontWeight: 500, letterSpacing: -0.5, color: A.white, lineHeight: 1.1, marginBottom: 12 }}>
                   Your website.<br/>Your code.<br/><span style={{ color: A.six }}>Yours forever.</span>
                 </h1>
                 <p style={{ fontFamily: A.font, fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6, maxWidth: 300 }}>
-                  Describe your business and we generate a complete site — code, hosting, and all. No subscriptions.
+                  Describe your business and we generate a complete site — code, hosting, and all.
                 </p>
               </div>
 
@@ -309,7 +313,19 @@ export default function SignupPage() {
             alignItems: "center", justifyContent: "center",
             overflowY: "auto",
           }}>
-            <div className="au-fade" key={showOtp ? "otp" : "form"} style={{ width: "100%", maxWidth: 460 }}>
+
+            {/* Mobile-only logo — shown when left panel is hidden */}
+            <div className="au-mobile-logo" style={{
+              alignSelf: "stretch", alignItems: "center", gap: 10,
+              padding: "20px 24px 0",
+            }}>
+              <Mark size={30}/>
+              <span style={{ fontFamily: A.font, fontSize: 17, fontWeight: 700, color: A.white, letterSpacing: -0.5 }}>
+                in<span style={{ color: A.six }}>six</span>live
+              </span>
+            </div>
+
+            <div className="au-fade au-right-inner" key={showOtp ? "otp" : "form"} style={{ width: "100%", maxWidth: 460 }}>
 
               {/* ── STEP 1: Create account ── */}
               {!showOtp && (
@@ -392,32 +408,6 @@ export default function SignupPage() {
                       }
                     </button>
                   </form>
-
-                  {/* OR divider */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                    <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }}/>
-                    <span style={{ fontFamily: A.font, fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.25)" }}>or</span>
-                    <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }}/>
-                  </div>
-
-                  {/* Trust bullets */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    {[
-                      ["Your Vercel deployment", "Site lives on your account — not ours"],
-                      ["No marketing email", "Only updates about your site"],
-                      ["Zero lock-in", "Download and host anywhere"],
-                    ].map(([title, sub]) => (
-                      <div key={title} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                        <div style={{ width: 20, height: 20, borderRadius: 10, background: A.gray2, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
-                          <svg width="11" height="11" viewBox="0 0 10 10"><path d="M2 5l2 2 4-4" stroke="rgba(255,255,255,0.55)" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        </div>
-                        <div>
-                          <div style={{ fontFamily: A.font, fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.65)" }}>{title}</div>
-                          <div style={{ fontFamily: A.font, fontSize: 12, color: "rgba(255,255,255,0.3)", marginTop: 1 }}>{sub}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
 
                   <div style={{ textAlign: "center", fontFamily: A.font, fontSize: 14, color: A.m40 }}>
                     Already have an account?{" "}
