@@ -4,103 +4,98 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-// ─── Design tokens (from insixlive Signup.html) ───────────────────────────────
-const T = {
-  ink:      "#0A0E14",
-  ink2:     "#1B2230",
-  inkSoft:  "#2A3242",
-  bg:       "#FFFFFF",
-  bg2:      "#F7F7F8",
-  line:     "#ECECEC",
-  muted:    "#6B7180",
-  emerald:  "#00B377",
-  emerald2: "#009062",
-  emeraldSoft: "#E5F7EE",
-  six:      "#FF5A1F",
-  sixSoft:  "#FFEDE4",
-  font:     '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif',
-  mono:     'ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace',
+const AURORA_VIDEO =
+  "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260506_081238_406ed0e3-5d83-436e-a512-0bbff7ec5b95.mp4";
+
+const A = {
+  black:  "#000000",
+  panel:  "#0a0a0a",
+  gray:   "#1a1a1a",
+  gray2:  "#222222",
+  white:  "#ffffff",
+  six:    "#FF5A1F",
+  m20:    "rgba(255,255,255,0.20)",
+  m30:    "rgba(255,255,255,0.30)",
+  m40:    "rgba(255,255,255,0.40)",
+  m60:    "rgba(255,255,255,0.60)",
+  font:   'Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
+  mono:   'ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace',
 };
 
-// ─── Primitives ───────────────────────────────────────────────────────────────
-
+// ─── Logo mark ────────────────────────────────────────────────────────────────
 function Mark({ size = 28 }: { size?: number }) {
   return (
     <div style={{
       width: size, height: size, borderRadius: size * 0.28,
-      background: T.ink, display: "flex", alignItems: "center",
+      background: A.white, display: "flex", alignItems: "center",
       justifyContent: "center", flexShrink: 0,
     }}>
-      <span style={{ fontFamily: T.font, fontSize: size * 0.62, fontWeight: 800, color: T.six, letterSpacing: -0.5, lineHeight: 1 }}>6</span>
+      <span style={{ fontFamily: A.font, fontSize: size * 0.62, fontWeight: 800, color: A.black, letterSpacing: -0.5, lineHeight: 1 }}>6</span>
     </div>
   );
 }
 
-
-function LiveChip() {
+// ─── Aurora step card ─────────────────────────────────────────────────────────
+function StepCard({ number, text, active = false }: { number: number; text: string; active?: boolean }) {
   return (
     <div style={{
-      display: "inline-flex", alignItems: "center", gap: 6,
-      padding: "5px 11px", borderRadius: 999,
-      background: T.emeraldSoft, color: T.emerald2,
-      fontFamily: T.font, fontSize: 12, fontWeight: 600,
+      display: "flex", alignItems: "center", gap: 14,
+      borderRadius: 16, padding: "13px 16px",
+      background: active ? A.white : A.gray,
+      color: active ? A.black : A.white,
     }}>
-      <span style={{ width: 6, height: 6, borderRadius: 3, background: T.emerald }} />
-      Live in 6 minutes
+      <span style={{
+        width: 32, height: 32, borderRadius: 16, flexShrink: 0,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: 13, fontWeight: 700, fontFamily: A.font,
+        background: active ? A.black : "rgba(255,255,255,0.1)",
+        color: active ? A.white : "rgba(255,255,255,0.35)",
+      }}>{number}</span>
+      <span style={{ fontFamily: A.font, fontSize: 14, fontWeight: 500 }}>{text}</span>
     </div>
   );
 }
 
-function FormField({ label, value, placeholder, type = "text", onChange, filled }: {
+// ─── Aurora dark input ────────────────────────────────────────────────────────
+function AInput({
+  label, value, placeholder, type = "text", onChange, suffix,
+}: {
   label: string; value: string; placeholder: string;
-  type?: string; onChange: (v: string) => void; filled?: boolean;
+  type?: string; onChange: (v: string) => void; suffix?: React.ReactNode;
 }) {
-  const active = filled ?? value.length > 0;
   return (
-    <div style={{
-      border: active ? `1.5px solid ${T.ink}` : `1px solid ${T.line}`,
-      borderRadius: 14, padding: "10px 16px",
-      background: T.bg,
-      boxShadow: active ? `0 0 0 4px rgba(10,14,20,0.05)` : "none",
-      transition: "border .15s, box-shadow .15s",
-    }}>
-      <div style={{ fontFamily: T.font, fontSize: 11, fontWeight: 600, color: active ? T.ink : T.muted, letterSpacing: 0.4, textTransform: "uppercase" as const }}>{label}</div>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        style={{
-          width: "100%", border: "none", outline: "none", background: "transparent",
-          fontFamily: type === "password" ? T.mono : T.font,
-          fontSize: 16, fontWeight: 500, color: active ? T.ink : "#B0AC9F",
-          marginTop: 2, padding: 0,
-        }}
-      />
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <label style={{ fontFamily: A.font, fontSize: 14, fontWeight: 500, color: A.white }}>{label}</label>
+      <div style={{ position: "relative" }}>
+        <input
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          style={{
+            width: "100%", height: 44, borderRadius: 12,
+            border: "none", outline: "none",
+            background: A.gray,
+            padding: suffix ? "0 44px 0 16px" : "0 16px",
+            fontFamily: A.font, fontSize: 15,
+            color: A.white, boxSizing: "border-box" as const,
+          }}
+        />
+        {suffix && (
+          <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)" }}>
+            {suffix}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
-function PrimaryBtn({ children, onClick, disabled, loading }: {
-  children: React.ReactNode; onClick?: () => void;
-  disabled?: boolean; loading?: boolean;
-}) {
-  return (
-    <button onClick={onClick} disabled={disabled || loading} style={{
-      width: "100%", height: 56, borderRadius: 14, border: "none",
-      background: disabled || loading ? "#E2E2E5" : T.ink,
-      color: disabled || loading ? "#A0A0A8" : "#fff",
-      fontFamily: T.font, fontSize: 16, fontWeight: 600, letterSpacing: -0.2,
-      cursor: disabled || loading ? "default" : "pointer",
-      boxShadow: disabled || loading ? "none" : "0 1px 0 rgba(255,255,255,0.08) inset, 0 6px 16px rgba(10,14,20,0.16)",
-      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-      transition: "background .15s",
-    }}>
-      {loading
-        ? <><span style={{ width: 16, height: 16, borderRadius: 8, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", animation: "ispin .8s linear infinite", display: "inline-block" }} /><span>Creating account…</span></>
-        : children}
-    </button>
-  );
+// ─── Eye toggle SVG ──────────────────────────────────────────────────────────
+function EyeIcon({ visible }: { visible: boolean }) {
+  return visible
+    ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+    : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
 }
 
 // ─── OTP boxes ────────────────────────────────────────────────────────────────
@@ -125,7 +120,7 @@ function OtpBoxes({ value, onChange, disabled }: { value: string[]; onChange: (v
     const digits = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
     if (!digits) return;
     const next = [...value];
-    digits.split("").forEach((d, i) => { if (i < 6) next[i] = d; });
+    digits.split("").forEach((d, idx) => { if (idx < 6) next[idx] = d; });
     onChange(next);
     setTimeout(() => refs.current[Math.min(digits.length, 5)]?.focus(), 0);
   };
@@ -141,15 +136,14 @@ function OtpBoxes({ value, onChange, disabled }: { value: string[]; onChange: (v
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           onFocus={(e) => e.target.select()}
-          className="otp-box"
+          className="au-otp"
           style={{
             width: 52, height: 64, borderRadius: 14,
-            border: digit ? `2px solid ${T.ink}` : `1.5px solid ${T.line}`,
-            background: digit ? T.bg : T.bg2,
-            boxShadow: digit ? `0 0 0 4px rgba(10,14,20,0.05)` : "none",
-            fontFamily: T.mono, fontSize: "1.75rem", fontWeight: 700,
-            textAlign: "center" as const, outline: "none", color: T.ink,
-            transition: "border .12s, box-shadow .12s",
+            border: digit ? `2px solid ${A.white}` : `1.5px solid rgba(255,255,255,0.12)`,
+            background: digit ? "rgba(255,255,255,0.08)" : A.gray,
+            fontFamily: A.mono, fontSize: "1.75rem", fontWeight: 700,
+            textAlign: "center" as const, outline: "none", color: A.white,
+            transition: "border .12s, background .12s",
           }}
         />
       ))}
@@ -163,6 +157,8 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [showCpw, setShowCpw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showOtp, setShowOtp] = useState(false);
@@ -173,17 +169,13 @@ export default function SignupPage() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [emailWarning, setEmailWarning] = useState("");
 
-  // Prefill email if arriving from the homepage hero capture form
   useEffect(() => {
     const prefill = new URLSearchParams(window.location.search).get("email");
     if (prefill) setEmail(prefill);
   }, []);
 
-  // Auto-verify when all 6 digits filled
   useEffect(() => {
-    if (showOtp && digits.every((d) => d !== "")) {
-      handleVerify(digits.join(""));
-    }
+    if (showOtp && digits.every((d) => d !== "")) handleVerify(digits.join(""));
   }, [digits, showOtp]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -194,12 +186,10 @@ export default function SignupPage() {
 
   const handleSignup = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
+    setLoading(true); setError("");
     try {
       const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, confirmPassword }),
       });
       const data = await res.json();
@@ -215,8 +205,7 @@ export default function SignupPage() {
     setVerifying(true); setOtpError("");
     try {
       const res = await fetch("/api/auth/verify-code", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.toLowerCase(), code }),
       });
       const data = await res.json();
@@ -240,237 +229,281 @@ export default function SignupPage() {
     } finally { setResendLoading(false); }
   };
 
-  const benefits = [
-    ["Your Vercel deployment", "Site lives on your own account — not ours"],
-    ["No marketing email", "Only updates about your site"],
-    ["Zero lock-in", "Download and host anywhere, anytime"],
-  ];
+  const canSubmit = !loading && !!email && !!password && !!confirmPassword;
 
   return (
     <>
       <style>{`
-        @keyframes ispin { to { transform: rotate(360deg); } }
-        @keyframes iblink { 50% { opacity: 0.4; } }
-        *, *::before, *::after { box-sizing: border-box; }
-        html, body { margin: 0; background: ${T.bg2}; overflow-x: hidden; }
-        .auth-panel { display: flex; }
-        .auth-left  { flex-shrink: 0; }
-        @media (max-width: 700px) {
-          .auth-panel { display: block; }
-          .auth-left  { display: none !important; }
-          .auth-right { min-height: 100vh !important; padding: 48px 24px 40px !important;
-                        display: flex !important; align-items: flex-start !important; justify-content: center; }
-          .auth-right > div { max-width: 100% !important; width: 100% !important; }
-          .otp-box    { width: 44px !important; height: 56px !important; font-size: 1.5rem !important; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @keyframes au-spin { to { transform: rotate(360deg); } }
+        @keyframes au-fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { background: #000; overflow-x: hidden; }
+        input::placeholder { color: rgba(255,255,255,0.18) !important; }
+        .au-fade { animation: au-fade-up 0.65s cubic-bezier(0.16,1,0.3,1) both; }
+        .au-left { display: flex !important; }
+        .au-right { padding: 48px 64px; }
+        @media (max-width: 1024px) {
+          .au-left { display: none !important; }
+          .au-right { padding: 48px 24px !important; min-height: 100vh; align-items: flex-start !important; }
+        }
+        @media (max-width: 480px) {
+          .au-otp { width: 42px !important; height: 54px !important; font-size: 1.4rem !important; }
         }
       `}</style>
 
-      <div className="auth-panel" style={{ minHeight: "100vh", background: T.bg2, display: "flex", alignItems: "stretch" }}>
+      {/* Outer: black wrapper with 8px inset padding — Aurora's signature */}
+      <div style={{ minHeight: "100vh", background: A.black, padding: 8, display: "flex" }}>
+        <div style={{ display: "flex", flex: 1, borderRadius: 20, overflow: "hidden" }}>
 
-        {/* ── Left panel: dark hero ─────────────────────────────── */}
-        <div className="auth-left" style={{
-          width: "42%", minWidth: 360, background: T.ink, position: "relative",
-          overflow: "hidden", display: "flex", flexDirection: "column",
-          padding: "36px 44px",
-        }}>
-          {/* Grid texture */}
-          <svg style={{ position: "absolute", inset: 0, opacity: 0.05, width: "100%", height: "100%" }}>
-            <defs>
-              <pattern id="sg" width="24" height="24" patternUnits="userSpaceOnUse">
-                <path d="M24 0H0v24" stroke="#fff" strokeWidth="0.5" fill="none"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#sg)"/>
-          </svg>
-          {/* Orange glow */}
-          <div style={{ position: "absolute", top: -120, right: -80, width: 400, height: 400, borderRadius: 200, background: "radial-gradient(circle, rgba(255,90,31,0.5), rgba(255,90,31,0) 65%)", pointerEvents: "none" }}/>
-          {/* Bottom glow */}
-          <div style={{ position: "absolute", bottom: -100, left: -50, width: 320, height: 320, borderRadius: 160, background: "radial-gradient(circle, rgba(255,90,31,0.18), rgba(255,90,31,0) 65%)", pointerEvents: "none" }}/>
+          {/* ── Left: video panel ───────────────────────────────────────────── */}
+          <section className="au-left" style={{
+            width: "50%", flexShrink: 0, position: "relative",
+            flexDirection: "column", justifyContent: "flex-end",
+            overflow: "hidden", padding: "44px 40px",
+          }}>
+            <video
+              autoPlay muted loop playsInline
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+            >
+              <source src={AURORA_VIDEO} type="video/mp4"/>
+            </video>
+            {/* Bottom-heavy vignette */}
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.88) 100%)", zIndex: 1 }}/>
 
-          {/* Logo */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, position: "relative", zIndex: 2 }}>
-            <Mark size={28} />
-            <span style={{ fontFamily: T.font, fontSize: 17, fontWeight: 700, color: "#fff", letterSpacing: -0.5 }}>in<span style={{ color: T.six }}>six</span>live</span>
-          </div>
+            {/* Bottom content */}
+            <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", gap: 28 }}>
 
-          {/* Stacked site previews */}
-          <div style={{ position: "relative", zIndex: 2, marginTop: 48, display: "flex", flexDirection: "column", gap: 10, transform: "rotate(-2deg)" }}>
-            {[
-              { bg: "#FFFFFF", accent: T.six,    label: "Maria's Hair Studio",    dark: false },
-              { bg: "#0F1A2A", accent: T.emerald, label: "Acme Plumbing · 24/7", dark: true },
-              { bg: T.sixSoft, accent: T.ink,    label: "Lia · Photographer",    dark: false },
-            ].map((s, i) => (
-              <div key={i} style={{
-                background: s.bg, borderRadius: 12, padding: "10px 14px",
-                display: "flex", alignItems: "center", gap: 10,
-                boxShadow: "0 6px 18px rgba(0,0,0,0.28)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                transform: `translateX(${i * 16}px)`,
-              }}>
-                <div style={{ display: "flex", gap: 4 }}>
-                  {[0,1,2].map(j => <div key={j} style={{ width: 7, height: 7, borderRadius: 4, background: s.dark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)" }}/>)}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ height: 5, width: "65%", background: s.accent, borderRadius: 2, marginBottom: 4 }}/>
-                  <div style={{ height: 3, width: "45%", background: s.dark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)", borderRadius: 2 }}/>
-                </div>
-                <span style={{ fontFamily: T.mono, fontSize: 9, color: s.dark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)", whiteSpace: "nowrap" }}>{s.label}</span>
+              {/* Logo */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <Mark size={28}/>
+                <span style={{ fontFamily: A.font, fontSize: 17, fontWeight: 700, color: A.white, letterSpacing: -0.5 }}>
+                  in<span style={{ color: A.six }}>six</span>live
+                </span>
               </div>
-            ))}
-          </div>
 
-          {/* Hero copy */}
-          <div style={{ position: "relative", zIndex: 2, marginTop: "auto", paddingTop: 48 }}>
-            <LiveChip />
-            <h1 style={{
-              fontFamily: T.font, fontSize: "clamp(2rem, 3vw, 2.6rem)", lineHeight: 1.05,
-              fontWeight: 700, letterSpacing: -1.2, color: "#fff",
-              margin: "16px 0 14px",
-            }}>
-              Your website.<br/>€49.99.<br/><span style={{ color: T.six }}>Yours forever.</span>
-            </h1>
-            <p style={{ fontFamily: T.font, fontSize: 15, lineHeight: 1.55, color: "rgba(255,255,255,0.55)", margin: 0, maxWidth: 320 }}>
-              Describe your business. We generate a complete website — code, hosting, and all. No subscriptions. You own everything.
-            </p>
-          </div>
-        </div>
-
-        {/* ── Right panel: form ─────────────────────────────────── */}
-        <div className="auth-right" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 48px" }}>
-          <div style={{ width: "100%", maxWidth: 420 }}>
-
-            {/* ── Step 1: Account form ────────────────────────────── */}
-            {!showOtp && (
-              <>
-                <h2 style={{ fontFamily: T.font, fontSize: 28, fontWeight: 700, letterSpacing: -0.7, color: T.ink, margin: "0 0 6px" }}>
-                  Create your account
-                </h2>
-                <p style={{ fontFamily: T.font, fontSize: 15, color: T.muted, margin: "0 0 28px", lineHeight: 1.45 }}>
-                  Takes 30 seconds. No card required yet.
+              {/* Headline + sub */}
+              <div>
+                <h1 style={{ fontFamily: A.font, fontSize: "clamp(1.9rem,2.8vw,2.5rem)", fontWeight: 500, letterSpacing: -0.5, color: A.white, lineHeight: 1.1, marginBottom: 10 }}>
+                  Your website.<br/>Your code.<br/><span style={{ color: A.six }}>Yours forever.</span>
+                </h1>
+                <p style={{ fontFamily: A.font, fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6, maxWidth: 300 }}>
+                  Describe your business and we generate a complete site — code, hosting, and all. No subscriptions.
                 </p>
+              </div>
 
-                {error && (
-                  <div style={{
-                    marginBottom: 18, padding: "12px 16px", borderRadius: 12,
-                    background: "#FFF0EE", border: `1px solid rgba(255,90,31,0.25)`,
-                    fontFamily: T.font, fontSize: 14, color: "#C43600", display: "flex", gap: 10, alignItems: "flex-start",
-                  }}>
-                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
-                      <circle cx="7.5" cy="7.5" r="6.5" stroke="#C43600" strokeWidth="1.5"/>
-                      <path d="M7.5 4.5v4M7.5 10v.5" stroke="#C43600" strokeWidth="1.5" strokeLinecap="round"/>
-                    </svg>
-                    {error}
+              {/* 3 step cards — Aurora's signature UI */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <StepCard number={1} text="Register your account" active={!showOtp}/>
+                <StepCard number={2} text="Verify your email" active={showOtp}/>
+                <StepCard number={3} text="Launch in 6 minutes" active={false}/>
+              </div>
+
+            </div>
+          </section>
+
+          {/* ── Right: form panel ───────────────────────────────────────────── */}
+          <section className="au-right" style={{
+            flex: 1, background: A.panel,
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+            overflowY: "auto",
+          }}>
+            <div className="au-fade" key={showOtp ? "otp" : "form"} style={{ width: "100%", maxWidth: 460 }}>
+
+              {/* ── STEP 1: Create account ── */}
+              {!showOtp && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+
+                  <div>
+                    <h2 style={{ fontFamily: A.font, fontSize: 30, fontWeight: 500, letterSpacing: -0.6, color: A.white, marginBottom: 8 }}>
+                      Create New Profile
+                    </h2>
+                    <p style={{ fontFamily: A.font, fontSize: 14, color: A.m40, lineHeight: 1.5 }}>
+                      Input your details to begin. Takes 30 seconds, no card required.
+                    </p>
                   </div>
-                )}
 
-                <form onSubmit={handleSignup} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  <FormField label="Email" value={email} placeholder="you@yourbusiness.com" onChange={setEmail} />
-                  <FormField label="Password" value={password} placeholder="Min. 8 characters" type="password" onChange={setPassword} />
-                  <FormField label="Confirm password" value={confirmPassword} placeholder="Repeat password" type="password" onChange={setConfirmPassword} />
-
-                  <div style={{ marginTop: 4 }}>
-                    <PrimaryBtn loading={loading} disabled={!email || !password || !confirmPassword}>
-                      Create account
-                      <svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    </PrimaryBtn>
-                  </div>
-                </form>
-
-                {/* Benefits */}
-                <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 10 }}>
-                  {benefits.map(([title, sub]) => (
-                    <div key={title} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                      <div style={{ width: 20, height: 20, borderRadius: 10, background: T.emeraldSoft, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
-                        <svg width="11" height="11" viewBox="0 0 10 10"><path d="M2 5l2 2 4-4" stroke={T.emerald2} strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      </div>
-                      <div>
-                        <div style={{ fontFamily: T.font, fontSize: 13, fontWeight: 600, color: T.ink }}>{title}</div>
-                        <div style={{ fontFamily: T.font, fontSize: 12, color: T.muted, marginTop: 1 }}>{sub}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div style={{ marginTop: 22, textAlign: "center", fontFamily: T.font, fontSize: 14, color: T.muted }}>
-                  Already have an account?{" "}
-                  <Link href="/login" style={{ color: T.ink, fontWeight: 600, textDecoration: "none" }}>Sign in</Link>
-                </div>
-                <div style={{ marginTop: 10, textAlign: "center", fontFamily: T.font, fontSize: 12, color: T.muted }}>
-                  By continuing you agree to our{" "}
-                  <span style={{ color: T.ink, fontWeight: 600 }}>Terms</span> &{" "}
-                  <span style={{ color: T.ink, fontWeight: 600 }}>Privacy</span>.
-                </div>
-              </>
-            )}
-
-            {/* ── Step 2: OTP verification ─────────────────────────── */}
-            {showOtp && (
-              <div style={{ textAlign: "center" }}>
-                <div style={{
-                  width: 56, height: 56, borderRadius: 16, background: T.inkSoft,
-                  display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px",
-                }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={T.six} strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                  </svg>
-                </div>
-
-                <h2 style={{ fontFamily: T.font, fontSize: 26, fontWeight: 700, letterSpacing: -0.6, color: T.ink, margin: "0 0 6px" }}>
-                  Check your inbox
-                </h2>
-                <p style={{ fontFamily: T.font, fontSize: 15, color: T.muted, margin: "0 0 4px", lineHeight: 1.5 }}>
-                  We sent a 6-digit code to
-                </p>
-                <p style={{ fontFamily: T.font, fontSize: 15, fontWeight: 600, color: T.ink, margin: "0 0 28px" }}>
-                  {email}
-                </p>
-
-                {emailWarning && (
-                  <div style={{ marginBottom: 20, padding: "12px 16px", borderRadius: 12, background: "#FFFBEB", border: "1px solid rgba(234,179,8,0.25)", fontFamily: T.font, fontSize: 13, color: "#92400e", textAlign: "left" }}>
-                    {emailWarning}
-                  </div>
-                )}
-
-                <OtpBoxes value={digits} onChange={setDigits} disabled={verifying} />
-
-                {verifying && (
-                  <div style={{ marginTop: 18, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: T.font, fontSize: 14, color: T.muted }}>
-                    <span style={{ width: 14, height: 14, borderRadius: 7, border: `2px solid ${T.line}`, borderTopColor: T.ink, animation: "ispin .8s linear infinite", display: "inline-block" }}/>
-                    Verifying…
-                  </div>
-                )}
-
-                {otpError && (
-                  <div style={{ marginTop: 16, padding: "12px 16px", borderRadius: 12, background: "#FFF0EE", border: "1px solid rgba(255,90,31,0.2)", fontFamily: T.font, fontSize: 14, color: "#C43600", display: "flex", gap: 10, alignItems: "flex-start" }}>
-                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
-                      <circle cx="7.5" cy="7.5" r="6.5" stroke="#C43600" strokeWidth="1.5"/>
-                      <path d="M7.5 4.5v4M7.5 10v.5" stroke="#C43600" strokeWidth="1.5" strokeLinecap="round"/>
-                    </svg>
-                    {otpError}
-                  </div>
-                )}
-
-                <div style={{ marginTop: 22, fontFamily: T.font, fontSize: 14, color: T.muted }}>
-                  Didn&apos;t receive it?{" "}
-                  {resendCooldown > 0 ? (
-                    <span style={{ color: T.muted }}>Resend in {resendCooldown}s</span>
-                  ) : (
-                    <button onClick={handleResend} disabled={resendLoading} style={{
-                      background: "none", border: "none", cursor: "pointer",
-                      color: T.ink, fontWeight: 600, fontSize: 14, fontFamily: T.font, padding: 0,
+                  {/* Error banner */}
+                  {error && (
+                    <div style={{
+                      padding: "12px 16px", borderRadius: 12,
+                      background: "rgba(255,90,31,0.08)", border: "1px solid rgba(255,90,31,0.2)",
+                      fontFamily: A.font, fontSize: 14, color: "#FF7A50",
+                      display: "flex", gap: 10, alignItems: "flex-start",
                     }}>
-                      {resendLoading ? "Sending…" : "Resend code"}
-                    </button>
+                      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                        <circle cx="7.5" cy="7.5" r="6.5" stroke="#FF7A50" strokeWidth="1.5"/>
+                        <path d="M7.5 4.5v4M7.5 10v.5" stroke="#FF7A50" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                      {error}
+                    </div>
                   )}
-                </div>
 
-                <button onClick={() => { setShowOtp(false); setDigits(["","","","","",""]); setOtpError(""); }}
-                  style={{ marginTop: 16, background: "none", border: "none", cursor: "pointer", fontFamily: T.font, fontSize: 13, color: T.muted }}>
-                  ← Use a different email
-                </button>
-              </div>
-            )}
-          </div>
+                  <form onSubmit={handleSignup} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                    <AInput label="Email" value={email} placeholder="you@yourbusiness.com" onChange={setEmail}/>
+                    <AInput
+                      label="Password" value={password}
+                      placeholder="Min. 8 characters"
+                      type={showPw ? "text" : "password"}
+                      onChange={setPassword}
+                      suffix={
+                        <button type="button" onClick={() => setShowPw(v => !v)}
+                          style={{ background: "none", border: "none", color: A.m40, cursor: "pointer", lineHeight: 0, padding: 0 }}>
+                          <EyeIcon visible={showPw}/>
+                        </button>
+                      }
+                    />
+                    <AInput
+                      label="Confirm password" value={confirmPassword}
+                      placeholder="Repeat password"
+                      type={showCpw ? "text" : "password"}
+                      onChange={setConfirmPassword}
+                      suffix={
+                        <button type="button" onClick={() => setShowCpw(v => !v)}
+                          style={{ background: "none", border: "none", color: A.m40, cursor: "pointer", lineHeight: 0, padding: 0 }}>
+                          <EyeIcon visible={showCpw}/>
+                        </button>
+                      }
+                    />
+                    <p style={{ fontFamily: A.font, fontSize: 12, color: "rgba(255,255,255,0.25)", marginTop: -4 }}>
+                      Requires at least 8 characters.
+                    </p>
+
+                    {/* Aurora-style white submit button */}
+                    <button
+                      type="submit"
+                      disabled={!canSubmit}
+                      style={{
+                        marginTop: 4, width: "100%", height: 56, borderRadius: 12,
+                        border: "none", cursor: canSubmit ? "pointer" : "default",
+                        background: canSubmit ? A.white : "rgba(255,255,255,0.1)",
+                        color: canSubmit ? A.black : "rgba(255,255,255,0.3)",
+                        fontFamily: A.font, fontSize: 16, fontWeight: 600,
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                        transition: "background .18s, color .18s, opacity .18s",
+                      }}
+                      onMouseEnter={e => { if (canSubmit) (e.currentTarget as HTMLButtonElement).style.opacity = "0.92"; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
+                    >
+                      {loading
+                        ? <><span style={{ width: 16, height: 16, borderRadius: 8, border: "2px solid rgba(0,0,0,0.15)", borderTopColor: A.black, animation: "au-spin .8s linear infinite", display: "inline-block" }}/> Creating account…</>
+                        : "Create Account"
+                      }
+                    </button>
+                  </form>
+
+                  {/* OR divider */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                    <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }}/>
+                    <span style={{ fontFamily: A.font, fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.25)" }}>or</span>
+                    <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }}/>
+                  </div>
+
+                  {/* Trust bullets */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {[
+                      ["Your Vercel deployment", "Site lives on your account — not ours"],
+                      ["No marketing email", "Only updates about your site"],
+                      ["Zero lock-in", "Download and host anywhere"],
+                    ].map(([title, sub]) => (
+                      <div key={title} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                        <div style={{ width: 20, height: 20, borderRadius: 10, background: A.gray2, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                          <svg width="11" height="11" viewBox="0 0 10 10"><path d="M2 5l2 2 4-4" stroke="rgba(255,255,255,0.55)" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        </div>
+                        <div>
+                          <div style={{ fontFamily: A.font, fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.65)" }}>{title}</div>
+                          <div style={{ fontFamily: A.font, fontSize: 12, color: "rgba(255,255,255,0.3)", marginTop: 1 }}>{sub}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ textAlign: "center", fontFamily: A.font, fontSize: 14, color: A.m40 }}>
+                    Already have an account?{" "}
+                    <Link href="/login" style={{ color: A.white, fontWeight: 600, textDecoration: "none" }}>Sign in</Link>
+                  </div>
+                  <div style={{ textAlign: "center", fontFamily: A.font, fontSize: 12, color: "rgba(255,255,255,0.22)" }}>
+                    By continuing you agree to our <span style={{ color: A.m40, fontWeight: 600 }}>Terms</span> &{" "}
+                    <span style={{ color: A.m40, fontWeight: 600 }}>Privacy</span>.
+                  </div>
+
+                </div>
+              )}
+
+              {/* ── STEP 2: OTP verification ── */}
+              {showOtp && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 24, textAlign: "center" }}>
+
+                  <div style={{ width: 60, height: 60, borderRadius: 18, background: A.gray, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto" }}>
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={A.white} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                  </div>
+
+                  <div>
+                    <h2 style={{ fontFamily: A.font, fontSize: 28, fontWeight: 500, letterSpacing: -0.5, color: A.white, marginBottom: 8 }}>
+                      Check your inbox
+                    </h2>
+                    <p style={{ fontFamily: A.font, fontSize: 14, color: A.m40, marginBottom: 4, lineHeight: 1.5 }}>
+                      We sent a 6-digit code to
+                    </p>
+                    <p style={{ fontFamily: A.font, fontSize: 15, fontWeight: 600, color: A.white }}>{email}</p>
+                  </div>
+
+                  {emailWarning && (
+                    <div style={{ padding: "12px 16px", borderRadius: 12, background: "rgba(234,179,8,0.08)", border: "1px solid rgba(234,179,8,0.2)", fontFamily: A.font, fontSize: 13, color: "#EAB308", textAlign: "left" }}>
+                      {emailWarning}
+                    </div>
+                  )}
+
+                  <OtpBoxes value={digits} onChange={setDigits} disabled={verifying}/>
+
+                  {verifying && (
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: A.font, fontSize: 14, color: A.m40 }}>
+                      <span style={{ width: 14, height: 14, borderRadius: 7, border: "2px solid rgba(255,255,255,0.12)", borderTopColor: A.white, animation: "au-spin .8s linear infinite", display: "inline-block" }}/>
+                      Verifying…
+                    </div>
+                  )}
+
+                  {otpError && (
+                    <div style={{ padding: "12px 16px", borderRadius: 12, background: "rgba(255,90,31,0.08)", border: "1px solid rgba(255,90,31,0.2)", fontFamily: A.font, fontSize: 14, color: "#FF7A50", display: "flex", gap: 10, alignItems: "flex-start", textAlign: "left" }}>
+                      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                        <circle cx="7.5" cy="7.5" r="6.5" stroke="#FF7A50" strokeWidth="1.5"/>
+                        <path d="M7.5 4.5v4M7.5 10v.5" stroke="#FF7A50" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                      {otpError}
+                    </div>
+                  )}
+
+                  <div style={{ fontFamily: A.font, fontSize: 14, color: A.m40 }}>
+                    Didn&apos;t receive it?{" "}
+                    {resendCooldown > 0
+                      ? <span>Resend in {resendCooldown}s</span>
+                      : (
+                        <button onClick={handleResend} disabled={resendLoading} style={{
+                          background: "none", border: "none", cursor: "pointer",
+                          color: A.white, fontWeight: 600, fontSize: 14, fontFamily: A.font, padding: 0,
+                        }}>
+                          {resendLoading ? "Sending…" : "Resend code"}
+                        </button>
+                      )
+                    }
+                  </div>
+
+                  <button
+                    onClick={() => { setShowOtp(false); setDigits(["","","","","",""]); setOtpError(""); }}
+                    style={{ background: "none", border: "none", cursor: "pointer", fontFamily: A.font, fontSize: 13, color: "rgba(255,255,255,0.3)", padding: 0 }}
+                  >
+                    ← Use a different email
+                  </button>
+
+                </div>
+              )}
+
+            </div>
+          </section>
+
         </div>
       </div>
     </>
