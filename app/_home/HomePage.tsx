@@ -24,6 +24,16 @@ const FEATURE_ICONS: { d: string; circle?: boolean }[] = [
 
 const STEP_NUMS = ["01", "02", "03", "04", "05", "06"];
 
+const DP_NAV = [
+  { label: "Home",          href: "/" },
+  { label: "About Us",      href: "/about" },
+  { label: "Courses",       href: "/courses" },
+  { label: "Instructors",   href: "/instructors" },
+  { label: "Testimonials",  href: "/testimonials" },
+  { label: "Blog",          href: "/blog" },
+  { label: "Contact us",    href: "/contact", arrow: true },
+] as const;
+
 const TILE_VISUALS: { bg: string; glow?: string; tagColor?: string; orchid?: boolean }[] = [
   { bg: "linear-gradient(160deg,#1a0e09,#09090b)", glow: "radial-gradient(80% 60% at 50% 30%, rgba(255,90,0,0.45), transparent 70%)" },
   { bg: "linear-gradient(160deg,#f4f4f5,#d4d4d8)", tagColor: "rgba(0,0,0,0.4)" },
@@ -48,6 +58,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
   const [cycleVisible, setCycleVisible] = useState(true);
   const [heroEmail, setHeroEmail] = useState("");
   const [openFaq, setOpenFaq] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me").then(r => r.json()).then(d => setLoggedIn(!!d.user)).catch(() => setLoggedIn(false));
@@ -197,15 +208,30 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         .aw .banner a { color: var(--color-ash); font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
         .aw .banner a:hover { color: var(--color-snow); }
 
-        .aw .nav-wrap { position: sticky; top: 0; z-index: 50; padding: 12px 0; }
-        .aw .nav { max-width: var(--page-max-width); margin: 0 auto; display: flex; align-items: center; gap: 24px; padding: 8px 10px 8px 22px; background: rgba(244,244,245,0.72); backdrop-filter: blur(14px) saturate(1.4); border-radius: var(--radius-pill); border: 1px solid var(--color-fog); }
-        .aw .nav .links { display: flex; gap: 4px; margin-left: 12px; }
-        .aw .nav .links a { font-size: var(--text-body); font-weight: 500; color: var(--color-ink); padding: 8px 14px; border-radius: var(--radius-pill); transition: background .2s ease; }
-        .aw .nav .links a:hover { background: var(--color-snow); }
-        .aw .nav .spacer { flex: 1; }
-        .aw .wordmark { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--color-obsidian); display: inline-flex; align-items: center; gap: 9px; }
-        .aw .wordmark .mark { width: 28px; height: 28px; border-radius: 9px; background: var(--color-obsidian); color: var(--color-snow); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px; }
-        .aw .wordmark .six { color: var(--color-ember); }
+        /* ── DesignPro fixed nav ── */
+        .dp-nav-header { position: fixed; inset: 0; bottom: auto; z-index: 50; padding: 16px 24px; pointer-events: none; }
+        .dp-nav-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; pointer-events: auto; }
+        .dp-logo { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; flex-shrink: 0; }
+        .dp-logo-mark { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #fff; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .dp-logo-mark span { width: 38%; height: 38%; border-radius: 50%; background: #fff; display: block; }
+        .dp-logo-name { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; color: #fff; }
+        .dp-pill { display: flex; align-items: center; gap: 2px; border: 1px solid rgb(55,65,81); background: rgba(0,0,0,0.35); backdrop-filter: blur(8px); border-radius: 9999px; padding: 6px; }
+        .dp-pill a { display: flex; align-items: center; gap: 4px; border-radius: 9999px; padding: 6px 14px; font-size: 14px; color: rgba(255,255,255,0.8); text-decoration: none; transition: color .2s ease; white-space: nowrap; }
+        .dp-pill a:hover { color: #fff; }
+        .dp-pill a svg { opacity: 0.8; transition: transform .25s ease; }
+        .dp-pill a:hover svg { transform: translateX(3px); }
+        .dp-hamburger { display: none; border: 1px solid rgb(55,65,81); background: rgba(0,0,0,0.35); backdrop-filter: blur(8px); border-radius: 9999px; width: 40px; height: 40px; align-items: center; justify-content: center; color: #fff; cursor: pointer; }
+        /* mobile overlay */
+        .dp-backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); opacity: 0; transition: opacity .25s ease; pointer-events: none; }
+        .dp-backdrop.open { opacity: 1; pointer-events: auto; }
+        .dp-drawer { position: fixed; right: 0; top: 0; z-index: 70; height: 100dvh; width: min(88vw,320px); transform: translateX(100%); transition: transform .35s cubic-bezier(0.22,1,0.36,1); border-left: 1px solid rgb(55,65,81); background: rgba(0,0,0,0.95); backdrop-filter: blur(12px); display: flex; flex-direction: column; }
+        .dp-drawer.open { transform: translateX(0); }
+        .dp-drawer-head { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgb(31,41,55); padding: 16px 20px; }
+        .dp-drawer-links { display: flex; flex-direction: column; gap: 4px; padding: 24px 16px; }
+        .dp-drawer-links a { display: flex; align-items: center; gap: 8px; border-radius: 12px; padding: 12px; font-size: 16px; font-weight: 500; color: rgba(255,255,255,0.9); text-decoration: none; transition: background .2s ease; }
+        .dp-drawer-links a:hover { background: rgba(255,255,255,0.05); }
+        .dp-close { background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 9999px; }
+        @media (max-width: 1024px) { .dp-pill { display: none; } .dp-hamburger { display: flex; } }
 
         /* ── Video hero ── */
         .aw .hero { position: relative; height: 100vh; min-height: 640px; display: flex; flex-direction: column; overflow: hidden; padding: 0; }
@@ -215,7 +241,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         .aw .hero-top-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         /* ── ShinyText ── */
         @keyframes aw-shiny { from { background-position: 200% 0%; } to { background-position: -200% 0%; } }
-        .aw .shiny-text { display: inline; background-image: linear-gradient(100deg, #ff5a00 0%, #ff5a00 30%, #ffffff 50%, #ff5a00 70%, #ff5a00 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; animation: aw-shiny 3s linear infinite; transition: opacity .3s ease; }
+        .aw .shiny-text { display: inline; background-image: linear-gradient(100deg, #64CEFB 0%, #64CEFB 30%, #ffffff 50%, #64CEFB 70%, #64CEFB 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; animation: aw-shiny 3s linear infinite; transition: opacity .3s ease; }
         /* ── Email row (works on both dark hero and page) ── */
         .aw .email-row { display: flex; gap: 8px; margin-top: 22px; max-width: 460px; }
         .aw .email-row input { flex: 1; min-width: 0; background: rgba(255,255,255,0.12); color: var(--color-snow); border: 1px solid rgba(255,255,255,0.28); border-radius: var(--radius-input); padding: 13px 16px; font-family: var(--font-cosmica); font-size: var(--text-body); font-weight: 400; outline: none; backdrop-filter: blur(8px); }
@@ -358,18 +384,59 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           <Link href={ctaHref}>{copy.banner.cta} <ArrowIcon/></Link>
         </div>
 
-        {/* ─── Nav ─── */}
-        <div className="nav-wrap">
-          <nav className="nav container">
-            <a className="wordmark" href="#top"><span className="mark">6</span>insix<span className="six">live</span></a>
-            <div className="links">
-              {copy.navLinks.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
-            </div>
-            <div className="spacer"></div>
-            <Link className="btn btn-outline" href={signInHref}>{signInLabel}</Link>
-            <Link className="btn btn-primary" href={ctaHref}>{primaryLabel}</Link>
+        {/* ─── Nav (DesignPro fixed dark pill) ─── */}
+        <header className="dp-nav-header">
+          <div className="dp-nav-inner">
+            {/* Logo */}
+            <a className="dp-logo" href="/" aria-label="insixlive home">
+              <span className="dp-logo-mark"><span /></span>
+              <span className="dp-logo-name">insixlive</span>
+            </a>
+
+            {/* Desktop pill */}
+            <nav className="dp-pill" aria-label="Primary">
+              {DP_NAV.map(item => (
+                <a key={item.href} href={item.href}>
+                  {item.label}
+                  {"arrow" in item && item.arrow && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                  )}
+                </a>
+              ))}
+            </nav>
+
+            {/* Mobile hamburger */}
+            <button className="dp-hamburger" onClick={() => setMenuOpen(true)} aria-label="Open menu">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+            </button>
+          </div>
+        </header>
+
+        {/* Mobile backdrop */}
+        <div className={`dp-backdrop${menuOpen ? " open" : ""}`} onClick={() => setMenuOpen(false)} aria-hidden />
+
+        {/* Mobile drawer */}
+        <aside className={`dp-drawer${menuOpen ? " open" : ""}`} aria-label="Mobile menu">
+          <div className="dp-drawer-head">
+            <a className="dp-logo" href="/" onClick={() => setMenuOpen(false)}>
+              <span className="dp-logo-mark"><span /></span>
+              <span className="dp-logo-name">insixlive</span>
+            </a>
+            <button className="dp-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <nav className="dp-drawer-links">
+            {DP_NAV.map(item => (
+              <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>
+                {item.label}
+                {"arrow" in item && item.arrow && (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                )}
+              </a>
+            ))}
           </nav>
-        </div>
+        </aside>
 
         <span id="top"></span>
 
