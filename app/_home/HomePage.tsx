@@ -479,17 +479,21 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
 
         /* ── Bionova: hero stat cards ── */
         .aw .bio-cards { display: grid; grid-template-rows: auto auto; gap: 16px; margin: 48px 0 56px; }
-        .aw .bio-card-main { position: relative; overflow: hidden; border-radius: 24px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 40px; display: flex; flex-direction: column; gap: 40px; min-height: 190px; }
+        .aw .bio-card-main { position: relative; overflow: hidden; border-radius: 24px; background: #000; padding: 40px; display: flex; flex-direction: column; justify-content: space-between; min-height: 220px; }
         .aw .bio-card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .aw .bio-card-sm { position: relative; overflow: hidden; border-radius: 24px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 32px; display: flex; flex-direction: column; justify-content: space-between; min-height: 190px; }
-        .aw .bc-tag { display: inline-block; padding: 4px 12px; border-radius: 999px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.65); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; width: fit-content; }
-        .aw .bc-arrow { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .2s; text-decoration: none; }
-        .aw .bc-arrow:hover { background: rgba(255,255,255,0.18); }
-        .aw .bc-stat { font-size: clamp(3.5rem,7vw,5.5rem); font-weight: 300; color: var(--color-snow); line-height: 1; letter-spacing: -0.04em; margin: 0; }
+        .aw .bio-card-sm { position: relative; overflow: hidden; border-radius: 24px; background: #000; padding: 32px; display: flex; flex-direction: column; justify-content: space-between; min-height: 210px; }
+        .aw .bc-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+        .aw .bc-vid-sm { position: absolute; left: 50%; top: 50%; width: 100%; height: 100%; object-fit: cover; transform: translate(-50%,-50%) scale(1.5); z-index: 0; }
+        .aw .bc-overlay { position: absolute; inset: 0; z-index: 1; }
+        .aw .bc-content { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+        .aw .bc-tag { display: inline-block; padding: 4px 12px; border-radius: 999px; background: #fff; color: #09090b; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: lowercase; width: fit-content; }
+        .aw .bc-arrow { width: 40px; height: 40px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: opacity .2s; text-decoration: none; }
+        .aw .bc-arrow:hover { opacity: 0.85; }
+        .aw .bc-stat { font-size: clamp(4rem,8vw,6.5rem); font-weight: 300; color: #fff; line-height: 1; letter-spacing: -0.04em; margin: 0; }
         @media (max-width: 920px) {
           .aw .vm-grid { grid-template-columns: 1fr; }
           .aw .bio-card-row { grid-template-columns: 1fr; }
-          .aw .bio-card-sm { min-height: 150px; }
+          .aw .bio-card-sm { min-height: 170px; }
         }
 
         /* ── Ownership statement (ViralMedia flip) ── */
@@ -765,44 +769,61 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
               </h2>
             </div>
 
-            {/* ── Bionova stat cards ── */}
+            {/* ── Bionova stat cards — video backgrounds like Bionova HeroSection ── */}
             <div className="bio-cards reveal" style={{ transitionDelay: "0.12s" }}>
               {/* Main wide card */}
               <div className="bio-card-main">
-                <div className="glow-blob" style={{ width: 360, height: 360, top: -60, right: -60, background: "rgba(100,206,251,0.07)" }}/>
-                <div style={{ position: "relative" }}>
-                  <h3 style={{ fontSize: "clamp(1.25rem,2.2vw,1.75rem)", fontWeight: 500, color: "var(--color-snow)", margin: "0 0 14px", lineHeight: 1.25, maxWidth: "40ch" }}>
+                <video className="bc-vid" autoPlay muted loop playsInline aria-hidden>
+                  <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260506_081238_406ed0e3-5d83-436e-a512-0bbff7ec5b95.mp4" type="video/mp4"/>
+                </video>
+                <div className="bc-overlay" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.65) 100%)" }}/>
+                <div className="bc-content">
+                  <h3 style={{ fontSize: "clamp(1.3rem,2.4vw,2rem)", fontWeight: 400, color: "#fff", margin: 0, lineHeight: 1.2, maxWidth: "36ch" }}>
                     If you&apos;re ready to launch your website, let&apos;s get started.
                   </h3>
-                  <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.5)", margin: 0, maxWidth: "52ch", lineHeight: 1.65 }}>
-                    From brief to deployed — AI generates your code and ships it to your own Vercel account.
-                  </p>
-                </div>
-                <div style={{ display: "flex", justifyContent: "flex-end", position: "relative" }}>
-                  <a href="/signup" className="bc-arrow">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
-                  </a>
+                  <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16 }}>
+                    <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.75)", margin: 0, maxWidth: "44ch", lineHeight: 1.65 }}>
+                      From brief to deployed—AI generates your code and ships it to your own Vercel account.
+                    </p>
+                    <a href="/signup" className="bc-arrow" aria-label="Get started">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#09090b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+                    </a>
+                  </div>
                 </div>
               </div>
               {/* Two small cards */}
               <div className="bio-card-row">
+                {/* Locations-style card */}
                 <div className="bio-card-sm">
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                    <span className="bc-tag">industries</span>
-                    <a href="/signup" className="bc-arrow" style={{ width: 32, height: 32 }}>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
-                    </a>
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: "clamp(1rem,1.6vw,1.3rem)", fontWeight: 400, color: "var(--color-snow)", margin: "0 0 8px", lineHeight: 1.25 }}>Built for every trade</h3>
-                    <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.45)", margin: 0, lineHeight: 1.6 }}>From plumbers to dentists — EU small businesses go digital in minutes.</p>
+                  <video className="bc-vid-sm" autoPlay muted loop playsInline aria-hidden>
+                    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260326_073936_8dd07fdb-4f6b-4220-a3f0-9dedfaab0c88.mp4" type="video/mp4"/>
+                  </video>
+                  <div className="bc-overlay" style={{ background: "linear-gradient(135deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.75) 100%)" }}/>
+                  <div className="bc-content">
+                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+                      <span className="bc-tag">industries</span>
+                      <a href="/signup" className="bc-arrow" style={{ width: 32, height: 32 }} aria-label="Get started">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#09090b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+                      </a>
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize: "clamp(1rem,1.6vw,1.25rem)", fontWeight: 400, color: "#fff", margin: "0 0 8px", lineHeight: 1.2 }}>Built for every business</h3>
+                      <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.7)", margin: 0, lineHeight: 1.6 }}>From plumbers to dentists—EU small businesses go digital.</p>
+                    </div>
                   </div>
                 </div>
+                {/* Scientists-style stat card */}
                 <div className="bio-card-sm">
-                  <span className="bc-tag">minutes</span>
-                  <div>
-                    <p className="bc-stat">6</p>
-                    <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.45)", margin: "10px 0 0", lineHeight: 1.6 }}>Average time from brief to a live, deployed website.</p>
+                  <video className="bc-vid-sm" autoPlay muted loop playsInline aria-hidden style={{ transform: "translate(-50%,-50%) scale(2.8)" }}>
+                    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4" type="video/mp4"/>
+                  </video>
+                  <div className="bc-overlay" style={{ background: "rgba(0,0,0,0.55)" }}/>
+                  <div className="bc-content">
+                    <span className="bc-tag">minutes</span>
+                    <div>
+                      <p className="bc-stat">6</p>
+                      <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.7)", margin: "10px 0 0", lineHeight: 1.6 }}>Average time from brief to a live, deployed website.</p>
+                    </div>
                   </div>
                 </div>
               </div>
