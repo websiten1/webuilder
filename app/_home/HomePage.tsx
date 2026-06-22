@@ -1,10 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import Script from "next/script";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { DM_Sans } from "next/font/google";
 import type { HomeCopy } from "./copy";
+
+// ─── Bionova HLS stream URLs ──────────────────────────────────────────────────
+const HLS_STREAMS = {
+  heroCard:   "https://stream.mux.com/1RdbcBtpEUK6501pc6yaIvwo9UfSnOg02k1uHxat00xR3w.m3u8",
+  locations:  "https://stream.mux.com/t1TbTB8M1VYHkhxBuap4A8Vm1x015HTHyuQxqchDBago.m3u8",
+  scientists: "https://stream.mux.com/6yvj9SR5bjmXq9N3ak7gy427RwUs8R2ZoH4ndA7Q1018.m3u8",
+} as const;
 
 // ─── insixlive Website (Awesomic) — ported from Claude Design ─────────────
 // Source: claude.ai/design/p/019e130a-b156-7a53-9abe-2feed797f07c
@@ -60,6 +68,36 @@ function ArrowIcon() {
 // ─── Page ──────────────────────────────────────────────────────────────────
 export default function HomePage({ copy }: { copy: HomeCopy }) {
   const router = useRouter();
+
+  // ── Bionova HLS video refs ──
+  const bioHeroRef = useRef<HTMLVideoElement>(null);
+  const bioLocRef  = useRef<HTMLVideoElement>(null);
+  const bioSciRef  = useRef<HTMLVideoElement>(null);
+
+  const initBioHls = useCallback(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const Hls = (window as any).Hls;
+    if (!Hls) return;
+    const streams = [
+      { ref: bioHeroRef, src: HLS_STREAMS.heroCard },
+      { ref: bioLocRef,  src: HLS_STREAMS.locations },
+      { ref: bioSciRef,  src: HLS_STREAMS.scientists },
+    ];
+    for (const { ref, src } of streams) {
+      const video = ref.current;
+      if (!video) continue;
+      if (Hls.isSupported()) {
+        const hls = new Hls({ enableWorker: false });
+        hls.loadSource(src);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => { void video.play().catch(() => undefined); });
+      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = src;
+        void video.play().catch(() => undefined);
+      }
+    }
+  }, []);
+
   const [loggedIn, setLoggedIn] = useState(false);
   const [cycleIdx, setCycleIdx] = useState(0);
   const [cycleVisible, setCycleVisible] = useState(true);
@@ -104,6 +142,12 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
 
   return (
     <div className={cosmica.variable}>
+      {/* hls.js for Bionova video streams */}
+      <Script
+        src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"
+        strategy="afterInteractive"
+        onLoad={initBioHls}
+      />
       <style>{`
         :root {
           --color-obsidian: #09090b;
@@ -479,24 +523,21 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
 
         /* ── Bionova: hero stat cards ── */
         .aw .bio-cards { display: grid; grid-template-rows: auto auto; gap: 16px; margin: 48px 0 56px; }
-        .aw .bio-card-main { position: relative; overflow: hidden; border-radius: 24px; padding: 40px; display: flex; flex-direction: column; justify-content: space-between; min-height: 260px; background: linear-gradient(145deg, #b8aee8 0%, #9080d4 35%, #6b58c4 100%); }
+        .aw .bio-card-main { position: relative; overflow: hidden; border-radius: 24px; background: #000; padding: 32px; display: flex; flex-direction: column; justify-content: space-between; min-height: 260px; }
         .aw .bio-card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .aw .bio-card-sm { position: relative; overflow: hidden; border-radius: 24px; padding: 28px; display: flex; flex-direction: column; justify-content: space-between; min-height: 260px; }
-        .aw .bio-card-sm.bc-blue { background: linear-gradient(145deg, #8ec9e8 0%, #5aabdc 40%, #3d8ec8 100%); }
-        .aw .bio-card-sm.bc-lime { background: linear-gradient(145deg, #d4e84a 0%, #b8d430 45%, #94b820 100%); }
-        .aw .bc-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: 0.22; mix-blend-mode: luminosity; }
-        .aw .bc-vid-sm { position: absolute; left: 50%; top: 50%; width: 100%; height: 100%; object-fit: cover; transform: translate(-50%,-50%) scale(1.5); z-index: 0; opacity: 0.18; mix-blend-mode: luminosity; }
-        .aw .bc-overlay { display: none; }
+        .aw .bio-card-sm { position: relative; overflow: hidden; border-radius: 24px; background: #000; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; min-height: 260px; }
+        .aw .bc-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+        .aw .bc-vid-sm-loc { position: absolute; left: 50%; top: 50%; width: 100%; height: 100%; object-fit: cover; transform: translate(-50%,-50%) scale(1.5); z-index: 0; }
+        .aw .bc-vid-sm-sci { position: absolute; left: 50%; top: 50%; width: 100%; height: 100%; object-fit: cover; transform: translate(-50%,-50%) scale(2.8); z-index: 0; }
         .aw .bc-content { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-        .aw .bc-tag { display: inline-block; padding: 5px 14px; border-radius: 999px; background: #fff; color: #09090b; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: lowercase; width: fit-content; }
+        .aw .bc-tag { display: inline-block; padding: 4px 12px; border-radius: 999px; background: #fff; color: #09090b; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: lowercase; width: fit-content; }
         .aw .bc-arrow { width: 40px; height: 40px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: opacity .2s; text-decoration: none; }
         .aw .bc-arrow:hover { opacity: 0.85; }
-        .aw .bc-stat { font-size: clamp(4.5rem,9vw,7rem); font-weight: 400; color: #fff; line-height: 1; letter-spacing: -0.04em; margin: 0; }
+        .aw .bc-stat { font-size: clamp(4.5rem,9vw,7rem); font-weight: 300; color: #fff; line-height: 1; letter-spacing: -0.04em; margin: 0; }
         @media (max-width: 920px) {
           .aw .vm-grid { grid-template-columns: 1fr; }
           .aw .bio-card-row { grid-template-columns: 1fr; }
-          .aw .bio-card-sm { min-height: 200px; }
-          .aw .bio-card-main { min-height: 200px; }
+          .aw .bio-card-sm, .aw .bio-card-main { min-height: 200px; }
         }
 
         /* ── Ownership statement (ViralMedia flip) ── */
@@ -757,16 +798,17 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
               </h2>
             </div>
 
-            {/* ── Bionova stat cards — exact Bionova HeroSection layout ── */}
+            {/* ── Bionova stat cards — exact HLS videos from Bionova ── */}
             <div className="bio-cards reveal" style={{ transitionDelay: "0.12s" }}>
-              {/* Main wide card — purple/lavender like Bionova */}
+              {/* Main card — heroCard HLS stream (purple organic shape) */}
               <div className="bio-card-main">
+                <video ref={bioHeroRef} className="bc-vid" autoPlay muted loop playsInline preload="auto" aria-hidden />
                 <div className="bc-content">
-                  <h3 style={{ fontSize: "clamp(1.4rem,2.6vw,2.1rem)", fontWeight: 400, color: "#fff", margin: 0, lineHeight: 1.2, maxWidth: "34ch" }}>
+                  <h3 style={{ fontSize: "clamp(1.4rem,2.6vw,2.2rem)", fontWeight: 400, color: "#fff", margin: 0, lineHeight: 1.2, maxWidth: "34ch" }}>
                     Dacă ești gata să lansezi website-ul tău, hai să vorbim.
                   </h3>
                   <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16 }}>
-                    <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.82)", margin: 0, maxWidth: "44ch", lineHeight: 1.65 }}>
+                    <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.85)", margin: 0, maxWidth: "44ch", lineHeight: 1.65 }}>
                       De la brief la lansare — AI generează codul și îl deployează în propriul tău cont Vercel.
                     </p>
                     <a href="/signup" className="bc-arrow" aria-label="Comenză">
@@ -778,29 +820,31 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
 
               {/* Two small cards */}
               <div className="bio-card-row">
-                {/* Blue "locations" card */}
-                <div className="bio-card-sm bc-blue">
+                {/* locations HLS stream (blue oval) */}
+                <div className="bio-card-sm">
+                  <video ref={bioLocRef} className="bc-vid-sm-loc" autoPlay muted loop playsInline preload="auto" aria-hidden />
                   <div className="bc-content">
                     <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
                       <span className="bc-tag">industrii</span>
-                      <a href="/signup" className="bc-arrow" style={{ width: 36, height: 36 }} aria-label="Começă">
+                      <a href="/signup" className="bc-arrow" style={{ width: 36, height: 36 }} aria-label="Comenză">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#09090b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
                       </a>
                     </div>
                     <div>
-                      <h3 style={{ fontSize: "clamp(1.2rem,2vw,1.6rem)", fontWeight: 400, color: "#fff", margin: "0 0 10px", lineHeight: 1.15 }}>Antreprenori din România</h3>
+                      <h3 style={{ fontSize: "clamp(1.1rem,1.8vw,1.5rem)", fontWeight: 400, color: "#fff", margin: "0 0 8px", lineHeight: 1.2 }}>Antreprenori din România</h3>
                       <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.8)", margin: 0, lineHeight: 1.6 }}>HoReCa, retail, servicii și medical — digitalizate rapid.</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Lime "scientists" stat card */}
-                <div className="bio-card-sm bc-lime">
+                {/* scientists HLS stream (lime texture) */}
+                <div className="bio-card-sm">
+                  <video ref={bioSciRef} className="bc-vid-sm-sci" autoPlay muted loop playsInline preload="auto" aria-hidden />
                   <div className="bc-content">
-                    <span className="bc-tag" style={{ color: "#09090b" }}>minute</span>
+                    <span className="bc-tag">minute</span>
                     <div>
-                      <p className="bc-stat" style={{ color: "#09090b" }}>6</p>
-                      <p style={{ fontSize: "var(--text-body)", color: "rgba(0,0,0,0.62)", margin: "10px 0 0", lineHeight: 1.6 }}>Timp mediu de la brief la website live și implementat.</p>
+                      <p className="bc-stat">6</p>
+                      <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.8)", margin: "8px 0 0", lineHeight: 1.6 }}>Timp mediu de la brief la website live și implementat.</p>
                     </div>
                   </div>
                 </div>
