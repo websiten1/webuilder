@@ -54,7 +54,7 @@ function SuccessContent() {
         const genRes = await fetch("/api/generate-site", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ formData, tier }),
+          body: JSON.stringify({ formData, tier, checkoutSessionId: sessionId }),
         });
         if (!genRes.ok) {
           const err = await genRes.json().catch(() => ({}));

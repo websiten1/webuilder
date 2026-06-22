@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateWebsiteCode } from "@/lib/anthropic";
 import { deployToVercel, getValidVercelToken, setProjectEnvVars, createAndConnectBlobStore } from "@/lib/vercel";
 import { getSession } from "@/lib/session";
-import { getUserById, saveSiteWithVercel, getSiteById, updateSiteAfterRegeneration, createParishCalendarModule, setParishCalendarBlobConnected } from "@/lib/db";
+import { getUserByEmail, getUserById, saveSiteWithVercel, getSiteById, updateSiteAfterRegeneration, createParishCalendarModule, setParishCalendarBlobConnected } from "@/lib/db";
 import { sendParishCalendarSetupEmail, sendWebsiteCreatedEmail } from "@/lib/email";
 import { encryptToken } from "@/lib/encryption";
 import { PARISH_CALENDAR_FILES } from "@/lib/parish-calendar-templates";
@@ -11,6 +11,7 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
+import Stripe from "stripe";
 
 export const maxDuration = 300;
 
@@ -174,6 +175,88 @@ const TEMPLATE_NAMES: Record<string, string> = {
   "wine-shop": "Wine Shop", "cleaning-service": "Cleaning Service",
   "moving-service": "Moving Service", "photography": "Photography Studio",
 };
+
+function buildEmergencyWebsiteCode(f: WizardData): string {
+  const businessName = JSON.stringify((f.business.name || "Your Business").trim());
+  const businessType = JSON.stringify((f.business.type || "Business").trim());
+  const description = JSON.stringify((f.business.description || "Professional services tailored to your needs.").trim());
+  const primaryColor = JSON.stringify(f.design.primaryColor || "#FF5A1F");
+  const secondaryColor = JSON.stringify(f.design.secondaryColor || "#0A0E14");
+  const location = JSON.stringify(
+    [f.business.locationCity, f.business.locationCountry].filter(Boolean).join(", ") || f.business.location || ""
+  );
+  const phone = JSON.stringify(f.business.phone || "");
+  const email = JSON.stringify(f.business.email || "");
+  const ctaHref = f.business.hasPhone && f.business.phone ? JSON.stringify(`tel:${f.business.phone}`) : f.business.email ? JSON.stringify(`mailto:${f.business.email}`) : JSON.stringify("#");
+  const ctaLabel = JSON.stringify(f.business.hasPhone && f.business.phone ? "Call now" : f.business.email ? "Send us an email" : "Contact us");
+
+  return `export default function Page() {
+  const businessName = ${businessName};
+  const businessType = ${businessType};
+  const description = ${description};
+  const primaryColor = ${primaryColor};
+  const secondaryColor = ${secondaryColor};
+  const location = ${location};
+  const phone = ${phone};
+  const email = ${email};
+  const ctaHref = ${ctaHref};
+  const ctaLabel = ${ctaLabel};
+
+  return (
+    <div style={{ fontFamily: "Inter, Arial, sans-serif", color: "#111827", background: "#f8fafc", minHeight: "100vh" }}>
+      <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#ffffff", borderBottom: "1px solid #e5e7eb" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <strong style={{ color: secondaryColor }}>{businessName}</strong>
+          <a href={ctaHref} style={{ background: primaryColor, color: "#fff", textDecoration: "none", padding: "10px 14px", borderRadius: 10, fontWeight: 600 }}>
+            {ctaLabel}
+          </a>
+        </div>
+      </header>
+
+      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "48px 20px 64px" }}>
+        <section style={{ background: "#fff", borderRadius: 20, border: "1px solid #e5e7eb", padding: "36px 28px", marginBottom: 24 }}>
+          <p style={{ margin: 0, color: primaryColor, fontWeight: 700, letterSpacing: 0.2 }}>Professional {businessType}</p>
+          <h1 style={{ margin: "10px 0 12px", fontSize: "clamp(30px,5vw,48px)", lineHeight: 1.1, color: secondaryColor }}>{businessName}</h1>
+          <p style={{ margin: 0, color: "#374151", fontSize: 18, lineHeight: 1.6, maxWidth: 760 }}>{description}</p>
+          <div style={{ marginTop: 22, display: "flex", gap: 10, flexWrap: "wrap" }}>
+            {location ? <span style={{ border: "1px solid #e5e7eb", borderRadius: 999, padding: "8px 12px", fontSize: 14 }}>Location: {location}</span> : null}
+            {phone ? <span style={{ border: "1px solid #e5e7eb", borderRadius: 999, padding: "8px 12px", fontSize: 14 }}>Phone: {phone}</span> : null}
+            {email ? <span style={{ border: "1px solid #e5e7eb", borderRadius: 999, padding: "8px 12px", fontSize: 14 }}>Email: {email}</span> : null}
+          </div>
+        </section>
+
+        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 16 }}>
+          <article style={{ background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", padding: 20 }}>
+            <h2 style={{ margin: "0 0 8px", color: secondaryColor }}>What we do</h2>
+            <p style={{ margin: 0, color: "#4b5563", lineHeight: 1.6 }}>
+              We provide reliable, professional service with fast communication and transparent delivery.
+            </p>
+          </article>
+          <article style={{ background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", padding: 20 }}>
+            <h2 style={{ margin: "0 0 8px", color: secondaryColor }}>Why clients choose us</h2>
+            <p style={{ margin: 0, color: "#4b5563", lineHeight: 1.6 }}>
+              Practical expertise, clear timelines, and attention to detail from first contact to final result.
+            </p>
+          </article>
+          <article style={{ background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", padding: 20 }}>
+            <h2 style={{ margin: "0 0 8px", color: secondaryColor }}>Get started</h2>
+            <p style={{ margin: "0 0 14px", color: "#4b5563", lineHeight: 1.6 }}>
+              Reach out today and we will help you plan the best next step for your project.
+            </p>
+            <a href={ctaHref} style={{ color: primaryColor, fontWeight: 700, textDecoration: "none" }}>{ctaLabel} →</a>
+          </article>
+        </section>
+      </main>
+
+      <footer style={{ borderTop: "1px solid #e5e7eb", background: "#fff" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "18px 20px", color: "#6b7280", fontSize: 14 }}>
+          © {new Date().getFullYear()} {businessName}. All rights reserved.
+        </div>
+      </footer>
+    </div>
+  );
+}`;
+}
 
 function buildPrompt(f: WizardData): string {
   const styleMap: Record<string, string> = {
@@ -394,26 +477,53 @@ export async function POST(request: NextRequest) {
       tier = "website_5",
       siteId: editSiteId,
       userId: webhookUserId,       // set by webhook (no session cookie available)
+      checkoutSessionId,
     } = body as {
       formData: WizardData;
       tier?: "website" | "website_5";
       siteId?: string;
       userId?: string;
+      checkoutSessionId?: string;
     };
 
     // Allow webhook calls using an internal secret, or normal session-cookie calls
     const internalSecret = request.headers.get("x-internal-secret");
     const isWebhook = internalSecret && internalSecret === (process.env.INTERNAL_SECRET || "");
+    const runId = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}`;
+    // #region agent log
+    fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H1',location:'app/api/generate-site/route.ts:408',message:'generate-site request received',data:{isWebhook:!!isWebhook,hasWebhookUserId:!!webhookUserId,hasFormData:!!formData,tier,editSiteId:editSiteId??null,hasInternalSecretHeader:!!internalSecret},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
 
     let resolvedUserId: string;
     if (isWebhook && webhookUserId) {
       resolvedUserId = webhookUserId;
     } else {
       const session = await getSession();
-      if (!session) {
+      if (session) {
+        resolvedUserId = session.userId;
+      } else if (checkoutSessionId) {
+        const stripeKey = process.env.STRIPE_SECRET_KEY;
+        if (!stripeKey || stripeKey === "sk_test_xxxxx") {
+          return NextResponse.json({ error: "Payment verification not configured." }, { status: 500 });
+        }
+        const stripe = new Stripe(stripeKey);
+        const checkoutSession = await stripe.checkout.sessions.retrieve(checkoutSessionId);
+        if (checkoutSession.payment_status !== "paid") {
+          return NextResponse.json({ error: "Payment is not completed for this session." }, { status: 401 });
+        }
+        const stripeUserId = checkoutSession.metadata?.userId || checkoutSession.client_reference_id;
+        const stripeEmail = checkoutSession.customer_details?.email || checkoutSession.customer_email || null;
+        const stripeUser = stripeUserId ? await getUserById(stripeUserId) : (stripeEmail ? await getUserByEmail(stripeEmail) : null);
+        if (!stripeUser) {
+          return NextResponse.json({ error: "Could not identify paid user for generation." }, { status: 401 });
+        }
+        resolvedUserId = stripeUser.id;
+        // #region agent log
+        fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H8',location:'app/api/generate-site/route.ts:433',message:'resolved user via stripe checkout fallback',data:{checkoutSessionId,hasStripeUserId:!!stripeUserId,hasStripeEmail:!!stripeEmail,resolvedUserId:stripeUser.id},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+      } else {
         return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
       }
-      resolvedUserId = session.userId;
     }
 
     const user = await getUserById(resolvedUserId);
@@ -424,6 +534,9 @@ export async function POST(request: NextRequest) {
     const vercelAuth = await getValidVercelToken(resolvedUserId);
     const userVercelToken = vercelAuth?.token;
     const userTeamId = vercelAuth?.teamId ?? undefined;
+    // #region agent log
+    fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H4',location:'app/api/generate-site/route.ts:429',message:'user and vercel auth resolved',data:{resolvedUserId,userFound:!!user,hasUserToken:!!userVercelToken,userTeamId:userTeamId??null,usingFallbackToken:!userVercelToken},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
 
     if (!formData) {
       return NextResponse.json({ error: "Missing form data." }, { status: 400 });
@@ -444,8 +557,26 @@ export async function POST(request: NextRequest) {
     console.log(`🖼️  Passing ${images.length} images to Claude: ${images.map(i => i.placeholder).join(', ') || 'none'}`);
     // Images are deployed as real static files — no base64 embedding in code
     const staticImages = images.map(img => ({ path: img.placeholder.replace(/^\//, ""), base64: img.base64 }));
-    const websiteCode = await generateWebsiteCode(prompt, images);
-    console.log("✅ Code generated");
+    let usedEmergencyFallback = false;
+    let websiteCode: string;
+    try {
+      websiteCode = await generateWebsiteCode(prompt, images);
+      console.log("✅ Code generated");
+    } catch (genErr) {
+      const genMessage = genErr instanceof Error ? genErr.message : String(genErr);
+      const lowerGenMessage = genMessage.toLowerCase();
+      const isAnthropicCreditIssue =
+        lowerGenMessage.includes("credit balance is too low") ||
+        lowerGenMessage.includes("insufficient_credit") ||
+        (lowerGenMessage.includes("anthropic") && lowerGenMessage.includes("plans & billing"));
+      if (!isAnthropicCreditIssue) throw genErr;
+
+      usedEmergencyFallback = true;
+      websiteCode = buildEmergencyWebsiteCode(formData);
+      // #region agent log
+      fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H11',location:'app/api/generate-site/route.ts:532',message:'used emergency fallback code due to AI credit depletion',data:{reason:genMessage.slice(0,300),businessName:formData.business.name||null},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
+    }
 
     // ── UPDATE existing site ────────────────────────────────────────────────
     if (editSiteId) {
@@ -455,6 +586,9 @@ export async function POST(request: NextRequest) {
       }
 
       console.log(`🔁 Updating site ${editSiteId}, project=${existingSite.vercel_project_id}`);
+      // #region agent log
+      fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H2',location:'app/api/generate-site/route.ts:462',message:'starting regeneration deploy',data:{editSiteId,existingProjectId:existingSite.vercel_project_id??null,staticImagesCount:staticImages.length,hasUserToken:!!userVercelToken,userTeamId:userTeamId??null},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
 
       const deployment = await deployToVercel(existingSite.vercel_project_id!, websiteCode, {
         staticImages,
@@ -464,6 +598,9 @@ export async function POST(request: NextRequest) {
 
       const vercelProjectId = deployment.projectId ?? existingSite.vercel_project_id!;
       const siteUrl = `https://${existingSite.vercel_project_id}.vercel.app`;
+      // #region agent log
+      fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H2',location:'app/api/generate-site/route.ts:473',message:'regeneration deploy completed',data:{deploymentId:deployment.id,deploymentUrl:deployment.url,deploymentProjectId:deployment.projectId??null,resolvedProjectId:vercelProjectId,computedSiteUrl:siteUrl},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
 
       await updateSiteAfterRegeneration(
         editSiteId,
@@ -474,12 +611,15 @@ export async function POST(request: NextRequest) {
       );
 
       console.log("✅ Site updated:", siteUrl);
-      return NextResponse.json({ success: true, siteId: editSiteId, siteUrl, message: "Your website has been updated!" });
+      return NextResponse.json({ success: true, siteId: editSiteId, siteUrl, message: "Your website has been updated!", emergencyFallbackUsed: usedEmergencyFallback });
     }
 
     // ── CREATE new site ─────────────────────────────────────────────────────
     const projectName = siteName.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 63);
     console.log("Deploying to user's Vercel...");
+    // #region agent log
+    fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H3',location:'app/api/generate-site/route.ts:489',message:'starting new-site deploy',data:{projectName,siteNameLength:siteName.length,staticImagesCount:staticImages.length,calendarModuleEnabled:!!formData.pages.calendarModuleEnabled,hasUserToken:!!userVercelToken,userTeamId:userTeamId??null},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     const deployment = await deployToVercel(projectName, websiteCode, {
       staticImages,
       userToken: userVercelToken,
@@ -490,6 +630,9 @@ export async function POST(request: NextRequest) {
     console.log("✅ Deployed:", deployment.url, "| vercel project id:", vercelProjectId);
 
     const siteUrl = `https://${projectName}.vercel.app`;
+    // #region agent log
+    fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H3',location:'app/api/generate-site/route.ts:501',message:'new-site deploy completed',data:{deploymentId:deployment.id,deploymentUrl:deployment.url,deploymentProjectId:deployment.projectId??null,resolvedProjectId:vercelProjectId,computedSiteUrl:siteUrl},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
 
     const site = await saveSiteWithVercel(
       user.id,
@@ -579,11 +722,32 @@ export async function POST(request: NextRequest) {
       siteId: site.id,
       siteUrl,
       message: "Your website is ready!",
+      emergencyFallbackUsed: usedEmergencyFallback,
     });
   } catch (error) {
+    const rawError = error instanceof Error ? error.message : String(error);
+    const lowerError = rawError.toLowerCase();
+    const isAnthropicCreditIssue =
+      lowerError.includes("credit balance is too low") ||
+      lowerError.includes("insufficient_credit") ||
+      (lowerError.includes("anthropic") && lowerError.includes("plans & billing"));
+    // #region agent log
+    fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId:'unavailable',hypothesisId:'H5',location:'app/api/generate-site/route.ts:596',message:'generate-site request failed',data:{error:rawError,isAnthropicCreditIssue},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     console.error("Error generating site:", error);
+    if (isAnthropicCreditIssue) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Website generation is temporarily unavailable because the AI provider credits are depleted. Please contact support/admin to top up credits and retry.",
+          code: "AI_CREDITS_DEPLETED",
+        },
+        { status: 402 }
+      );
+    }
     return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : "Unknown error occurred" },
+      { success: false, error: rawError || "Unknown error occurred" },
       { status: 500 }
     );
   }

@@ -25,6 +25,7 @@ export async function deployToVercel(
   // Prefer user's own Vercel token; fall back to app token (used by edit feature)
   const token = options?.userToken ?? process.env.VERCEL_API_TOKEN;
   const teamId = options?.teamId;
+  const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   if (!token) {
     throw new Error("No Vercel token available. VERCEL_API_TOKEN not set.");
@@ -79,6 +80,9 @@ export async function deployToVercel(
   );
 
   try {
+    // #region agent log
+    fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H4',location:'lib/vercel.ts:86',message:'deployToVercel called',data:{projectName,hasUserToken:!!options?.userToken,usingFallbackToken:!options?.userToken,teamId:teamId??null,staticImagesCount:options?.staticImages?.length??0,parishCalendarFilesCount:options?.parishCalendarFiles?Object.keys(options.parishCalendarFiles).length:0},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     const deployUrl = teamId
       ? `https://api.vercel.com/v13/deployments?teamId=${teamId}`
       : "https://api.vercel.com/v13/deployments";
@@ -112,6 +116,9 @@ export async function deployToVercel(
 
     if (!response.ok) {
       const errBody = await response.json().catch(() => response.text());
+      // #region agent log
+      fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H4',location:'lib/vercel.ts:119',message:'vercel deployment API failed',data:{projectName,status:response.status,errorBody:typeof errBody==='string'?errBody.slice(0,600):JSON.stringify(errBody).slice(0,600)},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       throw new Error(
         `Vercel API error: ${response.status} ${JSON.stringify(errBody)}`
       );
@@ -122,6 +129,9 @@ export async function deployToVercel(
     // Vercel returns the project ID in different fields depending on API version
     const projectId: string | null =
       data.projectId ?? data.project?.id ?? null;
+    // #region agent log
+    fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H3',location:'lib/vercel.ts:131',message:'vercel deployment API succeeded',data:{projectName,deploymentId:data.id,deploymentUrl:data.url,projectId:projectId??null,nameFromResponse:data.name??null},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
 
     console.log(`Vercel deployment: id=${data.id} projectId=${projectId ?? "unknown"} url=${data.url}`);
 

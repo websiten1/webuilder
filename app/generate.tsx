@@ -24,6 +24,10 @@ export default function GeneratePage() {
 
   const handleGenerateSite = async (e: React.FormEvent) => {
     e.preventDefault();
+    const runId = `legacy-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    // #region agent log
+    fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H7',location:'app/generate.tsx:26',message:'legacy generate submit clicked',data:{hasSiteName:!!siteName,hasDescription:!!description,businessType},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     setLoading(true);
     setError("");
     setProgress(0);
@@ -52,15 +56,24 @@ export default function GeneratePage() {
           userId,
         }),
       });
+      // #region agent log
+      fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H7',location:'app/generate.tsx:55',message:'legacy generate response received',data:{status:response.status,ok:response.ok},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
 
       setProgress(75);
 
       if (!response.ok) {
         const errorData = await response.json();
+        // #region agent log
+        fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H7',location:'app/generate.tsx:61',message:'legacy generate response not ok',data:{status:response.status,error:errorData?.error??null},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         throw new Error(errorData.error || "Failed to generate site");
       }
 
       const data = await response.json();
+      // #region agent log
+      fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H7',location:'app/generate.tsx:66',message:'legacy generate succeeded',data:{repoName:data?.repoName??null,siteUrl:data?.siteUrl??null},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
 
       setProgress(100);
 
@@ -79,6 +92,9 @@ export default function GeneratePage() {
       // Redirect to success page
       router.push(`/success/${data.repoName}`);
     } catch (err) {
+      // #region agent log
+      fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H7',location:'app/generate.tsx:84',message:'legacy generate failed',data:{error:err instanceof Error?err.message:String(err)},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       setError(err instanceof Error ? err.message : "Generation failed");
     } finally {
       setLoading(false);

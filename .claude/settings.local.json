@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Skill(claude-api)",
+      "Skill(claude-api:*)",
+      "Bash(xxd /Users/andreiradu/websitebuilder/lib/vercel.ts)",
+      "Bash(node --input-type=module)",
+      "Read(//Users/andreiradu/**)",
+      "Read(//Users/andreiradu/lib/**)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(pkill -f \"npm run dev\")",
+      "Bash(kill 86056)",
+      "Bash(pkill -9 -f \"next\")",
+      "Bash(xargs kill *)",
+      "Bash(mkdir -p /Users/andreiradu/websitebuilder/app/success/\\\\[siteId\\\\])",
+      "Bash(mv \"/Users/andreiradu/websitebuilder/app/success/[siteId].tsx\" \"/Users/andreiradu/websitebuilder/app/success/[siteId]/page.tsx\")",
+      "Bash(git -C /Users/andreiradu/websitebuilder push origin main)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(curl -s -X POST http://localhost:3000/api/db/migrate)",
+      "Bash(python3 -m json.tool)",
+      "Bash(mkdir -p /Users/andreiradu/websitebuilder/app/api/edits/create-checkout /Users/andreiradu/websitebuilder/app/api/edits/process /Users/andreiradu/websitebuilder/app/api/edits/status/\\\\[editId\\\\])",
+      "Bash(curl -s -X POST https://websitebuilder-9bj9414bx-websitebuilder1.vercel.app/api/auth/signup -H 'Content-Type: application/json' -d '{\"email\":\"vercel-test@example.com\",\"password\":\"testpass123\",\"confirmPassword\":\"testpass123\"}')",
+      "Bash(git -C /Users/andreiradu/websitebuilder log --oneline -- app/page.tsx)",
+      "Bash(git commit *)"
+    ],
+    "additionalDirectories": [
+      "/Users/andreiradu/websitebuilder/app/api/edits/status"
+    ]
+  }
+}

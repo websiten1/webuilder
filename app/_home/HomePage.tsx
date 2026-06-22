@@ -34,6 +34,13 @@ const DP_NAV = [
   { label: "Contact us",    href: "/contact", arrow: true },
 ] as const;
 
+const PORTFOLIO_IMAGES = [
+  { img: "https://motionsites.ai/assets/hero-grow-ai-preview-BlQ8tAQ-.gif",        cat: "Trades & Services" },
+  { img: "https://motionsites.ai/assets/hero-evr-ventures-preview-DZxeVFEX.gif",   cat: "Beauty & Lifestyle" },
+  { img: "https://motionsites.ai/assets/hero-wealth-preview-B70idl_u.gif",         cat: "Food & Hospitality" },
+  { img: "https://motionsites.ai/assets/hero-neuralyn-preview-Br4FRDQA.gif",       cat: "Portfolio & Creative" },
+];
+
 const TILE_VISUALS: { bg: string; glow?: string; tagColor?: string; orchid?: boolean }[] = [
   { bg: "linear-gradient(160deg,#1a0e09,#09090b)", glow: "radial-gradient(80% 60% at 50% 30%, rgba(255,90,0,0.45), transparent 70%)" },
   { bg: "linear-gradient(160deg,#f4f4f5,#d4d4d8)", tagColor: "rgba(0,0,0,0.4)" },
@@ -461,6 +468,30 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         .aw .cs-pill .cp-icon { position: absolute; left: 11px; transform: rotate(-45deg); transition: transform .32s ease; }
         .aw .cs-card:hover .cs-pill .cp-icon { transform: rotate(0deg); }
 
+        /* ── ViralMedia: selected work image grid ── */
+        .aw .vm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .aw .vm-card { display: flex; flex-direction: column; gap: 14px; cursor: pointer; }
+        .aw .vm-img { border-radius: 20px; overflow: hidden; aspect-ratio: 4/3; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); }
+        .aw .vm-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s cubic-bezier(0.33,1,0.68,1); }
+        .aw .vm-card:hover .vm-img img { transform: scale(1.04); }
+        .aw .vm-title { font-size: var(--text-subheading); font-weight: 600; color: var(--color-snow); margin: 0; }
+        .aw .vm-category { font-size: var(--text-body); color: rgba(255,255,255,0.4); margin: 4px 0 0; }
+
+        /* ── Bionova: hero stat cards ── */
+        .aw .bio-cards { display: grid; grid-template-rows: auto auto; gap: 16px; margin: 48px 0 56px; }
+        .aw .bio-card-main { position: relative; overflow: hidden; border-radius: 24px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 40px; display: flex; flex-direction: column; gap: 40px; min-height: 190px; }
+        .aw .bio-card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .aw .bio-card-sm { position: relative; overflow: hidden; border-radius: 24px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 32px; display: flex; flex-direction: column; justify-content: space-between; min-height: 190px; }
+        .aw .bc-tag { display: inline-block; padding: 4px 12px; border-radius: 999px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.65); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; width: fit-content; }
+        .aw .bc-arrow { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .2s; text-decoration: none; }
+        .aw .bc-arrow:hover { background: rgba(255,255,255,0.18); }
+        .aw .bc-stat { font-size: clamp(3.5rem,7vw,5.5rem); font-weight: 300; color: var(--color-snow); line-height: 1; letter-spacing: -0.04em; margin: 0; }
+        @media (max-width: 920px) {
+          .aw .vm-grid { grid-template-columns: 1fr; }
+          .aw .bio-card-row { grid-template-columns: 1fr; }
+          .aw .bio-card-sm { min-height: 150px; }
+        }
+
         /* ── Ownership statement (ViralMedia flip) ── */
         .aw .own-statement { font-size: clamp(2.2rem,4vw,3.6rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; color: var(--color-obsidian); margin: 0; }
         .aw .own-statement .accent { color: #4ade80; }
@@ -724,7 +755,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           <div className="bio-ring float-a" style={{ width: 180, height: 180, bottom: "10%", left: "8%", border: "1px solid rgba(100,206,251,0.07)", "--s-dur": "12s", "--s-delay": "0.5s" } as React.CSSProperties}/>
           <div className="glow-blob" style={{ width: 500, height: 500, top: -100, right: -80, background: "rgba(100,206,251,0.07)" }}/>
           <div className="container" style={{ position: "relative" }}>
-            <div className="reveal" style={{ marginBottom: 56 }}>
+            <div className="reveal" style={{ marginBottom: 0 }}>
               <div className="sec-badge">
                 <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>02</span>
                 <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.solution.eyebrow}</span>
@@ -733,6 +764,50 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                 {copy.solution.heading[0]}<br/><span style={{ color: "rgba(255,255,255,0.28)", fontWeight: 300 }}>{copy.solution.heading[1]}</span>
               </h2>
             </div>
+
+            {/* ── Bionova stat cards ── */}
+            <div className="bio-cards reveal" style={{ transitionDelay: "0.12s" }}>
+              {/* Main wide card */}
+              <div className="bio-card-main">
+                <div className="glow-blob" style={{ width: 360, height: 360, top: -60, right: -60, background: "rgba(100,206,251,0.07)" }}/>
+                <div style={{ position: "relative" }}>
+                  <h3 style={{ fontSize: "clamp(1.25rem,2.2vw,1.75rem)", fontWeight: 500, color: "var(--color-snow)", margin: "0 0 14px", lineHeight: 1.25, maxWidth: "40ch" }}>
+                    If you&apos;re ready to launch your website, let&apos;s get started.
+                  </h3>
+                  <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.5)", margin: 0, maxWidth: "52ch", lineHeight: 1.65 }}>
+                    From brief to deployed — AI generates your code and ships it to your own Vercel account.
+                  </p>
+                </div>
+                <div style={{ display: "flex", justifyContent: "flex-end", position: "relative" }}>
+                  <a href="/signup" className="bc-arrow">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+                  </a>
+                </div>
+              </div>
+              {/* Two small cards */}
+              <div className="bio-card-row">
+                <div className="bio-card-sm">
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <span className="bc-tag">industries</span>
+                    <a href="/signup" className="bc-arrow" style={{ width: 32, height: 32 }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+                    </a>
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: "clamp(1rem,1.6vw,1.3rem)", fontWeight: 400, color: "var(--color-snow)", margin: "0 0 8px", lineHeight: 1.25 }}>Built for every trade</h3>
+                    <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.45)", margin: 0, lineHeight: 1.6 }}>From plumbers to dentists — EU small businesses go digital in minutes.</p>
+                  </div>
+                </div>
+                <div className="bio-card-sm">
+                  <span className="bc-tag">minutes</span>
+                  <div>
+                    <p className="bc-stat">6</p>
+                    <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.45)", margin: "10px 0 0", lineHeight: 1.6 }}>Average time from brief to a live, deployed website.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Asymmetric bento: tall featured card left + 2 stacked right */}
             <div className="bento">
               {/* Featured tall card */}
@@ -820,50 +895,22 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                 <ArrowIcon/>
               </a>
             </div>
-            {/* Case study grid */}
-            <div className="cs-grid">
-              {/* Featured tall tile */}
-              <div className="cs-card cs-featured reveal" style={{ background: TILE_VISUALS[0]?.bg || "#1a1a2e" }}>
-                {TILE_VISUALS[0]?.glow && <div className="cs-bg" style={{ background: TILE_VISUALS[0]?.glow }}/>}
-                <div className="cs-scrim"/>
-                <div className="cs-pill">
-                  <span className="cp-text">View project</span>
-                  <span className="cp-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-obsidian)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-                </div>
-                <div className="cs-body">
-                  <div className="cs-tag">// {copy.examples.previewTag}</div>
-                  <h3 className="cs-title">{copy.examples.tiles[0]?.name}</h3>
-                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                    {copy.examples.tiles[0]?.badges?.map(b => <span className="badge badge-overlay" key={b}>{b}</span>)}
-                  </div>
-                </div>
-              </div>
-              {/* Right column */}
-              <div className="cs-col">
-                {copy.examples.tiles.slice(1).map((tile, i) => TILE_VISUALS[i + 1]?.orchid ? (
-                  <div key={`orchid-${i}`} className="reveal" style={{ background: "var(--color-orchid-flash)", borderRadius: 24, padding: 36, flex: 1, minHeight: 200, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
-                    <p style={{ fontSize: "clamp(1.6rem,2.5vw,2rem)", fontWeight: 700, color: "#fff", margin: 0, lineHeight: 1.1 }}>
-                      {copy.examples.decorText[0]}<br/>{copy.examples.decorText[1]}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="cs-card reveal" key={tile.name} style={{ background: TILE_VISUALS[i + 1]?.bg || "#111827", flex: 1 }}>
-                    {TILE_VISUALS[i + 1]?.glow && <div className="cs-bg" style={{ background: TILE_VISUALS[i + 1]?.glow }}/>}
-                    <div className="cs-scrim"/>
-                    <div className="cs-pill">
-                      <span className="cp-text">View project</span>
-                      <span className="cp-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-obsidian)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+            {/* ViralMedia "Selected Work" image grid */}
+            <div className="vm-grid">
+              {PORTFOLIO_IMAGES.map((p, i) => {
+                const tile = copy.examples.tiles[i];
+                return (
+                  <div className="vm-card reveal" key={p.img} style={{ transitionDelay: `${i * 0.1}s` }}>
+                    <div className="vm-img">
+                      <img src={p.img} alt={tile?.name || p.cat} loading="lazy"/>
                     </div>
-                    <div className="cs-body">
-                      <div className="cs-tag">// {copy.examples.previewTag}</div>
-                      <h3 className="cs-title">{tile.name}</h3>
-                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                        {tile.badges?.map(b => <span className="badge badge-overlay" key={b}>{b}</span>)}
-                      </div>
+                    <div>
+                      <h3 className="vm-title">{tile?.name || p.cat}</h3>
+                      <p className="vm-category">{tile?.badges?.[0] || p.cat}</p>
                     </div>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
           </div>
         </section>
