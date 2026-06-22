@@ -663,25 +663,16 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           </div>
 
           <div className="container hero-inner">
-            {/* Top two-col info row */}
-            <div className="hero-top-row">
-<p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.72)", margin: 0, textAlign: "right" as const, fontWeight: 500 }}>
-                {copy.hero.liveIn}&nbsp;&nbsp;·&nbsp;&nbsp;{copy.hero.oneTimeFrom}
-              </p>
-            </div>
-
-            {/* Centre — headline + form */}
+            {/* Centre — Bionova typography, hardcoded */}
             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" as const }}>
-              <p style={{ fontSize: "var(--text-body)", textTransform: "uppercase" as const, letterSpacing: "0.14em", color: "rgba(255,255,255,0.65)", margin: "0 0 24px", fontWeight: 600 }}>
-                {copy.hero.previewLabel}
-              </p>
-              <h1 className="reveal" style={{ fontSize: "clamp(2.8rem, 8vw, 7rem)", fontWeight: 700, lineHeight: 0.9, letterSpacing: "-0.02em", color: "var(--color-snow)", margin: 0 }}>
-                <span style={{ display: "block" }}>{copy.hero.headline1}</span>
-                <span style={{ display: "block" }}>
-                  {copy.hero.headlineLead}<span className="shiny-text" style={{ opacity: cycleVisible ? 1 : 0 }}>{copy.hero.cycleWords[cycleIdx]}</span>
-                </span>
+              <h1 className="reveal" style={{ fontSize: "clamp(3.2rem, 8.5vw, 8rem)", fontWeight: 400, lineHeight: 1.05, letterSpacing: "-0.03em", color: "#fff", margin: "0 0 28px" }}>
+                <span style={{ display: "block" }}>Professional websites.</span>
+                <span style={{ display: "block", fontStyle: "italic", fontWeight: 300, color: "rgba(255,255,255,0.72)" }}>Deployed to your domain.</span>
               </h1>
-              <form className="email-row reveal" onSubmit={handleHeroEmailSubmit} style={{ justifyContent: "center", maxWidth: 460 }}>
+              <p className="reveal" style={{ fontSize: "clamp(0.95rem, 1.5vw, 1.1rem)", color: "rgba(255,255,255,0.55)", lineHeight: 1.75, maxWidth: "44ch", margin: "0 0 40px", fontWeight: 300, transitionDelay: "0.1s" }}>
+                insixlive partners with small business owners to translate a brief into a complete professional website—deployed to your own Vercel account, with code you own outright.
+              </p>
+              <form className="email-row reveal" onSubmit={handleHeroEmailSubmit} style={{ justifyContent: "center", maxWidth: 460, transitionDelay: "0.2s" }}>
                 <input type="email" required value={heroEmail} onChange={e => setHeroEmail(e.target.value)} placeholder={copy.hero.emailPlaceholder} aria-label="Email" />
                 {/* Axion TextRoll on primary CTA */}
                 <button className="btn btn-primary btn-roll" type="submit">
