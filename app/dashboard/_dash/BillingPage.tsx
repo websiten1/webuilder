@@ -137,7 +137,7 @@ export function BillingPage({
             </div>
             {invoices.map((inv) => (
               <div className="lrow" key={inv.id}>
-                <div className="lcell" style={{ flex: "0 0 92px", fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-3)" }}>
+                <div className="lcell bill-inv-id" style={{ flex: "0 0 92px", fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-3)" }}>
                   {inv.id}
                 </div>
                 <div className="lcell grow">
@@ -146,7 +146,7 @@ export function BillingPage({
                     <Pill kind={inv.type === "site" ? "accent" : "mute"}>{inv.type === "site" ? tt(lang, "Site", "Site") : tt(lang, "Edit", "Modificare")}</Pill>
                   </div>
                 </div>
-                <div className="lcell" style={{ flex: "0 0 120px", color: "var(--text-3)" }}>
+                <div className="lcell bill-date" style={{ flex: "0 0 120px", color: "var(--text-3)" }}>
                   {new Date(inv.date).toLocaleDateString("ro-RO", { day: "numeric", month: "short", year: "numeric" })}
                 </div>
                 <div className="lcell num" style={{ flex: "0 0 80px", color: "var(--text)", fontWeight: 650 }}>

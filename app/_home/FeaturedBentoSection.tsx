@@ -191,11 +191,18 @@ export default function FeaturedBentoSection() {
         @keyframes isi-fadeup { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
         .isi-bento-cell { transition: background .25s ease; }
         .isi-bento-cell:hover { background: rgba(255,255,255,0.04) !important; }
+        @media (max-width: 768px) {
+          .isi-bento-grid { grid-template-columns: 1fr !important; }
+          .isi-bento-cell { border-right: none !important; }
+        }
+        @media (max-width: 640px) {
+          .isi-bento-cell { padding: 24px 20px !important; }
+        }
       `}</style>
 
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
         {/* Grid: 2×2 */}
-        <div style={{
+        <div className="isi-bento-grid" style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
           gridTemplateRows: "auto auto",

@@ -536,6 +536,18 @@ a{color:inherit;text-decoration:none}
   .site-prev .pv-body{padding:14px 12px}
   .site-fav{width:32px;height:32px;border-radius:10px;font-size:13px}
   .section-title{white-space:normal}
+  /* conn cards (billing, connected) — stack vertically on tiny screens */
+  .conn{flex-wrap:wrap;gap:14px;padding:18px 16px}
+  .conn .b-primary,.conn .b-ghost,.conn .b-link{width:100%;min-height:44px;justify-content:center}
+  /* billing list: hide invoice-id and date columns on phones */
+  .bill-inv-id,.bill-date{display:none!important}
+  /* lrow: allow wrapping so it doesn't overflow */
+  .lrow{flex-wrap:wrap;gap:8px}
+  .lrow.head{display:none}
+  /* card padding tighter */
+  .card-pad{padding:16px}
+  /* f2 form grid → single col */
+  .f2{grid-template-columns:1fr}
 }
 
 /* motion */

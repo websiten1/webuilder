@@ -592,6 +592,40 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           .aw .step-timeline::before { display: none; }
           .aw .step-t { padding: 0; margin-bottom: 32px; }
           .aw .compare-col { padding: 28px 24px; }
+          /* ── Inline-grid collapses (style= attr grids need class override) ── */
+          .aw .problem-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+          .aw .how-grid { grid-template-columns: 1fr !important; }
+          .aw .ownership-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+        }
+
+        /* ── Phone: ≤640px ── */
+        @media (max-width: 640px) {
+          /* Reduce section vertical padding — inline style overridden with !important */
+          .aw section { padding-top: 64px !important; padding-bottom: 64px !important; }
+          .aw .pad-y { padding: 64px 0 !important; }
+          /* Tighter horizontal gutters */
+          .aw .container { padding: 0 16px; }
+          /* Hero headline — clamp keeps min on phones */
+          .aw .manifesto-text { font-size: clamp(1.5rem, 7.5vw, 2.4rem) !important; }
+          /* Ownership bold statement */
+          .aw .own-statement { font-size: clamp(1.6rem, 6.5vw, 2.8rem); }
+          /* Tiles: slightly narrower + shorter on phones */
+          .aw .tile { width: 260px; height: 380px; }
+          /* Marquee portfolio cards */
+          .aw .marquee-card { width: 260px; }
+          /* Dark compare cols — tighter padding */
+          .aw .compare-col { padding: 22px 16px; }
+          /* Footers */
+          .aw footer { padding: 48px 0 28px; }
+          .aw .foot-dark { padding: 48px 0 28px !important; }
+          /* Bento cards */
+          .aw .bento-card { padding: 22px 20px; }
+          /* Banner pill */
+          .aw .banner { gap: 10px; padding: 10px 16px; font-size: 13px; }
+          /* Stats: single column on phones */
+          .aw .stats { grid-template-columns: 1fr !important; }
+          /* Section headings: clamp tighter */
+          .aw .sec-badge { margin-bottom: 16px; }
         }
       `}</style>
 
@@ -720,7 +754,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           <div className="bio-pill float-a" style={{ width: 140, height: 28, bottom: "38%", right: "8%", background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.05)", "--s-rot": "10deg", "--s-dur": "8s", "--s-delay": "1s" } as React.CSSProperties}/>
           <div className="glow-blob" style={{ width: 700, height: 700, top: "50%", left: "30%", transform: "translateY(-50%)", background: "rgba(100,206,251,0.05)" }}/>
           <div className="container" style={{ position: "relative" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+            <div className="problem-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
               {/* Left: manifesto */}
               <div>
                 <div className="sec-badge reveal">
@@ -816,7 +850,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
               </h2>
             </div>
             {/* Clean minimal step cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+            <div className="how-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
               {copy.how.steps.map(([t, s], i) => {
                 const isLast = i === copy.how.steps.length - 1;
                 return (
@@ -907,7 +941,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         {/* ─── Ownership: ViralMedia bold statement (white, flipped from dark) ─── */}
         <section style={{ background: "var(--color-snow)", padding: "100px 0" }}>
           <div className="container">
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
+            <div className="ownership-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
               {/* Left: bold statement */}
               <div className="reveal">
                 <div className="sec-badge">
