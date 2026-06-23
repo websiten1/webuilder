@@ -591,7 +591,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           <div className="dp-nav-inner">
             {/* Logo */}
             <a className="dp-logo" href="/" aria-label="insixlive home">
-              <span className="dp-logo-mark"><span /></span>
+              <span style={{ fontFamily: "var(--font-cosmica), sans-serif", fontSize: 28, fontWeight: 200, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1, userSelect: "none" }}>6</span>
               <span className="dp-logo-name">insixlive</span>
             </a>
 
@@ -621,7 +621,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         <aside className={`dp-drawer${menuOpen ? " open" : ""}`} aria-label="Mobile menu">
           <div className="dp-drawer-head">
             <a className="dp-logo" href="/" onClick={() => setMenuOpen(false)}>
-              <span className="dp-logo-mark"><span /></span>
+              <span style={{ fontFamily: "var(--font-cosmica), sans-serif", fontSize: 28, fontWeight: 200, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1, userSelect: "none" }}>6</span>
               <span className="dp-logo-name">insixlive</span>
             </a>
             <button className="dp-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">
@@ -663,20 +663,18 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           <div className="container hero-inner">
             {/* Centre — hardcoded headline */}
             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" as const }}>
-              <h1 className="reveal" style={{ fontFamily: "ui-monospace,'SF Mono','Cascadia Code',monospace", fontSize: "clamp(0.78rem, 1.35vw, 1.35rem)", fontWeight: 400, lineHeight: 1.8, letterSpacing: "0.1em", color: "rgba(255,255,255,0.45)", margin: "0 0 0" }}>
+              <h1 className="reveal" style={{ fontFamily: "var(--font-cosmica), sans-serif", fontSize: "clamp(0.78rem, 1.35vw, 1.35rem)", fontWeight: 200, lineHeight: 1.9, letterSpacing: "0.22em", color: "rgba(255,255,255,0.5)", margin: "0 0 0", textTransform: "uppercase" as const }}>
                 <span style={{ display: "block" }}>site-uri.profesionale /</span>
                 <span style={{ display: "block" }}>publicate-pe-domeniu-propriu ✓</span>
               </h1>
-              <form className="email-row reveal" onSubmit={handleHeroEmailSubmit} style={{ justifyContent: "center", maxWidth: 460 }}>
-                <input type="email" required value={heroEmail} onChange={e => setHeroEmail(e.target.value)} placeholder={copy.hero.emailPlaceholder} aria-label="Email" />
-                {/* Axion TextRoll on primary CTA */}
-                <button className="btn btn-primary btn-roll" type="submit">
+              <div className="reveal" style={{ marginTop: 28 }}>
+                <Link href={ctaHref} className="btn btn-primary btn-roll" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
                   <span className="roll-inner"><span data-text={copy.getStarted}>{copy.getStarted}</span></span>
                   <span className="btn-circle" aria-hidden>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                   </span>
-                </button>
-              </form>
+                </Link>
+              </div>
             </div>
 
             {/* Bottom badges */}
@@ -1070,9 +1068,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
               <div className="foot-col">
                 {/* Logo mark */}
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-                  <span style={{ width: 34, height: 34, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(255,255,255,0.7)", display: "block" }}/>
-                  </span>
+                  <span style={{ fontFamily: "var(--font-cosmica), sans-serif", fontSize: 28, fontWeight: 200, color: "rgba(255,255,255,0.9)", letterSpacing: "-0.02em", lineHeight: 1, userSelect: "none" }}>6</span>
                   <span style={{ fontSize: 15, fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>insixlive</span>
                 </div>
                 <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.35)", maxWidth: "32ch", margin: 0, lineHeight: 1.6 }}>{copy.footer.blurb}</p>
