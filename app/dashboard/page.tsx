@@ -168,7 +168,7 @@ export default function DashboardPage() {
     window.location.href = "/";
   };
 
-  const lang: Lang = user?.preferredLanguage === "ro" ? "ro" : "en";
+  const lang: Lang = user?.preferredLanguage === "en" ? "en" : "ro";
 
   const handleDisconnectVercel = async () => {
     await fetch("/api/auth/vercel/disconnect", { method: "POST" });

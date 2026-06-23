@@ -8,30 +8,23 @@ const AURORA_VIDEO =
   "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260506_081238_406ed0e3-5d83-436e-a512-0bbff7ec5b95.mp4";
 
 const A = {
-  black:  "#000000",
-  panel:  "#0a0a0a",
-  gray:   "#1a1a1a",
+  black:  "#09090b",
+  panel:  "#09090b",
+  gray:   "#18181b",
   gray2:  "#222222",
   white:  "#ffffff",
-  six:    "#FF5A1F",
+  six:    "#ff5a00",
   m20:    "rgba(255,255,255,0.20)",
   m30:    "rgba(255,255,255,0.30)",
   m40:    "rgba(255,255,255,0.40)",
   m60:    "rgba(255,255,255,0.60)",
-  font:   'Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
+  font:   "'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
   mono:   'ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace',
 };
 
-// ─── Logo mark ────────────────────────────────────────────────────────────────
 function Mark({ size = 28 }: { size?: number }) {
   return (
-    <div style={{
-      width: size, height: size, borderRadius: size * 0.28,
-      background: A.white, display: "flex", alignItems: "center",
-      justifyContent: "center", flexShrink: 0,
-    }}>
-      <span style={{ fontFamily: A.font, fontSize: size * 0.62, fontWeight: 800, color: A.black, letterSpacing: -0.5, lineHeight: 1 }}>6</span>
-    </div>
+    <span style={{ fontFamily: A.font, fontSize: size, fontWeight: 200, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1 }}>6</span>
   );
 }
 
@@ -193,10 +186,10 @@ export default function SignupPage() {
         body: JSON.stringify({ email, password, confirmPassword }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "Signup failed. Please try again."); return; }
+      if (!res.ok) { setError(data.error || "Înregistrarea a eșuat. Încearcă din nou."); return; }
       if (data.emailWarning) setEmailWarning(data.emailWarning);
       setShowOtp(true);
-    } catch { setError("Network error. Please try again."); }
+    } catch { setError("Eroare de rețea. Încearcă din nou."); }
     finally { setLoading(false); }
   };
 
@@ -210,11 +203,11 @@ export default function SignupPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setOtpError(data.error || "Incorrect code. Please try again.");
+        setOtpError(data.error || "Cod incorect. Încearcă din nou.");
         setDigits(["", "", "", "", "", ""]); setVerifying(false); return;
       }
       router.push("/dashboard");
-    } catch { setOtpError("Network error. Please try again."); setVerifying(false); }
+    } catch { setOtpError("Eroare de rețea. Încearcă din nou."); setVerifying(false); }
   };
 
   const handleResend = async () => {
@@ -234,11 +227,10 @@ export default function SignupPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         @keyframes au-spin { to { transform: rotate(360deg); } }
         @keyframes au-fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { background: #000; overflow-x: hidden; }
+        html, body { background: #09090b; overflow-x: hidden; }
         input::placeholder { color: rgba(255,255,255,0.18) !important; }
         .au-fade { animation: au-fade-up 0.65s cubic-bezier(0.16,1,0.3,1) both; }
         .au-left { display: flex !important; }
@@ -277,36 +269,33 @@ export default function SignupPage() {
 
             {/* Logo — pinned to top-left */}
             <div style={{ position: "absolute", top: 36, left: 40, zIndex: 3, display: "flex", alignItems: "center", gap: 10 }}>
-              <Mark size={32}/>
-              <span style={{ fontFamily: A.font, fontSize: 18, fontWeight: 700, color: A.white, letterSpacing: -0.5 }}>
-                in<span style={{ color: A.six }}>six</span>live
+              <Mark size={28}/>
+              <span style={{ fontFamily: A.font, fontSize: 17, fontWeight: 600, color: A.white, letterSpacing: -0.3 }}>
+                insixlive
               </span>
             </div>
 
             {/* Bottom content */}
             <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", gap: 28 }}>
-
-              {/* Headline + sub */}
               <div>
-                <h1 style={{ fontFamily: A.font, fontSize: "clamp(2rem,2.8vw,2.6rem)", fontWeight: 500, letterSpacing: -0.5, color: A.white, lineHeight: 1.1, marginBottom: 12 }}>
-                  Your website.<br/>Your code.<br/><span style={{ color: A.six }}>Yours forever.</span>
+                <h1 style={{ fontFamily: A.font, fontSize: "clamp(2rem,2.8vw,2.6rem)", fontWeight: 700, letterSpacing: -0.5, color: A.white, lineHeight: 1.1, marginBottom: 12 }}>
+                  Site-ul tău.<br/>Codul tău.<br/><span style={{ color: A.six }}>Al tău pentru totdeauna.</span>
                 </h1>
                 <p style={{ fontFamily: A.font, fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6, maxWidth: 300 }}>
-                  Describe your business and we generate a complete site — code, hosting, and all.
+                  Descrie afacerea ta și generăm un site complet — cod, hosting și tot.
                 </p>
               </div>
 
-              {/* 3 step cards — Aurora's signature UI */}
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <StepCard number={1} text="Register your account" active={!showOtp}/>
-                <StepCard number={2} text="Verify your email" active={showOtp}/>
-                <StepCard number={3} text="Launch in 6 minutes" active={false}/>
+                <StepCard number={1} text="Creează-ți contul" active={!showOtp}/>
+                <StepCard number={2} text="Verifică-ți emailul" active={showOtp}/>
+                <StepCard number={3} text="Lansează în 6 minute" active={false}/>
               </div>
 
             </div>
           </section>
 
-          {/* ── Right: form panel ───────────────────────────────────────────── */}
+          {/* ── Dreapta: formular ── */}
           <section className="au-right" style={{
             flex: 1, background: A.panel,
             display: "flex", flexDirection: "column",
@@ -314,14 +303,14 @@ export default function SignupPage() {
             overflowY: "auto",
           }}>
 
-            {/* Mobile-only logo — shown when left panel is hidden */}
+            {/* Logo mobil */}
             <div className="au-mobile-logo" style={{
               alignSelf: "stretch", alignItems: "center", gap: 10,
               padding: "20px 24px 0",
             }}>
-              <Mark size={30}/>
-              <span style={{ fontFamily: A.font, fontSize: 17, fontWeight: 700, color: A.white, letterSpacing: -0.5 }}>
-                in<span style={{ color: A.six }}>six</span>live
+              <Mark size={26}/>
+              <span style={{ fontFamily: A.font, fontSize: 17, fontWeight: 600, color: A.white, letterSpacing: -0.3 }}>
+                insixlive
               </span>
             </div>
 
@@ -332,35 +321,34 @@ export default function SignupPage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
 
                   <div>
-                    <h2 style={{ fontFamily: A.font, fontSize: 30, fontWeight: 500, letterSpacing: -0.6, color: A.white, marginBottom: 8 }}>
-                      Create New Profile
+                    <h2 style={{ fontFamily: A.font, fontSize: 30, fontWeight: 700, letterSpacing: -0.6, color: A.white, marginBottom: 8 }}>
+                      Creează cont nou
                     </h2>
                     <p style={{ fontFamily: A.font, fontSize: 14, color: A.m40, lineHeight: 1.5 }}>
-                      Input your details to begin. Takes 30 seconds, no card required.
+                      Completează datele pentru a începe. 30 de secunde, fără card.
                     </p>
                   </div>
 
-                  {/* Error banner */}
                   {error && (
                     <div style={{
                       padding: "12px 16px", borderRadius: 12,
-                      background: "rgba(255,90,31,0.08)", border: "1px solid rgba(255,90,31,0.2)",
-                      fontFamily: A.font, fontSize: 14, color: "#FF7A50",
+                      background: "rgba(255,90,0,0.08)", border: "1px solid rgba(255,90,0,0.2)",
+                      fontFamily: A.font, fontSize: 14, color: "#ff7a50",
                       display: "flex", gap: 10, alignItems: "flex-start",
                     }}>
                       <svg width="15" height="15" viewBox="0 0 15 15" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
-                        <circle cx="7.5" cy="7.5" r="6.5" stroke="#FF7A50" strokeWidth="1.5"/>
-                        <path d="M7.5 4.5v4M7.5 10v.5" stroke="#FF7A50" strokeWidth="1.5" strokeLinecap="round"/>
+                        <circle cx="7.5" cy="7.5" r="6.5" stroke="#ff7a50" strokeWidth="1.5"/>
+                        <path d="M7.5 4.5v4M7.5 10v.5" stroke="#ff7a50" strokeWidth="1.5" strokeLinecap="round"/>
                       </svg>
                       {error}
                     </div>
                   )}
 
                   <form onSubmit={handleSignup} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                    <AInput label="Email" value={email} placeholder="you@yourbusiness.com" onChange={setEmail}/>
+                    <AInput label="Email" value={email} placeholder="tu@afacereata.ro" onChange={setEmail}/>
                     <AInput
-                      label="Password" value={password}
-                      placeholder="Min. 8 characters"
+                      label="Parolă" value={password}
+                      placeholder="Min. 8 caractere"
                       type={showPw ? "text" : "password"}
                       onChange={setPassword}
                       suffix={
@@ -371,8 +359,8 @@ export default function SignupPage() {
                       }
                     />
                     <AInput
-                      label="Confirm password" value={confirmPassword}
-                      placeholder="Repeat password"
+                      label="Confirmă parola" value={confirmPassword}
+                      placeholder="Repetă parola"
                       type={showCpw ? "text" : "password"}
                       onChange={setConfirmPassword}
                       suffix={
@@ -383,10 +371,9 @@ export default function SignupPage() {
                       }
                     />
                     <p style={{ fontFamily: A.font, fontSize: 12, color: "rgba(255,255,255,0.25)", marginTop: -4 }}>
-                      Requires at least 8 characters.
+                      Cel puțin 8 caractere.
                     </p>
 
-                    {/* Aurora-style white submit button */}
                     <button
                       type="submit"
                       disabled={!canSubmit}
@@ -399,23 +386,24 @@ export default function SignupPage() {
                         display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                         transition: "background .18s, color .18s, opacity .18s",
                       }}
-                      onMouseEnter={e => { if (canSubmit) (e.currentTarget as HTMLButtonElement).style.opacity = "0.92"; }}
+                      onMouseEnter={e => { if (canSubmit) (e.currentTarget as HTMLButtonElement).style.opacity = "0.88"; }}
                       onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
                     >
                       {loading
-                        ? <><span style={{ width: 16, height: 16, borderRadius: 8, border: "2px solid rgba(0,0,0,0.15)", borderTopColor: A.black, animation: "au-spin .8s linear infinite", display: "inline-block" }}/> Creating account…</>
-                        : "Create Account"
+                        ? <><span style={{ width: 16, height: 16, borderRadius: 8, border: "2px solid rgba(0,0,0,0.15)", borderTopColor: A.black, animation: "au-spin .8s linear infinite", display: "inline-block" }}/> Se creează contul…</>
+                        : "Creează cont"
                       }
                     </button>
                   </form>
 
                   <div style={{ textAlign: "center", fontFamily: A.font, fontSize: 14, color: A.m40 }}>
-                    Already have an account?{" "}
-                    <Link href="/login" style={{ color: A.white, fontWeight: 600, textDecoration: "none" }}>Sign in</Link>
+                    Ai deja cont?{" "}
+                    <Link href="/login" style={{ color: A.white, fontWeight: 600, textDecoration: "none" }}>Autentifică-te</Link>
                   </div>
                   <div style={{ textAlign: "center", fontFamily: A.font, fontSize: 12, color: "rgba(255,255,255,0.22)" }}>
-                    By continuing you agree to our <span style={{ color: A.m40, fontWeight: 600 }}>Terms</span> &{" "}
-                    <span style={{ color: A.m40, fontWeight: 600 }}>Privacy</span>.
+                    Continuând, ești de acord cu{" "}
+                    <span style={{ color: A.m40, fontWeight: 600 }}>Termenii</span> și{" "}
+                    <span style={{ color: A.m40, fontWeight: 600 }}>Politica de confidențialitate</span>.
                   </div>
 
                 </div>
@@ -432,11 +420,11 @@ export default function SignupPage() {
                   </div>
 
                   <div>
-                    <h2 style={{ fontFamily: A.font, fontSize: 28, fontWeight: 500, letterSpacing: -0.5, color: A.white, marginBottom: 8 }}>
-                      Check your inbox
+                    <h2 style={{ fontFamily: A.font, fontSize: 28, fontWeight: 700, letterSpacing: -0.5, color: A.white, marginBottom: 8 }}>
+                      Verifică inbox-ul
                     </h2>
                     <p style={{ fontFamily: A.font, fontSize: 14, color: A.m40, marginBottom: 4, lineHeight: 1.5 }}>
-                      We sent a 6-digit code to
+                      Am trimis un cod de 6 cifre la
                     </p>
                     <p style={{ fontFamily: A.font, fontSize: 15, fontWeight: 600, color: A.white }}>{email}</p>
                   </div>
@@ -452,30 +440,30 @@ export default function SignupPage() {
                   {verifying && (
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: A.font, fontSize: 14, color: A.m40 }}>
                       <span style={{ width: 14, height: 14, borderRadius: 7, border: "2px solid rgba(255,255,255,0.12)", borderTopColor: A.white, animation: "au-spin .8s linear infinite", display: "inline-block" }}/>
-                      Verifying…
+                      Se verifică…
                     </div>
                   )}
 
                   {otpError && (
-                    <div style={{ padding: "12px 16px", borderRadius: 12, background: "rgba(255,90,31,0.08)", border: "1px solid rgba(255,90,31,0.2)", fontFamily: A.font, fontSize: 14, color: "#FF7A50", display: "flex", gap: 10, alignItems: "flex-start", textAlign: "left" }}>
+                    <div style={{ padding: "12px 16px", borderRadius: 12, background: "rgba(255,90,0,0.08)", border: "1px solid rgba(255,90,0,0.2)", fontFamily: A.font, fontSize: 14, color: "#ff7a50", display: "flex", gap: 10, alignItems: "flex-start", textAlign: "left" }}>
                       <svg width="15" height="15" viewBox="0 0 15 15" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
-                        <circle cx="7.5" cy="7.5" r="6.5" stroke="#FF7A50" strokeWidth="1.5"/>
-                        <path d="M7.5 4.5v4M7.5 10v.5" stroke="#FF7A50" strokeWidth="1.5" strokeLinecap="round"/>
+                        <circle cx="7.5" cy="7.5" r="6.5" stroke="#ff7a50" strokeWidth="1.5"/>
+                        <path d="M7.5 4.5v4M7.5 10v.5" stroke="#ff7a50" strokeWidth="1.5" strokeLinecap="round"/>
                       </svg>
                       {otpError}
                     </div>
                   )}
 
                   <div style={{ fontFamily: A.font, fontSize: 14, color: A.m40 }}>
-                    Didn&apos;t receive it?{" "}
+                    Nu ai primit codul?{" "}
                     {resendCooldown > 0
-                      ? <span>Resend in {resendCooldown}s</span>
+                      ? <span>Retrimite în {resendCooldown}s</span>
                       : (
                         <button onClick={handleResend} disabled={resendLoading} style={{
                           background: "none", border: "none", cursor: "pointer",
                           color: A.white, fontWeight: 600, fontSize: 14, fontFamily: A.font, padding: 0,
                         }}>
-                          {resendLoading ? "Sending…" : "Resend code"}
+                          {resendLoading ? "Se trimite…" : "Retrimite codul"}
                         </button>
                       )
                     }
@@ -485,7 +473,7 @@ export default function SignupPage() {
                     onClick={() => { setShowOtp(false); setDigits(["","","","","",""]); setOtpError(""); }}
                     style={{ background: "none", border: "none", cursor: "pointer", fontFamily: A.font, fontSize: 13, color: "rgba(255,255,255,0.3)", padding: 0 }}
                   >
-                    ← Use a different email
+                    ← Folosește alt email
                   </button>
 
                 </div>

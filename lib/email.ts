@@ -67,24 +67,24 @@ const EMAIL_DARK_MODE_CSS = `
       .body-text { color: #e0e0e0 !important; }
       .code-digit { background: #2a2a2a !important; border-color: #3a3a3a !important; color: #ffffff !important; }
       .code-digit:nth-child(odd) { border-color: #5a3a2a !important; }
-      .cta-button { background: #ff6b35 !important; color: #ffffff !important; }
+      .cta-button { background: #ff5a00 !important; color: #ffffff !important; }
       .info-box { background: #1f1f1f !important; }
       .footer-section { border-top-color: #2a2a2a !important; background: #0f0f0f !important; }
       .footer-text { color: #808080 !important; }
-      .footer-link { color: #ff6b35 !important; }
+      .footer-link { color: #ff5a00 !important; }
       .divider { color: #333333 !important; }
     }`;
 
 const EMAIL_BASE_CSS = `
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f8; color: #1a1a1a; padding: 20px; }
+    body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f8; color: #1a1a1a; padding: 20px; }
     .email-container { max-width: 600px; margin: 0 auto; }
     .email-wrapper { background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-    .party-bar { height: 6px; background: linear-gradient(90deg, #ff6b35 0%, #ffbf00 25%, #2ec4b6 50%, #3a86ff 75%, #6a4c93 100%); }
+    .brand-bar { height: 4px; background: #ff5a00; }
     .header { padding: 32px 32px 24px 32px; text-align: center; border-bottom: 1px solid #f0f0f0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .logo { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; margin-bottom: 16px; }
-    .logo span { font-size: 40px; font-weight: 900; color: #ff6b35; line-height: 1; }
-    .brand-name { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; margin: 0; }
+    .logo span { font-size: 40px; font-weight: 200; color: #09090b; line-height: 1; letter-spacing: -0.02em; }
+    .brand-name { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; margin: 0; color: #09090b; }
     .content { padding: 40px 32px; }
     .main-heading { font-size: 28px; font-weight: 700; line-height: 1.2; margin-bottom: 8px; letter-spacing: -0.5px; }
     .subtitle { font-size: 16px; line-height: 1.5; margin-bottom: 32px; font-weight: 400; color: #666666; }
@@ -92,18 +92,18 @@ const EMAIL_BASE_CSS = `
     .code-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; opacity: 0.7; }
     .code-digits { display: flex; justify-content: center; gap: 10px; }
     .code-digit { flex: 1; max-width: 56px; aspect-ratio: 3 / 4; background: #ffffff; border: 2px solid #e8e8e8; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 700; color: #1a1a1a; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-    .code-digit:nth-child(odd) { border-color: #ffd9c7; }
+    .code-digit:nth-child(odd) { border-color: rgba(255,90,0,0.25); }
     .code-expiry { color: #999999; font-size: 12px; margin-top: 12px; text-align: center; }
-    .cta-button { display: block; width: 100%; padding: 14px 24px; background: #ff6b35; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; text-align: center; border: none; margin-bottom: 32px; }
+    .cta-button { display: block; width: 100%; padding: 14px 24px; background: #ff5a00; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; text-align: center; border: none; margin-bottom: 32px; }
     .info-box { background: #fafafa; border-radius: 8px; padding: 20px; margin-bottom: 32px; }
     .info-box p { color: #666666; font-size: 14px; line-height: 1.6; margin: 0; }
     .info-box strong { color: #1a1a1a; }
     .support-text { color: #999999; font-size: 13px; line-height: 1.6; margin-bottom: 8px; }
-    .support-text a { color: #ff6b35; text-decoration: none; }
+    .support-text a { color: #ff5a00; text-decoration: none; }
     .footer-section { padding: 24px 32px; border-top: 1px solid #f0f0f0; text-align: center; background: #fafafa; }
     .footer-text { color: #999999; font-size: 12px; line-height: 1.5; margin-bottom: 12px; }
     .footer-links { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
-    .footer-link { color: #ff6b35; text-decoration: none; font-size: 12px; }
+    .footer-link { color: #ff5a00; text-decoration: none; font-size: 12px; }
     .divider { color: #ddd; }`;
 
 function buildVerificationEmailHtml(code: string, lang: "en" | "ro", baseUrl: string): string {
@@ -117,7 +117,7 @@ function buildVerificationEmailHtml(code: string, lang: "en" | "ro", baseUrl: st
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${c.title}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
   <style>${EMAIL_BASE_CSS}${EMAIL_DARK_MODE_CSS}</style>
 </head>
 <body>
@@ -125,9 +125,9 @@ function buildVerificationEmailHtml(code: string, lang: "en" | "ro", baseUrl: st
     <div class="email-wrapper">
       <div class="header">
         <div class="logo"><span>6</span></div>
-        <h1 class="header-text brand-name">inSIXlive</h1>
+        <h1 class="header-text brand-name">insixlive</h1>
       </div>
-      <div class="party-bar"></div>
+      <div class="brand-bar"></div>
       <div class="content">
         <h2 class="header-text main-heading">${c.heading}</h2>
         <p class="subtitle-text subtitle">${c.subtitle}</p>
@@ -151,7 +151,7 @@ function buildVerificationEmailHtml(code: string, lang: "en" | "ro", baseUrl: st
 export async function sendVerificationCode(
   email: string,
   code: string,
-  lang: "en" | "ro" = "en"
+  lang: "en" | "ro" = "ro"
 ): Promise<void> {
   console.log(`\n[OTP] Verification code for ${email}: ${code}\n`);
 
@@ -466,46 +466,35 @@ const WEBSITE_CREATED_COPY = {
 
 const WEBSITE_CREATED_CSS = `
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f8; color: #1a1a1a; padding: 20px; }
+    body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f8; color: #1a1a1a; padding: 20px; }
     .email-container { max-width: 600px; margin: 0 auto; }
     .email-wrapper { background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-    .party-bar { height: 6px; background: linear-gradient(90deg, #ff6b35 0%, #ffbf00 25%, #2ec4b6 50%, #3a86ff 75%, #6a4c93 100%); }
+    .brand-bar { height: 4px; background: #ff5a00; }
     .header { padding: 32px 32px 24px 32px; text-align: center; border-bottom: 1px solid #f0f0f0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .logo { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; margin-bottom: 16px; }
-    .logo span { font-size: 40px; font-weight: 900; color: #ff6b35; line-height: 1; }
-    .brand-name { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; margin: 0; }
+    .logo span { font-size: 40px; font-weight: 200; color: #09090b; line-height: 1; letter-spacing: -0.02em; }
+    .brand-name { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; margin: 0; color: #09090b; }
     .content { padding: 40px 32px; }
-    .celebrate { display: flex; justify-content: center; gap: 8px; margin-bottom: 24px; }
-    .confetti { width: 12px; height: 12px; border-radius: 3px; }
-    .confetti.c1 { background: #ff6b35; transform: rotate(15deg); }
-    .confetti.c2 { background: #2ec4b6; border-radius: 50%; }
-    .confetti.c3 { background: #ffbf00; transform: rotate(-20deg); }
-    .confetti.c4 { background: #e84855; border-radius: 50%; }
-    .confetti.c5 { background: #6a4c93; transform: rotate(25deg); }
-    .confetti.c6 { background: #3a86ff; border-radius: 50%; }
-    .confetti.c7 { background: #ffbf00; transform: rotate(-10deg); }
+    .live-icon { width: 56px; height: 56px; border-radius: 50%; background: rgba(255,90,0,0.08); border: 1px solid rgba(255,90,0,0.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 24px; }
     .main-heading { font-size: 28px; font-weight: 700; line-height: 1.2; margin-bottom: 8px; letter-spacing: -0.5px; text-align: center; }
     .subtitle { font-size: 16px; line-height: 1.5; margin-bottom: 32px; font-weight: 400; color: #666666; text-align: center; }
     .url-section { margin-bottom: 28px; }
     .url-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; opacity: 0.7; text-align: center; }
     .url-display { background: #f5f5f5; border: 2px solid #e8e8e8; border-radius: 12px; padding: 18px 20px; text-align: center; }
-    .url-display a { font-size: 18px; font-weight: 600; color: #ff6b35; text-decoration: none; word-break: break-all; }
-    .cta-button { display: block; width: 100%; padding: 14px 24px; background: #ff6b35; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; text-align: center; border: none; margin-bottom: 36px; }
+    .url-display a { font-size: 18px; font-weight: 600; color: #ff5a00; text-decoration: none; word-break: break-all; }
+    .cta-button { display: block; width: 100%; padding: 14px 24px; background: #ff5a00; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; text-align: center; border: none; margin-bottom: 36px; }
     .next-steps-title { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; margin-bottom: 16px; }
     .next-step { display: flex; align-items: flex-start; gap: 14px; padding: 16px 0; border-bottom: 1px solid #f0f0f0; }
     .next-step:last-of-type { border-bottom: none; }
-    .next-step-num { flex: 0 0 28px; width: 28px; height: 28px; border-radius: 50%; color: #ffffff; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
-    .next-step-num.n1 { background: #ff6b35; }
-    .next-step-num.n2 { background: #2ec4b6; }
-    .next-step-num.n3 { background: #3a86ff; }
+    .next-step-num { flex: 0 0 28px; width: 28px; height: 28px; border-radius: 50%; color: #ffffff; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; background: #ff5a00; }
     .next-step-text strong { display: block; font-size: 15px; font-weight: 600; margin-bottom: 2px; color: #1a1a1a; }
     .next-step-text span { font-size: 14px; line-height: 1.5; color: #666666; }
     .support-text { color: #999999; font-size: 13px; line-height: 1.6; margin-top: 28px; text-align: center; }
-    .support-text a { color: #ff6b35; text-decoration: none; }
+    .support-text a { color: #ff5a00; text-decoration: none; }
     .footer-section { padding: 24px 32px; border-top: 1px solid #f0f0f0; text-align: center; background: #fafafa; }
     .footer-text { color: #999999; font-size: 12px; line-height: 1.5; margin-bottom: 12px; }
     .footer-links { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
-    .footer-link { color: #ff6b35; text-decoration: none; font-size: 12px; }
+    .footer-link { color: #ff5a00; text-decoration: none; font-size: 12px; }
     .divider { color: #ddd; }`;
 
 const WEBSITE_CREATED_DARK_CSS = `
@@ -517,14 +506,14 @@ const WEBSITE_CREATED_DARK_CSS = `
       .subtitle-text { color: #b0b0b0 !important; }
       .body-text { color: #e0e0e0 !important; }
       .url-display { background: #2a2a2a !important; border-color: #3a3a3a !important; }
-      .url-display a { color: #ff6b35 !important; }
-      .cta-button { background: #ff6b35 !important; color: #ffffff !important; }
+      .url-display a { color: #ff5a00 !important; }
+      .cta-button { background: #ff5a00 !important; color: #ffffff !important; }
       .next-step { border-color: #2a2a2a !important; }
       .next-step-text strong { color: #ffffff !important; }
       .next-step-text span { color: #b0b0b0 !important; }
       .footer-section { border-top-color: #2a2a2a !important; background: #0f0f0f !important; }
       .footer-text { color: #808080 !important; }
-      .footer-link { color: #ff6b35 !important; }
+      .footer-link { color: #ff5a00 !important; }
       .divider { color: #333333 !important; }
     }`;
 
@@ -534,7 +523,7 @@ function buildWebsiteCreatedEmailHtml(siteUrl: string, lang: "en" | "ro", baseUr
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${c.title}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
   <style>${WEBSITE_CREATED_CSS}${WEBSITE_CREATED_DARK_CSS}</style>
 </head>
 <body>
@@ -542,14 +531,11 @@ function buildWebsiteCreatedEmailHtml(siteUrl: string, lang: "en" | "ro", baseUr
     <div class="email-wrapper">
       <div class="header">
         <div class="logo"><span>6</span></div>
-        <h1 class="header-text brand-name">inSIXlive</h1>
+        <h1 class="header-text brand-name">insixlive</h1>
       </div>
-      <div class="party-bar"></div>
+      <div class="brand-bar"></div>
       <div class="content">
-        <div class="celebrate">
-          <span class="confetti c1"></span><span class="confetti c2"></span><span class="confetti c3"></span>
-          <span class="confetti c4"></span><span class="confetti c5"></span><span class="confetti c6"></span><span class="confetti c7"></span>
-        </div>
+        <div class="live-icon">🟠</div>
         <h2 class="header-text main-heading">${c.heading}</h2>
         <p class="subtitle-text subtitle">${c.subtitle}</p>
         <div class="url-section">
@@ -559,15 +545,15 @@ function buildWebsiteCreatedEmailHtml(siteUrl: string, lang: "en" | "ro", baseUr
         <a class="cta-button" href="${siteUrl}" target="_blank">${c.cta}</a>
         <p class="body-text next-steps-title">${c.nextSteps}</p>
         <div class="next-step">
-          <div class="next-step-num n1">1</div>
+          <div class="next-step-num">1</div>
           <div class="next-step-text"><strong>${c.step1Title}</strong><span>${c.step1Body}</span></div>
         </div>
         <div class="next-step">
-          <div class="next-step-num n2">2</div>
+          <div class="next-step-num">2</div>
           <div class="next-step-text"><strong>${c.step2Title}</strong><span>${c.step2Body}</span></div>
         </div>
         <div class="next-step">
-          <div class="next-step-num n3">3</div>
+          <div class="next-step-num">3</div>
           <div class="next-step-text"><strong>${c.step3Title}</strong><span>${c.step3Body}</span></div>
         </div>
         <p class="support-text">${c.support} <a href="mailto:insixlive@outlook.com">insixlive@outlook.com</a></p>
@@ -581,7 +567,7 @@ function buildWebsiteCreatedEmailHtml(siteUrl: string, lang: "en" | "ro", baseUr
 export async function sendWebsiteCreatedEmail(
   email: string,
   params: { siteName: string; siteUrl: string },
-  lang: "en" | "ro" = "en"
+  lang: "en" | "ro" = "ro"
 ): Promise<void> {
   const { siteName, siteUrl } = params;
   console.log(`\n[Email] Website created for ${email}: ${siteName} -> ${siteUrl}\n`);

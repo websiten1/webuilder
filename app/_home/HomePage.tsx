@@ -476,6 +476,15 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         .aw .vm-title { font-size: var(--text-subheading); font-weight: 600; color: var(--color-snow); margin: 0; }
         .aw .vm-category { font-size: var(--text-body); color: rgba(255,255,255,0.4); margin: 4px 0 0; }
 
+        /* ── Portfolio marquee ── */
+        @keyframes aw-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        .aw .marquee-outer { overflow: hidden; position: relative; }
+        .aw .marquee-track { display: flex; gap: 16px; width: max-content; animation: aw-marquee 32s linear infinite; will-change: transform; }
+        .aw .marquee-outer:hover .marquee-track { animation-play-state: paused; }
+        .aw .marquee-card { width: 360px; flex-shrink: 0; border-radius: 18px; overflow: hidden; aspect-ratio: 4/3; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+        .aw .marquee-card img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; }
+        .aw .marquee-card:hover img { transform: scale(1.03); }
+
         /* ── Bionova: hero stat cards ── */
         .aw .bio-cards { display: grid; grid-template-rows: auto auto; gap: 16px; margin: 48px 0 56px; }
         .aw .bio-card-main { position: relative; overflow: hidden; border-radius: 24px; background: #000; padding: 40px; display: flex; flex-direction: column; justify-content: space-between; min-height: 220px; }
@@ -672,9 +681,9 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           <div className="container hero-inner">
             {/* Centre — hardcoded headline */}
             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" as const }}>
-              <h1 className="reveal" style={{ fontFamily: "var(--font-cosmica), sans-serif", fontSize: "clamp(0.82rem, 1.4vw, 1.4rem)", fontWeight: 700, lineHeight: 1.5, letterSpacing: "-0.025em", color: "rgba(255,255,255,0.7)", margin: "0 0 0" }}>
+              <h1 className="reveal manifesto-text" style={{ fontSize: "clamp(0.82rem, 1.4vw, 1.4rem)", lineHeight: 1.5, margin: "0 0 0", textAlign: "center" as const }}>
                 <span style={{ display: "block" }}>site-uri.profesionale /</span>
-                <span style={{ display: "block", color: "rgba(255,255,255,0.35)", fontWeight: 300 }}>publicate-pe-domeniu-propriu ✓</span>
+                <span className="dim" style={{ display: "block" }}>publicate-pe-domeniu-propriu ✓</span>
               </h1>
               <div className="reveal" style={{ marginTop: 28 }}>
                 <Link href={ctaHref} className="btn btn-primary btn-roll" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
@@ -854,11 +863,9 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         {/* ─── Featured bento (map / notifications / chart / features) ─── */}
         <FeaturedBentoSection />
 
-        {/* ─── Portfolio: Axion case study grid (dark) ─── */}
+        {/* ─── Portfolio: infinite auto-scroll marquee (dark) ─── */}
         <section style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }} id="examples">
           <div className="gn-dots-overlay"/>
-          <div className="bio-pill float-a" style={{ width: 180, height: 36, top: "6%", right: "5%", background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.06)", "--s-rot": "12deg", "--s-dur": "8s" } as React.CSSProperties}/>
-          <div className="bio-ring float-b" style={{ width: 220, height: 220, bottom: "8%", right: "2%", border: "1px solid rgba(100,206,251,0.06)", "--s-dur": "13s", "--s-delay": "2s" } as React.CSSProperties}/>
           <div className="container">
             <div className="reveal" style={{ textAlign: "center", marginBottom: 48 }}>
               <div className="sec-badge" style={{ justifyContent: "center" }}>
@@ -869,22 +876,30 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                 {copy.examples.heading[0]}<br/>{copy.examples.heading[1]}
               </h2>
             </div>
-            {/* Horizontal scroll strip */}
-            <div style={{ display: "flex", gap: 20, overflowX: "auto", paddingBottom: 16, scrollSnapType: "x mandatory", msOverflowStyle: "none" as React.CSSProperties["msOverflowStyle"], scrollbarWidth: "none" as React.CSSProperties["scrollbarWidth"] }}>
-              {PORTFOLIO_IMAGES.map((p, i) => {
-                const tile = copy.examples.tiles[i];
-                return (
-                  <div className="vm-card reveal" key={p.img} style={{ transitionDelay: `${i * 0.1}s`, minWidth: 300, flexShrink: 0, scrollSnapAlign: "start" }}>
-                    <div className="vm-img">
-                      <img src={p.img} alt={tile?.name || p.cat} loading="lazy"/>
-                    </div>
-                    <div>
-                      <h3 className="vm-title">{tile?.name || p.cat}</h3>
-                      <p className="vm-category">{tile?.badges?.[0] || p.cat}</p>
-                    </div>
-                  </div>
-                );
-              })}
+          </div>
+
+          {/* Full-width marquee — outside container so it bleeds edge-to-edge */}
+          <div className="marquee-outer">
+            {/* Edge blurs */}
+            <ProgressiveBlur
+              direction="left"
+              blurLayers={6}
+              blurIntensity={0.4}
+              style={{ position: "absolute", top: 0, left: 0, bottom: 0, width: 120, zIndex: 5, pointerEvents: "none" }}
+            />
+            <ProgressiveBlur
+              direction="right"
+              blurLayers={6}
+              blurIntensity={0.4}
+              style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: 120, zIndex: 5, pointerEvents: "none" }}
+            />
+            {/* Duplicate cards for seamless loop */}
+            <div className="marquee-track">
+              {[...PORTFOLIO_IMAGES, ...PORTFOLIO_IMAGES, ...PORTFOLIO_IMAGES].map((p, i) => (
+                <div className="marquee-card" key={i} aria-hidden={i >= PORTFOLIO_IMAGES.length}>
+                  <img src={p.img} alt={p.cat} loading="lazy"/>
+                </div>
+              ))}
             </div>
           </div>
         </section>

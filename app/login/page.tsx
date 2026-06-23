@@ -8,26 +8,20 @@ const AURORA_VIDEO =
   "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260506_081238_406ed0e3-5d83-436e-a512-0bbff7ec5b95.mp4";
 
 const A = {
-  black:  "#000000",
-  panel:  "#0a0a0a",
-  gray:   "#1a1a1a",
+  black:  "#09090b",
+  panel:  "#09090b",
+  gray:   "#18181b",
   white:  "#ffffff",
-  six:    "#FF5A1F",
+  six:    "#ff5a00",
   m20:    "rgba(255,255,255,0.20)",
   m30:    "rgba(255,255,255,0.30)",
   m40:    "rgba(255,255,255,0.40)",
-  font:   'Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
+  font:   "'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
 };
 
 function Mark({ size = 28 }: { size?: number }) {
   return (
-    <div style={{
-      width: size, height: size, borderRadius: size * 0.28,
-      background: A.white, display: "flex", alignItems: "center",
-      justifyContent: "center", flexShrink: 0,
-    }}>
-      <span style={{ fontFamily: A.font, fontSize: size * 0.62, fontWeight: 800, color: A.black, letterSpacing: -0.5, lineHeight: 1 }}>6</span>
-    </div>
+    <span style={{ fontFamily: A.font, fontSize: size, fontWeight: 200, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1, userSelect: "none" }}>6</span>
   );
 }
 
@@ -68,12 +62,15 @@ function AInput({
           placeholder={placeholder}
           style={{
             width: "100%", height: 44, borderRadius: 12,
-            border: "none", outline: "none",
+            border: "1px solid rgba(255,255,255,0.08)", outline: "none",
             background: A.gray,
             padding: suffix ? "0 44px 0 16px" : "0 16px",
             fontFamily: A.font, fontSize: 15,
             color: A.white, boxSizing: "border-box" as const,
+            transition: "border-color .18s",
           }}
+          onFocus={e => (e.currentTarget.style.borderColor = "rgba(255,90,0,0.5)")}
+          onBlur={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
         />
         {suffix && (
           <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)" }}>
@@ -115,11 +112,11 @@ function LoginContent() {
       const data = await res.json();
       if (!res.ok) {
         if (data.code === "EMAIL_NOT_VERIFIED") setUnverified(true);
-        else setError(data.error || "Invalid email or password.");
+        else setError(data.error || "Email sau parolă incorecte.");
         return;
       }
       window.location.href = "/dashboard";
-    } catch { setError("Network error. Please try again."); }
+    } catch { setError("Eroare de rețea. Încearcă din nou."); }
     finally { setLoading(false); }
   };
 
@@ -139,11 +136,10 @@ function LoginContent() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         @keyframes au-spin { to { transform: rotate(360deg); } }
         @keyframes au-fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { background: #000; overflow-x: hidden; }
+        html, body { background: #09090b; overflow-x: hidden; }
         input::placeholder { color: rgba(255,255,255,0.18) !important; }
         .au-fade { animation: au-fade-up 0.65s cubic-bezier(0.16,1,0.3,1) both; }
         .au-left { display: flex !important; }
@@ -163,7 +159,7 @@ function LoginContent() {
       <div style={{ minHeight: "100vh", background: A.black, padding: 8, display: "flex" }}>
         <div style={{ display: "flex", flex: 1, borderRadius: 20, overflow: "hidden" }}>
 
-          {/* ── Left: video panel ─────────────────────────────────────────── */}
+          {/* ── Stânga: video ── */}
           <section className="au-left" style={{
             width: "50%", flexShrink: 0, position: "relative",
             flexDirection: "column", justifyContent: "flex-end",
@@ -177,32 +173,32 @@ function LoginContent() {
 
             {/* Logo */}
             <div style={{ position: "absolute", top: 36, left: 40, zIndex: 3, display: "flex", alignItems: "center", gap: 10 }}>
-              <Mark size={32}/>
-              <span style={{ fontFamily: A.font, fontSize: 18, fontWeight: 700, color: A.white, letterSpacing: -0.5 }}>
-                in<span style={{ color: A.six }}>six</span>live
+              <Mark size={28}/>
+              <span style={{ fontFamily: A.font, fontSize: 17, fontWeight: 600, color: A.white, letterSpacing: -0.3 }}>
+                insixlive
               </span>
             </div>
 
-            {/* Bottom content */}
+            {/* Bottom */}
             <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", gap: 28 }}>
               <div>
-                <h1 style={{ fontFamily: A.font, fontSize: "clamp(2rem,2.8vw,2.6rem)", fontWeight: 500, letterSpacing: -0.5, color: A.white, lineHeight: 1.1, marginBottom: 12 }}>
-                  Your website.<br/>Your code.<br/><span style={{ color: A.six }}>Yours forever.</span>
+                <h1 style={{ fontFamily: A.font, fontSize: "clamp(2rem,2.8vw,2.6rem)", fontWeight: 700, letterSpacing: -0.5, color: A.white, lineHeight: 1.1, marginBottom: 12 }}>
+                  Site-ul tău.<br/>Codul tău.<br/><span style={{ color: A.six }}>Al tău pentru totdeauna.</span>
                 </h1>
                 <p style={{ fontFamily: A.font, fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6, maxWidth: 300 }}>
-                  Describe your business and we generate a complete site — code, hosting, and all.
+                  Descrie afacerea ta și generăm un site complet — cod, hosting și tot.
                 </p>
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <StepCard number={1} text="Sign in to your account" active={true}/>
-                <StepCard number={2} text="Open your dashboard" active={false}/>
-                <StepCard number={3} text="Launch or generate sites" active={false}/>
+                <StepCard number={1} text="Autentifică-te în cont" active={true}/>
+                <StepCard number={2} text="Deschide tabloul de bord" active={false}/>
+                <StepCard number={3} text="Lansează sau generează site-uri" active={false}/>
               </div>
             </div>
           </section>
 
-          {/* ── Right: form panel ─────────────────────────────────────────── */}
+          {/* ── Dreapta: formular ── */}
           <section className="au-right" style={{
             flex: 1, background: A.panel,
             display: "flex", flexDirection: "column",
@@ -210,14 +206,14 @@ function LoginContent() {
             overflowY: "auto",
           }}>
 
-            {/* Mobile-only logo */}
+            {/* Logo mobil */}
             <div className="au-mobile-logo" style={{
               alignSelf: "stretch", alignItems: "center", gap: 10,
               padding: "20px 24px 0",
             }}>
-              <Mark size={30}/>
-              <span style={{ fontFamily: A.font, fontSize: 17, fontWeight: 700, color: A.white, letterSpacing: -0.5 }}>
-                in<span style={{ color: A.six }}>six</span>live
+              <Mark size={26}/>
+              <span style={{ fontFamily: A.font, fontSize: 17, fontWeight: 600, color: A.white, letterSpacing: -0.3 }}>
+                insixlive
               </span>
             </div>
 
@@ -225,44 +221,44 @@ function LoginContent() {
               <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
 
                 <div>
-                  <h2 style={{ fontFamily: A.font, fontSize: 30, fontWeight: 500, letterSpacing: -0.6, color: A.white, marginBottom: 8 }}>
-                    Welcome back
+                  <h2 style={{ fontFamily: A.font, fontSize: 30, fontWeight: 700, letterSpacing: -0.6, color: A.white, marginBottom: 8 }}>
+                    Bun venit înapoi
                   </h2>
                   <p style={{ fontFamily: A.font, fontSize: 14, color: A.m40, lineHeight: 1.5 }}>
-                    Sign in to manage and generate websites.
+                    Autentifică-te pentru a gestiona și genera site-uri.
                   </p>
                 </div>
 
-                {/* Email not verified warning */}
+                {/* Email neverificat */}
                 {unverified && (
                   <div style={{ padding: "12px 16px", borderRadius: 12, background: "rgba(234,179,8,0.08)", border: "1px solid rgba(234,179,8,0.2)", fontFamily: A.font, fontSize: 14, color: "#EAB308" }}>
-                    <p style={{ margin: "0 0 6px", fontWeight: 600 }}>Email not verified</p>
-                    <p style={{ margin: "0 0 10px", fontSize: 13, opacity: 0.8 }}>Check your inbox for the 6-digit code.</p>
+                    <p style={{ margin: "0 0 6px", fontWeight: 600 }}>Email neverificat</p>
+                    <p style={{ margin: "0 0 10px", fontSize: 13, opacity: 0.8 }}>Verifică inbox-ul pentru codul de 6 cifre.</p>
                     {!resendSent
                       ? <button onClick={handleResend} disabled={resendLoading} style={{ background: "none", border: "none", cursor: "pointer", color: "#EAB308", fontWeight: 600, fontSize: 13, fontFamily: A.font, padding: 0, textDecoration: "underline" }}>
-                          {resendLoading ? "Sending…" : "Resend verification code"}
+                          {resendLoading ? "Se trimite…" : "Retrimite codul de verificare"}
                         </button>
-                      : <span style={{ color: "#4ade80", fontSize: 13, fontWeight: 600 }}>✓ Code sent — check your inbox</span>
+                      : <span style={{ color: "#4ade80", fontSize: 13, fontWeight: 600 }}>✓ Cod trimis — verifică inbox-ul</span>
                     }
                   </div>
                 )}
 
-                {/* Error */}
+                {/* Eroare */}
                 {error && (
-                  <div style={{ padding: "12px 16px", borderRadius: 12, background: "rgba(255,90,31,0.08)", border: "1px solid rgba(255,90,31,0.2)", fontFamily: A.font, fontSize: 14, color: "#FF7A50", display: "flex", gap: 10, alignItems: "flex-start" }}>
+                  <div style={{ padding: "12px 16px", borderRadius: 12, background: "rgba(255,90,0,0.08)", border: "1px solid rgba(255,90,0,0.2)", fontFamily: A.font, fontSize: 14, color: "#ff7a50", display: "flex", gap: 10, alignItems: "flex-start" }}>
                     <svg width="15" height="15" viewBox="0 0 15 15" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
-                      <circle cx="7.5" cy="7.5" r="6.5" stroke="#FF7A50" strokeWidth="1.5"/>
-                      <path d="M7.5 4.5v4M7.5 10v.5" stroke="#FF7A50" strokeWidth="1.5" strokeLinecap="round"/>
+                      <circle cx="7.5" cy="7.5" r="6.5" stroke="#ff7a50" strokeWidth="1.5"/>
+                      <path d="M7.5 4.5v4M7.5 10v.5" stroke="#ff7a50" strokeWidth="1.5" strokeLinecap="round"/>
                     </svg>
                     {error}
                   </div>
                 )}
 
                 <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                  <AInput label="Email" value={email} placeholder="you@yourbusiness.com" onChange={setEmail}/>
+                  <AInput label="Email" value={email} placeholder="tu@afacereata.ro" onChange={setEmail}/>
                   <AInput
-                    label="Password" value={password}
-                    placeholder="Your password"
+                    label="Parolă" value={password}
+                    placeholder="Parola ta"
                     type={showPw ? "text" : "password"}
                     onChange={setPassword}
                     suffix={
@@ -285,19 +281,19 @@ function LoginContent() {
                       display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                       transition: "background .18s, color .18s, opacity .18s",
                     }}
-                    onMouseEnter={e => { if (canSubmit) (e.currentTarget as HTMLButtonElement).style.opacity = "0.92"; }}
+                    onMouseEnter={e => { if (canSubmit) (e.currentTarget as HTMLButtonElement).style.opacity = "0.88"; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
                   >
                     {loading
-                      ? <><span style={{ width: 16, height: 16, borderRadius: 8, border: "2px solid rgba(0,0,0,0.15)", borderTopColor: A.black, animation: "au-spin .8s linear infinite", display: "inline-block" }}/> Signing in…</>
-                      : "Sign in"
+                      ? <><span style={{ width: 16, height: 16, borderRadius: 8, border: "2px solid rgba(0,0,0,0.15)", borderTopColor: A.black, animation: "au-spin .8s linear infinite", display: "inline-block" }}/> Se autentifică…</>
+                      : "Autentifică-te"
                     }
                   </button>
                 </form>
 
                 <div style={{ textAlign: "center", fontFamily: A.font, fontSize: 14, color: A.m40 }}>
-                  No account?{" "}
-                  <Link href="/signup" style={{ color: A.white, fontWeight: 600, textDecoration: "none" }}>Create one free</Link>
+                  Nu ai cont?{" "}
+                  <Link href="/signup" style={{ color: A.white, fontWeight: 600, textDecoration: "none" }}>Creează unul gratuit</Link>
                 </div>
 
               </div>

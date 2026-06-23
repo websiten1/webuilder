@@ -35,7 +35,7 @@ export function Pill({ kind = "", dot = false, children }: { kind?: string; dot?
   );
 }
 
-export function LiveBadge({ lang = "en" }: { lang?: Lang }) {
+export function LiveBadge({ lang = "ro" }: { lang?: Lang }) {
   return (
     <span className="pill pill-ok">
       <span className="live-dot"></span>{tt(lang, "Live", "Online")}
