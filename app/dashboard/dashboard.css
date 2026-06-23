@@ -656,3 +656,334 @@ a{color:inherit;text-decoration:none}
 .modal-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 24px;border-top:1px solid var(--hair);background:var(--bg-2)}
 .modal-foot .mf-total{font-size:14px;color:var(--text-2)}
 .modal-foot .mf-total b{font-size:17px;color:var(--text);font-weight:800;margin-left:4px}
+
+/* ============================================================
+   ANIMATIONS & EFFECTS — insixlive dark dashboard
+   ============================================================ */
+
+/* ── Keyframes ─────────────────────────────────────────────── */
+@keyframes slideUp    { from{opacity:0;transform:translateY(20px);filter:blur(3px)} to{opacity:1;transform:none;filter:blur(0)} }
+@keyframes fadeIn     { from{opacity:0} to{opacity:1} }
+@keyframes scaleIn    { from{opacity:0;transform:scale(.94)} to{opacity:1;transform:scale(1)} }
+@keyframes floatY     { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)} }
+@keyframes glowPulse  { 0%,100%{box-shadow:0 0 0 0 rgba(255,90,0,0),var(--shadow)} 50%{box-shadow:0 0 22px 6px rgba(255,90,0,.22),var(--shadow)} }
+@keyframes borderFlow { 0%,100%{border-color:rgba(255,90,0,.18)} 50%{border-color:rgba(255,90,0,.55)} }
+@keyframes shimmerBg  { from{background-position:-200% 0} to{background-position:200% 0} }
+@keyframes countPop   { 0%{opacity:0;transform:translateY(10px) scale(.9)} 70%{transform:translateY(-2px) scale(1.04)} 100%{opacity:1;transform:none} }
+@keyframes gradFlow   { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+@keyframes skeletonPl { 0%{opacity:.35} 50%{opacity:.75} 100%{opacity:.35} }
+@keyframes rippleOut  { from{transform:scale(0);opacity:.5} to{transform:scale(3.5);opacity:0} }
+@keyframes spinDot    { to{transform:rotate(360deg)} }
+@keyframes navSlide   { from{transform:scaleX(0)} to{transform:scaleX(1)} }
+@keyframes numberRoll { from{transform:translateY(60%);opacity:0} to{transform:none;opacity:1} }
+@keyframes toastSlide { from{opacity:0;transform:translate(-50%,18px) scale(.95)} to{opacity:1;transform:translate(-50%,0) scale(1)} }
+@keyframes menuOpen   { from{opacity:0;transform:scale(.95) translateY(-8px)} to{opacity:1;transform:none} }
+@keyframes livePing   { 0%{transform:scale(.6);opacity:.9} 100%{transform:scale(2);opacity:0} }
+@keyframes orbDrift   { 0%{transform:translate(0,0) scale(1)} 33%{transform:translate(30px,-20px) scale(1.08)} 66%{transform:translate(-20px,15px) scale(.94)} 100%{transform:translate(0,0) scale(1)} }
+
+/* ── Page enter ────────────────────────────────────────────── */
+@media(prefers-reduced-motion:no-preference){
+  .view-enter{animation:slideUp .5s cubic-bezier(.4,.7,.3,1) both!important}
+
+  /* Page head elements stagger */
+  .view-enter .kicker      {animation:slideUp .45s var(--ease) .04s both}
+  .view-enter .page-title  {animation:slideUp .45s var(--ease) .08s both}
+  .view-enter .page-sub    {animation:slideUp .45s var(--ease) .13s both}
+  .view-enter .page-head .b{animation:slideUp .4s  var(--ease) .17s both}
+
+  /* Sections stagger */
+  .view-enter .section:nth-child(1){animation:slideUp .45s var(--ease) .10s both}
+  .view-enter .section:nth-child(2){animation:slideUp .45s var(--ease) .16s both}
+  .view-enter .section:nth-child(3){animation:slideUp .45s var(--ease) .22s both}
+  .view-enter .section:nth-child(4){animation:slideUp .45s var(--ease) .28s both}
+  .view-enter .section:nth-child(5){animation:slideUp .45s var(--ease) .34s both}
+
+  /* Stats pop */
+  .stats>.stat:nth-child(1){animation:slideUp .42s var(--ease) .07s both}
+  .stats>.stat:nth-child(2){animation:slideUp .42s var(--ease) .13s both}
+  .stats>.stat:nth-child(3){animation:slideUp .42s var(--ease) .19s both}
+  .stats>.stat:nth-child(4){animation:slideUp .42s var(--ease) .25s both}
+
+  /* Stat value number roll */
+  .stat .s-v{animation:countPop .55s var(--spring) .3s both;display:block;overflow:hidden}
+
+  /* Site cards stagger */
+  .sites .site:nth-child(1){animation:scaleIn .4s var(--ease) .05s both}
+  .sites .site:nth-child(2){animation:scaleIn .4s var(--ease) .10s both}
+  .sites .site:nth-child(3){animation:scaleIn .4s var(--ease) .15s both}
+  .sites .site:nth-child(4){animation:scaleIn .4s var(--ease) .20s both}
+  .sites .site:nth-child(5){animation:scaleIn .4s var(--ease) .25s both}
+  .sites .site:nth-child(6){animation:scaleIn .4s var(--ease) .30s both}
+
+  /* Chart bars stagger */
+  .chart .bar{animation:slideUp .35s var(--ease) both;transform-origin:bottom}
+  .chart .bar:nth-child(1){animation-delay:.04s}.chart .bar:nth-child(2){animation-delay:.07s}
+  .chart .bar:nth-child(3){animation-delay:.10s}.chart .bar:nth-child(4){animation-delay:.13s}
+  .chart .bar:nth-child(5){animation-delay:.16s}.chart .bar:nth-child(6){animation-delay:.19s}
+  .chart .bar:nth-child(7){animation-delay:.22s}.chart .bar:nth-child(8){animation-delay:.25s}
+  .chart .bar:nth-child(9){animation-delay:.28s}.chart .bar:nth-child(10){animation-delay:.31s}
+  .chart .bar:nth-child(11){animation-delay:.34s}.chart .bar:nth-child(12){animation-delay:.37s}
+
+  /* Modal enhanced */
+  .modal{animation:menuOpen .24s var(--spring) both;transform-origin:center}
+
+  /* Toast slide */
+  .toast{animation:toastSlide .32s var(--spring) both}
+
+  /* Nav brand */
+  .nav-brand{animation:fadeIn .4s ease .05s both}
+
+  /* Menu dropdown */
+  .menu{animation:menuOpen .18s var(--spring) both}
+
+  /* list rows stagger */
+  .list .lrow:not(.head){animation:fadeIn .3s ease both}
+  .list .lrow:nth-child(2){animation-delay:.04s}.list .lrow:nth-child(3){animation-delay:.07s}
+  .list .lrow:nth-child(4){animation-delay:.10s}.list .lrow:nth-child(5){animation-delay:.13s}
+  .list .lrow:nth-child(6){animation-delay:.16s}.list .lrow:nth-child(7){animation-delay:.19s}
+  .list .lrow:nth-child(8){animation-delay:.22s}
+
+  /* Packs */
+  .pack{animation:scaleIn .35s var(--ease) both}
+  .pack:nth-child(1){animation-delay:.04s}.pack:nth-child(2){animation-delay:.09s}.pack:nth-child(3){animation-delay:.14s}
+
+  /* Vital cards */
+  .vital{animation:slideUp .4s var(--ease) both}
+  .vital:nth-child(1){animation-delay:.06s}.vital:nth-child(2){animation-delay:.10s}
+  .vital:nth-child(3){animation-delay:.14s}.vital:nth-child(4){animation-delay:.18s}
+  .vital:nth-child(5){animation-delay:.22s}
+}
+
+/* ── Brand badge — ember glow pulse ────────────────────────── */
+.brand-badge{animation:glowPulse 3.5s ease-in-out infinite}
+
+/* ── Sidebar nav items — animated highlight bar ─────────────── */
+.nav-item{overflow:hidden}
+.nav-item::before{
+  content:"";position:absolute;inset:0;border-radius:14px;
+  background:rgba(255,255,255,.04);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .22s var(--ease);pointer-events:none;
+}
+.nav-item:hover::before{transform:scaleX(1)}
+.nav-item.on{
+  border-color:rgba(255,90,0,.2)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,90,0,.15),0 0 18px -6px rgba(255,90,0,.2);
+}
+.nav-item.on svg{color:var(--ember)!important}
+.nav-item.on .ni-badge{color:var(--ember);background:var(--ember-soft);border:1px solid var(--ember-line)}
+
+/* ── Cards — hover lift + glow ─────────────────────────────── */
+.card{
+  transition:transform .22s var(--ease),box-shadow .22s var(--ease),border-color .2s;
+  border:1px solid var(--hair);
+}
+.card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 16px 48px -16px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.06);
+  border-color:var(--hair-2);
+}
+
+/* ── Stats — value pop on load ─────────────────────────────── */
+.stat{
+  transition:transform .2s var(--ease),box-shadow .2s;
+  border:1px solid var(--hair);
+}
+.stat:hover{transform:translateY(-2px);box-shadow:0 12px 32px -12px rgba(0,0,0,.5)}
+.stat.accent:hover{box-shadow:0 14px 36px -10px rgba(255,90,0,.4)}
+
+/* ── Hero panel — animated background orb ──────────────────── */
+.hero-panel::after{animation:orbDrift 8s ease-in-out infinite}
+
+/* ── Site cards ─────────────────────────────────────────────── */
+.site{transition:transform .22s var(--ease),box-shadow .25s,border-color .2s;border:1px solid var(--hair)}
+.site:hover{
+  transform:translateY(-5px) scale(1.012);
+  box-shadow:0 24px 56px -18px rgba(0,0,0,.7),0 0 0 1px rgba(255,90,0,.18);
+  border-color:rgba(255,90,0,.2);
+}
+/* shimmer on site preview bar when card is hovered */
+.site:hover .pv-h{
+  background:linear-gradient(90deg,var(--accent),rgba(255,140,40,.6),var(--accent));
+  background-size:200% 100%;
+  animation:shimmerBg 1.4s linear infinite;
+}
+
+/* ── Site new — animated border flow ───────────────────────── */
+.site-new{animation:borderFlow 3s ease-in-out infinite;transition:none}
+.site-new:hover{animation:none;border-color:var(--ember);background:var(--ember-soft);color:var(--ember)}
+
+/* ── Buttons — ripple on active ─────────────────────────────── */
+.b{position:relative;overflow:hidden}
+.b::after{
+  content:"";position:absolute;
+  top:50%;left:50%;
+  width:10px;height:10px;
+  transform:translate(-50%,-50%) scale(0);
+  border-radius:50%;
+  background:rgba(255,255,255,.18);
+  opacity:0;
+  transition:transform .5s ease,opacity .5s ease;
+  pointer-events:none;
+}
+.b:active::after{
+  transform:translate(-50%,-50%) scale(20);
+  opacity:0;
+  transition:0s;
+}
+.b-primary{transition:background .18s,transform .1s,box-shadow .2s}
+.b-primary:hover{transform:translateY(-1px);box-shadow:rgba(255,90,0,.45) 0 8px 24px -6px}
+.b-primary:active{transform:translateY(1px)}
+.b-ghost{transition:background .18s,border-color .18s,transform .1s}
+.b-ghost:hover{transform:translateY(-1px)}
+.b-ghost:active{transform:translateY(1px)}
+.b-link{position:relative}
+.b-link::after{
+  content:"";position:absolute;bottom:-1px;left:0;right:0;
+  height:1px;background:var(--accent);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .2s var(--ease);
+  opacity:1;border-radius:0;
+}
+.b-link:hover::after{transform:scaleX(1)}
+.b-link:hover{text-decoration:none!important}
+
+/* ── Inputs — ember focus ring ─────────────────────────────── */
+.inp{transition:border-color .18s,box-shadow .18s,background .18s}
+.inp:focus{
+  border-color:var(--ember-line)!important;
+  box-shadow:0 0 0 3px var(--ember-soft)!important;
+}
+
+/* ── Live dot — enhanced pulse ──────────────────────────────── */
+.live-dot{box-shadow:0 0 6px rgba(34,197,94,.5)}
+.live-dot::after{animation:livePing 2.2s ease-out infinite}
+
+/* ── Kicker dot — continuous spin fade ─────────────────────── */
+.kicker::before{animation:none;box-shadow:0 0 0 4px var(--ember-soft)}
+
+/* ── Connection card — logo hover glow ─────────────────────── */
+.conn .c-logo{transition:box-shadow .22s,background .22s,color .22s}
+.conn:hover .c-logo{
+  box-shadow:0 0 24px -4px rgba(255,90,0,.35);
+  background:var(--ember-soft);
+  border-color:var(--ember-line);
+}
+
+/* ── List rows — subtle ember sweep ────────────────────────── */
+.lrow{transition:background .15s}
+.lrow:hover:not(.head){background:rgba(255,90,0,.03)!important}
+
+/* ── Toggle — spring ────────────────────────────────────────── */
+.toggle i{transition:transform .26s var(--spring)}
+.toggle[data-on="1"]{background:var(--ember);border-color:transparent;box-shadow:0 0 12px -2px rgba(255,90,0,.4)}
+
+/* ── Packs — spring select ─────────────────────────────────── */
+.pack{transition:border-color .16s,background .16s,transform .18s var(--spring),box-shadow .18s}
+.pack:hover{transform:translateY(-3px);box-shadow:0 10px 28px -10px rgba(0,0,0,.5)}
+.pack.on{
+  transform:translateY(-3px) scale(1.02);
+  border-color:var(--ember)!important;
+  background:var(--ember-soft)!important;
+  box-shadow:0 0 0 1px rgba(255,90,0,.25),0 10px 28px -8px rgba(255,90,0,.25);
+}
+.pack.on .pk-ck{background:var(--ember);border-color:var(--ember);color:#fff;animation:scaleIn .2s var(--spring)}
+
+/* ── Empty state — float ────────────────────────────────────── */
+.empty .em-ic{animation:floatY 3.2s ease-in-out infinite}
+.empty{border:1px dashed rgba(255,90,0,.2)!important;background:rgba(255,90,0,.02)!important}
+
+/* ── Skeleton placeholder ───────────────────────────────────── */
+.skel{
+  background:linear-gradient(90deg,var(--surface-2) 0%,var(--surface-3) 50%,var(--surface-2) 100%);
+  background-size:200% 100%;
+  animation:shimmerBg 1.6s linear infinite;
+  border-radius:6px;
+}
+
+/* ── Topbar — glass blur intensify ─────────────────────────── */
+.topbar{transition:background .3s,box-shadow .3s;border-bottom:1px solid var(--hair)}
+.topbar:hover{box-shadow:0 1px 0 var(--hair-2)}
+
+/* ── Topbar search — hover expand ──────────────────────────── */
+.tb-search{transition:border-color .18s,box-shadow .18s,min-width .2s var(--ease)}
+.tb-search:hover{border-color:var(--hair-2);box-shadow:0 0 0 3px rgba(255,90,0,.06)}
+
+/* ── Topbar icon ─────────────────────────────────────────────── */
+.tb-icon{transition:border-color .18s,color .18s,background .18s,transform .15s}
+.tb-icon:hover{border-color:var(--ember-line);color:var(--ember);transform:scale(1.08)}
+
+/* ── Account button ─────────────────────────────────────────── */
+.acct-btn{transition:background .18s,border-color .18s,transform .15s}
+.acct-btn:hover{transform:scale(1.03)}
+
+/* ── Avatar gradient shift ──────────────────────────────────── */
+.avatar{background:linear-gradient(150deg,#52525b,#18181b,#3f3f46);background-size:200% 200%;animation:gradFlow 6s ease infinite}
+
+/* ── Subtabs — animated underline ──────────────────────────── */
+.subtab{transition:color .18s}
+.subtab::after{transition:transform .22s var(--ease)}
+.subtab:not(.on)::after{transform:scaleX(0);transform-origin:right}
+.subtab.on::after{transform:scaleX(1);transform-origin:left;background:var(--ember)}
+
+/* ── Pill hover ─────────────────────────────────────────────── */
+.pill{transition:opacity .15s,transform .15s,box-shadow .15s}
+.pill:hover{transform:scale(1.04)}
+.pill-ok{box-shadow:0 0 8px -2px rgba(34,197,94,.3)}
+.pill-accent{box-shadow:0 0 8px -2px rgba(255,90,0,.3)}
+
+/* ── Callout hover ──────────────────────────────────────────── */
+.callout{transition:border-color .2s,box-shadow .2s}
+.callout:hover{border-color:var(--hair-3);box-shadow:0 4px 20px -8px rgba(0,0,0,.4)}
+
+/* ── Chart bar hover glow ───────────────────────────────────── */
+.chart .bar{transition:opacity .14s,transform .14s,filter .14s}
+.chart .bar:hover{opacity:1!important;transform:scaleY(1.03);filter:drop-shadow(0 0 6px rgba(255,90,0,.4))}
+
+/* ── Topbar notification dot — bounce ──────────────────────── */
+.tb-icon .nd{animation:glowPulse 2s ease-in-out infinite}
+
+/* ── Plan card progress bar — transition ───────────────────── */
+.plan-card .pc-bar i{transition:width 1.2s var(--ease)}
+
+/* ── itile hover ─────────────────────────────────────────────── */
+.itile{transition:background .18s,border-color .18s,transform .15s,color .18s}
+.itile:hover{transform:scale(1.06);border-color:var(--hair-2)}
+.itile.ok:hover{box-shadow:0 0 14px -4px rgba(34,197,94,.4)}
+.itile.accent:hover{box-shadow:0 0 14px -4px rgba(255,90,0,.4)}
+
+/* ── Gauge pulse ─────────────────────────────────────────────── */
+.gauge{position:relative}
+.gauge::after{
+  content:"";position:absolute;inset:-4px;border-radius:50%;
+  border:1px solid rgba(255,90,0,.12);
+  animation:glowPulse 3s ease-in-out infinite;
+  pointer-events:none;
+}
+
+/* ── Bk-track fill animate ──────────────────────────────────── */
+.bk-track i{transition:width 1s var(--ease);animation:none}
+
+/* ── Section title dot ──────────────────────────────────────── */
+.section-title .st-k{transition:color .18s}
+.section:hover .section-title .st-k{color:var(--ember)}
+
+/* ── Delete modal danger zone pulse ────────────────────────── */
+.danger-zone{
+  border:1px solid var(--danger-line);
+  transition:box-shadow .3s;
+}
+.danger-zone:hover{box-shadow:0 0 24px -8px rgba(239,68,68,.2)}
+
+/* ── Menu items slide in ─────────────────────────────────────── */
+.menu .menu-sect:nth-child(1) .menu-item{animation:slideUp .22s var(--ease) both}
+.menu .menu-sect:nth-child(1) .menu-item:nth-child(1){animation-delay:.03s}
+.menu .menu-sect:nth-child(1) .menu-item:nth-child(2){animation-delay:.06s}
+.menu .menu-sect:nth-child(1) .menu-item:nth-child(3){animation-delay:.09s}
+.menu .menu-sect:nth-child(2) .menu-item{animation:slideUp .22s var(--ease) .12s both}
+.menu-item{transition:background .14s,color .14s,transform .14s}
+.menu-item:hover{transform:translateX(2px)}
+
+/* ── Nav foot plan card ─────────────────────────────────────── */
+.plan-card{border:1px solid var(--hair);transition:border-color .2s}
+.plan-card:hover{border-color:rgba(255,90,0,.25)}
