@@ -1,7 +1,6 @@
 /* ============================================================
    insixlive — Account & Dashboard
-   Awesomic system: Mist/Snow/Fog surfaces, Obsidian neutral ramp,
-   Obsidian primary actions, Ember brand spark, green status. DM Sans.
+   Dark obsidian system: #09090b canvas, ember #ff5a00 accent, DM Sans.
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
@@ -10,62 +9,62 @@
   --font-sans:'DM Sans',system-ui,-apple-system,sans-serif;
   --font-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
 
-  /* Awesomic surfaces — deeper Mist canvas so Snow cards float as bubbles */
-  --bg:#ebecef;
-  --bg-2:#e5e6ea;
-  --surface:#ffffff;
-  --surface-2:#f4f4f5;
-  --surface-3:#e4e4e7;
-  --hair:rgba(9,9,11,.08);
-  --hair-2:rgba(9,9,11,.14);
-  --hair-3:rgba(9,9,11,.24);
+  /* Dark obsidian surfaces */
+  --bg:#09090b;
+  --bg-2:#111113;
+  --surface:#18181b;
+  --surface-2:#1c1c1f;
+  --surface-3:#27272a;
+  --hair:rgba(255,255,255,.07);
+  --hair-2:rgba(255,255,255,.11);
+  --hair-3:rgba(255,255,255,.18);
 
-  /* Awesomic neutral ramp */
-  --text:#09090b;
-  --text-2:#3f3f46;
+  /* Text ramp — light on dark */
+  --text:#fafafa;
+  --text-2:#a1a1aa;
   --text-3:#71717a;
-  --text-4:#a1a1aa;
+  --text-4:#52525b;
 
-  /* Ember — reserved brand spark (badges, kickers, notification dots) */
+  /* Ember — primary brand accent */
   --ember:#ff5a00;
-  --ember-soft:rgba(255,90,0,.10);
-  --ember-line:rgba(255,90,0,.32);
+  --ember-soft:rgba(255,90,0,.12);
+  --ember-line:rgba(255,90,0,.35);
 
-  /* Primary action = Obsidian (the system has no chromatic CTA) */
-  --accent:#09090b;
-  --accent-2:#18181b;
-  --accent-soft:rgba(9,9,11,.06);
-  --accent-line:rgba(9,9,11,.18);
+  /* Primary action = Ember (dark bg needs chromatic CTA) */
+  --accent:#ff5a00;
+  --accent-2:#e04e00;
+  --accent-soft:rgba(255,90,0,.10);
+  --accent-line:rgba(255,90,0,.30);
 
-  /* secondary / charts kept monochrome (slate) */
-  --violet:#52525b;
-  --violet-soft:rgba(82,82,91,.10);
-  --violet-line:rgba(82,82,91,.30);
+  /* secondary / charts */
+  --violet:#818cf8;
+  --violet-soft:rgba(129,140,248,.12);
+  --violet-line:rgba(129,140,248,.30);
 
-  /* status greens kept semantic (deployed / live) */
-  --ok:#15803d;
-  --ok-soft:rgba(21,128,61,.11);
-  --ok-line:rgba(21,128,61,.30);
+  /* status greens */
+  --ok:#22c55e;
+  --ok-soft:rgba(34,197,94,.12);
+  --ok-line:rgba(34,197,94,.30);
 
-  --warn:#b45309;
-  --warn-soft:rgba(180,83,9,.11);
-  --warn-line:rgba(180,83,9,.30);
+  --warn:#f59e0b;
+  --warn-soft:rgba(245,158,11,.12);
+  --warn-line:rgba(245,158,11,.30);
 
-  --danger:#dc2626;
-  --danger-soft:rgba(220,38,38,.09);
-  --danger-line:rgba(220,38,38,.28);
+  --danger:#ef4444;
+  --danger-soft:rgba(239,68,68,.10);
+  --danger-line:rgba(239,68,68,.30);
 
-  --info:#52525b;
-  --info-soft:rgba(82,82,91,.10);
+  --info:#71717a;
+  --info-soft:rgba(113,113,122,.12);
 
   --r:26px;
   --r-sm:14px;
   --r-lg:34px;
   --ease:cubic-bezier(.4,.7,.3,1);
   --spring:cubic-bezier(.34,1.4,.5,1);
-  --shadow:0 22px 50px -28px rgba(9,9,11,.22);
-  --shadow-sm:rgb(228,228,231) 0px 1px 0px 0px inset;
-  color-scheme:light;
+  --shadow:0 24px 56px -20px rgba(0,0,0,.6);
+  --shadow-sm:rgba(255,255,255,.04) 0px 1px 0px 0px inset;
+  color-scheme:dark;
 }
 
 *{box-sizing:border-box}
@@ -85,14 +84,14 @@ a{color:inherit;text-decoration:none}
 
 /* dot-grid backdrop */
 .dotgrid{
-  background-image:radial-gradient(circle at center,rgba(17,24,39,.05) 1px,transparent 1.1px);
+  background-image:radial-gradient(circle at center,rgba(255,255,255,.04) 1px,transparent 1.1px);
   background-size:24px 24px;
 }
 
 /* scrollbars */
 .scroll::-webkit-scrollbar{width:10px;height:10px}
 .scroll::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:99px;border:3px solid transparent;background-clip:padding-box}
-.scroll::-webkit-scrollbar-thumb:hover{background:#c2c8d0;background-clip:padding-box}
+.scroll::-webkit-scrollbar-thumb:hover{background:#3f3f46;background-clip:padding-box}
 
 /* ============================================================ SHELL */
 .dash{display:flex;min-height:100vh;width:100%}
@@ -111,9 +110,9 @@ a{color:inherit;text-decoration:none}
 }
 .brand-badge{
   width:32px;height:32px;border-radius:10px;flex:0 0 32px;
-  background:#09090b;color:var(--ember);
+  background:var(--ember);color:#fff;
   display:grid;place-items:center;font-family:var(--font-sans);font-weight:700;font-size:17px;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 4px 16px -8px rgba(255,90,0,.5);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 4px 16px -8px rgba(255,90,0,.7);
 }
 .brand-word{font-weight:700;font-size:19px;letter-spacing:-.025em}
 .brand-word .mid{color:var(--ember)}
@@ -191,7 +190,7 @@ a{color:inherit;text-decoration:none}
 .avatar{
   border-radius:50%;display:grid;place-items:center;flex:0 0 auto;
   font-family:var(--font-mono);font-weight:700;color:#fff;letter-spacing:-.01em;
-  background:linear-gradient(150deg,#3f3f46,#09090b);box-shadow:inset 0 0 0 1px rgba(255,255,255,.16);
+  background:linear-gradient(150deg,#3f3f46,#18181b);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);
 }
 .acct-btn{display:flex;align-items:center;gap:9px;padding:4px 4px 4px 4px;border-radius:99px;border:1px solid transparent;background:transparent;cursor:pointer;transition:background .15s,border-color .15s}
 .acct-btn:hover{background:var(--surface);border-color:var(--hair)}
@@ -272,7 +271,7 @@ a{color:inherit;text-decoration:none}
 }
 .b:active{transform:translateY(1px)}
 .b svg{width:15px;height:15px}
-.b-primary{background:var(--accent);color:#fff;box-shadow:rgba(255,255,255,.16) 0 .5px 0 0 inset, rgba(0,0,0,.16) 0 4px 10px -4px}
+.b-primary{background:var(--accent);color:#fff;box-shadow:rgba(255,255,255,.14) 0 .5px 0 0 inset, rgba(255,90,0,.35) 0 6px 18px -6px}
 .b-primary:hover{background:var(--accent-2)}
 .b-ghost{background:var(--surface-2);color:var(--text);border-color:var(--hair-2)}
 .b-ghost:hover{border-color:var(--hair-3);background:var(--surface-3)}
@@ -307,26 +306,26 @@ a{color:inherit;text-decoration:none}
 /* ============================================================ HERO PANEL (Awesomic dark moment) */
 .hero-panel{
   position:relative;overflow:hidden;
-  background:var(--accent);border-radius:var(--r-lg);
+  background:#18181b;border:1px solid var(--hair-2);border-radius:var(--r-lg);
   padding:40px 40px;margin-bottom:30px;
   align-items:flex-end;
 }
 .hero-panel::before{
   content:"";position:absolute;inset:0;pointer-events:none;
-  background-image:radial-gradient(circle at center,rgba(255,255,255,.05) 1px,transparent 1.2px);
+  background-image:radial-gradient(circle at center,rgba(255,255,255,.03) 1px,transparent 1.2px);
   background-size:22px 22px;
 }
 .hero-panel::after{
   content:"";position:absolute;top:-120px;right:-80px;width:420px;height:420px;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,90,0,.22),transparent 62%);pointer-events:none;
+  background:radial-gradient(circle,rgba(255,90,0,.18),transparent 62%);pointer-events:none;
 }
 .hero-panel>*{position:relative;z-index:1}
 .hero-panel .kicker{color:var(--ember)}
 .hero-panel .kicker::before{background:var(--ember);box-shadow:0 0 0 4px rgba(255,90,0,.18)}
 .hero-panel .page-title{color:#fff}
-.hero-panel .page-sub{color:var(--text-4)}
-.hero-panel .b-primary{background:#fff;color:#09090b;box-shadow:rgba(0,0,0,.25) 0 6px 18px -8px}
-.hero-panel .b-primary:hover{background:#f4f4f5}
+.hero-panel .page-sub{color:var(--text-3)}
+.hero-panel .b-primary{background:var(--ember);color:#fff;box-shadow:rgba(255,90,0,.35) 0 6px 18px -6px}
+.hero-panel .b-primary:hover{background:var(--accent-2)}
 
 /* ============================================================ STATS STRIP */
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
@@ -339,12 +338,12 @@ a{color:inherit;text-decoration:none}
 .stat .s-v small{font-size:15px;color:var(--text-3);font-weight:600;margin-left:3px}
 .stat .s-d{font-size:12px;color:var(--text-3);margin-top:7px}
 .stat .s-d b{color:var(--ok);font-weight:600}
-.stat.accent{background:var(--accent);color:#fff;box-shadow:none;overflow:hidden}
-.stat.accent .s-k{color:var(--text-4)}
+.stat.accent{background:var(--ember);color:#fff;box-shadow:rgba(255,90,0,.3) 0 8px 24px -8px;overflow:hidden}
+.stat.accent .s-k{color:rgba(255,255,255,.65)}
 .stat.accent .s-v{color:#fff}
-.stat.accent .s-d{color:var(--text-4)}
+.stat.accent .s-d{color:rgba(255,255,255,.65)}
 .stat.accent .s-d b{color:#fff}
-.stat.accent::after{content:"";position:absolute;top:-50px;right:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,var(--ember-soft),transparent 70%);pointer-events:none}
+.stat.accent::after{content:"";position:absolute;top:-50px;right:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.12),transparent 70%);pointer-events:none}
 
 /* ============================================================ SITES GRID */
 .sites{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}

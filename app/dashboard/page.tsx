@@ -186,7 +186,7 @@ export default function DashboardPage() {
     return (
       <div className="dash" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <style>{`@keyframes dspin { to { transform: rotate(360deg); } }`}</style>
-        <div style={{ width: 28, height: 28, borderRadius: 14, border: "2px solid #e8e3d6", borderTopColor: "#FF5A1F", animation: "dspin .8s linear infinite" }} />
+        <div style={{ width: 28, height: 28, borderRadius: 14, border: "2px solid rgba(255,255,255,0.08)", borderTopColor: "#ff5a00", animation: "dspin .8s linear infinite" }} />
       </div>
     );
   }
