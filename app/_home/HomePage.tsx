@@ -681,7 +681,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           <div className="container hero-inner">
             {/* Centre — hardcoded headline */}
             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" as const }}>
-              <h1 className="reveal manifesto-text" style={{ fontSize: "clamp(0.82rem, 1.4vw, 1.4rem)", lineHeight: 1.5, margin: "0 0 0", textAlign: "center" as const }}>
+              <h1 className="reveal manifesto-text" style={{ fontSize: "clamp(1.64rem, 2.8vw, 2.8rem)", lineHeight: 1.5, margin: "0 0 0", textAlign: "center" as const }}>
                 <span style={{ display: "block" }}>site-uri.profesionale /</span>
                 <span className="dim" style={{ display: "block" }}>publicate-pe-domeniu-propriu ✓</span>
               </h1>
