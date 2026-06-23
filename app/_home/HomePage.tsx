@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { DM_Sans } from "next/font/google";
 import type { HomeCopy } from "./copy";
 import FeaturedBentoSection from "./FeaturedBentoSection";
+import { ProgressiveBlur } from "./ProgressiveBlur";
 
 // ─── insixlive Website (Awesomic) — ported from Claude Design ─────────────
 // Source: claude.ai/design/p/019e130a-b156-7a53-9abe-2feed797f07c
@@ -660,12 +661,20 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
             <div className="pr"/><div className="pr"/><div className="pr"/>
           </div>
 
+          {/* Progressive blur fade-out at hero bottom */}
+          <ProgressiveBlur
+            direction="bottom"
+            blurLayers={10}
+            blurIntensity={0.4}
+            style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 160, zIndex: 8, pointerEvents: "none" }}
+          />
+
           <div className="container hero-inner">
             {/* Centre — hardcoded headline */}
             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" as const }}>
-              <h1 className="reveal" style={{ fontFamily: "var(--font-cosmica), sans-serif", fontSize: "clamp(0.78rem, 1.35vw, 1.35rem)", fontWeight: 200, lineHeight: 1.9, letterSpacing: "0.22em", color: "rgba(255,255,255,0.5)", margin: "0 0 0", textTransform: "uppercase" as const }}>
+              <h1 className="reveal" style={{ fontFamily: "var(--font-cosmica), sans-serif", fontSize: "clamp(0.82rem, 1.4vw, 1.4rem)", fontWeight: 700, lineHeight: 1.5, letterSpacing: "-0.025em", color: "rgba(255,255,255,0.7)", margin: "0 0 0" }}>
                 <span style={{ display: "block" }}>site-uri.profesionale /</span>
-                <span style={{ display: "block" }}>publicate-pe-domeniu-propriu ✓</span>
+                <span style={{ display: "block", color: "rgba(255,255,255,0.35)", fontWeight: 300 }}>publicate-pe-domeniu-propriu ✓</span>
               </h1>
               <div className="reveal" style={{ marginTop: 28 }}>
                 <Link href={ctaHref} className="btn btn-primary btn-roll" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
@@ -797,21 +806,47 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                 {copy.how.heading[0]}<br/><span style={{ color: "var(--color-steel)", fontWeight: 300 }}>{copy.how.heading[1]}</span>
               </h2>
             </div>
-            {/* Aurora step timeline */}
-            <div className="step-timeline">
-              {copy.how.steps.map(([t, s], i) => (
-                <div className={`step-t reveal${i === copy.how.steps.length - 1 ? " is-live" : ""}`} key={STEP_NUMS[i]} style={{ transitionDelay: `${i * 0.1}s` }}>
-                  <div className="st-num" style={{ position: "relative" }}>
-                    {i + 1}
-                    {i === copy.how.steps.length - 1 && <span className="status-dot" style={{ position: "absolute", top: -2, right: -2 }}/>}
+            {/* Clean minimal step cards */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+              {copy.how.steps.map(([t, s], i) => {
+                const isLast = i === copy.how.steps.length - 1;
+                return (
+                  <div
+                    key={STEP_NUMS[i]}
+                    className="reveal"
+                    style={{
+                      background: isLast ? "var(--color-obsidian)" : "var(--color-snow)",
+                      border: `1px solid ${isLast ? "rgba(255,255,255,0.06)" : "var(--color-fog)"}`,
+                      borderRadius: 20,
+                      padding: "24px 24px 28px",
+                      display: "flex",
+                      flexDirection: "column" as const,
+                      gap: 10,
+                      transitionDelay: `${i * 0.08}s`,
+                    }}
+                  >
+                    <span style={{
+                      fontFamily: "ui-monospace, monospace",
+                      fontSize: 10,
+                      fontWeight: 600,
+                      letterSpacing: "0.1em",
+                      color: isLast ? "rgba(255,255,255,0.25)" : "var(--color-ash)",
+                    }}>
+                      {STEP_NUMS[i]}
+                    </span>
+                    <div style={{ flex: 1 }}>
+                      <h4 style={{ fontSize: "var(--text-subheading)", fontWeight: 600, margin: "0 0 6px", color: isLast ? "#fff" : "var(--color-obsidian)" }}>{t}</h4>
+                      <p style={{ fontSize: "var(--text-body)", color: isLast ? "rgba(255,255,255,0.45)" : "var(--color-steel)", margin: 0, lineHeight: 1.55 }}>{s}</p>
+                    </div>
+                    {isLast && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 4 }}>
+                        <span className="status-dot" style={{ position: "static" }} />
+                        <span style={{ fontSize: 11, fontWeight: 600, color: "#4ade80", letterSpacing: "0.04em" }}>{copy.how.liveBadge}</span>
+                      </div>
+                    )}
                   </div>
-                  <h4>{t}</h4>
-                  <p>{s}</p>
-                  {i === copy.how.steps.length - 1 && (
-                    <span className="badge badge-ember" style={{ marginTop: 14, display: "inline-flex" }}>{copy.how.liveBadge}</span>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
@@ -981,20 +1016,35 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                 {copy.proof.heading[0]}<br/><span style={{ color: "rgba(255,255,255,0.28)", fontWeight: 300 }}>{copy.proof.heading[1]}</span>
               </h2>
             </div>
-            <div className="grid-3" style={{ gap: 16 }}>
-              {copy.proof.testimonials.map((t, i) => (
-                <div className="dark-quote reveal" key={t.name} style={{ transitionDelay: `${i * 0.1}s` }}>
-                  <span className="big-q">&ldquo;</span>
-                  <p>{t.quote}</p>
-                  <div className="dq-author">
-                    <div className="dq-av">{t.initials}</div>
-                    <div>
-                      <div className="dq-name">{t.name}</div>
-                      <div className="dq-biz">{t.biz}</div>
+            <div style={{ position: "relative" }}>
+              {/* Edge blurs */}
+              <ProgressiveBlur
+                direction="left"
+                blurLayers={6}
+                blurIntensity={0.35}
+                style={{ position: "absolute", top: 0, left: 0, bottom: 0, width: 80, zIndex: 5, pointerEvents: "none" }}
+              />
+              <ProgressiveBlur
+                direction="right"
+                blurLayers={6}
+                blurIntensity={0.35}
+                style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: 80, zIndex: 5, pointerEvents: "none" }}
+              />
+              <div className="grid-3" style={{ gap: 16 }}>
+                {copy.proof.testimonials.map((t, i) => (
+                  <div className="dark-quote reveal" key={t.name} style={{ transitionDelay: `${i * 0.1}s` }}>
+                    <span className="big-q">&ldquo;</span>
+                    <p>{t.quote}</p>
+                    <div className="dq-author">
+                      <div className="dq-av">{t.initials}</div>
+                      <div>
+                        <div className="dq-name">{t.name}</div>
+                        <div className="dq-biz">{t.biz}</div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </section>
