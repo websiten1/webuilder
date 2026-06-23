@@ -19,7 +19,7 @@ export function ConnectedPage({
   lang: Lang;
 }) {
   const connected = !!vercel?.connected;
-  const since = vercel?.since ? new Date(vercel.since).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : null;
+  const since = vercel?.since ? new Date(vercel.since).toLocaleDateString("ro-RO", { day: "numeric", month: "short", year: "numeric" }) : null;
 
   return (
     <div className="page narrow view-enter">

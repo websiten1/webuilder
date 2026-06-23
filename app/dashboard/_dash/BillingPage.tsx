@@ -147,7 +147,7 @@ export function BillingPage({
                   </div>
                 </div>
                 <div className="lcell" style={{ flex: "0 0 120px", color: "var(--text-3)" }}>
-                  {new Date(inv.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                  {new Date(inv.date).toLocaleDateString("ro-RO", { day: "numeric", month: "short", year: "numeric" })}
                 </div>
                 <div className="lcell num" style={{ flex: "0 0 80px", color: "var(--text)", fontWeight: 650 }}>
                   €{inv.amount.toFixed(2)}

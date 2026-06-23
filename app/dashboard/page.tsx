@@ -55,11 +55,13 @@ function favFor(name: string): string {
 function relativeTime(iso: string): string {
   const ms = Date.now() - new Date(iso).getTime();
   const days = Math.floor(ms / 86400000);
-  if (days <= 0) return "today";
-  if (days === 1) return "yesterday";
-  if (days < 7) return `${days} days ago`;
-  if (days < 30) return `${Math.floor(days / 7)} week${Math.floor(days / 7) > 1 ? "s" : ""} ago`;
-  return `${Math.floor(days / 30)} month${Math.floor(days / 30) > 1 ? "s" : ""} ago`;
+  if (days <= 0) return "azi";
+  if (days === 1) return "ieri";
+  if (days < 7) return `acum ${days} zile`;
+  const weeks = Math.floor(days / 7);
+  if (days < 30) return `acum ${weeks} ${weeks === 1 ? "săptămână" : "săptămâni"}`;
+  const months = Math.floor(days / 30);
+  return `acum ${months} ${months === 1 ? "lună" : "luni"}`;
 }
 
 function toDashSite(s: RawSite, i: number): DashSite {
@@ -259,7 +261,7 @@ export default function DashboardPage() {
             <ProfilePage
               email={user?.email ?? ""}
               initials={initials}
-              joined={sites.length ? new Date(sites[sites.length - 1].createdAt).toLocaleDateString("en-GB", { month: "long", year: "numeric" }) : "—"}
+              joined={sites.length ? new Date(sites[sites.length - 1].createdAt).toLocaleDateString("ro-RO", { month: "long", year: "numeric" }) : "—"}
               toast={toast}
               lang={lang}
             />
