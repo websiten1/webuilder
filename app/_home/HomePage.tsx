@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { DM_Sans } from "next/font/google";
 import type { HomeCopy } from "./copy";
+import FeaturedBentoSection from "./FeaturedBentoSection";
 
 // ─── insixlive Website (Awesomic) — ported from Claude Design ─────────────
 // Source: claude.ai/design/p/019e130a-b156-7a53-9abe-2feed797f07c
@@ -25,13 +26,10 @@ const FEATURE_ICONS: { d: string; circle?: boolean }[] = [
 const STEP_NUMS = ["01", "02", "03", "04", "05", "06"];
 
 const DP_NAV = [
-  { label: "Home",          href: "/" },
-  { label: "About Us",      href: "/about" },
-  { label: "Courses",       href: "/courses" },
-  { label: "Instructors",   href: "/instructors" },
-  { label: "Testimonials",  href: "/testimonials" },
-  { label: "Blog",          href: "/blog" },
-  { label: "Contact us",    href: "/contact", arrow: true },
+  { label: "Cum funcționează", href: "#how" },
+  { label: "Exemple",          href: "#examples" },
+  { label: "Prețuri",          href: "#pricing" },
+  { label: "Începe",           href: "/signup", arrow: true },
 ] as const;
 
 const PORTFOLIO_IMAGES = [
@@ -665,15 +663,15 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           <div className="container hero-inner">
             {/* Centre — hardcoded headline */}
             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" as const }}>
-              <h1 className="reveal" style={{ fontSize: "clamp(2.8rem, 8vw, 7rem)", fontWeight: 700, lineHeight: 0.9, letterSpacing: "-0.02em", color: "var(--color-snow)", margin: "0 0 0" }}>
-                <span style={{ display: "block" }}>Professional websites.</span>
-                <span style={{ display: "block" }}>Deployed to your domain.</span>
+              <h1 className="reveal" style={{ fontFamily: "ui-monospace,'SF Mono','Cascadia Code',monospace", fontSize: "clamp(0.78rem, 1.35vw, 1.35rem)", fontWeight: 400, lineHeight: 1.8, letterSpacing: "0.1em", color: "rgba(255,255,255,0.45)", margin: "0 0 0" }}>
+                <span style={{ display: "block" }}>site-uri.profesionale /</span>
+                <span style={{ display: "block" }}>publicate-pe-domeniu-propriu ✓</span>
               </h1>
               <form className="email-row reveal" onSubmit={handleHeroEmailSubmit} style={{ justifyContent: "center", maxWidth: 460 }}>
                 <input type="email" required value={heroEmail} onChange={e => setHeroEmail(e.target.value)} placeholder={copy.hero.emailPlaceholder} aria-label="Email" />
                 {/* Axion TextRoll on primary CTA */}
                 <button className="btn btn-primary btn-roll" type="submit">
-                  <span className="roll-inner"><span data-text={copy.hero.submitLabel}>{copy.hero.submitLabel}</span></span>
+                  <span className="roll-inner"><span data-text={copy.getStarted}>{copy.getStarted}</span></span>
                   <span className="btn-circle" aria-hidden>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                   </span>
@@ -754,66 +752,6 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
               </h2>
             </div>
 
-            {/* ── Bionova stat cards — video backgrounds like Bionova HeroSection ── */}
-            <div className="bio-cards reveal" style={{ transitionDelay: "0.12s" }}>
-              {/* Main wide card */}
-              <div className="bio-card-main">
-                <video className="bc-vid" autoPlay muted loop playsInline aria-hidden>
-                  <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260506_081238_406ed0e3-5d83-436e-a512-0bbff7ec5b95.mp4" type="video/mp4"/>
-                </video>
-                <div className="bc-overlay" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.65) 100%)" }}/>
-                <div className="bc-content">
-                  <h3 style={{ fontSize: "clamp(1.3rem,2.4vw,2rem)", fontWeight: 400, color: "#fff", margin: 0, lineHeight: 1.2, maxWidth: "36ch" }}>
-                    If you&apos;re ready to launch your website, let&apos;s get started.
-                  </h3>
-                  <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 16 }}>
-                    <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.75)", margin: 0, maxWidth: "44ch", lineHeight: 1.65 }}>
-                      From brief to deployed—AI generates your code and ships it to your own Vercel account.
-                    </p>
-                    <a href="/signup" className="bc-arrow" aria-label="Get started">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#09090b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
-                    </a>
-                  </div>
-                </div>
-              </div>
-              {/* Two small cards */}
-              <div className="bio-card-row">
-                {/* Locations-style card */}
-                <div className="bio-card-sm">
-                  <video className="bc-vid-sm" autoPlay muted loop playsInline aria-hidden>
-                    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260326_073936_8dd07fdb-4f6b-4220-a3f0-9dedfaab0c88.mp4" type="video/mp4"/>
-                  </video>
-                  <div className="bc-overlay" style={{ background: "linear-gradient(135deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.75) 100%)" }}/>
-                  <div className="bc-content">
-                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-                      <span className="bc-tag">industries</span>
-                      <a href="/signup" className="bc-arrow" style={{ width: 32, height: 32 }} aria-label="Get started">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#09090b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
-                      </a>
-                    </div>
-                    <div>
-                      <h3 style={{ fontSize: "clamp(1rem,1.6vw,1.25rem)", fontWeight: 400, color: "#fff", margin: "0 0 8px", lineHeight: 1.2 }}>Built for every business</h3>
-                      <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.7)", margin: 0, lineHeight: 1.6 }}>From plumbers to dentists—EU small businesses go digital.</p>
-                    </div>
-                  </div>
-                </div>
-                {/* Scientists-style stat card */}
-                <div className="bio-card-sm">
-                  <video className="bc-vid-sm" autoPlay muted loop playsInline aria-hidden style={{ transform: "translate(-50%,-50%) scale(2.8)" }}>
-                    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4" type="video/mp4"/>
-                  </video>
-                  <div className="bc-overlay" style={{ background: "rgba(0,0,0,0.55)" }}/>
-                  <div className="bc-content">
-                    <span className="bc-tag">minutes</span>
-                    <div>
-                      <p className="bc-stat">6</p>
-                      <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.7)", margin: "10px 0 0", lineHeight: 1.6 }}>Average time from brief to a live, deployed website.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* Asymmetric bento: tall featured card left + 2 stacked right */}
             <div className="bento">
               {/* Featured tall card */}
@@ -880,33 +818,30 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           </div>
         </section>
 
+        {/* ─── Featured bento (map / notifications / chart / features) ─── */}
+        <FeaturedBentoSection />
+
         {/* ─── Portfolio: Axion case study grid (dark) ─── */}
         <section style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }} id="examples">
           <div className="gn-dots-overlay"/>
           <div className="bio-pill float-a" style={{ width: 180, height: 36, top: "6%", right: "5%", background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.06)", "--s-rot": "12deg", "--s-dur": "8s" } as React.CSSProperties}/>
           <div className="bio-ring float-b" style={{ width: 220, height: 220, bottom: "8%", right: "2%", border: "1px solid rgba(100,206,251,0.06)", "--s-dur": "13s", "--s-delay": "2s" } as React.CSSProperties}/>
           <div className="container">
-            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 18, flexWrap: "wrap", marginBottom: 48 }}>
-              <div className="reveal">
-                <div className="sec-badge">
-                  <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>04</span>
-                  <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.examples.eyebrow}</span>
-                </div>
-                <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.025em" }}>
-                  {copy.examples.heading[0]}<br/>{copy.examples.heading[1]}
-                </h2>
+            <div className="reveal" style={{ textAlign: "center", marginBottom: 48 }}>
+              <div className="sec-badge" style={{ justifyContent: "center" }}>
+                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>04</span>
+                <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.examples.eyebrow}</span>
               </div>
-              <a className="btn btn-roll reveal" href="#pricing" style={{ color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: "var(--radius-card)", padding: "12px 20px", fontSize: "var(--text-body)", fontWeight: 500 }}>
-                <span className="roll-inner"><span data-text={copy.examples.viewAll}>{copy.examples.viewAll}</span></span>
-                <ArrowIcon/>
-              </a>
+              <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.025em" }}>
+                {copy.examples.heading[0]}<br/>{copy.examples.heading[1]}
+              </h2>
             </div>
-            {/* ViralMedia "Selected Work" image grid */}
-            <div className="vm-grid">
+            {/* Horizontal scroll strip */}
+            <div style={{ display: "flex", gap: 20, overflowX: "auto", paddingBottom: 16, scrollSnapType: "x mandatory", msOverflowStyle: "none" as React.CSSProperties["msOverflowStyle"], scrollbarWidth: "none" as React.CSSProperties["scrollbarWidth"] }}>
               {PORTFOLIO_IMAGES.map((p, i) => {
                 const tile = copy.examples.tiles[i];
                 return (
-                  <div className="vm-card reveal" key={p.img} style={{ transitionDelay: `${i * 0.1}s` }}>
+                  <div className="vm-card reveal" key={p.img} style={{ transitionDelay: `${i * 0.1}s`, minWidth: 300, flexShrink: 0, scrollSnapAlign: "start" }}>
                     <div className="vm-img">
                       <img src={p.img} alt={tile?.name || p.cat} loading="lazy"/>
                     </div>
@@ -917,26 +852,6 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                   </div>
                 );
               })}
-            </div>
-          </div>
-        </section>
-
-        {/* ─── Stats ─── */}
-        <section className="pad-y" style={{ background: "var(--color-obsidian)", position: "relative", overflow: "hidden" }}>
-          <div className="gn-dots-overlay"/>
-          <div className="bio-pill float-a" style={{ width: 300, height: 50, top: "10%", left: "-6%", background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", "--s-rot": "8deg", "--s-dur": "10s" } as React.CSSProperties}/>
-          <div className="bio-pill float-b" style={{ width: 120, height: 32, bottom: "12%", right: "-1%", background: "rgba(74,222,128,0.03)", border: "1px solid rgba(74,222,128,0.08)", "--s-rot": "-15deg", "--s-dur": "8s", "--s-delay": "1s" } as React.CSSProperties}/>
-          {/* Guardnet glow blobs */}
-          <div className="glow-blob" style={{ width: 500, height: 500, top: "50%", left: "50%", transform: "translate(-50%,-50%)", background: "rgba(100,206,251,0.06)" }}/>
-          <div className="glow-blob" style={{ width: 300, height: 300, top: -80, right: 80, background: "rgba(74,222,128,0.05)" }}/>
-          <div className="container" style={{ position: "relative" }}>
-            <div className="stats" style={{ gap: 0 }}>
-              {copy.stats.map(([num, lbl], i) => (
-                <div className="stat-dark reveal" key={lbl} style={i < copy.stats.length - 1 ? { borderRight: "1px solid rgba(255,255,255,0.08)", paddingRight: 32 } : { paddingLeft: 32 }}>
-                  <div className="sd-num">{num}</div>
-                  <div className="sd-lbl">{lbl}</div>
-                </div>
-              ))}
             </div>
           </div>
         </section>
@@ -1021,63 +936,6 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           </div>
         </section>
 
-        {/* ─── Pricing: Bionova glow-border featured ─── */}
-        <section style={{ background: "var(--color-mist)", padding: "100px 0" }} id="pricing">
-          <div className="container">
-            <div className="reveal" style={{ marginBottom: 48 }}>
-              <div className="sec-badge">
-                <span className="s-num">07</span>
-                <span className="s-label">{copy.pricing.eyebrow}</span>
-              </div>
-              <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-obsidian)", margin: 0, letterSpacing: "-0.025em" }}>
-                {copy.pricing.heading[0]}<br/><span style={{ color: "var(--color-steel)", fontWeight: 300 }}>{copy.pricing.heading[1]}</span>
-              </h2>
-            </div>
-            <div className="plans">
-              {copy.pricing.plans.map(p => p.featured ? (
-                /* Bionova gradient-border featured card */
-                <div className="plan bionova-featured reveal" key={p.name}>
-                  <div className="bf-inner">
-                    <div className="glow-blob" style={{ width: 280, height: 280, top: -60, right: -60, background: "rgba(100,206,251,0.15)" }}/>
-                    <div style={{ position: "relative" }}>
-                      <div className="plan-head">
-                        <span className="pname">{p.name}</span>
-                        <span className="badge badge-ember">{copy.pricing.popularBadge}</span>
-                      </div>
-                      <div className="pamount">{p.price} <small>one-time</small></div>
-                      <div className="ptag">{p.tag}</div>
-                      <ul>
-                        {p.items.map(it => <li key={it}><span className="tick"><CheckMark/></span> {it}</li>)}
-                        {p.muted && <li><span className="tick" style={{ color: "rgba(255,255,255,0.25)" }}>–</span> {p.muted}</li>}
-                      </ul>
-                      <Link className="btn btn-grad-fill" href={ctaHref} style={{ justifyContent: "center", width: "100%", display: "flex" }}>{p.cta}</Link>
-                      <div className="pafter" style={{ marginTop: 14, fontSize: 12, textAlign: "center" as const }}>{p.after}</div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="card plan reveal" key={p.name}>
-                  <div className="plan-head">
-                    <span className="pname">{p.name}</span>
-                  </div>
-                  <div className="pamount">{p.price} <small>one-time</small></div>
-                  <div className="ptag">{p.tag}</div>
-                  <ul>
-                    {p.items.map(it => <li key={it}><span className="tick"><CheckMark/></span> {it}</li>)}
-                    {p.muted && <li><span className="tick" style={{ color: "var(--color-ash)" }}>–</span> {p.muted}</li>}
-                  </ul>
-                  <Link className="btn btn-outline" href={ctaHref} style={{ justifyContent: "center", width: "100%" }}>{p.cta}</Link>
-                  <div className="pafter">{p.after}</div>
-                </div>
-              ))}
-            </div>
-            <div className="card-muted reveal" style={{ marginTop: 22, display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", padding: "16px 22px" }}>
-              <span className="badge badge-dark">{copy.pricing.note.badge}</span>
-              <span style={{ fontSize: "var(--text-body)", color: "var(--color-graphite)" }}>{copy.pricing.note.text}</span>
-            </div>
-          </div>
-        </section>
-
         {/* ─── Domains ─── */}
         <section className="pad-y" id="domains" style={{ background: "var(--color-snow)" }}>
           <div className="container">
@@ -1118,7 +976,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           <div className="container" style={{ position: "relative" }}>
             <div className="reveal" style={{ marginBottom: 56 }}>
               <div className="sec-badge">
-                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>08</span>
+                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>07</span>
                 <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.proof.eyebrow}</span>
               </div>
               <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.025em" }}>
@@ -1149,7 +1007,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
             <div className="reveal">
               {/* Axion section badge */}
               <div className="sec-badge">
-                <span className="s-num">09</span>
+                <span className="s-num">08</span>
                 <span className="s-label">{copy.faq.eyebrow}</span>
               </div>
               <h2 className="heading-lg">{copy.faq.heading}</h2>

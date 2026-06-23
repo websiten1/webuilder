@@ -391,9 +391,9 @@ export const RO: HomeCopy = {
     heading: ["Construit pentru micii antreprenori", "care au nevoie de site-uri reale fără prețuri de agenție."],
     lead: "Testat cu saloane, meseriași, clinici și freelanceri din toată UE în timpul beta-ului privat.",
     testimonials: [
-      { initials: "ML", name: "Markus Lehmann", biz: "Acme Plumbing · Munich · Pro", quote: "Am descris afacerea în două propoziții. Șase minute mai târziu aveam un site pe care îl puteam trimite la tipar. Fără abonament, fără factură lunară." },
-      { initials: "MC", name: "Maria Coelho", biz: "Maria's Hair · Lisbon · Basic", quote: "Vechiul meu site era pe un constructor pentru care plăteam 18 €/lună. L-am refăcut cu insixlive și acum pur și simplu dețin codul. Calculul e brutal în favoarea lor." },
-      { initials: "AK", name: "Dr. Anna Kohl", biz: "Kohl Dental · Berlin · Premium", quote: "Voiam un site curat, calm și de încredere. Prima variantă era 80% gata — trei modificări mici și l-am lansat." },
+      { initials: "BM", name: "Bogdan Mureșan", biz: "Mureșan Electric · Cluj-Napoca · Pro", quote: "Duminică seara am scris că fac instalații electrice în Cluj. Luni dimineața am trimis link-ul la primii trei clienți. Niciunul nu a crezut că m-a costat sub 100 de euro." },
+      { initials: "IC", name: "Ioana Constantin", biz: "Ioana Beauty Studio · București · Basic", quote: "Plăteam 18 € pe lună pe Wix de trei ani. Nici nu mai știam de ce. Cu insixlive am plătit o dată și am primit codul — al meu, nu al lor. Acum fac calculul și mă enervez că n-am făcut asta mai devreme." },
+      { initials: "RV", name: "Dr. Radu Vlad", biz: "Cabinet Veterinar Vlad · Timișoara · Premium", quote: "Voiam ceva serios, nu un șablon ieftin. Prima variantă generată arăta mai bine decât oferta agenției la care ceruseră 2.000 €. Am cerut patru modificări și am lansat." },
     ],
   },
   faq: {
