@@ -7,13 +7,12 @@ import { DM_Sans } from "next/font/google";
 import type { HomeCopy } from "./copy";
 import FeaturedBentoSection from "./FeaturedBentoSection";
 import { ProgressiveBlur } from "./ProgressiveBlur";
+import { LogosSlider } from "./LogosSlider";
 
 // ─── insixlive Website (Awesomic) — ported from Claude Design ─────────────
 // Source: claude.ai/design/p/019e130a-b156-7a53-9abe-2feed797f07c
 //         files "insixlive Website (Awesomic).html" / "... RO (Awesomic).html"
 const cosmica = DM_Sans({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"], variable: "--font-cosmica" });
-
-const LOGOS = ["Acme Plumbing", "Maria's Hair", "Lia Photo", "Bistro Marin", "Kohl Dental", "Forge Fitness", "Sole Café"];
 
 const FEATURE_ICONS: { d: string; circle?: boolean }[] = [
   { d: "M12 3v18M3 12h18 M5 7l14 10M5 17l14-10" },
@@ -253,11 +252,6 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         .aw .email-row input { flex: 1; min-width: 0; background: rgba(255,255,255,0.12); color: var(--color-snow); border: 1px solid rgba(255,255,255,0.28); border-radius: var(--radius-input); padding: 13px 16px; font-family: var(--font-cosmica); font-size: var(--text-body); font-weight: 400; outline: none; backdrop-filter: blur(8px); }
         .aw .email-row input::placeholder { color: rgba(255,255,255,0.5); }
         .aw .email-row input:focus { outline: none; border-color: rgba(255,255,255,0.6); }
-
-        .aw .logo-strip { overflow: hidden; padding: 28px 0; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
-        .aw .logo-track { display: flex; gap: 56px; width: max-content; animation: aw-scroll-left 34s linear infinite; }
-        .aw .logo-track .logo { font-size: var(--text-heading-sm); font-weight: 600; color: var(--color-ash); white-space: nowrap; }
-        @keyframes aw-scroll-left { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
         .aw .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
         .aw .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -577,7 +571,6 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
 
         @media (prefers-reduced-motion: reduce) {
           .aw .reveal { opacity: 1; transform: none; filter: none; }
-          .aw .logo-track { animation: none; }
         }
 
         @media (max-width: 920px) {
@@ -739,11 +732,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
 
         {/* ─── Logo strip (dark, flows from hero) ─── */}
         <div style={{ background: "var(--color-obsidian)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          <div className="logo-strip">
-            <div className="logo-track">
-              {[...LOGOS, ...LOGOS].map((l, i) => <span className="logo" key={`${l}-${i}`} style={{ color: "rgba(255,255,255,0.3)", fontWeight: 500 }}>{l}</span>)}
-            </div>
-          </div>
+          <LogosSlider />
         </div>
 
         {/* ─── Problem: ViralMedia full-bleed dark manifesto ─── */}
