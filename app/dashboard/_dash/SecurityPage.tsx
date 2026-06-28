@@ -5,9 +5,9 @@ import { Section, Row, Field, PasswordInput, Pill, Toggle } from "./primitives";
 import { tt, type Lang } from "./i18n";
 
 function describeDevice(): string {
-  if (typeof navigator === "undefined") return "This device";
+  if (typeof navigator === "undefined") return "Acest dispozitiv";
   const ua = navigator.userAgent;
-  const os = /Mac/.test(ua) ? "macOS" : /Windows/.test(ua) ? "Windows" : /iPhone|iPad/.test(ua) ? "iOS" : /Android/.test(ua) ? "Android" : "Unknown OS";
+  const os = /Mac/.test(ua) ? "macOS" : /Windows/.test(ua) ? "Windows" : /iPhone|iPad/.test(ua) ? "iOS" : /Android/.test(ua) ? "Android" : "SO necunoscut";
   const browser = /Edg\//.test(ua) ? "Edge" : /Chrome\//.test(ua) ? "Chrome" : /Safari\//.test(ua) ? "Safari" : /Firefox\//.test(ua) ? "Firefox" : "Browser";
   return `${os} · ${browser}`;
 }

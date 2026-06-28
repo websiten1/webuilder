@@ -170,7 +170,7 @@ export default function DashboardPage() {
     window.location.href = "/";
   };
 
-  const lang: Lang = user?.preferredLanguage === "en" ? "en" : "ro";
+  const lang: Lang = "ro";
 
   const handleDisconnectVercel = async () => {
     await fetch("/api/auth/vercel/disconnect", { method: "POST" });

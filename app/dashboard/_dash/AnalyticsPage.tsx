@@ -6,7 +6,7 @@ import type { DashSite } from "./types";
 import { tt, type Lang } from "./i18n";
 
 function fmt(n: number) {
-  return Math.round(n).toLocaleString("en-US");
+  return Math.round(n).toLocaleString("ro-RO");
 }
 
 function hashId(id: string): number {
@@ -60,7 +60,7 @@ function countriesFor(lang: Lang) {
   ];
 }
 const BROWSERS = [
-  { name: "Chrome", pct: 61 }, { name: "Safari", pct: 23 }, { name: "Edge", pct: 8 }, { name: "Firefox", pct: 5 }, { name: "Other", pct: 3 },
+  { name: "Chrome", pct: 61 }, { name: "Safari", pct: 23 }, { name: "Edge", pct: 8 }, { name: "Firefox", pct: 5 }, { name: "Altele", pct: 3 },
 ];
 
 function analyticsFor(site: DashSite, range: string, lang: Lang) {
