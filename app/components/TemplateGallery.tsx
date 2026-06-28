@@ -359,7 +359,7 @@ function CardPreview({ template, cardWidth }: { template: Template; cardWidth: n
   );
 
   return (
-    <div ref={containerRef} style={{ width: cardWidth, height: displayH, overflow: "hidden", position: "relative", background: template.dark ? "#111" : "#f5f3ef" }}>
+    <div ref={containerRef} style={{ width: cardWidth, height: displayH, overflow: "hidden", position: "relative", borderRadius: "var(--wf-r-sm)", background: template.dark ? "#111" : "#f5f3ef" }}>
       {swatch}
       {visible && (
         <iframe
@@ -398,17 +398,18 @@ function TemplateCard({ template, isSelected, cardWidth, onSelect }: {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        borderRadius: 0,
+        borderRadius: "var(--wf-r-sm)",
         overflow: "hidden",
-        border: isSelected ? "2.5px solid #6366f1" : "2.5px solid transparent",
+        border: isSelected ? "2.5px solid var(--wf-acc)" : "2.5px solid transparent",
         boxShadow: isSelected
-          ? "0 0 0 4px rgba(99,102,241,0.2)"
+          ? "0 0 0 4px var(--wf-acc-soft)"
           : hovered
-          ? "0 8px 24px rgba(10,14,20,0.14)"
-          : "0 1px 4px rgba(10,14,20,0.07)",
-        transition: "box-shadow 0.2s, border-color 0.15s",
+          ? "0 8px 24px rgba(0,0,0,0.4)"
+          : "0 1px 4px rgba(0,0,0,0.25)",
+        transition: "box-shadow 0.2s, border-color 0.15s, transform 0.12s",
+        transform: hovered ? "translateY(-2px)" : "none",
         cursor: "pointer",
-        background: "#fff",
+        background: "var(--wf-surf)",
       }}
     >
       {/* Colour swatch */}
@@ -418,9 +419,9 @@ function TemplateCard({ template, isSelected, cardWidth, onSelect }: {
           <div style={{
             position: "absolute", top: 8, right: 8,
             width: 22, height: 22, borderRadius: 11,
-            background: "#6366f1",
+            background: "var(--wf-acc)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 12, color: "#fff",
+            fontSize: 12, color: "var(--wf-acc-ink)",
           }}>✓</div>
         )}
       </div>
@@ -428,13 +429,13 @@ function TemplateCard({ template, isSelected, cardWidth, onSelect }: {
       {/* Label row */}
       <div style={{
         padding: "9px 12px 10px",
-        background: "#fff",
-        borderTop: "1px solid #F0EDE8",
+        background: "var(--wf-surf)",
+        borderTop: "1px solid var(--wf-border)",
         display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
         <div>
-          <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "#0A0E14", letterSpacing: -0.1 }}>{template.name}</p>
-          <p style={{ margin: "1px 0 0", fontSize: 10, color: "#8a8c93", fontFamily: "monospace" }}>{template.category}</p>
+          <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "var(--wf-text)", letterSpacing: -0.1 }}>{template.name}</p>
+          <p style={{ margin: "1px 0 0", fontSize: 10, color: "var(--wf-text3)", fontFamily: "var(--wf-mono)" }}>{template.category}</p>
         </div>
         <div style={{ width: 8, height: 8, borderRadius: 4, background: template.accent, flexShrink: 0 }}/>
       </div>
@@ -454,36 +455,36 @@ function ScratchCard({ isSelected, cardWidth, onSelect }: {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        borderRadius: 0, overflow: "hidden", cursor: "pointer",
-        border: isSelected ? "2.5px solid #6366f1" : "2.5px dashed #D8D2C2",
-        boxShadow: isSelected ? "0 0 0 4px rgba(99,102,241,0.2)" : "none",
+        borderRadius: "var(--wf-r-sm)", overflow: "hidden", cursor: "pointer",
+        border: isSelected ? "2.5px solid var(--wf-acc)" : "2.5px dashed var(--wf-border2)",
+        boxShadow: isSelected ? "0 0 0 4px var(--wf-acc-soft)" : "none",
         transition: "all 0.2s",
-        background: "#fff",
+        background: "var(--wf-surf)",
       }}
     >
       <div style={{
         height: displayH,
-        background: hovered ? "#F3F0E9" : "#FAFAF7",
+        background: hovered ? "var(--wf-acc-soft)" : "var(--wf-surf2)",
         display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center", gap: 12,
         transition: "background 0.2s",
       }}>
         <div style={{
-          width: 40, height: 40, borderRadius: 0,
-          background: "#fff", border: "1px solid #E8E3D6",
+          width: 40, height: 40, borderRadius: "var(--wf-r-sm)",
+          background: "var(--wf-bg2)", border: "1px solid var(--wf-border)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 20, boxShadow: "0 2px 8px rgba(10,14,20,0.06)",
+          fontSize: 20, color: "var(--wf-acc)", boxShadow: "0 2px 8px rgba(0,0,0,.3)",
         }}>✦</div>
         <div style={{ textAlign: "center", padding: "0 16px" }}>
-          <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#0A0E14" }}>Start from scratch</p>
-          <p style={{ margin: "4px 0 0", fontSize: 11, color: "#6B7180", lineHeight: 1.4 }}>
+          <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--wf-text)" }}>Start from scratch</p>
+          <p style={{ margin: "4px 0 0", fontSize: 11, color: "var(--wf-text3)", lineHeight: 1.4 }}>
             Choose colours, fonts &amp; style in the next steps
           </p>
         </div>
       </div>
-      <div style={{ padding: "9px 12px 10px", background: "#fff", borderTop: "1px solid #F0EDE8" }}>
-        <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "#0A0E14" }}>Custom design</p>
-        <p style={{ margin: "1px 0 0", fontSize: 10, color: "#8a8c93", fontFamily: "monospace" }}>All industries</p>
+      <div style={{ padding: "9px 12px 10px", background: "var(--wf-surf)", borderTop: "1px solid var(--wf-border)" }}>
+        <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "var(--wf-text)" }}>Custom design</p>
+        <p style={{ margin: "1px 0 0", fontSize: 10, color: "var(--wf-text3)", fontFamily: "var(--wf-mono)" }}>All industries</p>
       </div>
     </div>
   );
@@ -538,13 +539,13 @@ export function TemplateGallery({ selectedId, onSelect }: {
           const on = activeCategory === cat;
           return (
             <button key={cat} onClick={() => setActiveCategory(cat)} style={{
-              height: 26, padding: "0 10px", borderRadius: 4,
-              border: on ? "none" : "1px solid #E8E3D6",
-              background: on ? "#0A0E14" : "transparent",
-              color: on ? "#fff" : "#6B7180",
-              fontSize: 11, fontWeight: on ? 600 : 500,
+              height: 28, padding: "0 12px", borderRadius: 999,
+              border: on ? "1px solid var(--wf-acc)" : "1px solid var(--wf-border)",
+              background: on ? "var(--wf-acc)" : "transparent",
+              color: on ? "var(--wf-acc-ink)" : "var(--wf-text2)",
+              fontSize: 11.5, fontWeight: on ? 700 : 600,
               cursor: "pointer", transition: "all 0.15s",
-              fontFamily: "system-ui, sans-serif",
+              fontFamily: "inherit",
             }}>
               {cat}
             </button>
@@ -577,19 +578,19 @@ export function TemplateGallery({ selectedId, onSelect }: {
       {selectedId && (
         <div style={{
           marginTop: 12, padding: "9px 14px",
-          background: "rgba(99,102,241,0.08)",
-          border: "1px solid rgba(99,102,241,0.22)",
-          borderRadius: 0,
+          background: "var(--wf-acc-soft)",
+          border: "1px solid var(--wf-acc-line)",
+          borderRadius: "var(--wf-r-sm)",
           display: "flex", alignItems: "center", justifyContent: "space-between",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ color: "#6366f1", fontSize: 13 }}>✓</span>
-            <span style={{ fontSize: 12, fontWeight: 600, color: "#0A0E14" }}>
+            <span style={{ color: "var(--wf-acc)", fontSize: 13 }}>✓</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "var(--wf-text)" }}>
               {TEMPLATES.find(t => t.id === selectedId)?.name ?? "Template"} selected
             </span>
           </div>
           <button onClick={handleClear} style={{
-            fontSize: 11, color: "#6B7180", background: "none",
+            fontSize: 11, color: "var(--wf-text3)", background: "none",
             border: "none", cursor: "pointer", textDecoration: "underline",
           }}>
             Clear
