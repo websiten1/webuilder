@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { DM_Sans } from "next/font/google";
+import { DM_Sans, Geist } from "next/font/google";
 import type { HomeCopy } from "./copy";
 import FeaturedBentoSection from "./FeaturedBentoSection";
 import { ProgressiveBlur } from "./ProgressiveBlur";
@@ -13,6 +13,16 @@ import { LogosSlider } from "./LogosSlider";
 // Source: claude.ai/design/p/019e130a-b156-7a53-9abe-2feed797f07c
 //         files "insixlive Website (Awesomic).html" / "... RO (Awesomic).html"
 const cosmica = DM_Sans({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"], variable: "--font-cosmica" });
+// Premium, clearer display face used only for the hero headline below.
+const heroDisplay = Geist({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-hero-display" });
+
+// "Fără ___." cycling word in the hero headline — each gets its own premium accent colour.
+const HERO_VOID_WORDS = [
+  { word: "agenții", color: "#ff5a00" },
+  { word: "timp pierdut", color: "#fbbf24" },
+  { word: "mii de euro", color: "#34d399" },
+  { word: "stres", color: "#a78bfa" },
+];
 
 const FEATURE_ICONS: { d: string; circle?: boolean }[] = [
   { d: "M12 3v18M3 12h18 M5 7l14 10M5 17l14-10" },
@@ -73,12 +83,12 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
     const t = setInterval(() => {
       setCycleVisible(false);
       setTimeout(() => {
-        setCycleIdx(i => (i + 1) % copy.hero.cycleWords.length);
+        setCycleIdx(i => (i + 1) % HERO_VOID_WORDS.length);
         setCycleVisible(true);
       }, 300);
     }, 2600);
     return () => clearInterval(t);
-  }, [copy.hero.cycleWords.length]);
+  }, []);
 
   useEffect(() => {
     const els = document.querySelectorAll(".reveal");
@@ -708,9 +718,15 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           <div className="container hero-inner">
             {/* Centre — hardcoded headline */}
             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" as const }}>
-              <h1 className="reveal manifesto-text" style={{ fontSize: "clamp(1.64rem, 2.8vw, 2.8rem)", lineHeight: 1.5, margin: "0 0 0", textAlign: "center" as const }}>
-                <span style={{ display: "block" }}>site-uri.profesionale /</span>
-                <span className="dim" style={{ display: "block" }}>publicate-pe-domeniu-propriu ✓</span>
+              <h1 className={`reveal manifesto-text ${heroDisplay.variable}`} style={{ fontFamily: "var(--font-hero-display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: "clamp(1.64rem, 2.8vw, 2.8rem)", lineHeight: 1.5, margin: "0 0 0", textAlign: "center" as const }}>
+                <span style={{ display: "block" }}>Zile de muncă economisite.</span>
+                <span style={{ display: "block" }}>
+                  Fără{" "}
+                  <span style={{ color: HERO_VOID_WORDS[cycleIdx].color, opacity: cycleVisible ? 1 : 0, transition: "opacity .3s ease, color .3s ease", fontWeight: 700 }}>
+                    {HERO_VOID_WORDS[cycleIdx].word}
+                  </span>.
+                </span>
+                <span className="dim" style={{ display: "block" }}>Site-ul tău, publicat online în câteva minute.</span>
               </h1>
               <div className="reveal" style={{ marginTop: 28 }}>
                 <Link href={ctaHref} className="btn btn-primary btn-roll" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
