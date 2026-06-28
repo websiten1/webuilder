@@ -4,12 +4,16 @@ import { InfiniteSlider } from "@/components/ui/infinite-slider";
 import { ProgressiveBlur } from "@/components/ui/progressive-blur";
 
 // shadcnblocks.com no longer serves these assets publicly (403 AccessDenied) —
-// using Simple Icons' CDN for the same four brand marks instead, pre-tinted white.
+// using Simple Icons' CDN for the same four brand marks instead, in their
+// actual brand colors. Next.js/Vercel's own brand color is solid black, which
+// would disappear on this dark section, so those two use the brands' own
+// white treatment (the one they use on dark backgrounds); Figma and Supabase
+// keep their real multi-color / green marks.
 const logos = [
   {
     id: "logo-2",
     description: "Figma",
-    image: "https://cdn.simpleicons.org/figma/ffffff",
+    image: "https://cdn.simpleicons.org/figma",
     className: "h-7 w-auto",
   },
   {
@@ -21,7 +25,7 @@ const logos = [
   {
     id: "logo-6",
     description: "Supabase",
-    image: "https://cdn.simpleicons.org/supabase/ffffff",
+    image: "https://cdn.simpleicons.org/supabase",
     className: "h-7 w-auto",
   },
   {
@@ -48,7 +52,7 @@ export function LogosSlider() {
             <img
               src={logo.image}
               alt={logo.description}
-              className={`${logo.className} opacity-40 transition-opacity hover:opacity-80`}
+              className={`${logo.className} opacity-80 transition-opacity hover:opacity-100`}
             />
           </div>
         ))}
