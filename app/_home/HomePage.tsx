@@ -194,8 +194,20 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
 
         .aw .btn { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-cosmica); white-space: nowrap; transition: transform .25s var(--ease-spring), opacity .25s ease; border: none; }
         .aw .btn:active { transform: scale(0.97); }
-        .aw .btn-primary { background: var(--color-obsidian); color: var(--color-snow); font-size: var(--text-body); font-weight: 500; border: none; border-radius: var(--radius-card); padding: 13px 20px; box-shadow: var(--shadow-primary); }
-        .aw .btn-primary:hover { transform: translateY(-1px); }
+        .aw .btn-primary {
+          background: linear-gradient(135deg, #ff7a33 0%, var(--color-ember) 55%, #e64f00 100%);
+          color: var(--color-snow); font-size: var(--text-body-lg); font-weight: 600;
+          border: none; border-radius: var(--radius-pill); padding: 15px 26px;
+          box-shadow: rgba(255,255,255,0.35) 0px 1px 0px 0px inset, rgba(255,90,0,0.55) 0px 10px 30px -10px, rgba(255,90,0,0.3) 0px 2px 8px 0px;
+          position: relative; overflow: hidden;
+        }
+        .aw .btn-primary::after {
+          content: ""; position: absolute; inset: 0;
+          background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%);
+          transform: translateX(-130%); pointer-events: none;
+        }
+        .aw .btn-primary:hover { transform: translateY(-2px); box-shadow: rgba(255,255,255,0.35) 0px 1px 0px 0px inset, rgba(255,90,0,0.7) 0px 14px 34px -10px, rgba(255,90,0,0.4) 0px 2px 8px 0px; }
+        .aw .btn-primary:hover::after { transform: translateX(130%); transition: transform .7s var(--ease-spring); }
         .aw .btn-outline { background: var(--color-snow); color: var(--color-graphite); font-size: var(--text-body); font-weight: 500; border: 1px solid var(--color-graphite); border-radius: var(--radius-card); padding: 12px 20px; }
         .aw .btn-outline:hover { background: var(--color-mist); }
         .aw .btn-dark-rect { background: var(--color-obsidian); color: var(--color-snow); font-size: var(--text-body); font-weight: 500; border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 13px 18px; }
@@ -249,7 +261,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         @media (max-width: 1024px) { .dp-pill { display: none; } .dp-hamburger { display: flex; } }
 
         /* ── Video hero ── */
-        .aw .hero { position: relative; height: 100vh; min-height: 640px; display: flex; flex-direction: column; overflow: hidden; padding: 0; }
+        .aw .hero { position: relative; height: 80vh; min-height: 540px; display: flex; flex-direction: column; overflow: hidden; padding: 0; }
         .aw .hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
         .aw .hero-vignette { position: absolute; inset: 0; pointer-events: none; z-index: 1; background: linear-gradient(180deg, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.48) 40%, rgba(0,0,0,0.84) 100%); }
         .aw .hero-inner { position: relative; z-index: 10; display: flex; flex-direction: column; height: 100%; padding: 36px 0 32px; }
@@ -718,10 +730,9 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           <div className="container hero-inner">
             {/* Centre — hardcoded headline */}
             <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" as const }}>
-              <h1 className={`reveal manifesto-text ${heroDisplay.variable}`} style={{ fontFamily: "var(--font-hero-display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: "clamp(1.64rem, 2.8vw, 2.8rem)", lineHeight: 1.5, margin: "0 0 0", textAlign: "center" as const }}>
-                <span style={{ display: "block" }}>Zile de muncă economisite.</span>
+              <h1 className={`reveal manifesto-text ${heroDisplay.variable}`} style={{ fontFamily: "var(--font-hero-display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: "clamp(1.4rem, 2.3vw, 2.3rem)", lineHeight: 1.45, margin: "0 0 0", maxWidth: 720, textAlign: "center" as const }}>
                 <span style={{ display: "block" }}>
-                  Fără{" "}
+                  Zile de muncă economisite. Fără{" "}
                   <span style={{ color: HERO_VOID_WORDS[cycleIdx].color, opacity: cycleVisible ? 1 : 0, transition: "opacity .3s ease, color .3s ease", fontWeight: 700 }}>
                     {HERO_VOID_WORDS[cycleIdx].word}
                   </span>.
