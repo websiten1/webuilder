@@ -1974,10 +1974,6 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
   const back = () => goTo(step - 1);
 
   const handleSubmit = async () => {
-    const runId = `wiz-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    // #region agent log
-    fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H6',location:'app/components/GenerateWizard.tsx:1976',message:'wizard submit clicked',data:{isEditMode,hasEditSiteId:!!editSiteId,businessNameFilled:!!data.business.name,businessDescriptionFilled:!!data.business.description,selectedPagesCount:data.pages.selected.length,galleryCount:data.gallery.length},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     setLoading(true);
     setError("");
     setShowGenerate(true);
@@ -1987,27 +1983,15 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ formData: data, tier: "website", ...(isEditMode && editSiteId ? { siteId: editSiteId } : {}) }),
       });
-      // #region agent log
-      fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H6',location:'app/components/GenerateWizard.tsx:1986',message:'wizard generate response received',data:{status:res.status,ok:res.ok},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       if (!res.ok) {
         let errMsg = `Server error ${res.status}`;
         try { const e = await res.json(); errMsg = e.error || errMsg; } catch { errMsg = await res.text().catch(() => errMsg); }
-        // #region agent log
-        fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H6',location:'app/components/GenerateWizard.tsx:1991',message:'wizard generate response not ok',data:{status:res.status,errorMessage:errMsg},timestamp:Date.now()})}).catch(()=>{});
-        // #endregion
         throw new Error(errMsg);
       }
       const result = await res.json();
-      // #region agent log
-      fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H6',location:'app/components/GenerateWizard.tsx:1995',message:'wizard generation succeeded',data:{siteId:result?.siteId??null},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       localStorage.removeItem("wizard_data");
       router.push(`/success/${result.siteId}`);
     } catch (err) {
-      // #region agent log
-      fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H6',location:'app/components/GenerateWizard.tsx:1999',message:'wizard submit failed',data:{error:err instanceof Error?err.message:String(err)},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
       setLoading(false);
       setShowGenerate(false);

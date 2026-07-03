@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import { Icons } from "./icons";
 import { Section, Pill, LiveBadge } from "./primitives";
 import { ParishCalendarCard } from "./ParishCalendarCard";
@@ -108,17 +108,6 @@ export function OverviewPage({
   const drafts = sites.length - live;
   const domains = sites.filter((s) => s.domain).length;
   const calendarSites = sites.filter((s) => s.calendarBlobConnected !== null);
-
-  useEffect(() => {
-    // #region agent log
-    const statsEl = document.querySelector(".stats") as HTMLElement | null;
-    const heroEl = document.querySelector(".hero-panel") as HTMLElement | null;
-    const firstSiteEl = document.querySelector(".site") as HTMLElement | null;
-    const siteFootEl = document.querySelector(".site-foot") as HTMLElement | null;
-    const buyBtnEl = document.querySelector(".sf-buy") as HTMLElement | null;
-    fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId:`mobile-overview-${Date.now()}`,hypothesisId:'H12',location:'app/dashboard/_dash/OverviewPage.tsx:116',message:'overview mobile layout metrics',data:{innerWidth:window.innerWidth,docScrollWidth:document.documentElement.scrollWidth,statsGridTemplate:statsEl?getComputedStyle(statsEl).gridTemplateColumns:null,heroPadding:heroEl?getComputedStyle(heroEl).padding:null,firstSiteWidth:firstSiteEl?Math.round(firstSiteEl.getBoundingClientRect().width):null,siteFootWidth:siteFootEl?Math.round(siteFootEl.getBoundingClientRect().width):null,buyButtonWidth:buyBtnEl?Math.round(buyBtnEl.getBoundingClientRect().width):null,sitesCount:sites.length},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
-  }, [sites.length]);
 
   return (
     <div className="page view-enter">

@@ -489,10 +489,6 @@ export async function POST(request: NextRequest) {
     // Allow webhook calls using an internal secret, or normal session-cookie calls
     const internalSecret = request.headers.get("x-internal-secret");
     const isWebhook = internalSecret && internalSecret === (process.env.INTERNAL_SECRET || "");
-    const runId = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}`;
-    // #region agent log
-    fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H1',location:'app/api/generate-site/route.ts:408',message:'generate-site request received',data:{isWebhook:!!isWebhook,hasWebhookUserId:!!webhookUserId,hasFormData:!!formData,tier,editSiteId:editSiteId??null,hasInternalSecretHeader:!!internalSecret},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
 
     let resolvedUserId: string;
     if (isWebhook && webhookUserId) {
@@ -518,9 +514,6 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: "Could not identify paid user for generation." }, { status: 401 });
         }
         resolvedUserId = stripeUser.id;
-        // #region agent log
-        fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H8',location:'app/api/generate-site/route.ts:433',message:'resolved user via stripe checkout fallback',data:{checkoutSessionId,hasStripeUserId:!!stripeUserId,hasStripeEmail:!!stripeEmail,resolvedUserId:stripeUser.id},timestamp:Date.now()})}).catch(()=>{});
-        // #endregion
       } else {
         return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
       }
@@ -534,9 +527,6 @@ export async function POST(request: NextRequest) {
     const vercelAuth = await getValidVercelToken(resolvedUserId);
     const userVercelToken = vercelAuth?.token;
     const userTeamId = vercelAuth?.teamId ?? undefined;
-    // #region agent log
-    fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H4',location:'app/api/generate-site/route.ts:429',message:'user and vercel auth resolved',data:{resolvedUserId,userFound:!!user,hasUserToken:!!userVercelToken,userTeamId:userTeamId??null,usingFallbackToken:!userVercelToken},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
 
     if (!formData) {
       return NextResponse.json({ error: "Missing form data." }, { status: 400 });
@@ -573,9 +563,6 @@ export async function POST(request: NextRequest) {
 
       usedEmergencyFallback = true;
       websiteCode = buildEmergencyWebsiteCode(formData);
-      // #region agent log
-      fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H11',location:'app/api/generate-site/route.ts:532',message:'used emergency fallback code due to AI credit depletion',data:{reason:genMessage.slice(0,300),businessName:formData.business.name||null},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
     }
 
     // ── UPDATE existing site ────────────────────────────────────────────────
@@ -586,9 +573,6 @@ export async function POST(request: NextRequest) {
       }
 
       console.log(`🔁 Updating site ${editSiteId}, project=${existingSite.vercel_project_id}`);
-      // #region agent log
-      fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H2',location:'app/api/generate-site/route.ts:462',message:'starting regeneration deploy',data:{editSiteId,existingProjectId:existingSite.vercel_project_id??null,staticImagesCount:staticImages.length,hasUserToken:!!userVercelToken,userTeamId:userTeamId??null},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
 
       const deployment = await deployToVercel(existingSite.vercel_project_id!, websiteCode, {
         staticImages,
@@ -598,9 +582,6 @@ export async function POST(request: NextRequest) {
 
       const vercelProjectId = deployment.projectId ?? existingSite.vercel_project_id!;
       const siteUrl = `https://${existingSite.vercel_project_id}.vercel.app`;
-      // #region agent log
-      fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H2',location:'app/api/generate-site/route.ts:473',message:'regeneration deploy completed',data:{deploymentId:deployment.id,deploymentUrl:deployment.url,deploymentProjectId:deployment.projectId??null,resolvedProjectId:vercelProjectId,computedSiteUrl:siteUrl},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
 
       await updateSiteAfterRegeneration(
         editSiteId,
@@ -617,9 +598,6 @@ export async function POST(request: NextRequest) {
     // ── CREATE new site ─────────────────────────────────────────────────────
     const projectName = siteName.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 63);
     console.log("Deploying to user's Vercel...");
-    // #region agent log
-    fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H3',location:'app/api/generate-site/route.ts:489',message:'starting new-site deploy',data:{projectName,siteNameLength:siteName.length,staticImagesCount:staticImages.length,calendarModuleEnabled:!!formData.pages.calendarModuleEnabled,hasUserToken:!!userVercelToken,userTeamId:userTeamId??null},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     const deployment = await deployToVercel(projectName, websiteCode, {
       staticImages,
       userToken: userVercelToken,
@@ -630,9 +608,6 @@ export async function POST(request: NextRequest) {
     console.log("✅ Deployed:", deployment.url, "| vercel project id:", vercelProjectId);
 
     const siteUrl = `https://${projectName}.vercel.app`;
-    // #region agent log
-    fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId,hypothesisId:'H3',location:'app/api/generate-site/route.ts:501',message:'new-site deploy completed',data:{deploymentId:deployment.id,deploymentUrl:deployment.url,deploymentProjectId:deployment.projectId??null,resolvedProjectId:vercelProjectId,computedSiteUrl:siteUrl},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
 
     const site = await saveSiteWithVercel(
       user.id,
@@ -731,9 +706,6 @@ export async function POST(request: NextRequest) {
       lowerError.includes("credit balance is too low") ||
       lowerError.includes("insufficient_credit") ||
       (lowerError.includes("anthropic") && lowerError.includes("plans & billing"));
-    // #region agent log
-    fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'dfd4e1'},body:JSON.stringify({sessionId:'dfd4e1',runId:'unavailable',hypothesisId:'H5',location:'app/api/generate-site/route.ts:596',message:'generate-site request failed',data:{error:rawError,isAnthropicCreditIssue},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     console.error("Error generating site:", error);
     if (isAnthropicCreditIssue) {
       return NextResponse.json(
