@@ -4,6 +4,16 @@ import { PARISH_CALENDAR_DEPENDENCIES } from "@/lib/parish-calendar-templates";
 
 export type StaticImage = { path: string; base64: string };
 
+export const VERCEL_RECONNECT_MESSAGE =
+  "Your Vercel account is not connected or has expired. Please reconnect your Vercel account and retry.";
+
+export class VercelAuthError extends Error {
+  constructor(message = VERCEL_RECONNECT_MESSAGE) {
+    super(message);
+    this.name = "VercelAuthError";
+  }
+}
+
 // Returns the user's decrypted OAuth token + teamId, or null if not connected.
 export async function getValidVercelToken(
   userId: string
@@ -12,14 +22,20 @@ export async function getValidVercelToken(
   return getDecryptedVercelToken(userId);
 }
 
-export async function resolveVercelApiAuth(
+export async function requireUserVercelAuth(
   userId: string
 ): Promise<{ token: string; teamId?: string }> {
   const auth = await getValidVercelToken(userId);
-  if (auth) return { token: auth.token, teamId: auth.teamId ?? undefined };
-  const platform = process.env.VERCEL_API_TOKEN;
-  if (!platform) throw new Error("No Vercel token available. VERCEL_API_TOKEN not set.");
-  return { token: platform };
+  if (!auth) {
+    throw new VercelAuthError();
+  }
+  return { token: auth.token, teamId: auth.teamId ?? undefined };
+}
+
+export async function resolveVercelApiAuth(
+  userId: string
+): Promise<{ token: string; teamId?: string }> {
+  return requireUserVercelAuth(userId);
 }
 
 export function vercelTeamQuery(teamId?: string | null): string {
@@ -76,12 +92,17 @@ export async function deployToVercel(
   options?: {
     userToken?: string;
     teamId?: string | null;
+    requireUserToken?: boolean;
     staticImages?: StaticImage[];
     parishCalendarFiles?: Record<string, string>;
   }
 ): Promise<{ id: string; url: string; projectId: string | null }> {
-  // Prefer user's own Vercel token; fall back to app token (used by edit feature)
-  const token = options?.userToken ?? process.env.VERCEL_API_TOKEN;
+  if (options?.requireUserToken && !options?.userToken) {
+    throw new VercelAuthError();
+  }
+  const token = options?.requireUserToken
+    ? options.userToken!
+    : (options?.userToken ?? process.env.VERCEL_API_TOKEN);
   const teamId = options?.teamId;
 
   if (!token) {
@@ -170,6 +191,9 @@ export async function deployToVercel(
 
     if (!response.ok) {
       const errBody = await response.json().catch(() => response.text());
+      if (options?.requireUserToken && (response.status === 401 || response.status === 403)) {
+        throw new VercelAuthError();
+      }
       throw new Error(
         `Vercel API error: ${response.status} ${JSON.stringify(errBody)}`
       );

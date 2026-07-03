@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { getSiteById, saveDomainToSite } from "@/lib/db";
-import { resolveVercelApiAuth, vercelTeamQuery } from "@/lib/vercel";
+import { resolveVercelApiAuth, vercelTeamQuery, VercelAuthError } from "@/lib/vercel";
 import { genericErrorResponse, logServerError, newErrorId } from "@/lib/api-error";
 
 export async function POST(request: NextRequest) {
@@ -59,6 +59,9 @@ export async function POST(request: NextRequest) {
       liveUrl: `https://${cleanDomain}`,
     });
   } catch (err) {
+    if (err instanceof VercelAuthError) {
+      return NextResponse.json({ error: err.message, code: "VERCEL_NOT_CONNECTED" }, { status: 403 });
+    }
     const errorId = newErrorId();
     logServerError(errorId, "auto-connect-purchased", err);
     return genericErrorResponse(errorId);

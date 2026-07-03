@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateWebsiteCode } from "@/lib/anthropic";
-import { deployToVercel, getValidVercelToken, setProjectEnvVars, createAndConnectBlobStore, deleteVercelProject, normalizeDeploymentUrl, resolveVercelDeployName } from "@/lib/vercel";
+import { deployToVercel, getValidVercelToken, setProjectEnvVars, createAndConnectBlobStore, deleteVercelProject, normalizeDeploymentUrl, resolveVercelDeployName, VercelAuthError, VERCEL_RECONNECT_MESSAGE } from "@/lib/vercel";
 import { getSession } from "@/lib/session";
 import { getUserById, saveSiteWithVercel, getSiteById, updateSiteAfterRegeneration, createParishCalendarModule, setParishCalendarBlobConnected, claimOrderForGeneration, getOrderByStripeSessionId, completeOrder, failOrder, type Order } from "@/lib/db";
 import { sendParishCalendarSetupEmail, sendWebsiteCreatedEmail } from "@/lib/email";
@@ -511,7 +511,19 @@ export async function POST(request: NextRequest) {
     const websiteCode = await generateWebsiteCode(prompt, images);
     console.log("✅ Code generated");
 
-    const deployToken = userVercelToken ?? process.env.VERCEL_API_TOKEN!;
+    // User sites deploy only to the customer's Vercel account — never the platform.
+    if (!userVercelToken) {
+      stage = "deploying";
+      if (claimedOrder && resolvedUserId) {
+        await failGenerationOrder(claimedOrder, resolvedUserId, stage, VERCEL_RECONNECT_MESSAGE);
+      }
+      return NextResponse.json(
+        { error: VERCEL_RECONNECT_MESSAGE, code: "VERCEL_NOT_CONNECTED" },
+        { status: 403 }
+      );
+    }
+
+    const deployToken = userVercelToken;
 
     // ── UPDATE existing site ────────────────────────────────────────────────
     if (editSiteId) {
@@ -528,6 +540,7 @@ export async function POST(request: NextRequest) {
         staticImages,
         userToken: userVercelToken,
         teamId: userTeamId,
+        requireUserToken: true,
       });
 
       const vercelProjectId = deployment.projectId ?? existingSite.vercel_project_id!;
@@ -555,6 +568,7 @@ export async function POST(request: NextRequest) {
       staticImages,
       userToken: userVercelToken,
       teamId: userTeamId,
+      requireUserToken: true,
       parishCalendarFiles: formData.pages.calendarModuleEnabled ? PARISH_CALENDAR_FILES : undefined,
     });
     const vercelProjectId = deployment.projectId ?? projectName;
@@ -607,7 +621,7 @@ export async function POST(request: NextRequest) {
         const bootstrapSecret = crypto.randomBytes(24).toString("hex");
         const sessionSecret = crypto.randomBytes(24).toString("hex");
 
-        const projectToken = userVercelToken ?? process.env.VERCEL_API_TOKEN!;
+        const projectToken = userVercelToken;
 
         // Try to provision Blob storage ourselves so the customer doesn't have to.
         // Some connected Vercel accounts (OAuth integration tokens) lack storage
@@ -635,6 +649,7 @@ export async function POST(request: NextRequest) {
             staticImages,
             userToken: userVercelToken,
             teamId: userTeamId,
+            requireUserToken: true,
             parishCalendarFiles: PARISH_CALENDAR_FILES,
           });
 
@@ -685,6 +700,19 @@ export async function POST(request: NextRequest) {
       userId: resolvedUserId || undefined,
       stage,
     });
+
+    if (error instanceof VercelAuthError) {
+      stage = "deploying";
+      if (claimedOrder && resolvedUserId) {
+        await failGenerationOrder(claimedOrder, resolvedUserId, stage, error.message).catch((e) =>
+          console.error("Failed to mark order failed:", e)
+        );
+      }
+      return NextResponse.json(
+        { error: error.message, code: "VERCEL_NOT_CONNECTED", errorId },
+        { status: 403 }
+      );
+    }
 
     if (claimedOrder && resolvedUserId) {
       await failGenerationOrder(claimedOrder, resolvedUserId, stage, rawError).catch((e) =>

@@ -13,6 +13,7 @@ import {
   getValidVercelToken,
   normalizeDeploymentUrl,
   resolveVercelDeployName,
+  VERCEL_RECONNECT_MESSAGE,
 } from "@/lib/vercel";
 import { generateWebsiteCode } from "@/lib/anthropic";
 import { getStripe } from "@/lib/stripe";
@@ -99,6 +100,14 @@ export async function POST(request: NextRequest) {
     if (!user) return NextResponse.json({ error: "User not found." }, { status: 404 });
 
     const vercelAuth = await getValidVercelToken(authSession.userId);
+    if (!vercelAuth) {
+      await updateSiteEditStatus(editId, "failed");
+      if (!free && sessionId) await issueRefund(sessionId);
+      return NextResponse.json(
+        { error: VERCEL_RECONNECT_MESSAGE, code: "VERCEL_NOT_CONNECTED" },
+        { status: 403 }
+      );
+    }
     const deployProjectName = resolveVercelDeployName(site);
     console.log(`Edit ${editId}: deployName=${deployProjectName}, projectId=${site.vercel_project_id}`);
 
@@ -138,8 +147,9 @@ INSTRUCTIONS:
     let deployedUrl: string;
     try {
       const deployment = await deployToVercel(deployProjectName, newCode, {
-        userToken: vercelAuth?.token,
-        teamId: vercelAuth?.teamId,
+        userToken: vercelAuth.token,
+        teamId: vercelAuth.teamId,
+        requireUserToken: true,
       });
       deployedUrl = normalizeDeploymentUrl(deployment.url);
     } catch (e) {
