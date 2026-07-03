@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { neon } from "@neondatabase/serverless";
-import { getUserById, markUserPaid } from "@/lib/db";
+import { getUserById, markUserPaid, recordPaidOrder } from "@/lib/db";
 
 function getDb() {
   const url = process.env.DATABASE_URL;
@@ -24,29 +24,44 @@ export async function POST(request: NextRequest) {
   if (!stripeKey || stripeKey === "sk_test_xxxxx") {
     return NextResponse.json({ error: "Stripe not configured." }, { status: 500 });
   }
+  if (!webhookSecret) {
+    console.error("STRIPE_WEBHOOK_SECRET is not set — refusing to process webhooks.");
+    return NextResponse.json({ error: "Webhook not configured." }, { status: 500 });
+  }
 
   const stripe = new Stripe(stripeKey);
   const body = await request.text();
-  const sig  = request.headers.get("stripe-signature");
+  const sig = request.headers.get("stripe-signature");
+  if (!sig) {
+    return NextResponse.json({ error: "Missing stripe-signature header." }, { status: 400 });
+  }
 
   let event: Stripe.Event;
   try {
-    if (!webhookSecret || !sig) {
-      event = JSON.parse(body) as Stripe.Event;
-    } else {
-      event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
-    }
+    event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
   } catch (err) {
     console.error("Webhook signature error:", err);
     return NextResponse.json({ error: "Webhook signature verification failed." }, { status: 400 });
   }
 
-  if (event.type === "checkout.session.completed") {
+  if (
+    event.type === "checkout.session.completed" ||
+    event.type === "checkout.session.async_payment_succeeded"
+  ) {
     const session = event.data.object as Stripe.Checkout.Session;
     const userId = session.metadata?.userId || session.client_reference_id;
 
+    // Trust payment_status, not the event alone (async/out-of-order events).
     if (session.payment_status === "paid" && userId) {
       await markUserPaid(userId, session.id, session.customer as string | null);
+      await recordPaidOrder({
+        userId,
+        stripeSessionId: session.id,
+        stripeCustomerId: session.customer as string | null,
+        amountTotal: session.amount_total,
+        currency: session.currency,
+        tier: "website",
+      });
 
       // Trigger site generation using wizard data saved before payment
       const formData = await getWizardDraft(userId);
@@ -54,7 +69,8 @@ export async function POST(request: NextRequest) {
 
       if (formData && user) {
         const baseUrl = process.env.NEXT_PUBLIC_URL || "https://insixlive.com";
-        // Fire-and-forget — generation runs async
+        // Fire-and-forget — generation runs async. generate-site claims the
+        // order atomically, so a concurrent success-page trigger can't double it.
         fetch(`${baseUrl}/api/generate-site`, {
           method: "POST",
           headers: {
@@ -65,7 +81,7 @@ export async function POST(request: NextRequest) {
             formData,
             tier: "website",
             userId,
-            stripeSessionId: session.id,
+            checkoutSessionId: session.id,
           }),
         }).catch(err => console.error("Webhook generate trigger error:", err));
       } else {

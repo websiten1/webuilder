@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateWebsiteCode } from "@/lib/anthropic";
 import { deployToVercel, getValidVercelToken, setProjectEnvVars, createAndConnectBlobStore } from "@/lib/vercel";
 import { getSession } from "@/lib/session";
-import { getUserByEmail, getUserById, saveSiteWithVercel, getSiteById, updateSiteAfterRegeneration, createParishCalendarModule, setParishCalendarBlobConnected } from "@/lib/db";
+import { getUserById, saveSiteWithVercel, getSiteById, updateSiteAfterRegeneration, createParishCalendarModule, setParishCalendarBlobConnected, claimOrderForGeneration, getOrderByStripeSessionId, completeOrder, failOrder, type Order } from "@/lib/db";
 import { sendParishCalendarSetupEmail, sendWebsiteCreatedEmail } from "@/lib/email";
 import { encryptToken } from "@/lib/encryption";
 import { PARISH_CALENDAR_FILES } from "@/lib/parish-calendar-templates";
@@ -11,7 +11,6 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
-import Stripe from "stripe";
 
 export const maxDuration = 300;
 
@@ -470,6 +469,7 @@ TECHNICAL REQUIREMENTS
 }
 
 export async function POST(request: NextRequest) {
+  let claimedOrder: Order | null = null;
   try {
     const body = await request.json();
     const {
@@ -486,7 +486,9 @@ export async function POST(request: NextRequest) {
       checkoutSessionId?: string;
     };
 
-    // Allow webhook calls using an internal secret, or normal session-cookie calls
+    // Allow webhook calls using an internal secret, or normal session-cookie calls.
+    // A checkout session id is NOT an identity credential — it is only used
+    // below to claim the matching paid order for the authenticated user.
     const internalSecret = request.headers.get("x-internal-secret");
     const isWebhook = internalSecret && internalSecret === (process.env.INTERNAL_SECRET || "");
 
@@ -495,33 +497,48 @@ export async function POST(request: NextRequest) {
       resolvedUserId = webhookUserId;
     } else {
       const session = await getSession();
-      if (session) {
-        resolvedUserId = session.userId;
-      } else if (checkoutSessionId) {
-        const stripeKey = process.env.STRIPE_SECRET_KEY;
-        if (!stripeKey || stripeKey === "sk_test_xxxxx") {
-          return NextResponse.json({ error: "Payment verification not configured." }, { status: 500 });
-        }
-        const stripe = new Stripe(stripeKey);
-        const checkoutSession = await stripe.checkout.sessions.retrieve(checkoutSessionId);
-        if (checkoutSession.payment_status !== "paid") {
-          return NextResponse.json({ error: "Payment is not completed for this session." }, { status: 401 });
-        }
-        const stripeUserId = checkoutSession.metadata?.userId || checkoutSession.client_reference_id;
-        const stripeEmail = checkoutSession.customer_details?.email || checkoutSession.customer_email || null;
-        const stripeUser = stripeUserId ? await getUserById(stripeUserId) : (stripeEmail ? await getUserByEmail(stripeEmail) : null);
-        if (!stripeUser) {
-          return NextResponse.json({ error: "Could not identify paid user for generation." }, { status: 401 });
-        }
-        resolvedUserId = stripeUser.id;
-      } else {
+      if (!session) {
         return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
       }
+      resolvedUserId = session.userId;
     }
 
     const user = await getUserById(resolvedUserId);
     if (!user) {
       return NextResponse.json({ error: "User not found." }, { status: 401 });
+    }
+
+    // ── Payment gate for new-site generation ────────────────────────────────
+    // Each paid Stripe checkout session is recorded as an order (by the
+    // verified webhook or verify-session). Generation atomically claims it,
+    // so one payment = one generation, no matter how many entry points fire.
+    if (!editSiteId) {
+      if (!checkoutSessionId) {
+        return NextResponse.json(
+          { error: "Payment required before generation.", code: "PAYMENT_REQUIRED" },
+          { status: 402 }
+        );
+      }
+      claimedOrder = await claimOrderForGeneration(checkoutSessionId, resolvedUserId);
+      if (!claimedOrder) {
+        const existing = await getOrderByStripeSessionId(checkoutSessionId);
+        if (existing && existing.user_id === resolvedUserId) {
+          if (existing.status === "completed") {
+            return NextResponse.json(
+              { error: "This payment was already used to generate a website.", code: "ORDER_ALREADY_COMPLETED", siteId: existing.site_id },
+              { status: 409 }
+            );
+          }
+          return NextResponse.json(
+            { error: "Your website is already being generated.", code: "GENERATION_IN_PROGRESS" },
+            { status: 409 }
+          );
+        }
+        return NextResponse.json(
+          { error: "No valid payment found for this request.", code: "PAYMENT_REQUIRED" },
+          { status: 402 }
+        );
+      }
     }
 
     const vercelAuth = await getValidVercelToken(resolvedUserId);
@@ -620,6 +637,10 @@ export async function POST(request: NextRequest) {
       tier
     );
 
+    if (claimedOrder) {
+      await completeOrder(claimedOrder.id, site.id);
+    }
+
     try {
       await sendWebsiteCreatedEmail(user.email, { siteName: site.name, siteUrl }, user.preferred_language);
     } catch (emailError) {
@@ -707,6 +728,11 @@ export async function POST(request: NextRequest) {
       lowerError.includes("insufficient_credit") ||
       (lowerError.includes("anthropic") && lowerError.includes("plans & billing"));
     console.error("Error generating site:", error);
+    // Release the claim as 'failed' so the paying user can retry with the
+    // same checkout session instead of losing the payment.
+    if (claimedOrder) {
+      await failOrder(claimedOrder.id, rawError).catch((e) => console.error("Failed to mark order failed:", e));
+    }
     if (isAnthropicCreditIssue) {
       return NextResponse.json(
         {

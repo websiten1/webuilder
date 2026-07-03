@@ -18,7 +18,7 @@ function SuccessContent() {
 
     (async () => {
       try {
-        // 1. Verify payment
+        // 1. Verify payment server-side (session must belong to the logged-in user)
         const verifyRes = await fetch("/api/checkout/verify-session", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -26,6 +26,12 @@ function SuccessContent() {
         });
         if (!verifyRes.ok) {
           const err = await verifyRes.json().catch(() => ({}));
+          if (verifyRes.status === 401) {
+            // Browser session expired during checkout — payment is safe
+            // (recorded by the webhook); user just needs to log back in.
+            router.replace("/login");
+            return;
+          }
           throw new Error(err.error || "Payment verification failed.");
         }
 
@@ -50,7 +56,8 @@ function SuccessContent() {
         setStatus("generating");
         setMessage("Payment confirmed! Generating your website now…");
 
-        // 3. Generate site
+        // 3. Generate site — the server claims the paid order atomically, so
+        // if the Stripe webhook already started generation this returns 409.
         const genRes = await fetch("/api/generate-site", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -58,6 +65,18 @@ function SuccessContent() {
         });
         if (!genRes.ok) {
           const err = await genRes.json().catch(() => ({}));
+          if (genRes.status === 409) {
+            localStorage.removeItem("wizard_data");
+            localStorage.removeItem("pending_tier");
+            if (err.code === "ORDER_ALREADY_COMPLETED" && err.siteId) {
+              router.replace(`/success/${err.siteId}`);
+            } else {
+              // Generation already running (triggered by the webhook) — the
+              // finished site will appear on the dashboard.
+              router.replace("/dashboard");
+            }
+            return;
+          }
           throw new Error(err.error || `Generation failed (${genRes.status})`);
         }
         const result = await genRes.json();

@@ -199,6 +199,90 @@ export async function markUserPaid(
   `;
 }
 
+export type Order = {
+  id: string;
+  user_id: string;
+  stripe_session_id: string;
+  stripe_customer_id: string | null;
+  amount_total: number | null;
+  currency: string | null;
+  tier: "website" | "website_5";
+  status: "paid" | "generating" | "completed" | "failed";
+  site_id: string | null;
+  error: string | null;
+  claimed_at: Date | null;
+  completed_at: Date | null;
+  created_at: Date;
+  updated_at: Date;
+};
+
+// Idempotent: the UNIQUE constraint on stripe_session_id makes concurrent
+// calls (webhook + success page, Stripe retries) collapse into one row.
+export async function recordPaidOrder(params: {
+  userId: string;
+  stripeSessionId: string;
+  stripeCustomerId?: string | null;
+  amountTotal?: number | null;
+  currency?: string | null;
+  tier?: "website" | "website_5";
+}): Promise<void> {
+  const sql = getDb();
+  await sql`
+    INSERT INTO orders (user_id, stripe_session_id, stripe_customer_id, amount_total, currency, tier)
+    VALUES (
+      ${params.userId}, ${params.stripeSessionId}, ${params.stripeCustomerId ?? null},
+      ${params.amountTotal ?? null}, ${params.currency ?? null}, ${params.tier ?? "website"}
+    )
+    ON CONFLICT (stripe_session_id) DO NOTHING
+  `;
+}
+
+export async function getOrderByStripeSessionId(stripeSessionId: string): Promise<Order | null> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT * FROM orders WHERE stripe_session_id = ${stripeSessionId} LIMIT 1
+  `;
+  return (rows[0] as Order) || null;
+}
+
+// Atomically claims the order for generation. Returns null if the order does
+// not exist, belongs to another user, or is already generating/completed —
+// the caller must not start generation in that case. Failed orders can be
+// re-claimed so a charged user can retry.
+export async function claimOrderForGeneration(
+  stripeSessionId: string,
+  userId: string
+): Promise<Order | null> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE orders
+    SET status = 'generating', claimed_at = NOW(), error = NULL, updated_at = NOW()
+    WHERE stripe_session_id = ${stripeSessionId}
+      AND user_id = ${userId}
+      AND status IN ('paid', 'failed')
+    RETURNING *
+  `;
+  return (rows[0] as Order) || null;
+}
+
+export async function completeOrder(orderId: string, siteId: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE orders
+    SET status = 'completed', site_id = ${siteId}, completed_at = NOW(), updated_at = NOW()
+    WHERE id = ${orderId}
+  `;
+}
+
+export async function failOrder(orderId: string, error: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE orders
+    SET status = 'failed', error = ${error.slice(0, 2000)}, updated_at = NOW()
+    WHERE id = ${orderId}
+  `;
+}
+
 export async function saveSite(
   userId: string,
   name: string,
