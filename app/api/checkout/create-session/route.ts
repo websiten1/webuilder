@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { getUserById } from "@/lib/db";
 import { getStripe } from "@/lib/stripe";
+import { checkUserVercelConnection, VERCEL_RECONNECT_MESSAGE } from "@/lib/vercel";
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,6 +19,14 @@ export async function POST(request: NextRequest) {
     if (!user.email_verified) {
       return NextResponse.json(
         { error: "Please verify your email first." },
+        { status: 403 }
+      );
+    }
+
+    const vercel = await checkUserVercelConnection(session.userId);
+    if (!vercel.connected) {
+      return NextResponse.json(
+        { error: VERCEL_RECONNECT_MESSAGE, code: "VERCEL_NOT_CONNECTED" },
         { status: 403 }
       );
     }

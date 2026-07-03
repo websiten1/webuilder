@@ -178,13 +178,13 @@ function GenerateContent() {
   useEffect(() => {
     const termsAgreed = typeof window !== "undefined" && localStorage.getItem("terms_agreed") === "1";
 
-    fetch("/api/auth/me")
-      .then(r => r.json())
-      .then(data => {
+    Promise.all([fetch("/api/auth/me"), fetch("/api/auth/vercel/connection")])
+      .then(async ([meRes, connRes]) => {
+        const data = await meRes.json();
+        const conn = await connRes.json().catch(() => ({ connected: false }));
         if (!data.user) { router.push("/login"); return; }
-        const vercelConnected = data.user.vercelAuthorized || vercelJustAuthorized;
         if (!termsAgreed) { setGate("terms"); return; }
-        if (!vercelConnected) { setGate("vercel"); return; }
+        if (!conn.connected) { setGate("vercel"); return; }
         setGate("ready");
       })
       .catch(() => router.push("/login"));
@@ -192,11 +192,9 @@ function GenerateContent() {
 
   const handleTermsAgree = () => {
     localStorage.setItem("terms_agreed", "1");
-    // Re-check Vercel connection before allowing into the wizard
-    fetch("/api/auth/me").then(r => r.json()).then(data => {
-      const vercelConnected = data.user?.vercelAuthorized || vercelJustAuthorized;
-      setGate(vercelConnected ? "ready" : "vercel");
-    });
+    fetch("/api/auth/vercel/connection")
+      .then(r => r.json())
+      .then(conn => setGate(conn.connected ? "ready" : "vercel"));
   };
 
   if (gate === "loading") return <Spinner />;

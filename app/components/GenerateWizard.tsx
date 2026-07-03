@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { TemplateGallery } from "@/app/components/TemplateGallery";
 
@@ -1777,11 +1777,15 @@ function GenerateOverlay({ siteName, countdown, stageMsg }: { siteName: string; 
   );
 }
 
-function PaymentOverlay({ data, onCancel, onPay, lang, paymentLoading, paymentError }: {
+function PaymentOverlay({ data, onCancel, onPay, lang, paymentLoading, paymentError, vercelLoading, vercelConnected, vercelAccount }: {
   data: WizardData; onCancel: () => void; onPay: () => void; lang: Lang;
   paymentLoading: boolean; paymentError: string;
+  vercelLoading: boolean; vercelConnected: boolean; vercelAccount: string | null;
 }) {
   const handlePay = () => { onPay(); };
+  const handleConnectVercel = () => {
+    try { localStorage.setItem("wizard_pending_payment", "1"); } catch { /* ignore */ }
+  };
 
   return (
     <div className="wf-overlay">
@@ -1808,8 +1812,47 @@ function PaymentOverlay({ data, onCancel, onPay, lang, paymentLoading, paymentEr
                 {tr(lang,"Se pregătește plata…","Preparing checkout…")}
               </p>
             </div>
+          ) : vercelLoading ? (
+            <div style={{ textAlign:"center", padding:"24px 0" }}>
+              <div style={{ width:32, height:32, borderRadius:"50%", border:"2.5px solid var(--wf-border)", borderTopColor:"#635bff", animation:"spin .8s linear infinite", margin:"0 auto 14px" }} />
+              <p style={{ fontFamily:"var(--wf-mono)", fontSize:13, color:"var(--wf-text2)" }}>
+                {tr(lang,"Se verifică conexiunea Vercel…","Checking Vercel connection…")}
+              </p>
+            </div>
+          ) : !vercelConnected ? (
+            <>
+              <div style={{ padding:"12px 14px", borderRadius:8, background:"#FFF8F0", border:"1px solid rgba(255,90,31,.25)", color:"#9A3412", fontSize:13, marginBottom:14, lineHeight:1.55 }}>
+                {tr(lang,
+                  "Înainte de plată, conectează contul tău Vercel. Site-ul se publică doar în contul tău — fără conexiune, generarea nu poate continua.",
+                  "Before paying, connect your Vercel account. Your site deploys only to your account — without a connection, generation cannot proceed."
+                )}
+              </div>
+              <div className="wf-pay-lab">{tr(lang,"Pas obligatoriu","Required step")}</div>
+              <a
+                href="/api/auth/vercel/authorize"
+                onClick={handleConnectVercel}
+                className="wf-pay-btn"
+                style={{ marginBottom: 6, display:"flex", alignItems:"center", justifyContent:"center", gap:8, textDecoration:"none" }}
+              >
+                <svg width="16" height="14" viewBox="0 0 76 65" fill="currentColor" aria-hidden>
+                  <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" />
+                </svg>
+                {tr(lang,"Conectează cu Vercel","Connect with Vercel")}
+              </a>
+              <p style={{ fontSize:12.5, color:"var(--wf-text3)", textAlign:"center", lineHeight:1.5, margin:"10px 0 0" }}>
+                {tr(lang,
+                  "Durează ~10 secunde. Vei reveni aici după autorizare.",
+                  "Takes ~10 seconds. You'll return here after authorization."
+                )}
+              </p>
+            </>
           ) : (
             <>
+              {vercelAccount && (
+                <div style={{ padding:"8px 12px", borderRadius:8, background:"#F0FDF4", border:"1px solid rgba(34,197,94,.25)", color:"#166534", fontSize:12.5, marginBottom:12 }}>
+                  {tr(lang,"Vercel conectat:","Vercel connected:")} <strong>{vercelAccount}</strong>
+                </div>
+              )}
               {paymentError && (
                 <div style={{ padding:"10px 14px", borderRadius:8, background:"#FFF0EE", border:"1px solid rgba(255,90,31,.2)", color:"#C43600", fontSize:13, marginBottom:12 }}>
                   {paymentError}
@@ -1855,6 +1898,7 @@ const TOTAL = 11; // 11 steps (0–10)
 
 export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState(() => {
     if (typeof window === "undefined") return 0;
     const saved = parseInt(localStorage.getItem("wizard_step") ?? "0", 10);
@@ -1999,11 +2043,60 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
 
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentError, setPaymentError] = useState("");
+  const [vercelLoading, setVercelLoading] = useState(false);
+  const [vercelConnected, setVercelConnected] = useState(false);
+  const [vercelAccount, setVercelAccount] = useState<string | null>(null);
+
+  const checkVercelConnection = useCallback(async (): Promise<boolean> => {
+    setVercelLoading(true);
+    try {
+      const res = await fetch("/api/auth/vercel/connection");
+      const conn = await res.json().catch(() => ({}));
+      const connected = res.ok && !!conn.connected;
+      setVercelConnected(connected);
+      setVercelAccount(connected ? (conn.account ?? null) : null);
+      return connected;
+    } catch {
+      setVercelConnected(false);
+      setVercelAccount(null);
+      return false;
+    } finally {
+      setVercelLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!showPayment) return;
+    checkVercelConnection();
+  }, [showPayment, checkVercelConnection]);
+
+  useEffect(() => {
+    const pendingPayment = typeof window !== "undefined" && localStorage.getItem("wizard_pending_payment") === "1";
+    const justAuthorized = searchParams.get("vercel_authorized") === "true";
+    if (!pendingPayment && !justAuthorized) return;
+
+    checkVercelConnection().then((connected) => {
+      try { localStorage.removeItem("wizard_pending_payment"); } catch { /* ignore */ }
+      if (connected) setShowPayment(true);
+    });
+  }, [searchParams, checkVercelConnection]);
 
   const handlePayWithStripe = async () => {
     setPaymentLoading(true);
     setPaymentError("");
     try {
+      const connected = await checkVercelConnection();
+      if (!connected) {
+        setPaymentError(
+          tr(lang,
+            "Conectează contul Vercel înainte de plată.",
+            "Connect your Vercel account before paying."
+          )
+        );
+        setPaymentLoading(false);
+        return;
+      }
+
       // Save wizard data server-side so the webhook can trigger generation
       // even if the browser redirect back to us fails for any reason.
       await fetch("/api/wizard/save-draft", {
@@ -2155,6 +2248,9 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
           lang={lang}
           paymentLoading={paymentLoading}
           paymentError={paymentError}
+          vercelLoading={vercelLoading}
+          vercelConnected={vercelConnected}
+          vercelAccount={vercelAccount}
           onCancel={() => { if (!paymentLoading) setShowPayment(false); }}
           onPay={handlePayWithStripe}
         />

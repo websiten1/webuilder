@@ -22,6 +22,47 @@ export async function getValidVercelToken(
   return getDecryptedVercelToken(userId);
 }
 
+export type VercelConnectionStatus = {
+  connected: boolean;
+  account?: string | null;
+  email?: string | null;
+  teamId?: string | null;
+  since?: Date | null;
+};
+
+/** Validates stored OAuth token against the Vercel API; clears stale auth on 401/403. */
+export async function checkUserVercelConnection(userId: string): Promise<VercelConnectionStatus> {
+  const { getUserById, clearVercelAuth } = await import("@/lib/db");
+  const user = await getUserById(userId);
+  const auth = await getValidVercelToken(userId);
+
+  if (!user || !auth) {
+    return { connected: false };
+  }
+
+  try {
+    const res = await fetch("https://api.vercel.com/v2/user", {
+      headers: { Authorization: `Bearer ${auth.token}` },
+    });
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+        await clearVercelAuth(userId);
+      }
+      return { connected: false };
+    }
+    const data = await res.json();
+    return {
+      connected: true,
+      account: data.user?.username ?? null,
+      email: data.user?.email ?? null,
+      teamId: user.vercel_team_id,
+      since: user.vercel_authorized_at,
+    };
+  } catch {
+    return { connected: false };
+  }
+}
+
 export async function requireUserVercelAuth(
   userId: string
 ): Promise<{ token: string; teamId?: string }> {
