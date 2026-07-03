@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
 import { getSession } from "@/lib/session";
 import {
   getSiteEditById,
@@ -9,8 +8,14 @@ import {
   updateSiteVercelUrl,
   getUserById,
 } from "@/lib/db";
-import { deployToVercel } from "@/lib/vercel";
+import {
+  deployToVercel,
+  getValidVercelToken,
+  normalizeDeploymentUrl,
+  resolveVercelDeployName,
+} from "@/lib/vercel";
 import { generateWebsiteCode } from "@/lib/anthropic";
+import { getStripe } from "@/lib/stripe";
 import {
   sendEditStartedEmail,
   sendEditCompletedEmail,
@@ -19,14 +24,9 @@ import {
 
 export const maxDuration = 300;
 
-function getStripe() {
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key || key === "sk_test_xxxxx") throw new Error("STRIPE_SECRET_KEY not configured");
-  return new Stripe(key);
-}
-
-async function issueRefund(stripe: Stripe, sessionId: string) {
+async function issueRefund(sessionId: string) {
   try {
+    const stripe = getStripe();
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     if (session.payment_intent) {
       await stripe.refunds.create({ payment_intent: session.payment_intent as string });
@@ -91,23 +91,19 @@ export async function POST(request: NextRequest) {
     const site = await getSiteById(edit.site_id, authSession.userId);
     if (!site?.vercel_project_id) {
       await updateSiteEditStatus(editId, "failed");
-      if (!free && sessionId) await issueRefund(stripe, sessionId);
+      if (!free && sessionId) await issueRefund(sessionId);
       return NextResponse.json({ error: "Site Vercel project not found." }, { status: 500 });
     }
 
     const user = await getUserById(authSession.userId);
     if (!user) return NextResponse.json({ error: "User not found." }, { status: 404 });
 
-    // ── Smart Vercel token selection ─────────────────────────────────────────
-    // The critical invariant: the edit MUST redeploy to the same Vercel account
-    // that owns the original project, otherwise Vercel creates a new project and
-    // the user's custom domain and old URL stop working.
-    console.log(`Edit ${editId}: project=${site.vercel_project_id}`);
+    const vercelAuth = await getValidVercelToken(authSession.userId);
+    const deployProjectName = resolveVercelDeployName(site);
+    console.log(`Edit ${editId}: deployName=${deployProjectName}, projectId=${site.vercel_project_id}`);
 
     sendEditStartedEmail(user.email, site.name, edit.description).catch(console.error);
 
-    // Build edit prompt from design preferences + requested changes
-    // (No GitHub needed — regenerate from original specs + edit description)
     const designInfo = site.design_preferences
       ? `\nOriginal design preferences:\n${JSON.stringify(site.design_preferences, null, 2)}`
       : "";
@@ -134,20 +130,22 @@ INSTRUCTIONS:
     } catch (e) {
       console.error("Claude generation failed:", e);
       await updateSiteEditStatus(editId, "failed");
-      if (!free && sessionId) await issueRefund(stripe, sessionId);
+      if (!free && sessionId) await issueRefund(sessionId);
       sendEditFailedEmail(user.email, site.name, edit.description, site.id).catch(console.error);
       return NextResponse.json({ error: "Code generation failed." }, { status: 500 });
     }
 
-    // Deploy to the SAME Vercel project (same URL, all domains update simultaneously)
     let deployedUrl: string;
     try {
-      const deployment = await deployToVercel(site.vercel_project_id, newCode);
-      deployedUrl = `https://${site.vercel_project_id}.vercel.app`;
+      const deployment = await deployToVercel(deployProjectName, newCode, {
+        userToken: vercelAuth?.token,
+        teamId: vercelAuth?.teamId,
+      });
+      deployedUrl = normalizeDeploymentUrl(deployment.url);
     } catch (e) {
       console.error("Vercel deploy failed:", e);
       await updateSiteEditStatus(editId, "failed");
-      if (!free && sessionId) await issueRefund(stripe, sessionId);
+      if (!free && sessionId) await issueRefund(sessionId);
       sendEditFailedEmail(user.email, site.name, edit.description, site.id).catch(console.error);
       return NextResponse.json({ error: "Deployment failed." }, { status: 500 });
     }
@@ -158,8 +156,6 @@ INSTRUCTIONS:
       completedAt: new Date(),
     });
     await incrementSiteVersion(site.id);
-    // Keep the site's canonical URL current so the dashboard always shows the
-    // latest deployment link (Vercel aliases update automatically, but we log it).
     if (deployedUrl !== site.vercel_url) {
       await updateSiteVercelUrl(site.id, deployedUrl);
     }

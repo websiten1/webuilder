@@ -3,10 +3,8 @@ import bcrypt from "bcryptjs";
 import { createUser, getUserByEmail, saveVerificationCode, updateUserPassword } from "@/lib/db";
 import { sendVerificationCode } from "@/lib/email";
 import { detectLangFromHeader } from "@/lib/locale";
-
-function generateCode(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
+import { generateVerificationCode } from "@/lib/verification";
+import { genericErrorResponse, logServerError, newErrorId } from "@/lib/api-error";
 
 export async function POST(request: NextRequest) {
   try {
@@ -49,10 +47,9 @@ export async function POST(request: NextRequest) {
           { status: 409 }
         );
       }
-      // Unverified account — update password and resend code
       const passwordHash = await bcrypt.hash(password, 12);
       await updateUserPassword(existing.id, passwordHash);
-      const code = generateCode();
+      const code = generateVerificationCode();
       const codeExpires = new Date(Date.now() + 15 * 60 * 1000);
       await saveVerificationCode(existing.id, code, codeExpires);
       let emailWarning: string | null = null;
@@ -68,21 +65,18 @@ export async function POST(request: NextRequest) {
     const passwordHash = await bcrypt.hash(password, 12);
     const lang = detectLangFromHeader(request.headers.get("accept-language"));
 
-    // Create user — verification_token unused in new flow, but column required
     const user = await createUser(
       email.toLowerCase(),
       passwordHash,
       "unused",
-      new Date(0), // far-past expiry so the old link flow never works
+      new Date(0),
       lang
     );
 
-    // Generate + store 6-digit code (15 min expiry)
-    const code = generateCode();
+    const code = generateVerificationCode();
     const codeExpires = new Date(Date.now() + 15 * 60 * 1000);
     await saveVerificationCode(user.id, code, codeExpires);
 
-    // Send code email — if it fails, account still exists, user can resend
     let emailWarning: string | null = null;
     try {
       await sendVerificationCode(email.toLowerCase(), code, lang);
@@ -96,10 +90,8 @@ export async function POST(request: NextRequest) {
       emailWarning: emailWarning ?? null,
     });
   } catch (error) {
-    console.error("Signup error:", error);
-    return NextResponse.json(
-      { error: "Failed to create account. Please try again." },
-      { status: 500 }
-    );
+    const errorId = newErrorId();
+    logServerError(errorId, "auth/signup", error);
+    return genericErrorResponse(errorId);
   }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { neon } from "@neondatabase/serverless";
 import { getUserById, markUserPaid, recordPaidOrder } from "@/lib/db";
+import { getStripe } from "@/lib/stripe";
 
 function getDb() {
   const url = process.env.DATABASE_URL;
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Webhook not configured." }, { status: 500 });
   }
 
-  const stripe = new Stripe(stripeKey);
+  const stripe = getStripe();
   const body = await request.text();
   const sig = request.headers.get("stripe-signature");
   if (!sig) {

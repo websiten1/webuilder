@@ -1,15 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
 import { getSession } from "@/lib/session";
 import { getUserById, markUserPaid, recordPaidOrder } from "@/lib/db";
-
-function getStripe() {
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key || key === "sk_test_xxxxx") {
-    throw new Error("STRIPE_SECRET_KEY is not configured");
-  }
-  return new Stripe(key);
-}
+import { getStripe } from "@/lib/stripe";
 
 // Verifies that a completed Stripe checkout session belongs to the currently
 // authenticated user. Possession of a session_id (URL param, browser history,

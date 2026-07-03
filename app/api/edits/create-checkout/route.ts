@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
 import { getSession } from "@/lib/session";
 import { getSiteById, createSiteEdit, updateSiteEditStatus, decrementFreeEdits } from "@/lib/db";
-
-function getStripe() {
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key || key === "sk_test_xxxxx") throw new Error("STRIPE_SECRET_KEY not configured");
-  return new Stripe(key);
-}
+import { getStripe } from "@/lib/stripe";
 
 export async function POST(request: NextRequest) {
   try {

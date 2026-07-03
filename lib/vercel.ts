@@ -12,6 +12,64 @@ export async function getValidVercelToken(
   return getDecryptedVercelToken(userId);
 }
 
+export async function resolveVercelApiAuth(
+  userId: string
+): Promise<{ token: string; teamId?: string }> {
+  const auth = await getValidVercelToken(userId);
+  if (auth) return { token: auth.token, teamId: auth.teamId ?? undefined };
+  const platform = process.env.VERCEL_API_TOKEN;
+  if (!platform) throw new Error("No Vercel token available. VERCEL_API_TOKEN not set.");
+  return { token: platform };
+}
+
+export function vercelTeamQuery(teamId?: string | null): string {
+  return teamId ? `?teamId=${teamId}` : "";
+}
+
+export function normalizeDeploymentUrl(url: string): string {
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `https://${url}`;
+}
+
+export function resolveVercelDeployName(site: {
+  vercel_project_name?: string | null;
+  vercel_project_id?: string | null;
+  vercel_url?: string | null;
+}): string {
+  if (site.vercel_project_name) return site.vercel_project_name;
+  const projectId = site.vercel_project_id;
+  if (projectId && !projectId.startsWith("prj_")) return projectId;
+  if (site.vercel_url) {
+    try {
+      const host = new URL(
+        site.vercel_url.startsWith("http") ? site.vercel_url : `https://${site.vercel_url}`
+      ).hostname;
+      if (host.endsWith(".vercel.app")) {
+        return host.slice(0, -".vercel.app".length);
+      }
+    } catch {
+      /* fall through */
+    }
+  }
+  throw new Error("Cannot resolve Vercel project deploy name for site");
+}
+
+export async function deleteVercelProject(
+  projectIdOrName: string,
+  token: string,
+  teamId?: string | null
+): Promise<void> {
+  const teamQuery = vercelTeamQuery(teamId);
+  const res = await fetch(
+    `https://api.vercel.com/v9/projects/${encodeURIComponent(projectIdOrName)}${teamQuery}`,
+    { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
+  );
+  if (!res.ok && res.status !== 404) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`Failed to delete Vercel project (${res.status}): ${body.slice(0, 200)}`);
+  }
+}
+
 export async function deployToVercel(
   projectName: string,
   code: string,

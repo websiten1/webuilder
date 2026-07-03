@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { getSiteById, saveDomainToSite } from "@/lib/db";
-
-const TEAM_ID = "team_f7GtKyI6RueAw15YIqyJz8qA";
+import { resolveVercelApiAuth, vercelTeamQuery } from "@/lib/vercel";
+import { genericErrorResponse, logServerError, newErrorId } from "@/lib/api-error";
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,11 +26,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Site has no Vercel project." }, { status: 400 });
     }
 
-    // Use user's own Vercel token if connected, otherwise app token
-    const token = (site as unknown as { user_vercel_token?: string }).user_vercel_token
-      ?? process.env.VERCEL_API_TOKEN;
-
-    const apiUrl = `https://api.vercel.com/v10/projects/${site.vercel_project_id}/domains?teamId=${TEAM_ID}`;
+    const { token, teamId } = await resolveVercelApiAuth(session.userId);
+    const apiUrl = `https://api.vercel.com/v10/projects/${site.vercel_project_id}/domains${vercelTeamQuery(teamId)}`;
 
     const res = await fetch(apiUrl, {
       method: "POST",
@@ -49,10 +46,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: msg }, { status: 400 });
     }
 
-    // Save to DB
     await saveDomainToSite(siteId, cleanDomain);
 
-    // Build DNS instructions from Vercel response
     const dnsRecords = buildDnsInstructions(cleanDomain, data);
 
     return NextResponse.json({
@@ -62,24 +57,22 @@ export async function POST(request: NextRequest) {
       dnsRecords,
     });
   } catch (err) {
-    console.error("Add domain error:", err);
-    return NextResponse.json({ error: "Failed to add domain." }, { status: 500 });
+    const errorId = newErrorId();
+    logServerError(errorId, "domains/add", err);
+    return genericErrorResponse(errorId);
   }
 }
 
 function buildDnsInstructions(domain: string, vercelData: Record<string, unknown>) {
-  // Vercel returns verification records if the domain isn't verified yet
   const records = [];
 
   if (domain.startsWith("www.") || !domain.includes(".")) {
     records.push({ type: "CNAME", name: domain, value: "cname.vercel-dns.com" });
   } else {
-    // Apex domain — use A records
     records.push({ type: "A", name: "@", value: "76.76.21.21" });
     records.push({ type: "CNAME", name: "www", value: "cname.vercel-dns.com" });
   }
 
-  // Include any verification challenge records from Vercel
   const challenges = (vercelData as Record<string, unknown[]>).verification ?? [];
   for (const c of challenges as Array<{ type: string; domain: string; value: string }>) {
     records.push({ type: c.type, name: c.domain, value: c.value, purpose: "verification" });

@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserByVerificationCode, clearVerificationCode } from "@/lib/db";
+import {
+  getUserByEmail,
+  getUserByVerificationCode,
+  clearVerificationCode,
+  incrementVerificationAttempts,
+  invalidateVerificationCode,
+} from "@/lib/db";
 import { createSession } from "@/lib/session";
+import {
+  INVALID_VERIFICATION_CODE_MESSAGE,
+  MAX_VERIFICATION_ATTEMPTS,
+} from "@/lib/verification";
+import { genericErrorResponse, logServerError, newErrorId } from "@/lib/api-error";
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,31 +32,50 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const user = await getUserByVerificationCode(email.toLowerCase(), cleanCode);
+    const normalizedEmail = email.toLowerCase();
+    const user = await getUserByEmail(normalizedEmail);
 
+    // Opaque response — same message whether the email is unknown, the code is
+    // wrong, expired, or locked out after too many attempts.
     if (!user) {
       return NextResponse.json(
-        { error: "Incorrect code or it has expired. Try resending." },
+        { error: INVALID_VERIFICATION_CODE_MESSAGE },
         { status: 400 }
       );
     }
 
-    // Mark verified + clear code
-    await clearVerificationCode(user.id);
+    if ((user.verification_attempts ?? 0) >= MAX_VERIFICATION_ATTEMPTS) {
+      await invalidateVerificationCode(user.id);
+      return NextResponse.json(
+        { error: INVALID_VERIFICATION_CODE_MESSAGE },
+        { status: 400 }
+      );
+    }
 
-    // Create session so user is immediately logged in — no extra sign-in needed
+    const matched = await getUserByVerificationCode(normalizedEmail, cleanCode);
+    if (!matched) {
+      const attempts = await incrementVerificationAttempts(user.id);
+      if (attempts >= MAX_VERIFICATION_ATTEMPTS) {
+        await invalidateVerificationCode(user.id);
+      }
+      return NextResponse.json(
+        { error: INVALID_VERIFICATION_CODE_MESSAGE },
+        { status: 400 }
+      );
+    }
+
+    await clearVerificationCode(matched.id);
+
     await createSession({
-      userId: user.id,
+      userId: matched.id,
       emailVerified: true,
-      paymentStatus: user.payment_status,
+      paymentStatus: matched.payment_status,
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Verify code error:", error);
-    return NextResponse.json(
-      { error: "Verification failed. Please try again." },
-      { status: 500 }
-    );
+    const errorId = newErrorId();
+    logServerError(errorId, "auth/verify-code", error);
+    return genericErrorResponse(errorId);
   }
 }

@@ -26,6 +26,8 @@ export type User = {
   verification_token_expires: Date | null;
   verification_code: string | null;
   verification_code_expires: Date | null;
+  verification_attempts: number;
+  verification_code_sent_at: Date | null;
   payment_status: "pending" | "paid" | "failed";
   payment_date: Date | null;
   stripe_customer_id: string | null;
@@ -50,6 +52,7 @@ export type Site = {
   vercel_url: string | null;
   repo_name: string | null;
   vercel_project_id: string | null;
+  vercel_project_name: string | null;
   vercel_deployment_id: string | null;
   deployment_status: string;
   status: string;
@@ -453,9 +456,47 @@ export async function saveVerificationCode(
     UPDATE users
     SET verification_code = ${code},
         verification_code_expires = ${expires},
+        verification_attempts = 0,
+        verification_code_sent_at = NOW(),
         updated_at = NOW()
     WHERE id = ${userId}
   `;
+}
+
+export async function incrementVerificationAttempts(userId: string): Promise<number> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE users
+    SET verification_attempts = verification_attempts + 1, updated_at = NOW()
+    WHERE id = ${userId}
+    RETURNING verification_attempts
+  `;
+  return Number(rows[0]?.verification_attempts ?? 0);
+}
+
+export async function invalidateVerificationCode(userId: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE users
+    SET verification_code = NULL,
+        verification_code_expires = NULL,
+        verification_attempts = 0,
+        updated_at = NOW()
+    WHERE id = ${userId}
+  `;
+}
+
+export async function canSendVerificationCode(
+  userId: string,
+  minIntervalMs = 60_000
+): Promise<boolean> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT verification_code_sent_at FROM users WHERE id = ${userId} LIMIT 1
+  `;
+  const sentAt = rows[0]?.verification_code_sent_at as Date | null | undefined;
+  if (!sentAt) return true;
+  return Date.now() - new Date(sentAt).getTime() >= minIntervalMs;
 }
 
 export async function getUserByVerificationCode(
@@ -479,6 +520,7 @@ export async function clearVerificationCode(userId: string): Promise<void> {
     UPDATE users
     SET verification_code = NULL,
         verification_code_expires = NULL,
+        verification_attempts = 0,
         email_verified = TRUE,
         verification_token = NULL,
         verification_token_expires = NULL,
@@ -551,7 +593,8 @@ export async function saveSiteWithVercel(
   vercelProjectId: string,
   vercelDeploymentId: string,
   designPreferences?: Record<string, unknown>,
-  pricingTier: "website" | "website_5" = "website"
+  pricingTier: "website" | "website_5" = "website",
+  vercelProjectName?: string
 ): Promise<Site> {
   const sql = getDb();
   const prefs = designPreferences ? JSON.stringify(designPreferences) : null;
@@ -559,12 +602,12 @@ export async function saveSiteWithVercel(
   const rows = await sql`
     INSERT INTO sites (
       user_id, name, business_type, vercel_url,
-      vercel_project_id, vercel_deployment_id, deployment_status,
+      vercel_project_id, vercel_project_name, vercel_deployment_id, deployment_status,
       design_preferences, pricing_tier, free_edits_remaining, total_edits_included
     )
     VALUES (
       ${userId}, ${name}, ${businessType}, ${vercelUrl},
-      ${vercelProjectId}, ${vercelDeploymentId}, 'deployed',
+      ${vercelProjectId}, ${vercelProjectName ?? null}, ${vercelDeploymentId}, 'deployed',
       ${prefs}::jsonb, ${pricingTier}, ${freeEdits}, ${freeEdits}
     )
     RETURNING *
@@ -577,7 +620,8 @@ export async function updateSiteAfterRegeneration(
   vercelUrl: string,
   vercelDeploymentId: string,
   vercelProjectId: string,
-  designPreferences: Record<string, unknown>
+  designPreferences: Record<string, unknown>,
+  vercelProjectName?: string
 ): Promise<void> {
   const sql = getDb();
   const prefs = JSON.stringify(designPreferences);
@@ -586,6 +630,7 @@ export async function updateSiteAfterRegeneration(
     SET vercel_url          = ${vercelUrl},
         vercel_deployment_id = ${vercelDeploymentId},
         vercel_project_id   = ${vercelProjectId},
+        vercel_project_name = COALESCE(${vercelProjectName ?? null}, vercel_project_name),
         design_preferences  = ${prefs}::jsonb,
         current_version     = current_version + 1
     WHERE id = ${siteId}

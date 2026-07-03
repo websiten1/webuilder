@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserByEmail, saveVerificationCode } from "@/lib/db";
+import { getUserByEmail, saveVerificationCode, canSendVerificationCode } from "@/lib/db";
 import { sendVerificationCode } from "@/lib/email";
-
-function generateCode(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
+import { generateVerificationCode, RESEND_MIN_INTERVAL_MS } from "@/lib/verification";
+import { genericErrorResponse, logServerError, newErrorId } from "@/lib/api-error";
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,7 +19,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    const code = generateCode();
+    if (!(await canSendVerificationCode(user.id, RESEND_MIN_INTERVAL_MS))) {
+      return NextResponse.json({ success: true });
+    }
+
+    const code = generateVerificationCode();
     const expires = new Date(Date.now() + 15 * 60 * 1000);
 
     await saveVerificationCode(user.id, code, expires);
@@ -29,10 +31,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Resend code error:", error);
-    return NextResponse.json(
-      { error: "Failed to send code. Please try again." },
-      { status: 500 }
-    );
+    const errorId = newErrorId();
+    logServerError(errorId, "auth/resend-verification", error);
+    return genericErrorResponse(errorId);
   }
 }

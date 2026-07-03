@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateWebsiteCode } from "@/lib/anthropic";
-import { deployToVercel, getValidVercelToken, setProjectEnvVars, createAndConnectBlobStore } from "@/lib/vercel";
+import { deployToVercel, getValidVercelToken, setProjectEnvVars, createAndConnectBlobStore, deleteVercelProject, normalizeDeploymentUrl, resolveVercelDeployName } from "@/lib/vercel";
 import { getSession } from "@/lib/session";
 import { getUserById, saveSiteWithVercel, getSiteById, updateSiteAfterRegeneration, createParishCalendarModule, setParishCalendarBlobConnected, claimOrderForGeneration, getOrderByStripeSessionId, completeOrder, failOrder, type Order } from "@/lib/db";
 import { sendParishCalendarSetupEmail, sendWebsiteCreatedEmail } from "@/lib/email";
 import { encryptToken } from "@/lib/encryption";
+import { genericErrorResponse, logServerError, newErrorId } from "@/lib/api-error";
 import { PARISH_CALENDAR_FILES } from "@/lib/parish-calendar-templates";
 import type { WizardData } from "@/app/components/GenerateWizard";
 import fs from "fs";
@@ -174,88 +175,6 @@ const TEMPLATE_NAMES: Record<string, string> = {
   "wine-shop": "Wine Shop", "cleaning-service": "Cleaning Service",
   "moving-service": "Moving Service", "photography": "Photography Studio",
 };
-
-function buildEmergencyWebsiteCode(f: WizardData): string {
-  const businessName = JSON.stringify((f.business.name || "Your Business").trim());
-  const businessType = JSON.stringify((f.business.type || "Business").trim());
-  const description = JSON.stringify((f.business.description || "Professional services tailored to your needs.").trim());
-  const primaryColor = JSON.stringify(f.design.primaryColor || "#FF5A1F");
-  const secondaryColor = JSON.stringify(f.design.secondaryColor || "#0A0E14");
-  const location = JSON.stringify(
-    [f.business.locationCity, f.business.locationCountry].filter(Boolean).join(", ") || f.business.location || ""
-  );
-  const phone = JSON.stringify(f.business.phone || "");
-  const email = JSON.stringify(f.business.email || "");
-  const ctaHref = f.business.hasPhone && f.business.phone ? JSON.stringify(`tel:${f.business.phone}`) : f.business.email ? JSON.stringify(`mailto:${f.business.email}`) : JSON.stringify("#");
-  const ctaLabel = JSON.stringify(f.business.hasPhone && f.business.phone ? "Call now" : f.business.email ? "Send us an email" : "Contact us");
-
-  return `export default function Page() {
-  const businessName = ${businessName};
-  const businessType = ${businessType};
-  const description = ${description};
-  const primaryColor = ${primaryColor};
-  const secondaryColor = ${secondaryColor};
-  const location = ${location};
-  const phone = ${phone};
-  const email = ${email};
-  const ctaHref = ${ctaHref};
-  const ctaLabel = ${ctaLabel};
-
-  return (
-    <div style={{ fontFamily: "Inter, Arial, sans-serif", color: "#111827", background: "#f8fafc", minHeight: "100vh" }}>
-      <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#ffffff", borderBottom: "1px solid #e5e7eb" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <strong style={{ color: secondaryColor }}>{businessName}</strong>
-          <a href={ctaHref} style={{ background: primaryColor, color: "#fff", textDecoration: "none", padding: "10px 14px", borderRadius: 10, fontWeight: 600 }}>
-            {ctaLabel}
-          </a>
-        </div>
-      </header>
-
-      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "48px 20px 64px" }}>
-        <section style={{ background: "#fff", borderRadius: 20, border: "1px solid #e5e7eb", padding: "36px 28px", marginBottom: 24 }}>
-          <p style={{ margin: 0, color: primaryColor, fontWeight: 700, letterSpacing: 0.2 }}>Professional {businessType}</p>
-          <h1 style={{ margin: "10px 0 12px", fontSize: "clamp(30px,5vw,48px)", lineHeight: 1.1, color: secondaryColor }}>{businessName}</h1>
-          <p style={{ margin: 0, color: "#374151", fontSize: 18, lineHeight: 1.6, maxWidth: 760 }}>{description}</p>
-          <div style={{ marginTop: 22, display: "flex", gap: 10, flexWrap: "wrap" }}>
-            {location ? <span style={{ border: "1px solid #e5e7eb", borderRadius: 999, padding: "8px 12px", fontSize: 14 }}>Location: {location}</span> : null}
-            {phone ? <span style={{ border: "1px solid #e5e7eb", borderRadius: 999, padding: "8px 12px", fontSize: 14 }}>Phone: {phone}</span> : null}
-            {email ? <span style={{ border: "1px solid #e5e7eb", borderRadius: 999, padding: "8px 12px", fontSize: 14 }}>Email: {email}</span> : null}
-          </div>
-        </section>
-
-        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 16 }}>
-          <article style={{ background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", padding: 20 }}>
-            <h2 style={{ margin: "0 0 8px", color: secondaryColor }}>What we do</h2>
-            <p style={{ margin: 0, color: "#4b5563", lineHeight: 1.6 }}>
-              We provide reliable, professional service with fast communication and transparent delivery.
-            </p>
-          </article>
-          <article style={{ background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", padding: 20 }}>
-            <h2 style={{ margin: "0 0 8px", color: secondaryColor }}>Why clients choose us</h2>
-            <p style={{ margin: 0, color: "#4b5563", lineHeight: 1.6 }}>
-              Practical expertise, clear timelines, and attention to detail from first contact to final result.
-            </p>
-          </article>
-          <article style={{ background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", padding: 20 }}>
-            <h2 style={{ margin: "0 0 8px", color: secondaryColor }}>Get started</h2>
-            <p style={{ margin: "0 0 14px", color: "#4b5563", lineHeight: 1.6 }}>
-              Reach out today and we will help you plan the best next step for your project.
-            </p>
-            <a href={ctaHref} style={{ color: primaryColor, fontWeight: 700, textDecoration: "none" }}>{ctaLabel} →</a>
-          </article>
-        </section>
-      </main>
-
-      <footer style={{ borderTop: "1px solid #e5e7eb", background: "#fff" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "18px 20px", color: "#6b7280", fontSize: 14 }}>
-          © {new Date().getFullYear()} {businessName}. All rights reserved.
-        </div>
-      </footer>
-    </div>
-  );
-}`;
-}
 
 function buildPrompt(f: WizardData): string {
   const styleMap: Record<string, string> = {
@@ -468,8 +387,27 @@ TECHNICAL REQUIREMENTS
 • Production-ready quality — nothing that looks like a template`;
 }
 
+type GenerationStage = "generating_code" | "deploying" | "saving_db";
+
+async function failGenerationOrder(
+  order: Order,
+  userId: string,
+  stage: GenerationStage,
+  error: string
+): Promise<void> {
+  console.error("[generation-failed]", {
+    orderId: order.id,
+    userId,
+    stage,
+    error: error.slice(0, 500),
+  });
+  await failOrder(order.id, `[${stage}] ${error}`);
+}
+
 export async function POST(request: NextRequest) {
   let claimedOrder: Order | null = null;
+  let stage: GenerationStage = "generating_code";
+  let resolvedUserId = "";
   try {
     const body = await request.json();
     const {
@@ -498,7 +436,6 @@ export async function POST(request: NextRequest) {
       crypto.timingSafeEqual(Buffer.from(internalSecretHeader), Buffer.from(configuredInternalSecret))
     );
 
-    let resolvedUserId: string;
     if (isWebhook && webhookUserId) {
       resolvedUserId = webhookUserId;
     } else {
@@ -570,23 +507,11 @@ export async function POST(request: NextRequest) {
     console.log(`🖼️  Passing ${images.length} images to Claude: ${images.map(i => i.placeholder).join(', ') || 'none'}`);
     // Images are deployed as real static files — no base64 embedding in code
     const staticImages = images.map(img => ({ path: img.placeholder.replace(/^\//, ""), base64: img.base64 }));
-    let usedEmergencyFallback = false;
-    let websiteCode: string;
-    try {
-      websiteCode = await generateWebsiteCode(prompt, images);
-      console.log("✅ Code generated");
-    } catch (genErr) {
-      const genMessage = genErr instanceof Error ? genErr.message : String(genErr);
-      const lowerGenMessage = genMessage.toLowerCase();
-      const isAnthropicCreditIssue =
-        lowerGenMessage.includes("credit balance is too low") ||
-        lowerGenMessage.includes("insufficient_credit") ||
-        (lowerGenMessage.includes("anthropic") && lowerGenMessage.includes("plans & billing"));
-      if (!isAnthropicCreditIssue) throw genErr;
+    stage = "generating_code";
+    const websiteCode = await generateWebsiteCode(prompt, images);
+    console.log("✅ Code generated");
 
-      usedEmergencyFallback = true;
-      websiteCode = buildEmergencyWebsiteCode(formData);
-    }
+    const deployToken = userVercelToken ?? process.env.VERCEL_API_TOKEN!;
 
     // ── UPDATE existing site ────────────────────────────────────────────────
     if (editSiteId) {
@@ -595,32 +520,37 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Site not found." }, { status: 404 });
       }
 
-      console.log(`🔁 Updating site ${editSiteId}, project=${existingSite.vercel_project_id}`);
+      const deployProjectName = resolveVercelDeployName(existingSite);
+      console.log(`🔁 Updating site ${editSiteId}, deployName=${deployProjectName}`);
 
-      const deployment = await deployToVercel(existingSite.vercel_project_id!, websiteCode, {
+      stage = "deploying";
+      const deployment = await deployToVercel(deployProjectName, websiteCode, {
         staticImages,
         userToken: userVercelToken,
         teamId: userTeamId,
       });
 
       const vercelProjectId = deployment.projectId ?? existingSite.vercel_project_id!;
-      const siteUrl = `https://${existingSite.vercel_project_id}.vercel.app`;
+      const siteUrl = normalizeDeploymentUrl(deployment.url);
 
+      stage = "saving_db";
       await updateSiteAfterRegeneration(
         editSiteId,
         siteUrl,
         deployment.id,
         vercelProjectId,
-        formData as unknown as Record<string, unknown>
+        formData as unknown as Record<string, unknown>,
+        deployProjectName
       );
 
       console.log("✅ Site updated:", siteUrl);
-      return NextResponse.json({ success: true, siteId: editSiteId, siteUrl, message: "Your website has been updated!", emergencyFallbackUsed: usedEmergencyFallback });
+      return NextResponse.json({ success: true, siteId: editSiteId, siteUrl, message: "Your website has been updated!" });
     }
 
     // ── CREATE new site ─────────────────────────────────────────────────────
     const projectName = siteName.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 63);
     console.log("Deploying to user's Vercel...");
+    stage = "deploying";
     const deployment = await deployToVercel(projectName, websiteCode, {
       staticImages,
       userToken: userVercelToken,
@@ -630,18 +560,34 @@ export async function POST(request: NextRequest) {
     const vercelProjectId = deployment.projectId ?? projectName;
     console.log("✅ Deployed:", deployment.url, "| vercel project id:", vercelProjectId);
 
-    const siteUrl = `https://${projectName}.vercel.app`;
+    const siteUrl = normalizeDeploymentUrl(deployment.url);
 
-    const site = await saveSiteWithVercel(
-      user.id,
-      siteName,
-      formData.business.type,
-      siteUrl,
-      vercelProjectId,
-      deployment.id,
-      formData as unknown as Record<string, unknown>,
-      tier
-    );
+    stage = "saving_db";
+    let site;
+    try {
+      site = await saveSiteWithVercel(
+        user.id,
+        siteName,
+        formData.business.type,
+        siteUrl,
+        vercelProjectId,
+        deployment.id,
+        formData as unknown as Record<string, unknown>,
+        tier,
+        projectName
+      );
+    } catch (dbErr) {
+      const compensationTarget = deployment.projectId ?? projectName;
+      await deleteVercelProject(compensationTarget, deployToken, userTeamId).catch((delErr) =>
+        console.error("[generation-compensation] failed to delete orphan Vercel project:", {
+          orderId: claimedOrder?.id,
+          userId: resolvedUserId,
+          project: compensationTarget,
+          error: delErr instanceof Error ? delErr.message : String(delErr),
+        })
+      );
+      throw dbErr;
+    }
 
     if (claimedOrder) {
       await completeOrder(claimedOrder.id, site.id);
@@ -724,21 +670,28 @@ export async function POST(request: NextRequest) {
       siteId: site.id,
       siteUrl,
       message: "Your website is ready!",
-      emergencyFallbackUsed: usedEmergencyFallback,
     });
   } catch (error) {
     const rawError = error instanceof Error ? error.message : String(error);
+    const errorId = newErrorId();
     const lowerError = rawError.toLowerCase();
     const isAnthropicCreditIssue =
       lowerError.includes("credit balance is too low") ||
       lowerError.includes("insufficient_credit") ||
       (lowerError.includes("anthropic") && lowerError.includes("plans & billing"));
-    console.error("Error generating site:", error);
-    // Release the claim as 'failed' so the paying user can retry with the
-    // same checkout session instead of losing the payment.
-    if (claimedOrder) {
-      await failOrder(claimedOrder.id, rawError).catch((e) => console.error("Failed to mark order failed:", e));
+
+    logServerError(errorId, "generate-site", error, {
+      orderId: claimedOrder?.id,
+      userId: resolvedUserId || undefined,
+      stage,
+    });
+
+    if (claimedOrder && resolvedUserId) {
+      await failGenerationOrder(claimedOrder, resolvedUserId, stage, rawError).catch((e) =>
+        console.error("Failed to mark order failed:", e)
+      );
     }
+
     if (isAnthropicCreditIssue) {
       return NextResponse.json(
         {
@@ -746,13 +699,11 @@ export async function POST(request: NextRequest) {
           error:
             "Website generation is temporarily unavailable because the AI provider credits are depleted. Please contact support/admin to top up credits and retry.",
           code: "AI_CREDITS_DEPLETED",
+          errorId,
         },
         { status: 402 }
       );
     }
-    return NextResponse.json(
-      { success: false, error: rawError || "Unknown error occurred" },
-      { status: 500 }
-    );
+    return genericErrorResponse(errorId);
   }
 }
