@@ -248,7 +248,10 @@ export async function getOrderByStripeSessionId(stripeSessionId: string): Promis
 // Atomically claims the order for generation. Returns null if the order does
 // not exist, belongs to another user, or is already generating/completed —
 // the caller must not start generation in that case. Failed orders can be
-// re-claimed so a charged user can retry.
+// re-claimed so a charged user can retry. Stale claims (a generation that
+// crashed before reaching its success/failure handling) are also re-claimable
+// after 15 minutes — generation's maxDuration is 300s, so by then the
+// previous attempt is certainly dead.
 export async function claimOrderForGeneration(
   stripeSessionId: string,
   userId: string
@@ -259,7 +262,10 @@ export async function claimOrderForGeneration(
     SET status = 'generating', claimed_at = NOW(), error = NULL, updated_at = NOW()
     WHERE stripe_session_id = ${stripeSessionId}
       AND user_id = ${userId}
-      AND status IN ('paid', 'failed')
+      AND (
+        status IN ('paid', 'failed')
+        OR (status = 'generating' AND claimed_at < NOW() - INTERVAL '15 minutes')
+      )
     RETURNING *
   `;
   return (rows[0] as Order) || null;
