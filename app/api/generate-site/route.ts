@@ -489,8 +489,14 @@ export async function POST(request: NextRequest) {
     // Allow webhook calls using an internal secret, or normal session-cookie calls.
     // A checkout session id is NOT an identity credential — it is only used
     // below to claim the matching paid order for the authenticated user.
-    const internalSecret = request.headers.get("x-internal-secret");
-    const isWebhook = internalSecret && internalSecret === (process.env.INTERNAL_SECRET || "");
+    const internalSecretHeader = request.headers.get("x-internal-secret");
+    const configuredInternalSecret = process.env.INTERNAL_SECRET;
+    const isWebhook = !!(
+      internalSecretHeader &&
+      configuredInternalSecret &&
+      internalSecretHeader.length === configuredInternalSecret.length &&
+      crypto.timingSafeEqual(Buffer.from(internalSecretHeader), Buffer.from(configuredInternalSecret))
+    );
 
     let resolvedUserId: string;
     if (isWebhook && webhookUserId) {

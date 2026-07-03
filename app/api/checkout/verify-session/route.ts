@@ -45,17 +45,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Payment has not been completed yet." }, { status: 400 });
     }
 
-    // Ownership check: prefer the userId we attached at checkout creation.
-    // Payment Link sessions carry no metadata, so fall back to matching the
-    // payer email against the authenticated account's email.
+    // Ownership check: every checkout session is created by
+    // /api/checkout/create-session, which stamps metadata.userId — a session
+    // without it, or for a different user, is not this user's payment.
     const metaUserId = checkoutSession.metadata?.userId || checkoutSession.client_reference_id;
-    const stripeEmail = (checkoutSession.customer_details?.email || checkoutSession.customer_email || "").toLowerCase();
 
-    const belongsToUser = metaUserId
-      ? metaUserId === user.id
-      : stripeEmail !== "" && stripeEmail === user.email.toLowerCase();
-
-    if (!belongsToUser) {
+    if (metaUserId !== user.id) {
       console.error(`verify-session: checkout session ${sessionId} does not belong to user ${user.id}`);
       return NextResponse.json(
         { error: "This payment does not belong to your account." },

@@ -73,7 +73,6 @@ const DEFAULT: WizardData = {
   logo: { uploaded: false, dataUrl: "", fileName: "" },
 };
 
-const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/bJeeV5dFPc6TdqAaG600000";
 const PRICE = 59.99;
 
 type TemplateMapTo = { businessType: string; style: string; primaryColor: string; secondaryColor: string; darkMode: boolean; fontFamily: string };
@@ -2013,7 +2012,14 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
         body: JSON.stringify({ data }),
       });
       try { localStorage.setItem("pending_tier", "website"); } catch {}
-      window.location.href = STRIPE_PAYMENT_LINK;
+      // API-created checkout session carries metadata.userId, which is how
+      // the webhook and verify-session prove the payment belongs to this user.
+      const res = await fetch("/api/checkout/create-session", { method: "POST" });
+      const checkout = await res.json().catch(() => ({}));
+      if (!res.ok || !checkout.url) {
+        throw new Error(checkout.error || "Could not start checkout. Please try again.");
+      }
+      window.location.href = checkout.url;
     } catch (err) {
       setPaymentError(err instanceof Error ? err.message : "Payment error. Please try again.");
       setPaymentLoading(false);

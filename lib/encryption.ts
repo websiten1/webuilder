@@ -38,7 +38,17 @@ function decryptToken(ciphertext: string): string | null {
 }
 
 // Handles both encrypted tokens (new) and legacy plain-text tokens (old rows).
+// A value in our iv:tag:ciphertext format that fails to decrypt is a
+// configuration error (wrong/rotated TOKEN_ENCRYPTION_KEY) — throw instead of
+// silently passing the ciphertext blob downstream as a bearer token.
 export function readToken(dbValue: string): string {
+  const looksEncrypted = /^[0-9a-f]+:[0-9a-f]+:[0-9a-f]+$/i.test(dbValue);
+  if (!looksEncrypted) return dbValue; // legacy plain-text row
   const decrypted = decryptToken(dbValue);
-  return decrypted ?? dbValue;
+  if (decrypted === null) {
+    throw new Error(
+      "Token decryption failed: TOKEN_ENCRYPTION_KEY is wrong or was rotated without re-encrypting stored tokens."
+    );
+  }
+  return decrypted;
 }

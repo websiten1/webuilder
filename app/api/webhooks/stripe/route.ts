@@ -68,6 +68,14 @@ export async function POST(request: NextRequest) {
       const user = await getUserById(userId);
 
       if (formData && user) {
+        const internalSecret = process.env.INTERNAL_SECRET;
+        if (!internalSecret) {
+          // Without the shared secret the internal call would be rejected —
+          // fail loudly instead of silently 401ing on every webhook. The
+          // success-page redirect will still pick up the generation.
+          console.error("INTERNAL_SECRET is not set — skipping webhook-triggered generation.");
+          return NextResponse.json({ received: true });
+        }
         const baseUrl = process.env.NEXT_PUBLIC_URL || "https://insixlive.com";
         // Fire-and-forget — generation runs async. generate-site claims the
         // order atomically, so a concurrent success-page trigger can't double it.
@@ -75,7 +83,7 @@ export async function POST(request: NextRequest) {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "x-internal-secret": process.env.INTERNAL_SECRET || "",
+            "x-internal-secret": internalSecret,
           },
           body: JSON.stringify({
             formData,

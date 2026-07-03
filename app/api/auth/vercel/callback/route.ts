@@ -18,24 +18,26 @@ export async function GET(request: NextRequest) {
   }
 
   // Validate state and extract the userId stored at authorize time.
+  // Fail closed: a missing cookie or state param means we cannot prove this
+  // callback belongs to a flow we started (CSRF — an attacker could otherwise
+  // bind their Vercel account to the victim's session).
   const cookieRaw = request.cookies.get("vercel_oauth_state")?.value;
   let stateUserId: string | null = null;
 
-  if (cookieRaw && state) {
-    try {
-      const parsed = JSON.parse(cookieRaw);
-      if (parsed.state !== state) {
-        console.error("Vercel OAuth state mismatch");
-        return NextResponse.redirect(`${baseUrl}/generate?error=vercel_state_mismatch`);
-      }
-      stateUserId = parsed.userId ?? null;
-    } catch {
-      // Cookie is old format (plain string)
-      if (cookieRaw !== state) {
-        console.error("Vercel OAuth state mismatch (legacy)");
-        return NextResponse.redirect(`${baseUrl}/generate?error=vercel_state_mismatch`);
-      }
+  if (!cookieRaw || !state) {
+    console.error("Vercel OAuth: missing state cookie or state param");
+    return NextResponse.redirect(`${baseUrl}/generate?error=vercel_state_mismatch`);
+  }
+  try {
+    const parsed = JSON.parse(cookieRaw);
+    if (parsed.state !== state) {
+      console.error("Vercel OAuth state mismatch");
+      return NextResponse.redirect(`${baseUrl}/generate?error=vercel_state_mismatch`);
     }
+    stateUserId = parsed.userId ?? null;
+  } catch {
+    console.error("Vercel OAuth: unparseable state cookie");
+    return NextResponse.redirect(`${baseUrl}/generate?error=vercel_state_mismatch`);
   }
 
   if (!code) {
@@ -77,7 +79,6 @@ export async function GET(request: NextRequest) {
     });
 
     const tokenBody = await tokenRes.text();
-    console.log("Vercel token response:", tokenRes.status, tokenBody);
 
     if (!tokenRes.ok) {
       console.error("Vercel token exchange failed:", tokenRes.status, tokenBody);
@@ -92,7 +93,7 @@ export async function GET(request: NextRequest) {
     const { access_token, team_id, user_id } = tokenData;
 
     if (!access_token) {
-      console.error("No access_token in Vercel response:", tokenBody);
+      console.error("No access_token in Vercel token response; fields:", Object.keys(tokenData).join(","));
       return NextResponse.redirect(`${baseUrl}/generate?error=vercel_callback_failed`);
     }
 
