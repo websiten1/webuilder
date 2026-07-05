@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { PREMIUM_TEMPLATES, premiumPreviewPath } from "./premiumTemplates";
 
 /* ─── Types ─────────────────────────────────────────────────────────────────── */
 export type TemplateMapTo = {
@@ -11,14 +12,22 @@ export type TemplateMapTo = {
 
 type Template = {
   id: string;
-  file: string;           // path inside /templates/
+  file: string;           // path inside /templates/, or preset slug when premium
   name: string;
   category: string;
   tagline: string;
   accent: string;         // primary accent for the category badge
   dark: boolean;          // dark or light background
+  premium?: boolean;      // premium preset design served from /preset-sites/
   mapTo: TemplateMapTo;
 };
+
+const PREMIUM: Template[] = PREMIUM_TEMPLATES.map(t => ({
+  id: t.id, file: t.slug,
+  name: t.name, category: t.category, tagline: t.tagline,
+  accent: t.accent, dark: t.dark, premium: true,
+  mapTo: t.mapTo,
+}));
 
 /* ─── Template registry ──────────────────────────────────────────────────────── */
 const TEMPLATES: Template[] = [
@@ -318,7 +327,7 @@ const TEMPLATES: Template[] = [
   },
 ];
 
-const CATEGORIES = ["All", "Healthcare", "Fitness", "Wellness", "Education", "Food & Drink", "Restaurant", "Beauty", "Legal", "Property", "Automotive", "Retail", "Creative", "Media", "Technology"];
+const CATEGORIES = ["All", "Premium", "Healthcare", "Fitness", "Wellness", "Education", "Food & Drink", "Restaurant", "Beauty", "Legal", "Property", "Automotive", "Retail", "Creative", "Media", "Technology"];
 
 /* ─── Lazy iframe preview ────────────────────────────────────────────────────── */
 const IFRAME_RENDER_W = 1280; // virtual desktop width the template is built for
@@ -363,7 +372,7 @@ function CardPreview({ template, cardWidth }: { template: Template; cardWidth: n
       {swatch}
       {visible && (
         <iframe
-          src={`/templates/${template.file}`}
+          src={template.premium ? premiumPreviewPath(template.file) : `/templates/${template.file}`}
           title={template.name}
           scrolling="no"
           tabIndex={-1}
@@ -415,6 +424,16 @@ function TemplateCard({ template, isSelected, cardWidth, onSelect }: {
       {/* Colour swatch */}
       <div style={{ position: "relative" }}>
         <CardPreview template={template} cardWidth={cardWidth}/>
+        {template.premium && (
+          <div style={{
+            position: "absolute", top: 8, left: 8, zIndex: 3,
+            padding: "3px 8px", borderRadius: 999,
+            background: "linear-gradient(120deg, #f7d47c, #c9982f)",
+            color: "#231a05", fontSize: 9, fontWeight: 800,
+            letterSpacing: 0.8, textTransform: "uppercase",
+            boxShadow: "0 1px 6px rgba(0,0,0,0.35)",
+          }}>Premium</div>
+        )}
         {isSelected && (
           <div style={{
             position: "absolute", top: 8, right: 8,
@@ -511,11 +530,17 @@ export function TemplateGallery({ selectedId, onSelect }: {
     return () => window.removeEventListener("resize", measure);
   }, []);
 
-  // Light (dark=false) templates first, then dark ones
-  const baseTemplates = activeCategory === "All"
+  // Premium designs always lead; classic templates follow (light before dark)
+  const premiumPool = activeCategory === "All" || activeCategory === "Premium"
+    ? PREMIUM
+    : PREMIUM.filter(t => t.category === activeCategory);
+  const baseTemplates = activeCategory === "Premium"
+    ? []
+    : activeCategory === "All"
     ? TEMPLATES
     : TEMPLATES.filter(t => t.category === activeCategory);
   const sorted = [
+    ...premiumPool,
     ...baseTemplates.filter(t => !t.dark),
     ...baseTemplates.filter(t => t.dark),
   ];
@@ -586,7 +611,7 @@ export function TemplateGallery({ selectedId, onSelect }: {
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{ color: "var(--wf-acc)", fontSize: 13 }}>✓</span>
             <span style={{ fontSize: 12, fontWeight: 600, color: "var(--wf-text)" }}>
-              {TEMPLATES.find(t => t.id === selectedId)?.name ?? "Template"} selected
+              {(PREMIUM.find(t => t.id === selectedId) ?? TEMPLATES.find(t => t.id === selectedId))?.name ?? "Template"} selected
             </span>
           </div>
           <button onClick={handleClear} style={{

@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# premium design source packs (only built bundles in public/preset-sites ship)
+/premium-designs

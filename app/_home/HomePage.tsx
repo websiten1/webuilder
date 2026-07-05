@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { DM_Sans, Geist } from "next/font/google";
 import type { HomeCopy } from "./copy";
@@ -42,12 +42,72 @@ const DP_NAV = [
   { label: "Începe",           href: "/signup", arrow: true },
 ] as const;
 
-const PORTFOLIO_IMAGES = [
-  { img: "https://motionsites.ai/assets/hero-grow-ai-preview-BlQ8tAQ-.gif",        cat: "Trades & Services" },
-  { img: "https://motionsites.ai/assets/hero-evr-ventures-preview-DZxeVFEX.gif",   cat: "Beauty & Lifestyle" },
-  { img: "https://motionsites.ai/assets/hero-wealth-preview-B70idl_u.gif",         cat: "Food & Hospitality" },
-  { img: "https://motionsites.ai/assets/hero-neuralyn-preview-Br4FRDQA.gif",       cat: "Portfolio & Creative" },
+// Premium preset designs previewed in the examples marquee (served from /public/preset-sites)
+const PORTFOLIO_PRESETS = [
+  { slug: "brandly-agency", cat: "Agency & Brands" },
+  { slug: "zenith-realty",  cat: "Real Estate" },
+  { slug: "equilibrium",    cat: "Wellness" },
+  { slug: "guardnet",       cat: "Security & Tech" },
+  { slug: "wanderful",      cat: "Travel" },
+  { slug: "metricx-studio", cat: "Creative Studio" },
+  { slug: "stretch-beauty", cat: "Beauty" },
+  { slug: "power-ai",       cat: "AI & Startups" },
 ];
+
+const PRESET_RENDER_W = 1280; // virtual desktop width the presets are designed for
+
+function PresetPreviewCard({ slug, cat }: { slug: string; cat: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  const [w, setW] = useState(360);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => setW(el.clientWidth || 360);
+    measure();
+    window.addEventListener("resize", measure);
+    const io = new IntersectionObserver(
+      ([en]) => { if (en.isIntersecting) { setVisible(true); io.disconnect(); } },
+      { rootMargin: "300px" }
+    );
+    io.observe(el);
+    return () => { window.removeEventListener("resize", measure); io.disconnect(); };
+  }, []);
+
+  const h = Math.round(w * 0.75); // matches the card's 4/3 aspect ratio
+  const scale = w / PRESET_RENDER_W;
+
+  return (
+    <div ref={ref} style={{ width: "100%", height: "100%", position: "relative", overflow: "hidden" }}>
+      {visible && (
+        <iframe
+          src={`/preset-sites/${slug}/index.html`}
+          title={cat}
+          scrolling="no"
+          tabIndex={-1}
+          loading="lazy"
+          style={{
+            width: PRESET_RENDER_W,
+            height: Math.round(h / scale),
+            border: "none",
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+            pointerEvents: "none",
+            display: "block",
+            background: "#0b0b0e",
+          }}
+        />
+      )}
+      <span style={{
+        position: "absolute", bottom: 10, left: 10, zIndex: 2,
+        padding: "3px 10px", borderRadius: 999,
+        background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)",
+        color: "rgba(255,255,255,0.85)", fontSize: 10.5, fontWeight: 600, letterSpacing: 0.4,
+      }}>{cat}</span>
+    </div>
+  );
+}
 
 const TILE_VISUALS: { bg: string; glow?: string; tagColor?: string; orchid?: boolean }[] = [
   { bg: "linear-gradient(160deg,#1a0e09,#09090b)", glow: "radial-gradient(80% 60% at 50% 30%, rgba(255,90,0,0.45), transparent 70%)" },
@@ -945,9 +1005,9 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
             />
             {/* Duplicate cards for seamless loop */}
             <div className="marquee-track">
-              {[...PORTFOLIO_IMAGES, ...PORTFOLIO_IMAGES, ...PORTFOLIO_IMAGES].map((p, i) => (
-                <div className="marquee-card" key={i} aria-hidden={i >= PORTFOLIO_IMAGES.length}>
-                  <img src={p.img} alt={p.cat} loading="lazy"/>
+              {[...PORTFOLIO_PRESETS, ...PORTFOLIO_PRESETS].map((p, i) => (
+                <div className="marquee-card" key={i} aria-hidden={i >= PORTFOLIO_PRESETS.length}>
+                  <PresetPreviewCard slug={p.slug} cat={p.cat}/>
                 </div>
               ))}
             </div>
