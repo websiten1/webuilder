@@ -53,7 +53,9 @@ export async function POST(request: NextRequest) {
     const userId = session.metadata?.userId || session.client_reference_id;
 
     // Trust payment_status, not the event alone (async/out-of-order events).
-    if (session.payment_status === "paid" && userId) {
+    // "no_payment_required" covers 100%-off promotion codes.
+    const settled = session.payment_status === "paid" || session.payment_status === "no_payment_required";
+    if (settled && userId) {
       await markUserPaid(userId, session.id, session.customer as string | null);
       await recordPaidOrder({
         userId,

@@ -33,7 +33,11 @@ export async function POST(request: NextRequest) {
     const stripe = getStripe();
     const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
 
-    if (checkoutSession.payment_status !== "paid") {
+    // "no_payment_required" covers 100%-off promotion codes.
+    if (
+      checkoutSession.payment_status !== "paid" &&
+      checkoutSession.payment_status !== "no_payment_required"
+    ) {
       return NextResponse.json({ error: "Payment has not been completed yet." }, { status: 400 });
     }
 
