@@ -433,12 +433,47 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         .aw .final .cta-row { display: flex; gap: 12px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
 
         .aw footer { padding: 64px 0 40px; }
-        .aw .foot-top { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 32px; padding-bottom: 40px; border-bottom: 1px solid var(--color-fog); }
-        .aw .foot-col h5 { font-size: var(--text-caption); text-transform: uppercase; letter-spacing: 0.12em; color: var(--color-steel); margin: 0 0 16px; font-weight: 700; }
-        .aw .foot-col a { display: block; font-size: var(--text-body); color: var(--color-ink); padding: 6px 0; }
-        .aw .foot-col a:hover { color: var(--color-ember); }
-        .aw .foot-bottom { display: flex; align-items: center; justify-content: space-between; padding-top: 24px; flex-wrap: wrap; gap: 12px; }
-        .aw .foot-bottom span { font-size: 12px; color: var(--color-steel); }
+        .aw .foot-top {
+          display: grid;
+          grid-template-columns: 1.2fr repeat(4, minmax(0, 1fr));
+          gap: 32px;
+          padding-bottom: 40px;
+          border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .aw .foot-brand p { font-size: var(--text-body); color: rgba(255,255,255,0.35); max-width: 32ch; margin: 0; line-height: 1.6; }
+        .aw .foot-mark { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+        .aw .foot-mark-num {
+          font-family: var(--font-cosmica), sans-serif;
+          font-size: 28px; font-weight: 200; color: rgba(255,255,255,0.9);
+          letter-spacing: -0.02em; line-height: 1; user-select: none;
+        }
+        .aw .foot-mark-name { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.8); }
+        .aw .foot-col h5 {
+          font-size: var(--text-caption);
+          text-transform: uppercase;
+          letter-spacing: 0.14em;
+          color: rgba(255,255,255,0.32);
+          margin: 0 0 14px;
+          font-weight: 700;
+        }
+        .aw .foot-col a {
+          display: block;
+          font-size: var(--text-body);
+          color: rgba(255,255,255,0.62);
+          padding: 5px 0;
+          transition: color .15s ease;
+        }
+        .aw .foot-col a:hover { color: #fff; }
+        .aw .foot-bottom {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding-top: 24px;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+        .aw .foot-bottom span { font-size: 12px; color: rgba(255,255,255,0.28); }
+        .aw .foot-built-with { color: rgba(255,255,255,0.22) !important; }
 
         /* ── Bionova: blur fade-up (reveal upgrade) ── */
         .aw .reveal { opacity: 0; transform: translateY(24px); filter: blur(4px); }
@@ -630,11 +665,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         /* ── Footer dark (ViralMedia) ── */
         .aw .foot-dark { background: var(--color-obsidian); padding: 80px 0 40px; }
         .aw .foot-dark .foot-top { border-color: rgba(255,255,255,0.07); }
-        .aw .foot-dark .foot-col h5 { color: rgba(255,255,255,0.35); }
-        .aw .foot-dark .foot-col a { color: rgba(255,255,255,0.6); }
-        .aw .foot-dark .foot-col a:hover { color: #fff; }
         .aw .foot-dark .foot-bottom { border-color: rgba(255,255,255,0.07); }
-        .aw .foot-dark .foot-bottom span { color: rgba(255,255,255,0.3); }
 
         /* ── Bionova: floating shape animations ── */
         @keyframes aw-float-y { 0%, 100% { transform: translateY(0px) rotate(var(--s-rot,0deg)); } 50% { transform: translateY(-16px) rotate(var(--s-rot,0deg)); } }
@@ -675,7 +706,9 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
 
         @media (max-width: 920px) {
           .aw-mobile-scale { --text-display: 44px; --text-display-sm: 38px; --text-heading-lg: 32px; --text-heading: 26px; }
-          .aw .hero-top-row, .aw .grid-3, .aw .grid-2, .aw .steps, .aw .stats, .aw .compare, .aw .plans, .aw .pricing-plans-dark, .aw .foot-top { grid-template-columns: 1fr; }
+          .aw .hero-top-row, .aw .grid-3, .aw .grid-2, .aw .steps, .aw .stats, .aw .compare, .aw .plans, .aw .pricing-plans-dark { grid-template-columns: 1fr; }
+          .aw .foot-top { grid-template-columns: 1fr 1fr; gap: 28px 24px; }
+          .aw .foot-brand { grid-column: 1 / -1; }
           .aw .cs-grid, .aw .compare-dark, .aw .step-timeline { grid-template-columns: 1fr; }
           .aw .hero-top-row p:last-child { text-align: left; }
           .aw .stats { grid-template-columns: 1fr 1fr; }
@@ -779,11 +812,32 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           .aw .marquee-card { width: 260px; }
           /* Dark compare cols — tighter padding */
           .aw .compare-col { padding: 22px 16px; }
-          /* Footers */
-          .aw footer { padding: 48px 0 28px; }
-          .aw .foot-dark { padding: 48px 0 28px !important; }
-          .aw .foot-top { gap: 28px !important; }
-          .aw .foot-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
+          /* Footer — compact 2-col links, copyright only at bottom */
+          .aw footer { padding: 40px 0 24px; }
+          .aw .foot-dark { padding: 40px 0 24px !important; }
+          .aw .foot-top {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 28px 20px !important;
+            padding-bottom: 28px !important;
+          }
+          .aw .foot-brand {
+            grid-column: 1 / -1;
+            padding-bottom: 4px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            margin-bottom: 4px;
+          }
+          .aw .foot-brand p { max-width: none; font-size: 13px; }
+          .aw .foot-col h5 { margin-bottom: 10px; letter-spacing: 0.12em; }
+          .aw .foot-col a { font-size: 13px; padding: 7px 0; }
+          .aw .foot-bottom {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding-top: 20px;
+            gap: 0;
+          }
+          .aw .foot-built-with { display: none !important; }
+          .aw .foot-copyright { font-size: 11px !important; line-height: 1.5; max-width: 28ch; }
           /* Banner pill */
           .aw .banner { gap: 10px; padding: 10px 16px; font-size: 13px; }
           /* Stats: single column on phones */
@@ -1223,39 +1277,48 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           </div>
         </section>
 
-        {/* ─── Footer: ViralMedia dark 4-col ─── */}
+        {/* ─── Footer ─── */}
         <footer className="foot-dark" style={{ position: "relative", overflow: "hidden" }}>
           <div className="gn-dots-overlay" style={{ opacity: 0.7 }}/>
           <div className="bio-pill float-a" style={{ width: 340, height: 54, top: "15%", right: "-5%", background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.05)", "--s-rot": "-10deg", "--s-dur": "12s" } as React.CSSProperties}/>
           <div className="container" style={{ position: "relative" }}>
-            <div className="foot-top" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 1fr", gap: 32, paddingBottom: 40, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-              <div className="foot-col">
-                {/* Logo mark */}
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-                  <span style={{ fontFamily: "var(--font-cosmica), sans-serif", fontSize: 28, fontWeight: 200, color: "rgba(255,255,255,0.9)", letterSpacing: "-0.02em", lineHeight: 1, userSelect: "none" }}>6</span>
-                  <span style={{ fontSize: 15, fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>insixlive</span>
+            <div className="foot-top">
+              <div className="foot-brand">
+                <div className="foot-mark">
+                  <span className="foot-mark-num">6</span>
+                  <span className="foot-mark-name">insixlive</span>
                 </div>
-                <p style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.35)", maxWidth: "32ch", margin: 0, lineHeight: 1.6 }}>{copy.footer.blurb}</p>
+                <p>{copy.footer.blurb}</p>
               </div>
+
+              {copy.footer.groups.map(group => (
+                <div className="foot-col" key={group.title}>
+                  <h5>{group.title}</h5>
+                  {group.links.map(link =>
+                    link.href.startsWith("/") ? (
+                      <Link key={link.href + link.label} href={link.href}>{link.label}</Link>
+                    ) : (
+                      <a key={link.href + link.label} href={link.href}>{link.label}</a>
+                    )
+                  )}
+                </div>
+              ))}
+
               <div className="foot-col">
-                <h5>{copy.footer.productHeader}</h5>
-                {copy.navLinks.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
-              </div>
-              <div className="foot-col">
-                <h5>{copy.footer.companyHeader}</h5>
-                <a href="#proof">{copy.footer.customers}</a>
-                <Link href={ctaHref}>{copy.footer.waitlist}</Link>
-                <a href="#how">{copy.footer.whyInsixlive}</a>
-              </div>
-              <div className="foot-col">
-                <h5>{copy.footer.startHeader}</h5>
+                <h5>{copy.footer.accountTitle}</h5>
                 <Link href={ctaHref}>{copy.footer.createSite}</Link>
                 <Link href={signInHref}>{signInLabel}</Link>
               </div>
+
+              <div className="foot-col">
+                <h5>{copy.footer.supportTitle}</h5>
+                <a href={`mailto:${copy.footer.supportEmail}`}>{copy.footer.supportEmail}</a>
+              </div>
             </div>
-            <div className="foot-bottom" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 24, flexWrap: "wrap", gap: 12 }}>
-              <span>{copy.footer.copyright}</span>
-              <span>{copy.footer.builtWith}</span>
+
+            <div className="foot-bottom">
+              <span className="foot-copyright">{copy.footer.copyright}</span>
+              <span className="foot-built-with">{copy.footer.builtWith}</span>
             </div>
           </div>
         </footer>
