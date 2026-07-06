@@ -160,7 +160,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
   };
 
   return (
-    <div className={cosmica.variable}>
+    <div className={cosmica.variable} style={{ overflowX: "hidden", maxWidth: "100vw" }}>
       <style>{`
         :root {
           --color-obsidian: #09090b;
@@ -682,14 +682,63 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         /* ── Phone: ≤640px ── */
         @media (max-width: 640px) {
           /* Reduce section vertical padding — inline style overridden with !important */
-          .aw section { padding-top: 64px !important; padding-bottom: 64px !important; }
-          .aw .pad-y { padding: 64px 0 !important; }
+          .aw section { padding-top: 56px !important; padding-bottom: 56px !important; }
+          .aw .pad-y { padding: 56px 0 !important; }
           /* Tighter horizontal gutters */
           .aw .container { padding: 0 16px; }
+          /* Hide decorative floats — they clip and add noise on small screens */
+          .aw .bio-pill, .aw .bio-rect, .aw .bio-ring, .aw .bio-sq, .aw .glow-blob { display: none !important; }
           /* Hero headline — clamp keeps min on phones */
           .aw .manifesto-text { font-size: clamp(1.5rem, 7.5vw, 2.4rem) !important; }
           /* Ownership bold statement */
           .aw .own-statement { font-size: clamp(1.6rem, 6.5vw, 2.8rem); }
+          /* Problem section: hide numbered pain list — manifesto + lead is enough on phone */
+          .aw .problem-grid > div:last-child { display: none; }
+          .aw .problem-grid { gap: 0 !important; }
+          /* How it works: 3 key steps on phone */
+          .aw .how-grid > div:nth-child(2),
+          .aw .how-grid > div:nth-child(3),
+          .aw .how-grid > div:nth-child(4) { display: none !important; }
+          .aw .how-grid > div { padding: 20px 18px 22px !important; }
+          /* Ownership: hide terminal cards on phone */
+          .aw .ownership-grid > div:last-child { display: none; }
+          .aw .ownership-grid { gap: 0 !important; }
+          /* Domains: hide demo bars — keep copy only */
+          .aw-mobile-hide-domains { display: none !important; }
+          /* Testimonials: horizontal scroll instead of stacked cards */
+          .aw .proof-scroll {
+            display: flex !important;
+            gap: 12px !important;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 8px;
+            margin: 0 -16px;
+            padding-left: 16px;
+            padding-right: 16px;
+            scrollbar-width: none;
+          }
+          .aw .proof-scroll::-webkit-scrollbar { display: none; }
+          .aw .proof-scroll .dark-quote {
+            flex: 0 0 min(85vw, 300px);
+            scroll-snap-align: start;
+          }
+          .aw .proof-scroll .big-q { font-size: 3.5rem; height: 28px; margin-bottom: 14px; }
+          .aw .proof-scroll p { font-size: var(--text-body); margin-bottom: 18px; }
+          /* Pricing cards stack with tighter padding */
+          .aw .plan-dark, .aw .plan-dark.featured .plan-dark-inner { padding: 24px 20px !important; }
+          .aw .plan-dark .pamount { font-size: 2rem; }
+          /* Final CTA panel */
+          .aw .dark-panel.final { padding: 48px 24px !important; border-radius: 28px !important; }
+          .aw .final .display-sm { font-size: clamp(2rem, 9vw, 2.75rem) !important; max-width: none; }
+          .aw .final .cta-row { flex-direction: column; align-items: stretch; }
+          .aw .final .cta-row .btn-grad-fill,
+          .aw .final .cta-row .btn-grad-pill { width: 100%; justify-content: center; }
+          .aw .final .cta-row .btn-grad-pill { display: flex; }
+          .aw .final .cta-row .gp-inner { width: 100%; text-align: center; }
+          /* FAQ */
+          .aw .faq-q { font-size: var(--text-body); padding: 18px 0; }
+          .aw .faq-a > p { padding: 0 8px 18px 0; font-size: var(--text-body); }
           /* Tiles: slightly narrower + shorter on phones */
           .aw .tile { width: 260px; height: 380px; }
           /* Marquee portfolio cards */
@@ -699,13 +748,19 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           /* Footers */
           .aw footer { padding: 48px 0 28px; }
           .aw .foot-dark { padding: 48px 0 28px !important; }
-          /* Bento cards */
+          .aw .foot-top { gap: 28px !important; }
+          .aw .foot-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
           /* Banner pill */
           .aw .banner { gap: 10px; padding: 10px 16px; font-size: 13px; }
           /* Stats: single column on phones */
           .aw .stats { grid-template-columns: 1fr !important; }
           /* Section headings: clamp tighter */
           .aw .sec-badge { margin-bottom: 16px; }
+          .aw .sec-badge .s-label { font-size: 11px; padding: 3px 12px; }
+          /* Section intro blocks */
+          .aw .reveal[style*="margin-bottom: 72px"] { margin-bottom: 40px !important; }
+          .aw .reveal[style*="margin-bottom: 56px"] { margin-bottom: 36px !important; }
+          .aw .reveal[style*="margin-bottom: 48px"] { margin-bottom: 32px !important; }
         }
       `}</style>
 
@@ -988,7 +1043,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                   {copy.domains.registrars.map(r => <span className="badge badge-dark" key={r}>{r}</span>)}
                 </div>
               </div>
-              <div className="domain-card reveal">
+              <div className="domain-card aw-mobile-hide-domains reveal">
                 <div className="domain-bar">
                   <svg className="lock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>
                   <span className="url"><span>https://</span><b>{copy.domains.bar1.domain.split(".")[0]}</b><span>.{copy.domains.bar1.domain.split(".").slice(1).join(".")}</span></span>
@@ -1037,7 +1092,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                 blurIntensity={0.35}
                 style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: 80, zIndex: 5, pointerEvents: "none" }}
               />
-              <div className="grid-3" style={{ gap: 16 }}>
+              <div className="grid-3 proof-scroll" style={{ gap: 16 }}>
                 {copy.proof.testimonials.map((t, i) => (
                   <div className="dark-quote reveal" key={t.name} style={{ transitionDelay: `${i * 0.1}s` }}>
                     <span className="big-q">&ldquo;</span>

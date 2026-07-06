@@ -206,9 +206,12 @@ export function BrandlyHero({
               Începe acum
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </Link>
-            <p className="brandly-lead">
+            <p className="brandly-lead brandly-lead-full">
               Îți publicăm site-ul online în câteva minute — design premium, text personalizat
               și domeniu live, fără agenție și fără săptămâni de așteptare.
+            </p>
+            <p className="brandly-lead brandly-lead-short">
+              Site premium, live în 6 minute — fără agenție, plată unică.
             </p>
             <div className="brandly-social" aria-label="Social media">
               <a href="#facebook" aria-label="Facebook" className="brandly-social-link">
@@ -526,6 +529,77 @@ export function BrandlyHero({
           font-weight: 500;
           text-align: center;
           line-height: 1.25;
+        }
+        .brandly-lead-short { display: none; }
+
+        /* ── Mobile: simplified hero ── */
+        @media (max-width: 767px) {
+          .brandly-hero {
+            height: auto;
+            min-height: 100svh;
+            min-height: 100dvh;
+            overflow: visible;
+          }
+          .brandly-hero-bar-wrap {
+            padding: 16px 56px 16px 20px;
+          }
+          .brandly-hero-main {
+            flex: none;
+            gap: 28px;
+            padding: 0 20px 32px;
+          }
+          .brandly-headline-row {
+            flex-direction: column;
+            gap: 0;
+            padding-top: 24px;
+          }
+          .brandly-headline {
+            font-size: clamp(2.35rem, 11.5vw, 3.25rem);
+            min-height: 0;
+            line-height: 0.95;
+          }
+          .brandly-headline-last-line {
+            white-space: normal;
+          }
+          .brandly-cycle-slot {
+            display: inline;
+          }
+          .brandly-cycle-ghost {
+            display: none;
+          }
+          .brandly-stat-top,
+          .brandly-stat-bottom,
+          .brandly-social,
+          .brandly-clients {
+            display: none;
+          }
+          .brandly-mid-row {
+            gap: 16px;
+          }
+          .brandly-mid-left {
+            max-width: none;
+            gap: 14px;
+          }
+          .brandly-lead-full { display: none; }
+          .brandly-lead-short { display: block; }
+          .brandly-lead {
+            font-size: 15px;
+            line-height: 1.55;
+            max-width: 34ch;
+          }
+          .brandly-cta-pill {
+            padding: 12px 20px;
+            font-size: 14px;
+          }
+        }
+
+        @media (max-width: 380px) {
+          .brandly-headline {
+            font-size: clamp(2rem, 10.5vw, 2.65rem);
+          }
+          .brandly-wordmark {
+            font-size: 1.5rem;
+          }
         }
       `}</style>
       <style jsx global>{`
