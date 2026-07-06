@@ -153,6 +153,9 @@ export function BrandlyHero({
 }) {
   return (
     <header className={`brandly-hero ${inter.variable}`}>
+      <video className="brandly-hero-video" src={HERO_VIDEO} autoPlay loop muted playsInline aria-hidden />
+      <div className="brandly-hero-gradient" aria-hidden />
+
       <div className="brandly-hero-bar-wrap">
         <Link href="/" className="brandly-wordmark brandly-display" aria-label="insixlive">insixlive</Link>
         <div className="brandly-hero-bar">
@@ -172,13 +175,7 @@ export function BrandlyHero({
         </div>
       </div>
 
-      <div className="brandly-hero-stage">
-        <div className="brandly-hero-media-wrap" aria-hidden>
-          <video className="brandly-hero-video" src={HERO_VIDEO} autoPlay loop muted playsInline />
-          <div className="brandly-hero-gradient" />
-        </div>
-
-        <div className="brandly-hero-main">
+      <div className="brandly-hero-main">
         <div className="brandly-headline-row">
           <h1 className="brandly-headline brandly-display">
             Zile de muncă
@@ -240,52 +237,20 @@ export function BrandlyHero({
           ))}
         </div>
       </div>
-      </div>
 
       <style jsx>{`
         .brandly-hero {
           position: relative;
           display: flex;
           flex-direction: column;
-          min-height: 100svh;
-          min-height: 100dvh;
+          height: 100vh;
+          height: 100svh;
+          height: 100dvh;
           overflow: hidden;
           background: #f5f3ee;
           color: #080808;
           font-family: var(--font-brandly-sans), Inter, system-ui, sans-serif;
           -webkit-font-smoothing: antialiased;
-        }
-        .brandly-hero-stage {
-          position: relative;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          min-height: 0;
-          padding: 8px 20px 28px;
-        }
-        @media (min-width: 768px) {
-          .brandly-hero-stage { padding: 12px 40px 36px; }
-        }
-        .brandly-hero-media-wrap {
-          position: absolute;
-          top: 46%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: min(92vw, 680px);
-          height: clamp(210px, 34vh, 400px);
-          border-radius: 22px;
-          overflow: hidden;
-          z-index: 0;
-          box-shadow: 0 20px 56px rgba(8, 8, 8, 0.1);
-        }
-        @media (min-width: 768px) {
-          .brandly-hero-media-wrap {
-            width: min(72vw, 860px);
-            height: clamp(260px, 42vh, 480px);
-            border-radius: 28px;
-          }
         }
         .brandly-hero-video {
           position: absolute;
@@ -302,7 +267,7 @@ export function BrandlyHero({
           z-index: 1;
           pointer-events: none;
           background:
-            linear-gradient(180deg, rgba(245,243,238,0.45) 0%, rgba(245,243,238,0.06) 45%, rgba(245,243,238,0.06) 55%, rgba(245,243,238,0.5) 100%);
+            linear-gradient(180deg, rgba(245,243,238,0.52) 0%, rgba(245,243,238,0.08) 42%, rgba(245,243,238,0.08) 58%, rgba(245,243,238,0.62) 100%);
         }
         .brandly-hero-bar-wrap,
         .brandly-hero-bar,
@@ -415,34 +380,34 @@ export function BrandlyHero({
           flex: 1;
           display: flex;
           flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-          gap: 28px;
+          justify-content: space-between;
           min-height: 0;
           width: 100%;
-          max-width: 920px;
-          margin: 0 auto;
-          padding: clamp(3.5rem, 14vh, 8rem) 8px 0;
+          max-width: none;
+          margin: 0;
+          padding: 0 24px 24px;
+        }
+        @media (min-width: 768px) {
+          .brandly-hero-main { padding: 0 40px 32px; }
         }
         .brandly-headline-row {
           display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 12px;
-          padding-top: clamp(1rem, 4vh, 2.5rem);
-          width: 100%;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 16px;
+          padding-top: clamp(3rem, 12vh, 7rem);
+        }
+        @media (min-width: 768px) {
+          .brandly-headline-row { padding-top: clamp(4rem, 14vh, 8.5rem); }
         }
         .brandly-headline {
           margin: 0;
-          flex: none;
-          width: 100%;
-          max-width: 22ch;
-          font-size: clamp(2.25rem, 8vw, 5.5rem);
+          flex: 1;
+          min-width: 0;
+          font-size: clamp(2.25rem, 9vw, 6.5rem);
           line-height: 0.92;
-          min-height: 0;
-          text-align: center;
+          min-height: calc(2 * 0.92em);
+          text-align: left;
         }
         .brandly-headline-last-line {
           white-space: nowrap;
@@ -469,35 +434,32 @@ export function BrandlyHero({
         .brandly-stat-top {
           flex-shrink: 0;
           margin: 0;
-          padding-top: 0;
-          text-align: center;
+          padding-top: 8px;
+          text-align: right;
         }
         .brandly-mid-row {
           display: flex;
           flex-direction: column;
-          align-items: center;
-          gap: 20px;
-          width: 100%;
+          gap: 24px;
         }
         @media (min-width: 640px) {
           .brandly-mid-row {
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            flex-direction: row;
+            align-items: flex-end;
+            justify-content: space-between;
           }
         }
         .brandly-mid-left {
-          max-width: 32rem;
+          max-width: 28rem;
           display: flex;
           flex-direction: column;
-          align-items: center;
           gap: 16px;
         }
         .brandly-cta-pill {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          align-self: center;
+          align-self: flex-start;
           border: none;
           border-radius: 9999px;
           background: #080808;
@@ -520,7 +482,7 @@ export function BrandlyHero({
           font-weight: 300;
           line-height: 1.625;
           color: rgba(8, 8, 8, 0.85);
-          text-align: center;
+          text-align: left;
         }
         @media (min-width: 768px) {
           .brandly-lead { font-size: 16px; }
@@ -540,14 +502,12 @@ export function BrandlyHero({
         .brandly-social-link:hover { color: #080808; }
         .brandly-stat-bottom {
           margin: 0;
-          text-align: center;
+          text-align: right;
         }
         .brandly-clients {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
           gap: 12px;
-          width: 100%;
-          max-width: 720px;
         }
         @media (min-width: 640px) {
           .brandly-clients { grid-template-columns: repeat(3, 1fr); }
@@ -577,56 +537,34 @@ export function BrandlyHero({
         }
         .brandly-lead-short { display: none; }
 
-        /* ── Mobile: simplified hero ── */
+        /* ── Mobile: full-bleed video + simplified content ── */
         @media (max-width: 767px) {
           .brandly-hero {
-            height: auto;
-            min-height: 100svh;
-            min-height: 100dvh;
-            overflow: hidden;
-          }
-          .brandly-hero-stage {
-            position: relative;
-            flex: 1;
-            min-height: calc(100svh - 52px);
-            min-height: calc(100dvh - 52px);
-            padding: 0 16px 20px;
-            justify-content: flex-start;
-          }
-          .brandly-hero-media-wrap {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -52%);
-            width: min(94vw, 520px);
-            height: clamp(200px, 36vh, 340px);
-            border-radius: 18px;
+            height: 100svh;
+            height: 100dvh;
+            min-height: 0;
           }
           .brandly-hero-bar-wrap {
             padding: 16px 56px 16px 20px;
           }
           .brandly-hero-main {
-            position: absolute;
-            inset: 0;
-            flex: none;
-            display: flex;
-            flex-direction: column;
+            padding: 0 20px 28px;
             justify-content: flex-end;
-            align-items: center;
-            gap: 18px;
-            width: 100%;
-            max-width: none;
-            margin: 0;
-            padding: 0 12px clamp(1.25rem, 6vh, 2.5rem) !important;
+            gap: 20px;
           }
           .brandly-headline-row {
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-end;
             gap: 0;
-            padding-top: 0 !important;
-            margin-bottom: 4px;
+            padding-top: 0;
+            flex: 1;
+            padding-bottom: 8px;
           }
           .brandly-headline {
             font-size: clamp(2.1rem, 10vw, 3rem);
-            max-width: none;
+            min-height: 0;
+            line-height: 0.95;
           }
           .brandly-headline-last-line {
             white-space: normal;
@@ -656,7 +594,7 @@ export function BrandlyHero({
             font-size: 15px;
             line-height: 1.55;
             max-width: 34ch;
-            text-align: center;
+            text-align: left;
           }
           .brandly-cta-pill {
             padding: 12px 20px;
