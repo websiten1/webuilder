@@ -271,7 +271,7 @@ function LoginContent() {
                   />
 
                   <div style={{ textAlign: "right", marginTop: -6 }}>
-                    <Link href="/forgot-password" style={{ fontFamily: A.font, fontSize: 13, color: A.m40, textDecoration: "none" }}>
+                    <Link href="/forgot-password" style={{ fontFamily: A.font, fontSize: 13, fontWeight: 600, color: A.white, textDecoration: "underline" }}>
                       Ai uitat parola?
                     </Link>
                   </div>

@@ -266,7 +266,7 @@ export default function DashboardPage() {
               lang={lang}
             />
           )}
-          {page === "security" && <SecurityPage toast={toast} lang={lang} />}
+          {page === "security" && <SecurityPage email={user?.email ?? ""} toast={toast} lang={lang} />}
           {page === "connected" && (
             <ConnectedPage vercel={vercel} loading={vercelLoading} onDisconnect={handleDisconnectVercel} toast={toast} lang={lang} />
           )}

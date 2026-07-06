@@ -13,11 +13,31 @@ function describeDevice(): string {
   return `${os} · ${browser}`;
 }
 
-export function SecurityPage({ toast, lang }: { toast: (m: string) => void; lang: Lang }) {
+export function SecurityPage({ email, toast, lang }: { email: string; toast: (m: string) => void; lang: Lang }) {
   const [current, setCurrent] = React.useState("");
   const [next, setNext] = React.useState("");
   const [confirm, setConfirm] = React.useState("");
   const [saving, setSaving] = React.useState(false);
+  const [sendingReset, setSendingReset] = React.useState(false);
+  const [resetSent, setResetSent] = React.useState(false);
+
+  const sendResetEmail = async () => {
+    if (!email || sendingReset) return;
+    setSendingReset(true);
+    try {
+      await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      setResetSent(true);
+      toast(tt(lang, "Reset link sent to your email", "Link de resetare trimis pe email"));
+    } catch {
+      toast(tt(lang, "Failed to send reset email", "Trimiterea emailului de resetare a eșuat"));
+    } finally {
+      setSendingReset(false);
+    }
+  };
 
   const nextIssues = next ? getPasswordIssues(next) : [];
   const requirements = passwordRequirementLabels(lang);
@@ -60,6 +80,25 @@ export function SecurityPage({ toast, lang }: { toast: (m: string) => void; lang
             <Field label={tt(lang, "Current password", "Parola actuală")}>
               <PasswordInput value={current} onChange={setCurrent} placeholder="••••••••••" />
             </Field>
+            <p style={{ fontSize: 12.5, color: "var(--text-3)", marginTop: -8 }}>
+              {tt(lang, "Don't remember it?", "Nu ți-o mai amintești?")}{" "}
+              {resetSent ? (
+                <span style={{ color: "var(--ok)", fontWeight: 600 }}>
+                  {tt(lang, "Check your inbox for a reset link", "Verifică inbox-ul pentru linkul de resetare")}
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={sendResetEmail}
+                  disabled={sendingReset}
+                  style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: "var(--accent)", fontWeight: 600, fontSize: 12.5, textDecoration: "underline" }}
+                >
+                  {sendingReset
+                    ? tt(lang, "Sending…", "Se trimite…")
+                    : tt(lang, "Email me a reset link", "Trimite-mi un link de resetare pe email")}
+                </button>
+              )}
+            </p>
             <div className="f2">
               <Field label={tt(lang, "New password", "Parolă nouă")}>
                 <PasswordInput value={next} onChange={setNext} placeholder={tt(lang, "New password", "Parolă nouă")} />
