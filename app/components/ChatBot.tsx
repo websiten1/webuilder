@@ -121,6 +121,7 @@ export default function ChatBot() {
   const [typing, setTyping] = useState(false);
   const [started, setStarted] = useState(false);
   const [hintVisible, setHintVisible] = useState(true);
+  const messagesRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const idRef = useRef(0);
@@ -146,11 +147,23 @@ export default function ChatBot() {
   }, [open, started, addBotMessage]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = messagesRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [messages, typing]);
 
   useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 200);
+    if (!open) return;
+    const mq = window.matchMedia("(max-width: 480px)");
+    const prevOverflow = document.body.style.overflow;
+    if (mq.matches) document.body.style.overflow = "hidden";
+    const t = window.setTimeout(() => {
+      if (!mq.matches) inputRef.current?.focus();
+    }, 200);
+    return () => {
+      window.clearTimeout(t);
+      document.body.style.overflow = prevOverflow;
+    };
   }, [open]);
 
   const sendMessage = useCallback(async (text: string) => {
@@ -262,12 +275,26 @@ export default function ChatBot() {
         .messages-scroll::-webkit-scrollbar-thumb { background: rgba(15,20,25,0.12); border-radius: 99px; }
         @media (max-width: 480px) {
           .chat-window-premium {
-            width: calc(100vw - 20px) !important;
-            right: 10px !important;
-            bottom: 84px !important;
-            max-height: min(78vh, 620px) !important;
+            animation: chatBackdropIn .25s ease both !important;
+            inset: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            border-radius: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+          }
+          .chat-input-premium {
+            font-size: 16px !important;
+          }
+          .messages-scroll {
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
           }
           .support-hint { display: none !important; }
+          .fab-premium { bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important; }
         }
       `}</style>
 
@@ -342,10 +369,12 @@ export default function ChatBot() {
 
           {/* Messages */}
           <div
+            ref={messagesRef}
             className="messages-scroll"
             style={{
               flex: 1, overflowY: "auto", padding: "18px 16px 10px",
               display: "flex", flexDirection: "column", gap: 14, minHeight: 0,
+              overscrollBehavior: "contain",
               background: "linear-gradient(180deg, #F7F8FA 0%, #EEF0F4 100%)",
             }}
           >
@@ -456,7 +485,7 @@ export default function ChatBot() {
                   borderRadius: 999,
                   padding: "12px 18px",
                   fontFamily: C.font,
-                  fontSize: 14,
+                  fontSize: 16,
                   color: C.ink,
                   background: C.white,
                   transition: "border-color .2s, box-shadow .2s",
