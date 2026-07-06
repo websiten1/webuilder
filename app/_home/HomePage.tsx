@@ -683,6 +683,11 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
 
         /* ── Phone: ≤640px ── */
         @media (max-width: 640px) {
+          /* Examples first after hero — show preset models immediately on phone */
+          .aw.aw-mobile-scale { display: flex; flex-direction: column; }
+          .aw .sec-examples { order: -3; padding-top: 32px !important; }
+          .aw .sec-problem { order: -2; }
+          .aw .sec-how { order: -1; }
           /* Reduce section vertical padding — inline style overridden with !important */
           .aw section { padding-top: 56px !important; padding-bottom: 56px !important; }
           .aw .pad-y { padding: 56px 0 !important; }
@@ -805,7 +810,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         <span id="top"></span>
 
         {/* ─── Problem: ViralMedia full-bleed dark manifesto ─── */}
-        <section style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }}>
+        <section className="sec-problem" style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }}>
           <div className="gn-dots-overlay"/>
           <div className="bio-pill float-a" style={{ width: 260, height: 48, top: "12%", right: "-3%", background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.065)", "--s-rot": "-18deg", "--s-dur": "9s" } as React.CSSProperties}/>
           <div className="bio-rect float-b" style={{ width: 90, height: 90, bottom: "18%", left: "4%", background: "rgba(100,206,251,0.02)", border: "1px solid rgba(100,206,251,0.08)", "--s-dur": "11s", "--s-delay": "2s" } as React.CSSProperties}/>
@@ -850,7 +855,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         </section>
 
         {/* ─── How it works: Aurora horizontal timeline ─── */}
-        <section style={{ background: "var(--color-mist)", padding: "100px 0" }} id="how">
+        <section className="sec-how" style={{ background: "var(--color-mist)", padding: "100px 0" }} id="how">
           <div className="container">
             <div className="reveal" style={{ textAlign: "center", marginBottom: 72 }}>
               <div className="sec-badge" style={{ justifyContent: "center" }}>
@@ -910,7 +915,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         </section>
 
         {/* ─── Portfolio: infinite auto-scroll marquee (dark) ─── */}
-        <section style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }} id="examples">
+        <section className="sec-examples" style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }} id="examples">
           <div className="gn-dots-overlay"/>
           <div className="container">
             <div className="reveal" style={{ textAlign: "center", marginBottom: 48 }}>
