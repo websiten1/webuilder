@@ -24,15 +24,15 @@ const A = {
 
 function Wordmark({ style }: { style?: React.CSSProperties }) {
   return (
-    <span className="font-display" style={{
+    <span style={{
       display: "block",
       width: "100%",
-      fontSize: "clamp(1.65rem, 4vw, 2rem)",
-      fontWeight: 400,
+      fontFamily: A.font,
+      fontSize: "clamp(1.0625rem, 3vw, 1.125rem)",
+      fontWeight: 600,
       letterSpacing: "-0.02em",
-      textTransform: "uppercase",
       color: A.white,
-      lineHeight: 1,
+      lineHeight: 1.2,
       ...style,
     }}>
       insixlive
@@ -250,7 +250,7 @@ export default function SignupPage() {
         .au-mobile-logo { display: none !important; }
         @media (max-width: 1024px) {
           .au-left { display: none !important; }
-          .au-mobile-logo { display: flex !important; }
+          .au-mobile-logo { display: block !important; }
           .au-right { padding: 32px 24px 48px !important; min-height: 100vh; align-items: flex-start !important; justify-content: flex-start !important; }
           .au-right-inner { padding-top: 8px !important; }
         }
@@ -312,14 +312,6 @@ export default function SignupPage() {
             overflowY: "auto",
           }}>
 
-            {/* Logo mobil */}
-            <div className="au-mobile-logo" style={{
-              alignSelf: "stretch",
-              padding: "20px 24px 0",
-            }}>
-              <Wordmark />
-            </div>
-
             <div className="au-fade au-right-inner" key={showOtp ? "otp" : "form"} style={{ width: "100%", maxWidth: 460 }}>
 
               {/* ── STEP 1: Create account ── */}
@@ -327,6 +319,9 @@ export default function SignupPage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
 
                   <div>
+                    <div className="au-mobile-logo" style={{ marginBottom: 8 }}>
+                      <Wordmark />
+                    </div>
                     <h2 className="font-display" style={{ fontSize: 30, color: A.white, marginBottom: 8 }}>
                       Creează cont nou
                     </h2>
@@ -418,6 +413,10 @@ export default function SignupPage() {
               {/* ── STEP 2: OTP verification ── */}
               {showOtp && (
                 <div style={{ display: "flex", flexDirection: "column", gap: 24, textAlign: "center" }}>
+
+                  <div className="au-mobile-logo" style={{ marginBottom: 4, textAlign: "left" }}>
+                    <Wordmark />
+                  </div>
 
                   <div style={{ width: 60, height: 60, borderRadius: 18, background: A.gray, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto" }}>
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={A.white} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

@@ -19,9 +19,21 @@ const A = {
   font:   "'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
 };
 
-function Mark({ size = 28 }: { size?: number }) {
+function Wordmark({ style }: { style?: React.CSSProperties }) {
   return (
-    <span style={{ fontFamily: A.font, fontSize: size, fontWeight: 200, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1, userSelect: "none" }}>6</span>
+    <span style={{
+      display: "block",
+      width: "100%",
+      fontFamily: A.font,
+      fontSize: "clamp(1.0625rem, 3vw, 1.125rem)",
+      fontWeight: 600,
+      letterSpacing: "-0.02em",
+      color: A.white,
+      lineHeight: 1.2,
+      ...style,
+    }}>
+      insixlive
+    </span>
   );
 }
 
@@ -147,7 +159,7 @@ function LoginContent() {
         .au-mobile-logo { display: none !important; }
         @media (max-width: 1024px) {
           .au-left { display: none !important; }
-          .au-mobile-logo { display: flex !important; }
+          .au-mobile-logo { display: block !important; }
           .au-right { padding: 32px 24px 48px !important; min-height: 100vh; align-items: flex-start !important; justify-content: flex-start !important; }
           .au-right-inner { padding-top: 8px !important; }
         }
@@ -171,12 +183,9 @@ function LoginContent() {
             </video>
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.88) 100%)", zIndex: 1 }}/>
 
-            {/* Logo */}
-            <div style={{ position: "absolute", top: 36, left: 40, zIndex: 3, display: "flex", alignItems: "center", gap: 10 }}>
-              <Mark size={28}/>
-              <span style={{ fontFamily: A.font, fontSize: 17, fontWeight: 600, color: A.white, letterSpacing: -0.3 }}>
-                insixlive
-              </span>
+            {/* Logo — pinned to top */}
+            <div style={{ position: "absolute", top: 36, left: 40, right: 40, zIndex: 3 }}>
+              <Wordmark />
             </div>
 
             {/* Bottom */}
@@ -206,21 +215,13 @@ function LoginContent() {
             overflowY: "auto",
           }}>
 
-            {/* Logo mobil */}
-            <div className="au-mobile-logo" style={{
-              alignSelf: "stretch", alignItems: "center", gap: 10,
-              padding: "20px 24px 0",
-            }}>
-              <Mark size={26}/>
-              <span style={{ fontFamily: A.font, fontSize: 17, fontWeight: 600, color: A.white, letterSpacing: -0.3 }}>
-                insixlive
-              </span>
-            </div>
-
             <div className="au-fade au-right-inner" style={{ width: "100%", maxWidth: 460 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
 
                 <div>
+                  <div className="au-mobile-logo" style={{ marginBottom: 8 }}>
+                    <Wordmark />
+                  </div>
                   <h2 className="font-display" style={{ fontSize: 30, color: A.white, marginBottom: 8 }}>
                     Bun venit înapoi
                   </h2>
