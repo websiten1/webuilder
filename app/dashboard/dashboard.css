@@ -1,6 +1,6 @@
 /* ============================================================
    insixlive — Account & Dashboard
-   Dark obsidian canvas, white primary CTAs, cyan / purple / green accents.
+   White canvas (homepage), dark cards & sidebar, cyan / purple / green accents.
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
@@ -9,9 +9,19 @@
   --font-sans:'DM Sans',system-ui,-apple-system,sans-serif;
   --font-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
 
-  /* Dark obsidian surfaces */
-  --bg:#09090b;
+  /* White canvas — matches homepage */
+  --bg:#ffffff;
+  --canvas-text:#09090b;
+  --canvas-text-2:#52525b;
+  --canvas-text-3:#71717a;
+  --canvas-text-4:#a1a1aa;
+  --canvas-hair:rgba(0,0,0,.08);
+  --canvas-hair-2:rgba(0,0,0,.12);
+
+  /* Dark shell (sidebar) */
   --bg-2:#111113;
+
+  /* Dark surfaces — cards, stats, inputs */
   --surface:#18181b;
   --surface-2:#1c1c1f;
   --surface-3:#27272a;
@@ -19,7 +29,7 @@
   --hair-2:rgba(255,255,255,.11);
   --hair-3:rgba(255,255,255,.18);
 
-  /* Text ramp — light on dark */
+  /* Text on dark surfaces */
   --text:#fafafa;
   --text-2:#a1a1aa;
   --text-3:#71717a;
@@ -73,9 +83,9 @@
   --r-lg:34px;
   --ease:cubic-bezier(.4,.7,.3,1);
   --spring:cubic-bezier(.34,1.4,.5,1);
-  --shadow:0 24px 56px -20px rgba(0,0,0,.6);
+  --shadow:0 24px 56px -20px rgba(0,0,0,.14);
   --shadow-sm:rgba(255,255,255,.04) 0px 1px 0px 0px inset;
-  color-scheme:dark;
+  color-scheme:light;
 }
 
 *{box-sizing:border-box}
@@ -83,7 +93,7 @@ html,body{margin:0;padding:0;height:100%}
 body{
   font-family:var(--font-sans);
   background:var(--bg);
-  color:var(--text);
+  color:var(--canvas-text);
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
   font-size:15px;line-height:1.5;
@@ -93,11 +103,38 @@ button{font-family:inherit}
 a{color:inherit;text-decoration:none}
 .mono{font-family:var(--font-mono)}
 
-/* dot-grid backdrop */
+/* dot-grid on white canvas */
 .dotgrid{
-  background-image:radial-gradient(circle at center,rgba(255,255,255,.04) 1px,transparent 1.1px);
+  background-color:var(--bg);
+  background-image:radial-gradient(circle at center,rgba(0,0,0,.06) 1px,transparent 1.1px);
   background-size:24px 24px;
 }
+
+/* page chrome — text sits on white canvas */
+.page-head:not(.hero-panel) .page-title{color:var(--canvas-text)}
+.page-head:not(.hero-panel) .page-sub{color:var(--canvas-text-2)}
+.section-head .section-title{color:var(--canvas-text)}
+.section-head .section-title .st-k{color:var(--canvas-text-3)}
+.section-head .section-desc{color:var(--canvas-text-3)}
+.card .section-title,.card .section-title .st-k,.card .section-desc{color:var(--text)}
+.card .section-title .st-k{color:var(--text-3)}
+
+/* Dark boxes — never inherit white-canvas body text */
+.card,.stat,.site,.list,.menu,.hero-panel,.plan-card,.modal,.pack,.vital,.conn,.callout,.empty{
+  color:var(--text-2);
+}
+.card .row-h,.card .lc-h,.card .flabel,.card .conn .c-h,.card .em-h,.card .site-name,.card .modal-head .mt,
+.stat .s-v,.stat .s-k,.menu-head .mh-name,.hero-panel .page-title,.pack .pk-p,.pack .pk-q,.conn .c-h,
+.list .lc-h,.site .site-name,.modal-head .mt,.empty .em-h{
+  color:var(--text);
+}
+.card .row-d,.card .lc-s,.card .fhint,.card .conn .c-d,.card .em-d,.card .modal-head .msb,
+.stat .s-k,.stat .s-d,.list .lc-s,.list .lcell,.menu-head .mh-mail,.empty .em-d,.conn .c-d,.pack .pk-e{
+  color:var(--text-3);
+}
+.stat .s-d b{color:var(--ok)}
+.card .inp,.card .inp-wrap,.menu,.modal{color:var(--text)}
+.page-note{font-size:12.5px;color:var(--canvas-text-3);margin-top:10px}
 
 /* scrollbars */
 .scroll::-webkit-scrollbar{width:10px;height:10px}
@@ -167,17 +204,17 @@ a{color:inherit;text-decoration:none}
 .plan-card .pc-d b{color:var(--text-2);font-weight:600}
 
 /* ---- main column ---- */
-.main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative;background:var(--bg)}
 .topbar{
   display:flex;align-items:center;gap:16px;
   padding:0 32px;height:62px;flex:0 0 62px;
-  border-bottom:1px solid var(--hair);
-  background:color-mix(in srgb,var(--bg) 82%,transparent);
+  border-bottom:1px solid var(--canvas-hair);
+  background:color-mix(in srgb,var(--bg) 88%,transparent);
   backdrop-filter:blur(14px);position:sticky;top:0;z-index:40;
 }
-.crumb{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--text-3);min-width:0}
-.crumb .c-now{color:var(--text);font-weight:600}
-.crumb svg{width:14px;height:14px;color:var(--text-4)}
+.crumb{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--canvas-text-3);min-width:0}
+.crumb .c-now{color:var(--canvas-text);font-weight:600}
+.crumb svg{width:14px;height:14px;color:var(--canvas-text-4)}
 .tb-spacer{flex:1}
 .tb-search{
   display:flex;align-items:center;gap:9px;height:36px;padding:0 13px;min-width:230px;white-space:nowrap;
@@ -205,7 +242,7 @@ a{color:inherit;text-decoration:none}
 .acct-btn{display:flex;align-items:center;gap:9px;padding:4px 4px 4px 4px;border-radius:99px;border:1px solid transparent;background:transparent;cursor:pointer;transition:background .15s,border-color .15s}
 .acct-btn:hover{background:var(--surface);border-color:var(--hair)}
 .acct-btn .avatar{width:32px;height:32px;font-size:12.5px}
-.acct-btn svg{width:15px;height:15px;color:var(--text-3)}
+.acct-btn svg{width:15px;height:15px;color:var(--canvas-text-3)}
 
 .menu{
   position:absolute;top:56px;right:0;width:290px;z-index:60;
@@ -252,12 +289,12 @@ a{color:inherit;text-decoration:none}
 .section{margin-top:34px}
 .section:first-of-type{margin-top:0}
 .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap}
-.section-title{font-family:var(--font-display),Anton,sans-serif;font-size:13px;font-weight:400;letter-spacing:.02em;color:var(--text);text-transform:none;display:flex;align-items:center;gap:9px;white-space:nowrap}
-.section-title .st-k{font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3)}
+.section-title{font-family:var(--font-display),Anton,sans-serif;font-size:13px;font-weight:400;letter-spacing:.02em;color:var(--canvas-text);text-transform:none;display:flex;align-items:center;gap:9px;white-space:nowrap}
+.section-title .st-k{font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--canvas-text-3)}
 .section-desc{font-size:13px;color:var(--text-3)}
 
 /* ============================================================ CARDS */
-.card{background:var(--surface);border:0;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm)}
+.card{background:var(--surface);border:0;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm),0 10px 36px -14px rgba(0,0,0,.14)}
 .card-pad{padding:26px 28px}
 .card + .card{margin-top:14px}
 
@@ -340,7 +377,7 @@ a{color:inherit;text-decoration:none}
 /* ============================================================ STATS STRIP */
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .stat{
-  background:var(--surface);border:0;border-radius:var(--r);padding:22px 22px;position:relative;box-shadow:var(--shadow-sm);
+  background:var(--surface);border:0;border-radius:var(--r);padding:22px 22px;position:relative;box-shadow:var(--shadow-sm),0 10px 36px -14px rgba(0,0,0,.14);
 }
 .stat .s-k{font-family:var(--font-display),Anton,sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);display:flex;align-items:center;gap:7px;font-weight:400}
 .stat .s-k svg{width:13px;height:13px}
@@ -358,7 +395,7 @@ a{color:inherit;text-decoration:none}
 /* ============================================================ SITES GRID */
 .sites{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
 .site{
-  background:var(--surface);border:0;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm);
+  background:var(--surface);border:0;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm),0 10px 36px -14px rgba(0,0,0,.14);
   display:flex;flex-direction:column;transition:border-color .16s,transform .14s,box-shadow .2s;cursor:pointer;
 }
 .site:hover{transform:translateY(-3px);box-shadow:var(--shadow-sm),var(--shadow)}
@@ -386,15 +423,15 @@ a{color:inherit;text-decoration:none}
 .site-menu:hover{background:var(--surface-2);border-color:var(--hair);color:var(--text)}
 
 .site-new{
-  border:1px dashed var(--hair-2);background:transparent;border-radius:var(--r);
+  border:1px dashed var(--canvas-hair-2);background:transparent;border-radius:var(--r);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px;cursor:pointer;
-  color:var(--text-3);min-height:180px;transition:border-color .16s,background .16s,color .16s;
+  color:var(--canvas-text-3);min-height:180px;transition:border-color .16s,background .16s,color .16s;
 }
 .site-new:hover{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent)}
 .site-new .sn-ic{width:44px;height:44px;border-radius:12px;background:var(--surface-2);border:1px solid var(--hair);display:grid;place-items:center}
 .site-new:hover .sn-ic{border-color:var(--accent-line)}
-.site-new .sn-h{font-size:14px;font-weight:700;color:var(--text)}
-.site-new .sn-d{font-size:12px;color:var(--text-3)}
+.site-new .sn-h{font-size:14px;font-weight:700;color:var(--canvas-text)}
+.site-new .sn-d{font-size:12px;color:var(--canvas-text-3)}
 
 /* ============================================================ FORM FIELDS */
 .field{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
@@ -432,7 +469,7 @@ a{color:inherit;text-decoration:none}
 .seg button.on{background:var(--surface-3);color:var(--text);box-shadow:var(--shadow-sm)}
 
 /* ============================================================ TABLE / LIST ROWS */
-.list{background:var(--surface);border:0;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm)}
+.list{background:var(--surface);border:0;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm),0 10px 36px -14px rgba(0,0,0,.14)}
 .lrow{display:flex;align-items:center;gap:14px;padding:14px 20px}
 .lrow + .lrow{border-top:1px solid var(--hair)}
 .lrow.head{background:var(--surface-2);padding:11px 20px}
@@ -464,8 +501,8 @@ a{color:inherit;text-decoration:none}
 .callout{display:flex;align-items:flex-start;gap:13px;padding:15px 17px;border-radius:var(--r);border:1px solid var(--hair-2);background:var(--surface-2)}
 .callout .co-ic{flex:0 0 auto;width:32px;height:32px;border-radius:9px;display:grid;place-items:center}
 .callout .co-ic svg{width:17px;height:17px}
-.callout .co-h{font-size:13.5px;font-weight:650}
-.callout .co-d{font-size:12.5px;color:var(--text-3);margin-top:3px;line-height:1.5}
+.callout .co-h{font-size:13.5px;font-weight:650;color:var(--canvas-text)}
+.callout .co-d{font-size:12.5px;color:var(--canvas-text-2);margin-top:3px;line-height:1.5}
 .callout.warn{background:var(--warn-soft);border-color:var(--warn-line)}
 .callout.warn .co-ic{color:var(--warn)}
 .callout.info{background:var(--info-soft);border-color:var(--violet-line)}
@@ -1007,6 +1044,8 @@ a{color:inherit;text-decoration:none}
 /* ── Empty state — float ────────────────────────────────────── */
 .empty .em-ic{animation:floatY 3.2s ease-in-out infinite}
 .empty{border:1px dashed rgba(100,206,251,.2)!important;background:rgba(100,206,251,.02)!important}
+/* empty state now sits on the white canvas, not the dark surface — retint its heading */
+.empty .em-h{color:var(--canvas-text)!important}
 
 /* ── Skeleton placeholder ───────────────────────────────────── */
 .skel{
@@ -1017,8 +1056,8 @@ a{color:inherit;text-decoration:none}
 }
 
 /* ── Topbar — glass blur intensify ─────────────────────────── */
-.topbar{transition:background .3s,box-shadow .3s;border-bottom:1px solid var(--hair)}
-.topbar:hover{box-shadow:0 1px 0 var(--hair-2)}
+.topbar{transition:background .3s,box-shadow .3s;border-bottom:1px solid var(--canvas-hair)}
+.topbar:hover{box-shadow:0 1px 0 var(--canvas-hair-2)}
 
 /* ── Topbar search — hover expand ──────────────────────────── */
 .tb-search{transition:border-color .18s,box-shadow .18s,min-width .2s var(--ease)}

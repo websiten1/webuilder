@@ -92,7 +92,7 @@ export default function SetupCustomDomainPage() {
       >
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-bold tracking-tight text-sm">
-            WebBuilder
+            insixlive
           </Link>
           <Link
             href="/dashboard"
@@ -260,7 +260,7 @@ export default function SetupCustomDomainPage() {
             Send us an email and we&apos;ll help you get it sorted.
           </p>
           <a
-            href="mailto:support@webbuilder.app"
+            href="mailto:support@insixlive.com"
             className="btn-primary rounded-xl px-6 py-2.5 text-sm inline-block"
           >
             Contact support

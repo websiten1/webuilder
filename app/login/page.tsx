@@ -270,6 +270,12 @@ function LoginContent() {
                     }
                   />
 
+                  <div style={{ textAlign: "right", marginTop: -6 }}>
+                    <Link href="/forgot-password" style={{ fontFamily: A.font, fontSize: 13, color: A.m40, textDecoration: "none" }}>
+                      Ai uitat parola?
+                    </Link>
+                  </div>
+
                   <button
                     type="submit"
                     disabled={!canSubmit}

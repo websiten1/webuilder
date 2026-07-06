@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { getSession } from "@/lib/session";
 import { getUserById, updateUserPassword } from "@/lib/db";
+import { passwordValidationError } from "@/lib/password";
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,11 +18,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    if (newPassword.length < 10) {
-      return NextResponse.json(
-        { error: "New password must be at least 10 characters." },
-        { status: 400 }
-      );
+    const passwordError = passwordValidationError(newPassword, "en");
+    if (passwordError) {
+      return NextResponse.json({ error: passwordError }, { status: 400 });
     }
 
     const user = await getUserById(session.userId);

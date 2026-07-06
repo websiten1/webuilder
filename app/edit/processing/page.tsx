@@ -90,7 +90,7 @@ function ProcessingContent() {
       <div style={{ position: "fixed", top: 0, left: "50%", transform: "translateX(-50%)", width: 600, height: 400, background: done ? "radial-gradient(ellipse, rgba(16,185,129,0.14) 0%, transparent 70%)" : "radial-gradient(ellipse, rgba(99,102,241,0.14) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0, transition: "background 1s" }} />
 
       <nav className="relative px-6 h-16 flex items-center" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", zIndex: 10 }}>
-        <Link href="/" className="font-bold tracking-tight text-sm">WebBuilder</Link>
+        <Link href="/" className="font-bold tracking-tight text-sm">insixlive</Link>
       </nav>
 
       <div className="relative flex-1 flex items-center justify-center px-6 py-16" style={{ zIndex: 1 }}>

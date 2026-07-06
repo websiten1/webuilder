@@ -5,6 +5,7 @@ import { sendVerificationCode } from "@/lib/email";
 import { detectLangFromHeader } from "@/lib/locale";
 import { generateVerificationCode } from "@/lib/verification";
 import { genericErrorResponse, logServerError, newErrorId } from "@/lib/api-error";
+import { passwordValidationError } from "@/lib/password";
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,11 +26,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (password.length < 8) {
-      return NextResponse.json(
-        { error: "Password must be at least 8 characters." },
-        { status: 400 }
-      );
+    const passwordError = passwordValidationError(password, "en");
+    if (passwordError) {
+      return NextResponse.json({ error: passwordError }, { status: 400 });
     }
 
     if (password !== confirmPassword) {

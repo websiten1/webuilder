@@ -28,6 +28,8 @@ export type User = {
   verification_code_expires: Date | null;
   verification_attempts: number;
   verification_code_sent_at: Date | null;
+  password_reset_token: string | null;
+  password_reset_expires: Date | null;
   payment_status: "pending" | "paid" | "failed";
   payment_date: Date | null;
   stripe_customer_id: string | null;
@@ -155,7 +157,40 @@ export async function getUserByVerificationToken(
 
 export async function updateUserPassword(userId: string, passwordHash: string): Promise<void> {
   const sql = getDb();
-  await sql`UPDATE users SET password_hash = ${passwordHash}, updated_at = NOW() WHERE id = ${userId}`;
+  await sql`
+    UPDATE users
+    SET password_hash = ${passwordHash},
+        password_reset_token = NULL,
+        password_reset_expires = NULL,
+        updated_at = NOW()
+    WHERE id = ${userId}
+  `;
+}
+
+export async function savePasswordResetToken(
+  userId: string,
+  token: string,
+  expires: Date
+): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE users
+    SET password_reset_token = ${token},
+        password_reset_expires = ${expires},
+        updated_at = NOW()
+    WHERE id = ${userId}
+  `;
+}
+
+export async function getUserByPasswordResetToken(token: string): Promise<User | null> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT * FROM users
+    WHERE password_reset_token = ${token}
+      AND password_reset_expires > NOW()
+    LIMIT 1
+  `;
+  return (rows[0] as User) || null;
 }
 
 export async function verifyUserEmail(userId: string): Promise<void> {

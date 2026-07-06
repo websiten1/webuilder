@@ -100,7 +100,7 @@ function EditFormContent() {
       <div style={{ position: "fixed", top: 0, left: "50%", transform: "translateX(-50%)", width: 600, height: 400, background: "radial-gradient(ellipse, rgba(99,102,241,0.14) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
 
       <nav className="relative px-6 h-16 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", zIndex: 10 }}>
-        <Link href="/" className="font-bold tracking-tight text-sm">WebBuilder</Link>
+        <Link href="/" className="font-bold tracking-tight text-sm">insixlive</Link>
         <Link href="/dashboard" className="text-sm" style={{ color: "var(--text2)" }}>← Dashboard</Link>
       </nav>
 
@@ -169,7 +169,7 @@ function EditFormContent() {
                 <p className="text-xs mt-0.5" style={{ color: "var(--text3)" }}>Full regeneration · Live in ~2 min</p>
               </div>
               <div className="text-right">
-                <span className="font-bold" style={{ fontSize: "1.4rem", letterSpacing: "-0.03em" }}>€15</span>
+                <span className="font-bold" style={{ fontSize: "1.4rem", letterSpacing: "-0.03em" }}>€10.00</span>
               </div>
             </div>
 
@@ -184,7 +184,7 @@ function EditFormContent() {
                   <span style={{ width: 14, height: 14, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.8s linear infinite", display: "inline-block" }} />
                   Redirecting to payment…
                 </span>
-              ) : "Pay €15 — Apply Changes"}
+              ) : "Pay €10.00 — Apply Changes"}
             </button>
 
             <p className="text-xs text-center" style={{ color: "var(--text3)" }}>

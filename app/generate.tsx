@@ -90,7 +90,7 @@ export default function GeneratePage() {
       <nav className="bg-white shadow">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="text-2xl font-bold text-blue-600">
-            WebBuilder
+            insixlive
           </Link>
           <Link href="/dashboard" className="text-gray-600 hover:text-gray-900">
             Back to Dashboard

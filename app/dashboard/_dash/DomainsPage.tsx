@@ -103,7 +103,7 @@ export function DomainsPage({ sites, toast, lang }: { sites: DashSite[]; toast: 
 
       <div style={{ marginTop: 14 }}>
         <Callout kind="info" icon={<Icons.question />} title={tt(lang, "Don't have a domain yet?", "Nu ai încă un domeniu?")}>
-          {tt(lang, "You can launch on a free", "Poți lansa pe o adresă gratuită")} <span className="mono" style={{ color: "var(--text-2)" }}>.vercel.app</span> {tt(lang, "address and connect a custom domain whenever you're ready — from each site's domain page.", "și conectezi un domeniu propriu când ești pregătit — din pagina de domeniu a fiecărui site.")}
+          {tt(lang, "You can launch on a free", "Poți lansa pe o adresă gratuită")} <span className="mono" style={{ color: "var(--canvas-text-2)" }}>.vercel.app</span> {tt(lang, "address and connect a custom domain whenever you're ready — from each site's domain page.", "și conectezi un domeniu propriu când ești pregătit — din pagina de domeniu a fiecărui site.")}
         </Callout>
       </div>
     </div>

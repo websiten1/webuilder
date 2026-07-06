@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { getPasswordIssues, passwordRequirementLabels } from "@/lib/password";
 
 const AURORA_VIDEO =
   "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260506_081238_406ed0e3-5d83-436e-a512-0bbff7ec5b95.mp4";
@@ -189,8 +190,13 @@ export default function SignupPage() {
     return () => clearTimeout(t);
   }, [resendCooldown]);
 
+  const passwordIssues = password ? getPasswordIssues(password) : [];
+  const passwordRequirements = passwordRequirementLabels("ro");
+
   const handleSignup = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (password !== confirmPassword) { setError("Parolele nu coincid."); return; }
+    if (passwordIssues.length > 0) { setError("Parola nu îndeplinește cerințele de mai jos."); return; }
     setLoading(true); setError("");
     try {
       const res = await fetch("/api/auth/signup", {
@@ -349,7 +355,7 @@ export default function SignupPage() {
                     <AInput label="Email" value={email} placeholder="tu@afacereata.ro" onChange={setEmail}/>
                     <AInput
                       label="Parolă" value={password}
-                      placeholder="Min. 8 caractere"
+                      placeholder="Alege o parolă"
                       type={showPw ? "text" : "password"}
                       onChange={setPassword}
                       suffix={
@@ -371,9 +377,22 @@ export default function SignupPage() {
                         </button>
                       }
                     />
-                    <p style={{ fontFamily: A.font, fontSize: 12, color: "rgba(255,255,255,0.25)", marginTop: -4 }}>
-                      Cel puțin 8 caractere.
-                    </p>
+                    <ul style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: -4, listStyle: "none" }}>
+                      {passwordRequirements.map((req, i) => {
+                        const met = password.length > 0 && !passwordIssues.includes(
+                          (["min_length", "uppercase", "lowercase", "number", "special"] as const)[i]
+                        );
+                        return (
+                          <li key={req} style={{
+                            fontFamily: A.font, fontSize: 12,
+                            color: met ? "#4ade80" : "rgba(255,255,255,0.25)",
+                            display: "flex", alignItems: "center", gap: 6,
+                          }}>
+                            <span>{met ? "✓" : "·"}</span> {req}
+                          </li>
+                        );
+                      })}
+                    </ul>
 
                     <button
                       type="submit"

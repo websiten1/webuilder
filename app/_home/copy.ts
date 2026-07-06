@@ -215,7 +215,7 @@ export const EN: HomeCopy = {
     ["~6 min", "From brief to a live, deployed website"],
     ["100%", "Code ownership — every file is yours"],
     ["€0", "Monthly fees after launch. Pay once, then free."],
-    ["€15", "Flat-rate edits — no surprise invoices"],
+    ["€10", "Flat-rate edits — no surprise invoices"],
   ],
   ownership: {
     eyebrow: "Ownership",
@@ -268,11 +268,11 @@ export const EN: HomeCopy = {
     ],
     popularBadge: "Most popular",
     plans: [
-      { name: "Website", price: "€59.99", tag: "Your complete site. No edits included.", items: ["AI-generated professional website", "Deployed to your Vercel account", "Full source code ownership", "Mobile-responsive · SSL · domain ready"], muted: "0 free edits", cta: "Get started", after: "€15 per edit after launch", featured: true },
-      { name: "Pro", price: "€69.99", tag: "I want to refine my site.", items: ["Everything in Website", "5 free edits included", "Edit tracking in your dashboard", "Priority email support", "Best if you expect changes"], cta: "Get Pro", after: "€15 per edit after the first 5" },
-      { name: "Premium", price: "€89.99", tag: "I want room to adjust.", items: ["Everything in Pro", "15 free edits included", "Priority generation queue", "1:1 onboarding call (optional)", "Best for evolving businesses"], cta: "Get Premium", after: "€15 per edit after the first 15" },
+      { name: "Website", price: "€59.99", tag: "Your complete site. No edits included.", items: ["AI-generated professional website", "Deployed to your Vercel account", "Full source code ownership", "Mobile-responsive · SSL · domain ready"], muted: "0 free edits", cta: "Get started", after: "€10.00 per edit after launch", featured: true },
+      { name: "Pro", price: "€69.99", tag: "I want to refine my site.", items: ["Everything in Website", "5 free edits included", "Edit tracking in your dashboard", "Priority email support", "Best if you expect changes"], cta: "Get Pro", after: "€10.00 per edit after the first 5" },
+      { name: "Premium", price: "€89.99", tag: "I want room to adjust.", items: ["Everything in Pro", "15 free edits included", "Priority generation queue", "1:1 onboarding call (optional)", "Best for evolving businesses"], cta: "Get Premium", after: "€10.00 per edit after the first 15" },
     ],
-    note: { badge: "Note", text: "Need a single change later? Request edits from your dashboard for €15 per change. Custom domains are not included and usually cost €12–30/year." },
+    note: { badge: "Note", text: "Need a single change later? Request edits from your dashboard for €10.00 per change. Custom domains are not included and usually cost €12–30/year." },
   },
   domains: {
     eyebrow: "Domains",
@@ -466,7 +466,7 @@ export const RO: HomeCopy = {
     ["~6 min", "De la brief la un site live și publicat"],
     ["100%", "Proprietatea codului — fiecare fișier e al tău"],
     ["€0", "Taxe lunare după lansare. Plătești o dată, apoi gratuit."],
-    ["€15", "Modificări la tarif fix — fără facturi surpriză"],
+    ["€10", "Modificări la tarif fix — fără facturi surpriză"],
   ],
   ownership: {
     eyebrow: "Proprietate",
@@ -519,11 +519,11 @@ export const RO: HomeCopy = {
     ],
     popularBadge: "Cel mai popular",
     plans: [
-      { name: "Site", price: "59,99 €", tag: "Site complet. Fără modificări incluse.", items: ["Site profesional generat de AI", "Publicat în contul tău Vercel", "Deținerea întregului cod sursă", "Responsive · SSL · pregătit pentru domeniu"], muted: "0 modificări gratuite", cta: "Începe acum", after: "15 € per modificare după lansare", featured: true },
-      { name: "Pro", price: "69,99 €", tag: "Vreau să ajustez site-ul.", items: ["Tot ce e în Site", "5 modificări gratuite incluse", "Urmărirea modificărilor în panou", "Suport prioritar pe email", "Ideal dacă te aștepți la schimbări"], cta: "Alege Pro", after: "15 € per modificare după primele 5" },
-      { name: "Premium", price: "89,99 €", tag: "Spațiu maxim de ajustare.", items: ["Tot ce e în Pro", "15 modificări gratuite incluse", "Coadă prioritară de generare", "Apel de onboarding 1:1 (opțional)", "Pentru afaceri în creștere"], cta: "Alege Premium", after: "15 € per modificare după primele 15" },
+      { name: "Site", price: "59,99 €", tag: "Site complet. Fără modificări incluse.", items: ["Site profesional generat de AI", "Publicat în contul tău Vercel", "Deținerea întregului cod sursă", "Responsive · SSL · pregătit pentru domeniu"], muted: "0 modificări gratuite", cta: "Începe acum", after: "10,00 € per modificare după lansare", featured: true },
+      { name: "Pro", price: "69,99 €", tag: "Vreau să ajustez site-ul.", items: ["Tot ce e în Site", "5 modificări gratuite incluse", "Urmărirea modificărilor în panou", "Suport prioritar pe email", "Ideal dacă te aștepți la schimbări"], cta: "Alege Pro", after: "10,00 € per modificare după primele 5" },
+      { name: "Premium", price: "89,99 €", tag: "Spațiu maxim de ajustare.", items: ["Tot ce e în Pro", "15 modificări gratuite incluse", "Coadă prioritară de generare", "Apel de onboarding 1:1 (opțional)", "Pentru afaceri în creștere"], cta: "Alege Premium", after: "10,00 € per modificare după primele 15" },
     ],
-    note: { badge: "Notă", text: "Ai nevoie de o singură modificare mai târziu? Solicită modificări din panoul tău pentru 15 € per modificare. Domeniile personalizate nu sunt incluse și costă de obicei 12–30 €/an." },
+    note: { badge: "Notă", text: "Ai nevoie de o singură modificare mai târziu? Solicită modificări din panoul tău pentru 10,00 € per modificare. Domeniile personalizate nu sunt incluse și costă de obicei 12–30 €/an." },
   },
   domains: {
     eyebrow: "Domenii",

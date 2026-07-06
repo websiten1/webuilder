@@ -99,7 +99,7 @@ export default function SuccessPage() {
 
       <nav style={{ position: "relative", zIndex: 10, borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "0 24px", height: 64, display: "flex", alignItems: "center" }}>
         <Link href="/" style={{ fontWeight: 700, fontSize: 15, letterSpacing: "-0.02em", color: "#fff", textDecoration: "none" }}>
-          WebBuilder
+          insixlive
         </Link>
       </nav>
 

@@ -179,6 +179,63 @@ export async function sendVerificationCode(
   console.log("Code email sent, id:", data?.id);
 }
 
+const RESET_COPY = {
+  en: {
+    subject: "Reset your insixlive password",
+    heading: "Reset your password",
+    body: "We received a request to reset the password for your insixlive account. Click the button below to choose a new password. This link expires in 1 hour.",
+    cta: "Choose a new password",
+    ignore: "If you didn't request this, you can safely ignore this email. Your password won't change.",
+  },
+  ro: {
+    subject: "Resetează parola insixlive",
+    heading: "Resetează parola",
+    body: "Am primit o solicitare de resetare a parolei pentru contul tău insixlive. Apasă butonul de mai jos pentru a alege o parolă nouă. Linkul expiră în 1 oră.",
+    cta: "Alege o parolă nouă",
+    ignore: "Dacă nu ai solicitat resetarea, poți ignora acest email. Parola ta nu se va schimba.",
+  },
+} as const;
+
+export async function sendPasswordResetEmail(
+  email: string,
+  token: string,
+  lang: "en" | "ro" = "ro"
+): Promise<void> {
+  const baseUrl = process.env.NEXT_PUBLIC_URL || "https://insixlive.com";
+  const resetLink = `${baseUrl}/reset-password?token=${encodeURIComponent(token)}`;
+  console.log(`\n[Password reset] Link for ${email}: ${resetLink}\n`);
+
+  const c = RESET_COPY[lang];
+  const resend = getResend();
+  const from =
+    process.env.RESEND_FROM_EMAIL || "inSIXlive <onboarding@resend.dev>";
+
+  const { data, error } = await resend.emails.send({
+    from,
+    to: email,
+    subject: c.subject,
+    html: `<!DOCTYPE html><html lang="${lang}"><head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#f8f8f8;font-family:'DM Sans',-apple-system,sans-serif;color:#1a1a1a;">
+  <div style="max-width:560px;margin:40px auto;padding:0 20px;">
+    <p style="font-size:18px;font-weight:700;margin:0 0 24px;">insixlive</p>
+    <div style="background:#fff;border-radius:16px;padding:32px;border:1px solid #eee;box-shadow:0 2px 12px rgba(0,0,0,.06);">
+      <h1 style="font-size:24px;font-weight:700;margin:0 0 12px;letter-spacing:-.02em;">${c.heading}</h1>
+      <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 28px;">${c.body}</p>
+      <a href="${resetLink}" style="display:inline-block;background:#09090b;color:#fff;text-decoration:none;font-weight:600;font-size:15px;padding:14px 24px;border-radius:10px;">${c.cta}</a>
+      <p style="color:#888;font-size:13px;line-height:1.55;margin:28px 0 0;">${c.ignore}</p>
+    </div>
+    <p style="color:#aaa;font-size:12px;margin-top:20px;text-align:center;">© 2026 insixlive</p>
+  </div>
+</body></html>`,
+  });
+
+  if (error) {
+    console.error("Resend error (password reset):", error);
+    throw new Error(`Email delivery failed: ${error.message}`);
+  }
+  console.log("Password reset email sent, id:", data?.id);
+}
+
 export async function sendVerificationEmail(
   email: string,
   token: string
@@ -257,7 +314,7 @@ export async function sendEditStartedEmail(
     <div style="margin:32px 0;padding:32px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;">
       <h1 style="font-size:20px;font-weight:700;margin:0 0 8px;">Your changes are being processed</h1>
       <p style="color:rgba(255,255,255,0.55);margin:0 0 20px;font-size:14px;line-height:1.6;">
-        Your €15 edit was approved. We're applying the changes to your website now. This usually takes 1–2 minutes.
+        Your €10.00 edit was approved. We're applying the changes to your website now. This usually takes 1–2 minutes.
       </p>
       <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.15);border-radius:10px;padding:14px 16px;margin-bottom:20px;">
         <p style="margin:0 0 4px;font-size:12px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;">Website</p>
@@ -347,7 +404,7 @@ export async function sendEditFailedEmail(
     <div style="margin:32px 0;padding:32px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;">
       <h1 style="font-size:20px;font-weight:700;margin:0 0 8px;">Edit request failed</h1>
       <p style="color:rgba(255,255,255,0.55);margin:0 0 16px;font-size:14px;line-height:1.6;">
-        We had trouble applying your changes to <strong style="color:#fff;">${siteName}</strong>. Don't worry — your €15 has been automatically refunded.
+        We had trouble applying your changes to <strong style="color:#fff;">${siteName}</strong>. Don't worry — your €10.00 has been automatically refunded.
       </p>
       <p style="color:rgba(255,255,255,0.4);font-size:13px;margin:0 0 20px;">
         Try a simpler or more specific description, or contact us if the issue persists.

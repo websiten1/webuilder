@@ -4,9 +4,9 @@ export const SUPPORT_KNOWLEDGE = `
 insixlive generates professional websites for small businesses in about six minutes using AI. Sites are real Next.js code deployed to the customer's own Vercel account. One-time payment, no monthly subscription from insixlive. Customer owns the code, Vercel project, and domain (if connected).
 
 ## Pricing (one-time, no subscription)
-- Site — €59.99: complete AI-generated website, deployed to customer's Vercel, full source code ownership, 0 free edits after launch. €15 per edit after launch.
-- Pro — €69.99: everything in Site + 5 free edits, edit tracking in dashboard, priority email support. €15 per edit after the first 5.
-- Premium — €89.99: everything in Pro + 15 free edits, priority generation queue, optional 1:1 onboarding call. €15 per edit after the first 15.
+- Site — €59.99: complete AI-generated website, deployed to customer's Vercel, full source code ownership, 0 free edits after launch. €10.00 per edit after launch.
+- Pro — €69.99: everything in Site + 5 free edits, edit tracking in dashboard, priority email support. €10.00 per edit after the first 5.
+- Premium — €89.99: everything in Pro + 15 free edits, priority generation queue, optional 1:1 onboarding call. €10.00 per edit after the first 15.
 - Custom domains are NOT included — typically €12–30/year from a registrar or Vercel.
 - Vercel Hobby hosting is free for most small sites.
 
@@ -22,7 +22,7 @@ insixlive generates professional websites for small businesses in about six minu
 Customer owns everything: source code, Vercel project, domain. Can download code, move to another host, modify code, stop using insixlive — site stays live. No lock-in.
 
 ## Edits / changes
-From dashboard: Request Changes → describe change → regenerated and redeployed in ~2 minutes. Cost: €15 per edit unless included in plan.
+From dashboard: Request Changes → describe change → regenerated and redeployed in ~2 minutes. Cost: €10.00 per edit unless included in plan.
 
 ## Domains
 Two options:

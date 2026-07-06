@@ -22,7 +22,7 @@ export async function POST() {
       amount: 4999,
       currency: "eur",
       metadata: { userId: user.id, type: "site_generation" },
-      description: "WebBuilder — Professional Website Generation",
+      description: "insixlive — Professional Website Generation",
     });
 
     return NextResponse.json({ clientSecret: paymentIntent.client_secret });

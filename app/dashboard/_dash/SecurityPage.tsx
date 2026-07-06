@@ -3,6 +3,7 @@ import React from "react";
 import { Icons } from "./icons";
 import { Section, Row, Field, PasswordInput, Pill, Toggle } from "./primitives";
 import { tt, type Lang } from "./i18n";
+import { getPasswordIssues, passwordRequirementLabels } from "@/lib/password";
 
 function describeDevice(): string {
   if (typeof navigator === "undefined") return "Acest dispozitiv";
@@ -18,9 +19,13 @@ export function SecurityPage({ toast, lang }: { toast: (m: string) => void; lang
   const [confirm, setConfirm] = React.useState("");
   const [saving, setSaving] = React.useState(false);
 
+  const nextIssues = next ? getPasswordIssues(next) : [];
+  const requirements = passwordRequirementLabels(lang);
+
   const updatePassword = async () => {
     if (!current || !next) return toast(tt(lang, "Fill in both password fields", "Completează ambele câmpuri pentru parolă"));
     if (next !== confirm) return toast(tt(lang, "New passwords don't match", "Parolele noi nu coincid"));
+    if (nextIssues.length > 0) return toast(tt(lang, "Password doesn't meet the requirements below", "Parola nu îndeplinește cerințele de mai jos"));
     setSaving(true);
     try {
       const res = await fetch("/api/auth/change-password", {
@@ -56,13 +61,25 @@ export function SecurityPage({ toast, lang }: { toast: (m: string) => void; lang
               <PasswordInput value={current} onChange={setCurrent} placeholder="••••••••••" />
             </Field>
             <div className="f2">
-              <Field label={tt(lang, "New password", "Parolă nouă")} hint={tt(lang, "At least 10 characters.", "Cel puțin 10 caractere.")}>
+              <Field label={tt(lang, "New password", "Parolă nouă")}>
                 <PasswordInput value={next} onChange={setNext} placeholder={tt(lang, "New password", "Parolă nouă")} />
               </Field>
               <Field label={tt(lang, "Confirm new password", "Confirmă parola nouă")}>
                 <PasswordInput value={confirm} onChange={setConfirm} placeholder={tt(lang, "Repeat password", "Repetă parola")} />
               </Field>
             </div>
+            <ul style={{ display: "flex", flexDirection: "column", gap: 4, listStyle: "none", padding: 0, margin: "2px 0 0" }}>
+              {requirements.map((req, i) => {
+                const met = next.length > 0 && !nextIssues.includes(
+                  (["min_length", "uppercase", "lowercase", "number", "special"] as const)[i]
+                );
+                return (
+                  <li key={req} style={{ fontSize: 12.5, display: "flex", alignItems: "center", gap: 6, color: met ? "var(--ok)" : "var(--text-3)" }}>
+                    <span>{met ? "✓" : "·"}</span> {req}
+                  </li>
+                );
+              })}
+            </ul>
           </div>
           <div className="row" style={{ justifyContent: "flex-end" }}>
             <button className="b b-primary" disabled={saving} onClick={updatePassword}>
