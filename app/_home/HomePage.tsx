@@ -441,13 +441,18 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           border-bottom: 1px solid rgba(255,255,255,0.07);
         }
         .aw .foot-brand p { font-size: var(--text-body); color: rgba(255,255,255,0.35); max-width: 32ch; margin: 0; line-height: 1.6; }
-        .aw .foot-mark { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-        .aw .foot-mark-num {
-          font-family: var(--font-cosmica), sans-serif;
-          font-size: 28px; font-weight: 200; color: rgba(255,255,255,0.9);
-          letter-spacing: -0.02em; line-height: 1; user-select: none;
+        .aw .foot-mark { display: block; width: 100%; margin-bottom: 16px; }
+        .aw .foot-mark-name {
+          display: block;
+          width: 100%;
+          font-family: var(--font-display), Anton, sans-serif;
+          font-size: clamp(1.65rem, 4vw, 2rem);
+          font-weight: 400;
+          letter-spacing: -0.02em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.9);
+          line-height: 1;
         }
-        .aw .foot-mark-name { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.8); }
         .aw .foot-col h5 {
           font-size: var(--text-caption);
           text-transform: uppercase;
@@ -1285,7 +1290,6 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
             <div className="foot-top">
               <div className="foot-brand">
                 <div className="foot-mark">
-                  <span className="foot-mark-num">6</span>
                   <span className="foot-mark-name">insixlive</span>
                 </div>
                 <p>{copy.footer.blurb}</p>

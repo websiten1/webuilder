@@ -22,9 +22,21 @@ const A = {
   mono:   'ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace',
 };
 
-function Mark({ size = 28 }: { size?: number }) {
+function Wordmark({ style }: { style?: React.CSSProperties }) {
   return (
-    <span style={{ fontFamily: A.font, fontSize: size, fontWeight: 200, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1 }}>6</span>
+    <span className="font-display" style={{
+      display: "block",
+      width: "100%",
+      fontSize: "clamp(1.65rem, 4vw, 2rem)",
+      fontWeight: 400,
+      letterSpacing: "-0.02em",
+      textTransform: "uppercase",
+      color: A.white,
+      lineHeight: 1,
+      ...style,
+    }}>
+      insixlive
+    </span>
   );
 }
 
@@ -267,12 +279,9 @@ export default function SignupPage() {
             {/* Bottom-heavy vignette */}
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.88) 100%)", zIndex: 1 }}/>
 
-            {/* Logo — pinned to top-left */}
-            <div style={{ position: "absolute", top: 36, left: 40, zIndex: 3, display: "flex", alignItems: "center", gap: 10 }}>
-              <Mark size={28}/>
-              <span style={{ fontFamily: A.font, fontSize: 17, fontWeight: 600, color: A.white, letterSpacing: -0.3 }}>
-                insixlive
-              </span>
+            {/* Logo — pinned to top */}
+            <div style={{ position: "absolute", top: 36, left: 40, right: 40, zIndex: 3 }}>
+              <Wordmark />
             </div>
 
             {/* Bottom content */}
@@ -281,7 +290,7 @@ export default function SignupPage() {
                 <h1 className="font-display" style={{ fontSize: "clamp(2rem,2.8vw,2.6rem)", color: A.white, lineHeight: 1.1, marginBottom: 12 }}>
                   Site-ul tău.<br/>Codul tău.<br/><span style={{ color: A.six }}>Al tău pentru totdeauna.</span>
                 </h1>
-                <p style={{ fontFamily: A.font, fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6, maxWidth: 300 }}>
+                <p style={{ fontFamily: A.font, fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>
                   Descrie afacerea ta și generăm un site complet — cod, hosting și tot.
                 </p>
               </div>
@@ -305,13 +314,10 @@ export default function SignupPage() {
 
             {/* Logo mobil */}
             <div className="au-mobile-logo" style={{
-              alignSelf: "stretch", alignItems: "center", gap: 10,
+              alignSelf: "stretch",
               padding: "20px 24px 0",
             }}>
-              <Mark size={26}/>
-              <span style={{ fontFamily: A.font, fontSize: 17, fontWeight: 600, color: A.white, letterSpacing: -0.3 }}>
-                insixlive
-              </span>
+              <Wordmark />
             </div>
 
             <div className="au-fade au-right-inner" key={showOtp ? "otp" : "form"} style={{ width: "100%", maxWidth: 460 }}>

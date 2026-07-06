@@ -43,7 +43,7 @@ export function BillingPage({
         <p className="page-sub">{tt(lang, "insixlive is one-time per site — no subscription. Manage your payment methods and download receipts here.", "insixlive este plată unică per site — fără abonament. Gestionează metodele de plată și descarcă chitanțele aici.")}</p>
       </div>
 
-      <div className="stats" style={{ gridTemplateColumns: "repeat(3,1fr)" }}>
+      <div className="stats stats-3">
         <div className="stat">
           <div className="s-k">
             <Icons.bolt size={13} />
@@ -122,7 +122,7 @@ export function BillingPage({
             {tt(lang, "No payments yet.", "Nicio plată încă.")}
           </div>
         ) : (
-          <div className="list">
+          <div className="list list-stack list-invoices">
             <div className="lrow head">
               <div className="lcell" style={{ flex: "0 0 92px" }}>
                 {tt(lang, "Invoice", "Factură")}

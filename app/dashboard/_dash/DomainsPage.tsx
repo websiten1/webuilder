@@ -59,7 +59,7 @@ export function DomainsPage({ sites, toast, lang }: { sites: DashSite[]; toast: 
           <div className="em-d">{tt(lang, "Connect a custom domain from any site's page, or launch on a free .vercel.app address for now.", "Conectează un domeniu propriu din pagina oricărui site, sau lansează pe o adresă gratuită .vercel.app pentru acum.")}</div>
         </div>
       ) : (
-        <div className="list">
+        <div className="list list-stack list-domains">
           <div className="lrow head">
             <div className="lcell grow">{tt(lang, "Domain", "Domeniu")}</div>
             <div className="lcell" style={{ flex: "0 0 120px" }}>

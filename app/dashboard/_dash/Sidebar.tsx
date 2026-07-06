@@ -52,10 +52,7 @@ export function Sidebar({
   return (
     <nav className={"nav" + (open ? " open" : "")}>
       <div className="nav-brand">
-        <div className="brand-badge">6</div>
-        <div className="brand-word">
-          in<span className="mid">six</span>live
-        </div>
+        <div className="brand-word">insixlive</div>
       </div>
       <div className="nav-scroll">
         {navGroups(lang).map((g) => (

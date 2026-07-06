@@ -32,7 +32,7 @@ type RawSite = {
 
 const BIZ_COLORS: Record<string, string> = {
   "Restaurant": "#b85c2c", "Dental Clinic": "#3a8a78", "Hair Salon": "#b2756a",
-  "Fitness": "#ff4d1a", "Law Firm": "#15294a", "Real Estate": "#7d8a6e",
+  "Fitness": "#a78bfa", "Law Firm": "#15294a", "Real Estate": "#7d8a6e",
   "Medical Clinic": "#5c8b6e", "Tech Startup": "#a8ff5c", "Beauty/Spa": "#b97a6f",
   "Photography": "#7a2828", "E-commerce": "#0066CC", "Consulting": "#1a365d",
   "Marketing Agency": "#7c3aed", "Architecture": "#374151", "Accounting": "#065f46",
@@ -43,7 +43,7 @@ function colorFor(site: RawSite): string {
   const prefs = site.design_preferences as Record<string, unknown> | null;
   const design = prefs?.design as Record<string, unknown> | undefined;
   if (typeof design?.primaryColor === "string" && design.primaryColor) return design.primaryColor;
-  return BIZ_COLORS[site.business_type ?? ""] ?? "#FF5A1F";
+  return BIZ_COLORS[site.business_type ?? ""] ?? "#64CEFB";
 }
 
 function favFor(name: string): string {
@@ -186,7 +186,7 @@ export default function DashboardPage() {
     return (
       <div className="dash" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <style>{`@keyframes dspin { to { transform: rotate(360deg); } }`}</style>
-        <div style={{ width: 28, height: 28, borderRadius: 14, border: "2px solid rgba(255,255,255,0.08)", borderTopColor: "#ff5a00", animation: "dspin .8s linear infinite" }} />
+        <div style={{ width: 28, height: 28, borderRadius: 14, border: "2px solid rgba(255,255,255,0.08)", borderTopColor: "#64CEFB", animation: "dspin .8s linear infinite" }} />
       </div>
     );
   }
