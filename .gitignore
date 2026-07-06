@@ -44,3 +44,6 @@ next-env.d.ts
 # premium design source packs (only built bundles in public/preset-sites ship)
 /premium-designs
 /public/preset-sites/__test-preview
+
+# local debug session logs
+/.cursor/debug-*.log
