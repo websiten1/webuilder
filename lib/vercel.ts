@@ -259,6 +259,64 @@ export async function deployToVercel(
   }
 }
 
+// Deploys a prebuilt static bundle (premium preset designs) — no framework,
+// no build step: Vercel serves the uploaded files as-is, so the deployed site
+// is byte-identical to the chosen design.
+export async function deployStaticSiteToVercel(
+  projectName: string,
+  files: { file: string; data: string; encoding?: "base64" }[],
+  options: {
+    userToken?: string;
+    teamId?: string | null;
+    requireUserToken?: boolean;
+  }
+): Promise<{ id: string; url: string; projectId: string | null }> {
+  if (options.requireUserToken && !options.userToken) {
+    throw new VercelAuthError();
+  }
+  const token = options.requireUserToken
+    ? options.userToken!
+    : (options.userToken ?? process.env.VERCEL_API_TOKEN);
+  if (!token) {
+    throw new Error("No Vercel token available. VERCEL_API_TOKEN not set.");
+  }
+
+  const deployUrl = options.teamId
+    ? `https://api.vercel.com/v13/deployments?teamId=${options.teamId}`
+    : "https://api.vercel.com/v13/deployments";
+  const response = await fetch(deployUrl, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: projectName,
+      files,
+      target: "production",
+      projectSettings: {
+        framework: null,
+        buildCommand: null,
+        outputDirectory: null,
+        installCommand: null,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const errBody = await response.json().catch(() => response.text());
+    if (options.requireUserToken && (response.status === 401 || response.status === 403)) {
+      throw new VercelAuthError();
+    }
+    throw new Error(`Vercel API error: ${response.status} ${JSON.stringify(errBody)}`);
+  }
+
+  const data = await response.json();
+  const projectId: string | null = data.projectId ?? data.project?.id ?? null;
+  console.log(`Vercel static deployment: id=${data.id} projectId=${projectId ?? "unknown"} url=${data.url}`);
+  return { id: data.id, url: data.url, projectId };
+}
+
 export async function setProjectEnvVars(
   projectId: string,
   token: string,

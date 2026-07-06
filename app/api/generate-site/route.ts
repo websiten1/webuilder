@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateWebsiteCode } from "@/lib/anthropic";
-import { deployToVercel, getValidVercelToken, setProjectEnvVars, createAndConnectBlobStore, deleteVercelProject, normalizeDeploymentUrl, resolveVercelDeployName, VercelAuthError, VERCEL_RECONNECT_MESSAGE } from "@/lib/vercel";
+import { deployToVercel, deployStaticSiteToVercel, getValidVercelToken, setProjectEnvVars, createAndConnectBlobStore, deleteVercelProject, normalizeDeploymentUrl, resolveVercelDeployName, VercelAuthError, VERCEL_RECONNECT_MESSAGE } from "@/lib/vercel";
+import { isPresetTemplate, generatePresetPersonalization, buildPresetDeployFiles, type StaticDeployFile } from "@/lib/preset-site";
 import { getSession } from "@/lib/session";
 import { getUserById, saveSiteWithVercel, getSiteById, updateSiteAfterRegeneration, createParishCalendarModule, setParishCalendarBlobConnected, claimOrderForGeneration, getOrderByStripeSessionId, completeOrder, failOrder, type Order } from "@/lib/db";
 import { sendParishCalendarSetupEmail, sendWebsiteCreatedEmail } from "@/lib/email";
@@ -497,8 +498,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Business name and description are required." }, { status: 400 });
     }
 
-    const prompt = buildPrompt(formData);
-
     console.log(`Starting ${editSiteId ? "re-generation" : "generation"} for: ${siteName}`);
     console.log(`🎨 Template: ${formData.templateId || "custom"}`);
     console.log(`🖼️  Logo uploaded: ${formData.logo?.uploaded ? `yes (${formData.logo.fileName})` : "no"}`);
@@ -507,9 +506,32 @@ export async function POST(request: NextRequest) {
     console.log(`🖼️  Passing ${images.length} images to Claude: ${images.map(i => i.placeholder).join(', ') || 'none'}`);
     // Images are deployed as real static files — no base64 embedding in code
     const staticImages = images.map(img => ({ path: img.placeholder.replace(/^\//, ""), base64: img.base64 }));
+
+    // ── Premium preset design: deploy the exact prebuilt bundle, never LLM-generated code ──
+    const presetSlug = isPresetTemplate(formData.templateId) ? formData.templateId : null;
+    let websiteCode = "";
+    let presetFiles: StaticDeployFile[] | null = null;
+
     stage = "generating_code";
-    const websiteCode = await generateWebsiteCode(prompt, images);
-    console.log("✅ Code generated");
+    if (presetSlug) {
+      // #region agent log
+      fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'fdaeb6'},body:JSON.stringify({sessionId:'fdaeb6',location:'generate-site/route.ts:preset-branch',message:'preset branch entered',data:{slug:presetSlug,siteName},hypothesisId:'preset-flow',timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
+      const personalization = await generatePresetPersonalization(presetSlug, formData);
+      const logoImg = images.find(i => i.placeholder.startsWith("/logo."));
+      presetFiles = buildPresetDeployFiles(presetSlug, personalization, {
+        logo: logoImg ? { path: logoImg.placeholder.replace(/^\//, ""), base64: logoImg.base64 } : undefined,
+        socials: formData.socials,
+      });
+      // #region agent log
+      fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'fdaeb6'},body:JSON.stringify({sessionId:'fdaeb6',location:'generate-site/route.ts:preset-personalized',message:'preset files built',data:{slug:presetSlug,replacements:personalization.replacements.length,title:personalization.title,fileCount:presetFiles.length},hypothesisId:'preset-flow',timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
+      console.log(`✅ Preset "${presetSlug}" personalized: ${personalization.replacements.length} replacements, ${presetFiles.length} files`);
+    } else {
+      const prompt = buildPrompt(formData);
+      websiteCode = await generateWebsiteCode(prompt, images);
+      console.log("✅ Code generated");
+    }
 
     // User sites deploy only to the customer's Vercel account — never the platform.
     if (!userVercelToken) {
@@ -536,12 +558,18 @@ export async function POST(request: NextRequest) {
       console.log(`🔁 Updating site ${editSiteId}, deployName=${deployProjectName}`);
 
       stage = "deploying";
-      const deployment = await deployToVercel(deployProjectName, websiteCode, {
-        staticImages,
-        userToken: userVercelToken,
-        teamId: userTeamId,
-        requireUserToken: true,
-      });
+      const deployment = presetFiles
+        ? await deployStaticSiteToVercel(deployProjectName, presetFiles, {
+            userToken: userVercelToken,
+            teamId: userTeamId,
+            requireUserToken: true,
+          })
+        : await deployToVercel(deployProjectName, websiteCode, {
+            staticImages,
+            userToken: userVercelToken,
+            teamId: userTeamId,
+            requireUserToken: true,
+          });
 
       const vercelProjectId = deployment.projectId ?? existingSite.vercel_project_id!;
       const siteUrl = normalizeDeploymentUrl(deployment.url);
@@ -564,15 +592,24 @@ export async function POST(request: NextRequest) {
     const projectName = siteName.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 63);
     console.log("Deploying to user's Vercel...");
     stage = "deploying";
-    const deployment = await deployToVercel(projectName, websiteCode, {
-      staticImages,
-      userToken: userVercelToken,
-      teamId: userTeamId,
-      requireUserToken: true,
-      parishCalendarFiles: formData.pages.calendarModuleEnabled ? PARISH_CALENDAR_FILES : undefined,
-    });
+    const deployment = presetFiles
+      ? await deployStaticSiteToVercel(projectName, presetFiles, {
+          userToken: userVercelToken,
+          teamId: userTeamId,
+          requireUserToken: true,
+        })
+      : await deployToVercel(projectName, websiteCode, {
+          staticImages,
+          userToken: userVercelToken,
+          teamId: userTeamId,
+          requireUserToken: true,
+          parishCalendarFiles: formData.pages.calendarModuleEnabled ? PARISH_CALENDAR_FILES : undefined,
+        });
     const vercelProjectId = deployment.projectId ?? projectName;
     console.log("✅ Deployed:", deployment.url, "| vercel project id:", vercelProjectId);
+    // #region agent log
+    if (presetSlug) fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'fdaeb6'},body:JSON.stringify({sessionId:'fdaeb6',location:'generate-site/route.ts:preset-deployed',message:'preset static deploy done',data:{slug:presetSlug,url:deployment.url,projectId:vercelProjectId},hypothesisId:'preset-flow',timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
 
     const siteUrl = normalizeDeploymentUrl(deployment.url);
 
@@ -613,7 +650,12 @@ export async function POST(request: NextRequest) {
       console.error("Website created email failed:", emailError);
     }
 
-    if (formData.pages.calendarModuleEnabled) {
+    // Parish calendar needs a Next.js runtime — preset sites are static bundles,
+    // so the add-on cannot be provisioned on them.
+    if (formData.pages.calendarModuleEnabled && presetSlug) {
+      console.warn(`⚠️  Calendar module requested but skipped: preset site "${presetSlug}" is static.`);
+    }
+    if (formData.pages.calendarModuleEnabled && !presetSlug) {
       try {
         const adminEmail = formData.business.email?.trim() || user.email;
         const tempPassword = crypto.randomBytes(9).toString("base64").replace(/[^a-zA-Z0-9]/g, "").slice(0, 12);

@@ -2,6 +2,10 @@ import Anthropic from "@anthropic-ai/sdk";
 import fs from "fs";
 import path from "path";
 
+export function getAnthropicApiKey(): string {
+  return getApiKey();
+}
+
 function getApiKey(): string {
   const fromEnv = process.env.ANTHROPIC_API_KEY;
   if (fromEnv) return fromEnv;

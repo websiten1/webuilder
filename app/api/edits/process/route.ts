@@ -3,6 +3,7 @@ import { getSession } from "@/lib/session";
 import {
   getSiteEditById,
   getSiteById,
+  getSiteEditsBysite,
   updateSiteEditStatus,
   incrementSiteVersion,
   updateSiteVercelUrl,
@@ -10,12 +11,15 @@ import {
 } from "@/lib/db";
 import {
   deployToVercel,
+  deployStaticSiteToVercel,
   getValidVercelToken,
   normalizeDeploymentUrl,
   resolveVercelDeployName,
   VERCEL_RECONNECT_MESSAGE,
 } from "@/lib/vercel";
 import { generateWebsiteCode } from "@/lib/anthropic";
+import { isPresetTemplate, generatePresetPersonalization, buildPresetDeployFiles } from "@/lib/preset-site";
+import type { WizardData } from "@/app/components/GenerateWizard";
 import { getStripe } from "@/lib/stripe";
 import {
   sendEditStartedEmail,
@@ -112,6 +116,74 @@ export async function POST(request: NextRequest) {
     console.log(`Edit ${editId}: deployName=${deployProjectName}, projectId=${site.vercel_project_id}`);
 
     sendEditStartedEmail(user.email, site.name, edit.description).catch(console.error);
+
+    // ── Premium preset site: re-personalize the exact design bundle instead of
+    // regenerating code. All completed edit requests are replayed cumulatively
+    // so earlier paid edits survive later ones.
+    const presetFormData = site.design_preferences as unknown as WizardData | null;
+    const presetSlug =
+      presetFormData && isPresetTemplate(presetFormData.templateId) ? presetFormData.templateId : null;
+    if (presetSlug && presetFormData) {
+      try {
+        const allEdits = await getSiteEditsBysite(site.id, authSession.userId);
+        const priorRequests = allEdits
+          .filter(e => e.status === "completed" && e.id !== editId)
+          .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+          .map(e => e.description);
+
+        const personalization = await generatePresetPersonalization(presetSlug, presetFormData, [
+          ...priorRequests,
+          edit.description,
+        ]);
+
+        const logoMatch = presetFormData.logo?.uploaded
+          ? presetFormData.logo.dataUrl?.match(/^data:([^;]+);base64,(.+)$/)
+          : null;
+        const logoExt: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif" };
+        const files = buildPresetDeployFiles(presetSlug, personalization, {
+          logo: logoMatch ? { path: `logo.${logoExt[logoMatch[1]] ?? "png"}`, base64: logoMatch[2] } : undefined,
+          socials: presetFormData.socials,
+        });
+
+        const deployment = await deployStaticSiteToVercel(deployProjectName, files, {
+          userToken: vercelAuth.token,
+          teamId: vercelAuth.teamId,
+          requireUserToken: true,
+        });
+        const deployedUrl = normalizeDeploymentUrl(deployment.url);
+        // #region agent log
+        fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'fdaeb6'},body:JSON.stringify({sessionId:'fdaeb6',location:'edits/process/route.ts:preset-edit',message:'preset edit redeployed',data:{slug:presetSlug,editId,replacements:personalization.replacements.length,url:deployedUrl},hypothesisId:'preset-flow',timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+
+        await updateSiteEditStatus(editId, "completed", {
+          previousVercelUrl: site.vercel_url ?? undefined,
+          newVercelUrl: deployedUrl,
+          completedAt: new Date(),
+        });
+        await incrementSiteVersion(site.id);
+        if (deployedUrl !== site.vercel_url) {
+          await updateSiteVercelUrl(site.id, deployedUrl);
+        }
+
+        const newPresetVersion = (site.current_version ?? 1) + 1;
+        sendEditCompletedEmail(
+          user.email,
+          site.name,
+          edit.description,
+          site.vercel_url ?? deployedUrl,
+          site.github_url ?? site.vercel_url ?? deployedUrl,
+          newPresetVersion
+        ).catch(console.error);
+
+        return NextResponse.json({ success: true, siteUrl: site.vercel_url ?? deployedUrl });
+      } catch (e) {
+        console.error("Preset edit failed:", e);
+        await updateSiteEditStatus(editId, "failed");
+        if (!free && sessionId) await issueRefund(sessionId);
+        sendEditFailedEmail(user.email, site.name, edit.description, site.id).catch(console.error);
+        return NextResponse.json({ error: "Edit processing failed." }, { status: 500 });
+      }
+    }
 
     const designInfo = site.design_preferences
       ? `\nOriginal design preferences:\n${JSON.stringify(site.design_preferences, null, 2)}`
