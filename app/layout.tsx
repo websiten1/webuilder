@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Anton, Geist } from "next/font/google";
 import "./globals.css";
 import CookieBanner from "@/app/components/CookieBanner";
 import ChatBot from "@/app/components/ChatBot";
@@ -7,6 +7,7 @@ import InactivityWatcher from "@/app/components/InactivityWatcher";
 import { Analytics } from "@vercel/analytics/next";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
+const anton = Anton({ subsets: ["latin"], weight: "400", variable: "--font-display" });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.insixlive.com"),
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={geist.variable}>
+    <html lang="en" className={`${geist.variable} ${anton.variable}`}>
       <body>
         {children}
         <InactivityWatcher />

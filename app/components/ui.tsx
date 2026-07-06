@@ -10,7 +10,7 @@ export const H1 = ({ children, dark = false, size = 72, style = {} }: {
 }) => {
   const fs = `clamp(${Math.round(size * 0.5)}px, ${(size / 1200 * 100).toFixed(1)}vw, ${size}px)`;
   return (
-    <h1 style={{ fontFamily: P.font, fontSize: fs, lineHeight: 0.98, fontWeight: 700, letterSpacing: size > 50 ? -3 : -1.4, color: dark ? "#fff" : P.ink, margin: "0 0 18px", ...style }}>{children}</h1>
+    <h1 style={{ fontFamily: P.display, fontSize: fs, lineHeight: 0.98, fontWeight: 400, letterSpacing: -0.02, color: dark ? "#fff" : P.ink, margin: "0 0 18px", ...style }}>{children}</h1>
   );
 };
 
@@ -20,7 +20,7 @@ export const H2 = ({ children, dark = false, size = 48, style = {} }: {
   const min = Math.max(Math.round(size * 0.58), 18);
   const fs = `clamp(${min}px, ${(size / 1200 * 100).toFixed(1)}vw, ${size}px)`;
   return (
-    <h2 style={{ fontFamily: P.font, fontSize: fs, lineHeight: 1.02, fontWeight: 700, letterSpacing: -1.4, color: dark ? "#fff" : P.ink, margin: "0 0 12px", ...style }}>{children}</h2>
+    <h2 style={{ fontFamily: P.display, fontSize: fs, lineHeight: 1.02, fontWeight: 400, letterSpacing: -0.02, color: dark ? "#fff" : P.ink, margin: "0 0 12px", ...style }}>{children}</h2>
   );
 };
 

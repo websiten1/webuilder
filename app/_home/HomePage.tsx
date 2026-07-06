@@ -3,18 +3,15 @@
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { DM_Sans, Geist } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import type { HomeCopy } from "./copy";
-import FeaturedBentoSection from "./FeaturedBentoSection";
 import { ProgressiveBlur } from "./ProgressiveBlur";
-import { LogosSlider } from "./LogosSlider";
+import { BrandlyHero } from "./BrandlyHero";
 
 // ─── insixlive Website (Awesomic) — ported from Claude Design ─────────────
 // Source: claude.ai/design/p/019e130a-b156-7a53-9abe-2feed797f07c
 //         files "insixlive Website (Awesomic).html" / "... RO (Awesomic).html"
 const cosmica = DM_Sans({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"], variable: "--font-cosmica" });
-// Premium, clearer display face used only for the hero headline below.
-const heroDisplay = Geist({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-hero-display" });
 
 // "Fără ___." cycling word in the hero headline — each gets its own premium accent colour.
 const HERO_VOID_WORDS = [
@@ -24,14 +21,6 @@ const HERO_VOID_WORDS = [
   { word: "stres", color: "#a78bfa" },
 ];
 
-const FEATURE_ICONS: { d: string; circle?: boolean }[] = [
-  { d: "M12 3v18M3 12h18 M5 7l14 10M5 17l14-10" },
-  { d: "M3 16l9-13 9 13H3z M8 16h8" },
-  { d: "M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16" },
-  { d: "M12 7v5l3 2", circle: true },
-  { d: "M3 12h18M12 3a13 13 0 010 18M12 3a13 13 0 000 18", circle: true },
-  { d: "M3 12L12 3l9 9-9 9z" },
-];
 
 const STEP_NUMS = ["01", "02", "03", "04", "05", "06"];
 
@@ -240,10 +229,10 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         .aw .container { max-width: var(--page-max-width); margin: 0 auto; padding: 0 24px; }
 
         .aw .eyebrow { display: inline-block; font-size: var(--text-caption); font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-steel); margin-bottom: 20px; }
-        .aw .display { font-size: var(--text-display); line-height: 1; font-weight: 700; color: var(--color-obsidian); margin: 0; }
-        .aw .display-sm { font-size: var(--text-display-sm); line-height: 1.06; font-weight: 700; color: var(--color-obsidian); margin: 0; }
-        .aw .heading-lg { font-size: var(--text-heading-lg); line-height: 1.18; font-weight: 700; color: var(--color-obsidian); margin: 0; }
-        .aw .heading { font-size: var(--text-heading); line-height: 1.2; font-weight: 700; color: var(--color-obsidian); margin: 0; }
+        .aw .display { font-size: var(--text-display); line-height: 1; font-weight: 400; font-family: var(--font-display), Anton, sans-serif; color: var(--color-obsidian); margin: 0; letter-spacing: -0.02em; }
+        .aw .display-sm { font-size: var(--text-display-sm); line-height: 1.06; font-weight: 400; font-family: var(--font-display), Anton, sans-serif; color: var(--color-obsidian); margin: 0; letter-spacing: -0.02em; }
+        .aw .heading-lg { font-size: var(--text-heading-lg); line-height: 1.18; font-weight: 400; font-family: var(--font-display), Anton, sans-serif; color: var(--color-obsidian); margin: 0; letter-spacing: -0.02em; }
+        .aw .heading { font-size: var(--text-heading); line-height: 1.2; font-weight: 400; font-family: var(--font-display), Anton, sans-serif; color: var(--color-obsidian); margin: 0; letter-spacing: -0.02em; }
         .aw .lead { font-size: var(--text-body-lg); line-height: 1.6; color: var(--color-steel); margin: 18px 0 0; max-width: 56ch; }
         .aw .light { font-weight: 300; }
         .aw .muted-fg { color: var(--color-ash); }
@@ -503,17 +492,10 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         .aw .stat-dark .sd-lbl { font-size: var(--text-body); color: rgba(255,255,255,0.5); line-height: 1.4; }
 
         /* ── ViralMedia: manifesto text ── */
-        .aw .manifesto-text { font-size: clamp(2rem,4vw,3.2rem); font-weight: 700; line-height: 1.15; color: var(--color-snow); letter-spacing: -0.025em; margin: 0; }
-        .aw .manifesto-text .dim { color: rgba(255,255,255,0.25); font-weight: 300; }
+        .aw .manifesto-text { font-size: clamp(2rem,4vw,3.2rem); font-weight: 400; font-family: var(--font-display), Anton, sans-serif; line-height: 1.15; color: var(--color-snow); letter-spacing: -0.02em; margin: 0; }
+        .aw .manifesto-text .dim { color: rgba(255,255,255,0.25); }
 
-        /* ── Guardnet: dark bento grid ── */
-        .aw .bento { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .aw .bento-col { display: flex; flex-direction: column; gap: 16px; }
-        .aw .bento-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 32px; position: relative; overflow: hidden; transition: border-color .28s ease, background .28s ease; flex: 1; }
-        .aw .bento-card:hover { border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); }
-        .aw .bento-card .bento-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; flex-shrink: 0; }
-        .aw .bento-card h3 { font-size: var(--text-heading-sm); font-weight: 600; color: var(--color-snow); margin: 0 0 10px; }
-        .aw .bento-card p { font-size: var(--text-body); color: rgba(255,255,255,0.45); line-height: 1.6; margin: 0; }
+        /* ── Guardnet: compare / timeline ── */
 
         /* ── Aurora: step timeline ── */
         .aw .step-timeline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; position: relative; }
@@ -581,7 +563,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         }
 
         /* ── Ownership statement (ViralMedia flip) ── */
-        .aw .own-statement { font-size: clamp(2.2rem,4vw,3.6rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; color: var(--color-obsidian); margin: 0; }
+        .aw .own-statement { font-size: clamp(2.2rem,4vw,3.6rem); font-weight: 400; font-family: var(--font-display), Anton, sans-serif; line-height: 1.1; letter-spacing: -0.02em; color: var(--color-obsidian); margin: 0; }
         .aw .own-statement .accent { color: #4ade80; }
         .aw .terminal-card { background: var(--color-obsidian); border-radius: 20px; padding: 24px; border: 1px solid rgba(255,255,255,0.07); }
         .aw .terminal-label { font-size: 11px; color: rgba(255,255,255,0.3); margin-bottom: 10px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
@@ -596,8 +578,32 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         .aw .compare-col.legacy .compare-big-price { color: rgba(255,255,255,0.2); text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.15); }
         .aw .compare-row { display: flex; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid rgba(255,255,255,0.06); font-size: var(--text-body); color: rgba(255,255,255,0.4); }
         .aw .compare-col.ours .compare-row { color: rgba(255,255,255,0.75); }
+        .aw .compare-col.ours { border-left: 1px solid rgba(100,206,251,0.12); box-shadow: inset 0 1px 0 rgba(255,255,255,0.05); }
         .aw .cx { color: rgba(255,255,255,0.18); flex-shrink: 0; }
         .aw .ck { color: #4ade80; flex-shrink: 0; }
+
+        /* ── Pricing: premium dark plan cards ── */
+        .aw .pricing-plans-dark { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: stretch; }
+        .aw .plan-dark { position: relative; display: flex; flex-direction: column; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 32px 28px; transition: border-color .25s ease, background .25s ease; }
+        .aw .plan-dark:hover { border-color: rgba(255,255,255,0.14); background: rgba(255,255,255,0.04); }
+        .aw .plan-dark .pname { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: rgba(255,255,255,0.4); }
+        .aw .plan-dark .pamount { font-size: clamp(2rem,3.5vw,2.75rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1; margin: 16px 0 6px; color: var(--color-snow); }
+        .aw .plan-dark .pamount small { font-size: var(--text-body); font-weight: 400; color: rgba(255,255,255,0.35); letter-spacing: 0; }
+        .aw .plan-dark .ptag { font-size: var(--text-body); color: rgba(255,255,255,0.45); margin-bottom: 24px; line-height: 1.5; }
+        .aw .plan-dark ul { list-style: none; margin: 0 0 28px; padding: 0; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+        .aw .plan-dark li { display: flex; gap: 10px; align-items: flex-start; font-size: var(--text-body); color: rgba(255,255,255,0.72); line-height: 1.45; }
+        .aw .plan-dark li .tick { width: 18px; height: 18px; border-radius: 9px; background: rgba(255,255,255,0.07); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; color: #64CEFB; }
+        .aw .plan-dark .pafter { margin-top: 12px; font-size: 12px; color: rgba(255,255,255,0.32); text-align: center; }
+        .aw .plan-dark .plan-muted { font-size: 12px; color: rgba(255,255,255,0.28); margin-bottom: 20px; }
+        .aw .plan-dark .plan-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .aw .plan-dark.featured { padding: 2px; background: linear-gradient(135deg, rgba(100,206,251,0.55) 0%, rgba(167,139,250,0.45) 50%, rgba(74,222,128,0.4) 100%); border: none; }
+        .aw .plan-dark.featured .plan-dark-inner { background: #0a0a0d; border-radius: 22px; padding: 30px 26px; height: 100%; display: flex; flex-direction: column; }
+        .aw .plan-dark .plan-cta { display: inline-flex; align-items: center; justify-content: center; width: 100%; padding: 13px 20px; border-radius: 9999px; font-size: var(--text-body); font-weight: 600; font-family: inherit; cursor: pointer; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); color: #fff; text-decoration: none; transition: background .2s ease, border-color .2s ease; }
+        .aw .plan-dark .plan-cta:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+        .aw .plan-dark.featured .plan-cta { background: linear-gradient(90deg, #64CEFB 0%, #a78bfa 100%); border: none; color: #080808; }
+        .aw .plan-dark.featured .plan-cta:hover { opacity: 0.92; }
+        .aw .pricing-note { margin-top: 28px; padding: 18px 22px; border-radius: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); font-size: var(--text-body); color: rgba(255,255,255,0.42); line-height: 1.55; text-align: center; max-width: 62ch; margin-left: auto; margin-right: auto; }
+        .aw .pricing-note b { color: rgba(255,255,255,0.65); font-weight: 600; }
 
         /* ── ViralMedia: dark testimonial cards ── */
         .aw .dark-quote { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 32px; position: relative; overflow: hidden; display: flex; flex-direction: column; transition: border-color .25s ease; }
@@ -657,8 +663,8 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
 
         @media (max-width: 920px) {
           .aw-mobile-scale { --text-display: 44px; --text-display-sm: 38px; --text-heading-lg: 32px; --text-heading: 26px; }
-          .aw .hero-top-row, .aw .grid-3, .aw .grid-2, .aw .steps, .aw .stats, .aw .compare, .aw .plans, .aw .foot-top { grid-template-columns: 1fr; }
-          .aw .bento, .aw .cs-grid, .aw .compare-dark, .aw .step-timeline { grid-template-columns: 1fr; }
+          .aw .hero-top-row, .aw .grid-3, .aw .grid-2, .aw .steps, .aw .stats, .aw .compare, .aw .plans, .aw .pricing-plans-dark, .aw .foot-top { grid-template-columns: 1fr; }
+          .aw .cs-grid, .aw .compare-dark, .aw .step-timeline { grid-template-columns: 1fr; }
           .aw .hero-top-row p:last-child { text-align: left; }
           .aw .stats { grid-template-columns: 1fr 1fr; }
           .aw .stat-dark { padding-right: 0 !important; padding-left: 0 !important; border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 20px; }
@@ -694,7 +700,6 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           .aw footer { padding: 48px 0 28px; }
           .aw .foot-dark { padding: 48px 0 28px !important; }
           /* Bento cards */
-          .aw .bento-card { padding: 22px 20px; }
           /* Banner pill */
           .aw .banner { gap: 10px; padding: 10px 16px; font-size: 13px; }
           /* Stats: single column on phones */
@@ -704,123 +709,42 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         }
       `}</style>
 
-      <div className={`aw aw-mobile-scale ${cosmica.variable}`}>
-        {/* ─── Nav (DesignPro fixed dark pill) ─── */}
-        <header className="dp-nav-header">
-          <div className="dp-nav-inner">
-            {/* Logo */}
-            <a className="dp-logo" href="/" aria-label="insixlive home">
-              <span style={{ fontFamily: "var(--font-cosmica), sans-serif", fontSize: 28, fontWeight: 200, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1, userSelect: "none" }}>6</span>
-              <span className="dp-logo-name">insixlive</span>
-            </a>
-
-            {/* Desktop pill */}
-            <nav className="dp-pill" aria-label="Primary">
-              {DP_NAV.map(item => (
-                <a key={item.href} href={item.href}>
-                  {item.label}
-                  {"arrow" in item && item.arrow && (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                  )}
-                </a>
-              ))}
-            </nav>
-
-            {/* Mobile hamburger */}
-            <button className="dp-hamburger" onClick={() => setMenuOpen(true)} aria-label="Open menu">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
-            </button>
-          </div>
-        </header>
-
-        {/* Mobile backdrop */}
-        <div className={`dp-backdrop${menuOpen ? " open" : ""}`} onClick={() => setMenuOpen(false)} aria-hidden />
-
-        {/* Mobile drawer */}
-        <aside className={`dp-drawer${menuOpen ? " open" : ""}`} aria-label="Mobile menu">
-          <div className="dp-drawer-head">
-            <a className="dp-logo" href="/" onClick={() => setMenuOpen(false)}>
-              <span style={{ fontFamily: "var(--font-cosmica), sans-serif", fontSize: 28, fontWeight: 200, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1, userSelect: "none" }}>6</span>
-              <span className="dp-logo-name">insixlive</span>
-            </a>
-            <button className="dp-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-            </button>
-          </div>
-          <nav className="dp-drawer-links">
-            {DP_NAV.map(item => (
-              <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>
-                {item.label}
-                {"arrow" in item && item.arrow && (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                )}
-              </a>
-            ))}
-          </nav>
-        </aside>
-
-        <span id="top"></span>
-
-        {/* ─── Hero ─── */}
-        <header className="hero">
-          {/* Background video */}
-          <video autoPlay loop muted playsInline className="hero-video">
-            <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_105406_16f4600d-7a92-4292-b96e-b19156c7830a.mp4" type="video/mp4" />
-          </video>
-          <div className="hero-vignette" aria-hidden />
-
-          {/* ── Bionova floating shapes over vignette ── */}
-          <div className="bio-pill float-a" style={{ width: 320, height: 56, top: "18%", left: "-4%", background: "rgba(255,255,255,0.018)", border: "1px solid rgba(255,255,255,0.07)", zIndex: 3, "--s-rot": "14deg", "--s-dur": "8s" } as React.CSSProperties}/>
-          <div className="bio-pill float-b" style={{ width: 180, height: 38, bottom: "30%", right: "1%", background: "rgba(100,206,251,0.035)", border: "1px solid rgba(100,206,251,0.12)", zIndex: 3, "--s-rot": "-21deg", "--s-dur": "10s", "--s-delay": "1.5s" } as React.CSSProperties}/>
-          <div className="bio-rect float-a" style={{ width: 100, height: 100, top: "40%", right: "7%", background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.055)", zIndex: 3, "--s-dur": "9s", "--s-delay": "0.8s" } as React.CSSProperties}/>
-          <div className="bio-pill float-b" style={{ width: 80, height: 24, top: "65%", left: "12%", background: "rgba(74,222,128,0.04)", border: "1px solid rgba(74,222,128,0.1)", zIndex: 3, "--s-rot": "8deg", "--s-dur": "7s", "--s-delay": "3s" } as React.CSSProperties}/>
-          {/* Bionova pulsing concentric rings centered on headline */}
-          <div className="pulse-origin" style={{ width: 220, height: 220, top: "50%", left: "50%", transform: "translate(-50%,-50%)", zIndex: 2 }}>
-            <div className="pr"/><div className="pr"/><div className="pr"/>
-          </div>
-
-          {/* Progressive blur fade-out at hero bottom */}
-          <ProgressiveBlur
-            direction="bottom"
-            blurLayers={10}
-            blurIntensity={0.4}
-            style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 160, zIndex: 8, pointerEvents: "none" }}
-          />
-
-          <div className="container hero-inner">
-            {/* Centre — hardcoded headline */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" as const }}>
-              <h1 className={`reveal manifesto-text ${heroDisplay.variable}`} style={{ fontFamily: "var(--font-hero-display)", fontWeight: 600, letterSpacing: "-0.02em", fontSize: "clamp(1.4rem, 2.3vw, 2.3rem)", lineHeight: 1.45, margin: "0 0 0", maxWidth: 720, textAlign: "center" as const }}>
-                <span style={{ display: "block" }}>
-                  Zile de muncă economisite. Fără{" "}
-                  <span style={{ color: HERO_VOID_WORDS[cycleIdx].color, opacity: cycleVisible ? 1 : 0, transition: "opacity .3s ease, color .3s ease", fontWeight: 700 }}>
-                    {HERO_VOID_WORDS[cycleIdx].word}
-                  </span>.
-                </span>
-                <span className="dim" style={{ display: "block" }}>Site-ul tău, publicat online în câteva minute.</span>
-              </h1>
-              <div className="reveal" style={{ marginTop: 28 }}>
-                <Link href={ctaHref} className="btn btn-primary btn-roll" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-                  <span className="roll-inner"><span data-text={copy.getStarted}>{copy.getStarted}</span></span>
-                  <span className="btn-circle" aria-hidden>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                  </span>
-                </Link>
-              </div>
-            </div>
-
-            {/* Bottom badges */}
-            <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
-              <span className="badge badge-overlay">app/page.tsx</span>
-              <span className="badge badge-overlay">{copy.hero.deployReady}</span>
-            </div>
-          </div>
-        </header>
-
-        {/* ─── Logo strip (dark, flows from hero) ─── */}
-        <div style={{ background: "var(--color-obsidian)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          <LogosSlider />
+      {/* Mobile nav — outside .aw so hero links keep Brandly button styles */}
+      <div className={`dp-backdrop${menuOpen ? " open" : ""}`} onClick={() => setMenuOpen(false)} aria-hidden />
+      <aside className={`dp-drawer${menuOpen ? " open" : ""}`} aria-label="Mobile menu">
+        <div className="dp-drawer-head">
+          <a className="dp-logo" href="/" onClick={() => setMenuOpen(false)}>
+            <span className="dp-logo-name">insixlive</span>
+          </a>
+          <button className="dp-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
         </div>
+        <nav className="dp-drawer-links">
+          <a href="#how" onClick={() => setMenuOpen(false)}>Cum funcționează</a>
+          <a href="#examples" onClick={() => setMenuOpen(false)}>Exemple</a>
+          <a href="#pricing" onClick={() => setMenuOpen(false)}>Prețuri</a>
+          <a href={signInHref} onClick={() => setMenuOpen(false)}>{signInLabel}</a>
+          <a href={ctaHref} onClick={() => setMenuOpen(false)}>
+            {copy.getStarted}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </nav>
+      </aside>
+
+      <BrandlyHero
+        ctaHref={ctaHref}
+        signInHref={signInHref}
+        signInLabel={signInLabel}
+        ctaLabel={copy.getStarted}
+        cycleWord={HERO_VOID_WORDS[cycleIdx].word}
+        cycleColor={HERO_VOID_WORDS[cycleIdx].color}
+        cycleVisible={cycleVisible}
+        onMenuOpen={() => setMenuOpen(true)}
+      />
+
+      <div className={`aw aw-mobile-scale ${cosmica.variable}`}>
+        <span id="top"></span>
 
         {/* ─── Problem: ViralMedia full-bleed dark manifesto ─── */}
         <section style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }}>
@@ -860,68 +784,15 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           </div>
         </section>
 
-        {/* ─── Solution: Guardnet dark bento grid ─── */}
-        <section style={{ background: "#0c0c0e", padding: "100px 0", position: "relative", overflow: "hidden" }} id="solution">
-          <div className="gn-dots-overlay"/>
-          <div className="bio-pill float-b" style={{ width: 200, height: 42, top: "8%", left: "2%", background: "rgba(255,255,255,0.012)", border: "1px solid rgba(255,255,255,0.06)", "--s-rot": "22deg", "--s-dur": "10s" } as React.CSSProperties}/>
-          <div className="bio-rect float-a" style={{ width: 70, height: 120, bottom: "15%", right: "3%", background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.05)", "--s-dur": "9s", "--s-delay": "1.5s" } as React.CSSProperties}/>
-          <div className="bio-ring float-a" style={{ width: 180, height: 180, bottom: "10%", left: "8%", border: "1px solid rgba(100,206,251,0.07)", "--s-dur": "12s", "--s-delay": "0.5s" } as React.CSSProperties}/>
-          <div className="glow-blob" style={{ width: 500, height: 500, top: -100, right: -80, background: "rgba(100,206,251,0.07)" }}/>
-          <div className="container" style={{ position: "relative" }}>
-            <div className="reveal" style={{ marginBottom: 0 }}>
-              <div className="sec-badge">
-                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>02</span>
-                <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.solution.eyebrow}</span>
-              </div>
-              <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.025em" }}>
-                {copy.solution.heading[0]}<br/><span style={{ color: "rgba(255,255,255,0.28)", fontWeight: 300 }}>{copy.solution.heading[1]}</span>
-              </h2>
-            </div>
-
-            {/* Asymmetric bento: tall featured card left + 2 stacked right */}
-            <div className="bento">
-              {/* Featured tall card */}
-              <div className="bento-card reveal" style={{ display: "flex", flexDirection: "column", minHeight: 420, transitionDelay: "0s" }}>
-                <div className="glow-blob" style={{ width: 280, height: 280, top: -60, right: -40, background: "rgba(100,206,251,0.12)" }}/>
-                <div className="bento-icon" style={{ background: "rgba(100,206,251,0.1)", color: "#64CEFB" }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    {FEATURE_ICONS[0]?.circle && <circle cx="12" cy="12" r="9"/>}<path d={FEATURE_ICONS[0]?.d}/>
-                  </svg>
-                </div>
-                <h3>{copy.solution.features[0].t}</h3>
-                <p>{copy.solution.features[0].b}</p>
-                <div style={{ flex: 1 }}/>
-                {/* Decorative number */}
-                <div style={{ fontSize: "clamp(6rem,10vw,9rem)", fontWeight: 800, color: "rgba(255,255,255,0.03)", lineHeight: 1, letterSpacing: "-0.06em", userSelect: "none", marginTop: 16 }}>01</div>
-              </div>
-              {/* Two stacked smaller cards */}
-              <div className="bento-col">
-                {copy.solution.features.slice(1).map((f, i) => (
-                  <div className="bento-card reveal" key={f.t} style={{ flex: 1, transitionDelay: `${(i + 1) * 0.12}s` }}>
-                    <div className="glow-blob" style={{ width: 200, height: 200, bottom: -50, left: -40, background: i === 0 ? "rgba(74,222,128,0.09)" : "rgba(250,132,83,0.09)" }}/>
-                    <div className="bento-icon" style={{ background: i === 0 ? "rgba(74,222,128,0.1)" : "rgba(250,132,83,0.1)", color: i === 0 ? "#4ade80" : "#FA8453" }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                        {FEATURE_ICONS[i + 1]?.circle && <circle cx="12" cy="12" r="9"/>}<path d={FEATURE_ICONS[i + 1]?.d}/>
-                      </svg>
-                    </div>
-                    <h3>{f.t}</h3>
-                    <p>{f.b}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* ─── How it works: Aurora horizontal timeline ─── */}
         <section style={{ background: "var(--color-mist)", padding: "100px 0" }} id="how">
           <div className="container">
             <div className="reveal" style={{ textAlign: "center", marginBottom: 72 }}>
               <div className="sec-badge" style={{ justifyContent: "center" }}>
-                <span className="s-num">03</span>
+                <span className="s-num">02</span>
                 <span className="s-label">{copy.how.eyebrow}</span>
               </div>
-              <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-obsidian)", margin: "0 auto", letterSpacing: "-0.025em", maxWidth: "18ch" }}>
+              <h2 className="font-display" style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--color-obsidian)", margin: "0 auto", letterSpacing: "-0.02em", maxWidth: "18ch" }}>
                 {copy.how.heading[0]}<br/><span style={{ color: "var(--color-steel)", fontWeight: 300 }}>{copy.how.heading[1]}</span>
               </h2>
             </div>
@@ -970,19 +841,16 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           </div>
         </section>
 
-        {/* ─── Featured bento (map / notifications / chart / features) ─── */}
-        <FeaturedBentoSection />
-
         {/* ─── Portfolio: infinite auto-scroll marquee (dark) ─── */}
         <section style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }} id="examples">
           <div className="gn-dots-overlay"/>
           <div className="container">
             <div className="reveal" style={{ textAlign: "center", marginBottom: 48 }}>
               <div className="sec-badge" style={{ justifyContent: "center" }}>
-                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>04</span>
+                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>03</span>
                 <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.examples.eyebrow}</span>
               </div>
-              <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.025em" }}>
+              <h2 className="font-display" style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.02em" }}>
                 {copy.examples.heading[0]}<br/>{copy.examples.heading[1]}
               </h2>
             </div>
@@ -1021,7 +889,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
               {/* Left: bold statement */}
               <div className="reveal">
                 <div className="sec-badge">
-                  <span className="s-num">05</span>
+                  <span className="s-num">04</span>
                   <span className="s-label">{copy.ownership.eyebrow}</span>
                 </div>
                 <h2 className="own-statement">
@@ -1050,47 +918,61 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           </div>
         </section>
 
-        {/* ─── Compare: Guardnet dark split panel ─── */}
-        <section style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }}>
+        {/* ─── Pricing ─── */}
+        <section style={{ background: "#0c0c0e", padding: "100px 0", position: "relative", overflow: "hidden" }} id="pricing">
           <div className="gn-dots-overlay"/>
           <div className="bio-rect float-a" style={{ width: 80, height: 80, top: "8%", left: "5%", background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.05)", "--s-dur": "9s" } as React.CSSProperties}/>
-          <div className="bio-pill float-b" style={{ width: 220, height: 44, bottom: "10%", left: "2%", background: "rgba(74,222,128,0.025)", border: "1px solid rgba(74,222,128,0.08)", "--s-rot": "6deg", "--s-dur": "11s", "--s-delay": "1.5s" } as React.CSSProperties}/>
-          <div className="glow-blob" style={{ width: 450, height: 450, top: "50%", right: -60, transform: "translateY(-50%)", background: "rgba(74,222,128,0.07)" }}/>
+          <div className="bio-pill float-b" style={{ width: 220, height: 44, bottom: "10%", left: "2%", background: "rgba(100,206,251,0.04)", border: "1px solid rgba(100,206,251,0.1)", "--s-rot": "6deg", "--s-dur": "11s", "--s-delay": "1.5s" } as React.CSSProperties}/>
+          <div className="glow-blob" style={{ width: 520, height: 520, top: -120, right: -100, background: "rgba(100,206,251,0.08)" }}/>
+          <div className="glow-blob" style={{ width: 380, height: 380, bottom: -80, left: -60, background: "rgba(167,139,250,0.06)" }}/>
           <div className="container" style={{ position: "relative" }}>
-            <div className="reveal" style={{ marginBottom: 56 }}>
-              <div className="sec-badge">
-                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>06</span>
-                <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.math.eyebrow}</span>
+            <div className="reveal" style={{ textAlign: "center", marginBottom: 56 }}>
+              <div className="sec-badge" style={{ justifyContent: "center" }}>
+                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>05</span>
+                <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.pricing.eyebrow}</span>
               </div>
-              <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.025em" }}>{copy.math.heading}</h2>
-              <p style={{ color: "rgba(255,255,255,0.4)", marginTop: 12, fontSize: "var(--text-body-lg)", maxWidth: "56ch" }}>{copy.math.lead}</p>
+              <h2 className="font-display" style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--color-snow)", margin: "0 auto", letterSpacing: "-0.02em", maxWidth: "20ch" }}>
+                {copy.pricing.heading[0]}<br/>
+                <span style={{ color: "rgba(255,255,255,0.32)", fontWeight: 300 }}>{copy.pricing.heading[1]}</span>
+              </h2>
+              <p style={{ color: "rgba(255,255,255,0.42)", marginTop: 14, fontSize: "var(--text-body-lg)", maxWidth: "52ch", lineHeight: 1.55, marginLeft: "auto", marginRight: "auto" }}>{copy.pricing.lead}</p>
             </div>
-            <div className="compare-dark reveal">
-              {/* Legacy / Agency */}
-              <div className="compare-col legacy">
-                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.12em", color: "rgba(255,255,255,0.22)", marginBottom: 6 }}>{copy.math.traditional.colHead}</div>
-                <div className="compare-big-price">{copy.math.traditional.price}</div>
-                <div style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.22)", marginBottom: 32 }}>{copy.math.traditional.priceSub}</div>
-                {copy.math.traditional.rows.map(r => (
-                  <div className="compare-row" key={r}><span className="cx">✕</span>{r}</div>
-                ))}
-              </div>
-              {/* insixlive */}
-              <div className="compare-col ours">
-                <div className="glow-blob" style={{ width: 320, height: 320, top: -80, right: -60, background: "rgba(74,222,128,0.11)" }}/>
-                <div style={{ position: "relative" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: "0.12em", color: "rgba(255,255,255,0.45)" }}>{copy.math.insixlive.badge}</div>
-                    <span className="badge badge-ember">{copy.math.insixlive.badge}</span>
+
+            <div className="pricing-plans-dark reveal">
+              {copy.pricing.plans.map(plan => {
+                const inner = (
+                  <>
+                    <div className="plan-head">
+                      <div className="pname">{plan.name}</div>
+                      {plan.featured && (
+                        <span className="badge" style={{ background: "rgba(100,206,251,0.14)", color: "#64CEFB", border: "1px solid rgba(100,206,251,0.28)", whiteSpace: "nowrap" }}>{copy.pricing.popularBadge}</span>
+                      )}
+                    </div>
+                    <div className="pamount">{plan.price}</div>
+                    <div className="ptag">{plan.tag}</div>
+                    {plan.muted && <div className="plan-muted">{plan.muted}</div>}
+                    <ul>
+                      {plan.items.map(item => (
+                        <li key={item}><span className="tick"><CheckMark /></span>{item}</li>
+                      ))}
+                    </ul>
+                    <Link href={ctaHref} className="plan-cta">{plan.cta}</Link>
+                    <div className="pafter">{plan.after}</div>
+                  </>
+                );
+                return plan.featured ? (
+                  <div className="plan-dark featured" key={plan.name}>
+                    <div className="plan-dark-inner">{inner}</div>
                   </div>
-                  <div className="compare-big-price" style={{ color: "var(--color-snow)", textDecoration: "none" }}>{copy.math.insixlive.price}</div>
-                  <div style={{ fontSize: "var(--text-body)", color: "rgba(255,255,255,0.4)", marginBottom: 32 }}>{copy.math.insixlive.priceSub}</div>
-                  {copy.math.insixlive.rows.map(r => (
-                    <div className="compare-row" key={r}><span className="ck">✓</span>{r}</div>
-                  ))}
-                </div>
-              </div>
+                ) : (
+                  <div className="plan-dark" key={plan.name}>{inner}</div>
+                );
+              })}
             </div>
+
+            <p className="pricing-note reveal">
+              <b>{copy.pricing.note.badge}:</b> {copy.pricing.note.text}
+            </p>
           </div>
         </section>
 
@@ -1134,10 +1016,10 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           <div className="container" style={{ position: "relative" }}>
             <div className="reveal" style={{ marginBottom: 56 }}>
               <div className="sec-badge">
-                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>07</span>
+                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>06</span>
                 <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.proof.eyebrow}</span>
               </div>
-              <h2 style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 700, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.025em" }}>
+              <h2 className="font-display" style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.02em" }}>
                 {copy.proof.heading[0]}<br/><span style={{ color: "rgba(255,255,255,0.28)", fontWeight: 300 }}>{copy.proof.heading[1]}</span>
               </h2>
             </div>
@@ -1180,7 +1062,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
             <div className="reveal">
               {/* Axion section badge */}
               <div className="sec-badge">
-                <span className="s-num">08</span>
+                <span className="s-num">07</span>
                 <span className="s-label">{copy.faq.eyebrow}</span>
               </div>
               <h2 className="heading-lg">{copy.faq.heading}</h2>
@@ -1256,7 +1138,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                 <h5>{copy.footer.companyHeader}</h5>
                 <a href="#proof">{copy.footer.customers}</a>
                 <Link href={ctaHref}>{copy.footer.waitlist}</Link>
-                <a href="#solution">{copy.footer.whyInsixlive}</a>
+                <a href="#how">{copy.footer.whyInsixlive}</a>
               </div>
               <div className="foot-col">
                 <h5>{copy.footer.startHeader}</h5>

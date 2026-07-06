@@ -1,209 +1,109 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const T = {
-  ink: "#0A0E14", six: "#FF5A1F", em: "#00B377", em2: "#009062",
-  emSoft: "#E5F7EE", bg: "#FAFAFA", bg2: "#F2F2EF", line: "#E2E2DE",
-  muted: "#6B7180",
-  font: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
+const AGENT = "/support-agent.png";
+
+const C = {
+  orange: "#FF7A18",
+  orangeLight: "#FF9F43",
+  orangeGlow: "rgba(255, 122, 24, 0.35)",
+  ink: "#0F1419",
+  inkSoft: "#3D4451",
+  muted: "#8B919E",
+  white: "#FFFFFF",
+  glass: "rgba(255, 255, 255, 0.72)",
+  glassBorder: "rgba(255, 255, 255, 0.55)",
+  surface: "#F7F8FA",
+  line: "rgba(15, 20, 25, 0.08)",
+  font: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif',
 };
 
-// ─── Knowledge base ──────────────────────────────────────────────────────────
+const WELCOME = "Salut 👋 Sunt Alex de la insixlive. Întreabă-mă orice — prețuri, domenii, cum funcționează sau ce primești după plată.";
+const WELCOME_SUGGESTIONS = ["Ce este insixlive?", "Cât costă un site?", "Cum funcționează?", "Dețin site-ul?"];
+const ERROR_FALLBACK = "Ne pare rău — nu am putut contacta suportul acum. Scrie la support@insixlive.com și te ajutăm direct.";
 
-type Intent = {
-  id: string;
-  patterns: string[];
-  response: string;
-  suggestions: string[];
-};
-
-const INTENTS: Intent[] = [
-  {
-    id: "greeting",
-    patterns: ["hi", "hello", "hey", "what is insixlive", "what are you", "who are you", "what do you do", "tell me about", "about insixlive"],
-    response: "insixlive generates professional websites for small businesses in under 2 minutes — and you own everything. One price (€49.99–€79.99), no monthly fees, full code ownership. The website is deployed to your own Vercel account, so it's truly yours forever.",
-    suggestions: ["How much does it cost?", "How does it work?", "Do I own my website?"],
-  },
-  {
-    id: "pricing",
-    patterns: ["cost", "price", "how much", "pricing", "pay", "payment", "fee", "charge", "money", "euro", "€", "cheap", "expensive", "afford", "plans", "plan"],
-    response: "Three one-time plans — no subscriptions, ever:\n\n• Basic — €49.99\n  Website + Vercel deployment, €15 per edit\n\n• Pro — €59.99\n  Includes 5 free edits (worth €75)\n\n• Premium — €79.99\n  15 free edits + unlimited free edits forever after\n\nMost users pick Pro. Premium pays for itself if you make more than 5 edits.",
-    suggestions: ["Which plan is best for me?", "How do free edits work?", "What's included in all plans?"],
-  },
-  {
-    id: "plan_compare",
-    patterns: ["which plan", "recommend", "best plan", "choose", "difference", "compare", "vs", "basic vs", "pro vs", "premium vs"],
-    response: "Here's how to choose:\n\n• Basic — if you need a quick website and won't change much\n• Pro — if you want to refine your site (5 edits free, then €15 each)\n• Premium — if your business evolves a lot (unlimited free edits after 15)\n\nMost people start with Pro. It's the sweet spot between price and flexibility.",
-    suggestions: ["Tell me about Premium", "How do I get started?", "Do I own my website?"],
-  },
-  {
-    id: "ownership",
-    patterns: ["own", "ownership", "mine", "download", "export", "code", "lock-in", "leave", "move", "cancel", "stop using", "delete", "source"],
-    response: "Yes — you own everything. The code, the Vercel project, the domain. Every single file is yours.\n\nYou can:\n• Download the source code anytime\n• Move to any other host\n• Modify the code yourself\n• Sell the website\n• Stop using insixlive — your site stays live forever\n\nThere's no lock-in. We literally can't hold your website hostage.",
-    suggestions: ["Can I move my website?", "How do I access my code?", "What technology is used?"],
-  },
-  {
-    id: "how_it_works",
-    patterns: ["how does it work", "how it works", "process", "steps", "walkthrough", "what happens", "explain", "how do i", "workflow"],
-    response: "Here's the full process:\n\n1. Sign up (free)\n2. Describe your business — name, type, style, pages\n3. Choose your plan (Basic/Pro/Premium)\n4. Pay once (€49.99–€79.99)\n5. AI generates your website (~30 seconds)\n6. Live at yoursitename.vercel.app\n7. Optionally add a custom domain\n\nFrom sign-up to live: about 2 minutes.",
-    suggestions: ["How do I get started?", "How much does it cost?", "Can I add a custom domain?"],
-  },
-  {
-    id: "get_started",
-    patterns: ["get started", "start", "sign up", "register", "create account", "how do i start", "begin", "first step", "join"],
-    response: "Easy — here's all you do:\n\n1. Go to insixlive.com\n2. Click 'Get Started'\n3. Create account with email + password\n4. Verify your email\n5. Describe your business\n6. Choose a plan + pay\n7. Website live in ~2 minutes\n\nNo credit card needed to sign up. You only pay when you generate your site.",
-    suggestions: ["How much does it cost?", "What do I need to describe?", "What happens after I pay?"],
-  },
-  {
-    id: "editing",
-    patterns: ["edit", "change", "update", "modify", "request", "revision", "fix", "adjust", "update website", "make changes", "different color", "add page", "remove"],
-    response: "Requesting a change takes about 10 seconds:\n\n1. Go to your dashboard\n2. Click 'Request Changes' on your site\n3. Describe what you want (e.g., 'change background to dark blue')\n4. We regenerate + redeploy in ~2 minutes\n5. Live on all your domains at once\n\nCost: €15 per edit (or free if included in your plan).",
-    suggestions: ["How many free edits do I get?", "What can I change?", "How long does it take?"],
-  },
-  {
-    id: "free_edits",
-    patterns: ["free edit", "free changes", "included edit", "how many free", "edits included", "free revision"],
-    response: "Free edits depend on your plan:\n\n• Basic — 0 free edits (€15 each)\n• Pro — 5 free edits, then €15/edit\n• Premium — 15 free edits, then FREE forever after\n\nPremium users get unlimited free edits once they've used the initial 15. Every change after that costs €0.",
-    suggestions: ["Which plan is best value?", "How do I request a change?", "What counts as an edit?"],
-  },
-  {
-    id: "domain",
-    patterns: ["domain", "custom domain", "url", "website address", "my domain", "own domain", "www", "address", ".com", ".io", ".eu"],
-    response: "Two ways to get a custom domain:\n\n1. Buy new from Vercel\n   → Automatic setup, live in 2–5 seconds\n   → Costs €12–30/year depending on TLD\n\n2. Use existing domain (you own it)\n   → We show you 2 DNS records to add\n   → Takes 15–30 minutes to go live\n   → No extra cost from us\n\nBoth options fully owned by you.",
-    suggestions: ["I want to buy a new domain", "I have an existing domain", "What are DNS records?"],
-  },
-  {
-    id: "buy_domain",
-    patterns: ["buy domain", "purchase domain", "new domain", "get domain", "domain from vercel", "buy new"],
-    response: "Buying a new domain through us is the easiest option:\n\n1. After your website is live, go to 'Add Domain'\n2. Search for your domain (e.g., 'medicalscrubs')\n3. See availability + pricing (.com, .eu, .io, etc.)\n4. Click 'Buy via Vercel'\n5. Complete purchase on Vercel\n6. Domain automatically configured\n7. Website live at your domain in 2–5 seconds\n\nThe domain is registered to your Vercel account — you own it.",
-    suggestions: ["How much does a domain cost?", "What about an existing domain?", "Can I use both?"],
-  },
-  {
-    id: "existing_domain",
-    patterns: ["existing domain", "have a domain", "already have", "own a domain", "bought domain", "namecheap", "godaddy", "porkbun", "registrar"],
-    response: "If you already own a domain, here's what to do:\n\n1. Go to your site's 'Domain' page\n2. Enter your domain name\n3. We show you 2 DNS records to add:\n   • A record: @ → 76.76.21.21\n   • CNAME: www → cname.vercel-dns.com\n4. Log in to your registrar (Namecheap, GoDaddy, etc.)\n5. Add those records in DNS settings\n6. Click 'Check Status' — usually 15–30 minutes\n\nWe have step-by-step guides for each registrar.",
-    suggestions: ["What are DNS records?", "How long does DNS take?", "What if something goes wrong?"],
-  },
-  {
-    id: "dns",
-    patterns: ["dns", "dns record", "a record", "cname", "nameserver", "propagat", "76.76", "vercel-dns", "configure", "point domain"],
-    response: "DNS tells the internet where your website is hosted. For insixlive, you need two records:\n\n• A record: @ → 76.76.21.21\n• CNAME: www → cname.vercel-dns.com\n\nAdd these at your domain registrar (Namecheap, GoDaddy, Porkbun, etc.) under 'DNS Settings' or 'Advanced DNS'.\n\nPropagation usually takes 15–30 minutes, sometimes up to 2 hours.",
-    suggestions: ["How do I add DNS records?", "Which registrar guides do you have?", "How do I check if it worked?"],
-  },
-  {
-    id: "tech_stack",
-    patterns: ["technology", "tech", "next.js", "react", "tailwind", "framework", "built with", "stack", "language", "javascript", "typescript"],
-    response: "Your website is built with:\n\n• Next.js 14 (modern React framework)\n• Tailwind CSS (styling)\n• Deployed on Vercel (global CDN)\n• Automatic HTTPS/SSL\n\nIt's the same tech used by major companies. Fast, SEO-friendly, mobile-responsive. If you're technical, you can read and modify the code yourself.",
-    suggestions: ["Can I modify the code?", "Is it SEO-friendly?", "How fast is the website?"],
-  },
-  {
-    id: "speed",
-    patterns: ["fast", "speed", "quick", "time", "how long", "minutes", "seconds", "loading", "slow", "performance"],
-    response: "Two kinds of 'speed' here:\n\n• Generation time: ~30 seconds to generate your website\n• Loading time: Very fast (Vercel's global CDN, optimized images)\n\nYour website will score well on speed tests. It's hosted on Vercel's infrastructure — the same platform used by companies like Meta and GitHub.",
-    suggestions: ["Where is my website hosted?", "Is it SEO-friendly?", "What technology is used?"],
-  },
-  {
-    id: "seo",
-    patterns: ["seo", "google", "search engine", "ranking", "meta", "index", "found on google", "keywords"],
-    response: "Your website includes SEO basics by default:\n\n• Proper meta titles and descriptions\n• Semantic HTML structure\n• Fast loading (good for rankings)\n• Mobile-responsive (Google prefers this)\n• HTTPS (required for good rankings)\n\nFor advanced SEO (keyword research, content strategy), you'd need a specialist — but the foundation is solid.",
-    suggestions: ["How fast is my website?", "Is it mobile-friendly?", "Can I edit meta tags?"],
-  },
-  {
-    id: "security",
-    patterns: ["secure", "security", "ssl", "https", "certificate", "safe", "protect", "encrypt"],
-    response: "Your website is secure by default:\n\n• Automatic SSL certificate (HTTPS)\n• Auto-renewed — you never have to think about it\n• Hosted on Vercel (enterprise-grade security)\n• No database to hack (static site)\n\nThe padlock in the browser appears automatically.",
-    suggestions: ["Where is my website hosted?", "What about my account security?", "Can I add login to my website?"],
-  },
-  {
-    id: "support",
-    patterns: ["support", "help", "contact", "email", "stuck", "question", "talk to someone", "human", "person", "team", "reach out"],
-    response: "You can reach us at:\n\n📧 support@insixlive.com\n\nWe typically respond within a few hours. For common questions, I can usually help right here — just ask!",
-    suggestions: ["I have a billing question", "I have a technical issue", "How do I get started?"],
-  },
-  {
-    id: "refund",
-    patterns: ["refund", "money back", "return", "dissatisfied", "unhappy", "not happy", "cancel", "cancellation"],
-    response: "Contact us at support@insixlive.com and we'll work something out. We want you to be happy with your website.\n\nIf you're not satisfied with the result, tell us what you'd like changed and we'll fix it. Often the solution is just an edit or two, which we'll handle for free.",
-    suggestions: ["How do I request changes?", "Contact support", "What if I don't like my design?"],
-  },
-  {
-    id: "troubleshoot",
-    patterns: ["not working", "problem", "issue", "broken", "error", "doesn't work", "can't", "trouble", "help me", "wrong", "failed", "stuck"],
-    response: "Sorry to hear something's not working! Most common fixes:\n\n• Login issues → check email/password, verify email was confirmed\n• Domain not loading → check DNS records, wait 15–30 min\n• Website slow → clear browser cache, try incognito\n• Payment issue → try different card or email us\n\nIf none of these help, email support@insixlive.com with details and we'll sort it out.",
-    suggestions: ["I have a DNS issue", "I can't log in", "Contact support"],
-  },
-  {
-    id: "mobile",
-    patterns: ["mobile", "phone", "tablet", "responsive", "small screen", "iphone", "android", "works on mobile"],
-    response: "Yes — all websites we generate are fully mobile-responsive. They look great on phones, tablets, and desktops. We build mobile-first, so your site works perfectly on any screen size.",
-    suggestions: ["What technology is used?", "Is it fast on mobile?", "How do I edit my website?"],
-  },
-  {
-    id: "what_included",
-    patterns: ["what's included", "what do i get", "includes", "features", "pages", "what comes with"],
-    response: "Every plan includes:\n\n• Complete custom website (5–10 pages typically)\n• Deployed to your Vercel account\n• Mobile-responsive design\n• HTTPS/SSL certificate\n• Fast global CDN\n• Contact forms\n• Social media links\n• Professional typography\n• Custom colors + branding\n• Full source code ownership\n• Unlimited bandwidth\n• No monthly fees",
-    suggestions: ["How do I add a custom domain?", "Can I edit my website?", "What about my code?"],
-  },
-  {
-    id: "generate_time",
-    patterns: ["100 seconds", "2 minutes", "generation", "how long to generate", "when will it be ready", "wait"],
-    response: "Your website is generated in about 30 seconds. Deployment to Vercel takes another 1–2 minutes. So you're looking at about 2 minutes from 'Generate' to live website. Quite fast for something custom-made for your business!",
-    suggestions: ["What does my website include?", "How do I get started?", "Can I customize it after?"],
-  },
-];
-
-const FALLBACK: Omit<Intent, "id" | "patterns"> = {
-  response: "That's a great question! I'm not sure I have the exact answer, but email support@insixlive.com and the team will help you out directly. Is there anything else I can help with?",
-  suggestions: ["How does it work?", "What's the price?", "Contact support"],
-};
-
-const WELCOME = "Hey 👋 I'm the insixlive assistant — ask me anything about building your website, pricing, domains, or how things work. What can I help with?";
-const WELCOME_SUGGESTIONS = ["What is insixlive?", "How much does it cost?", "How does it work?", "Do I own my website?"];
-
-// ─── Response engine ─────────────────────────────────────────────────────────
-
-function findResponse(userMessage: string): { response: string; suggestions: string[] } {
-  const msg = userMessage.toLowerCase();
-  let best: Intent | null = null;
-  let bestScore = 0;
-
-  for (const intent of INTENTS) {
-    let score = 0;
-    for (const pattern of intent.patterns) {
-      if (msg.includes(pattern)) {
-        score += pattern.split(" ").length; // longer patterns score higher
-      }
-    }
-    if (score > bestScore) {
-      bestScore = score;
-      best = intent;
-    }
-  }
-
-  if (best && bestScore > 0) return { response: best.response, suggestions: best.suggestions };
-  return FALLBACK;
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/\*(.+?)\*/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/`([^`]+)`/g, "$1");
 }
 
-// ─── Message formatting ───────────────────────────────────────────────────────
+function renderInline(text: string) {
+  const parts = text.split(/(\*\*.+?\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return <strong key={i} style={{ fontWeight: 600, color: C.ink }}>{part.slice(2, -2)}</strong>;
+    }
+    return part;
+  });
+}
 
 function MessageText({ text }: { text: string }) {
-  const lines = text.split("\n");
+  const cleaned = stripMarkdown(text);
+  const lines = cleaned.split("\n");
+
   return (
-    <div style={{ fontFamily: T.font, fontSize: 14, lineHeight: 1.65, color: T.ink }}>
+    <div style={{ fontFamily: C.font, fontSize: 14, lineHeight: 1.65, color: C.inkSoft }}>
       {lines.map((line, i) => {
-        if (line.startsWith("•")) {
-          return <div key={i} style={{ paddingLeft: 12, position: "relative" }}><span style={{ position: "absolute", left: 0 }}>•</span>{line.slice(1)}</div>;
+        const trimmed = line.trim();
+        if (!trimmed) return <div key={i} style={{ height: 8 }} />;
+
+        const bullet = trimmed.match(/^[-•]\s+(.+)/);
+        if (bullet) {
+          return (
+            <div key={i} style={{ display: "flex", gap: 8, marginTop: 4, alignItems: "flex-start" }}>
+              <span style={{ color: C.orange, fontWeight: 700, flexShrink: 0, marginTop: 1 }}>•</span>
+              <span>{renderInline(bullet[1])}</span>
+            </div>
+          );
         }
-        if (line === "") return <div key={i} style={{ height: 6 }} />;
-        if (line.startsWith("  ")) return <div key={i} style={{ paddingLeft: 14, color: T.muted, fontSize: 13 }}>{line.trim()}</div>;
-        return <div key={i}>{line}</div>;
+
+        const numbered = trimmed.match(/^(\d+)[.)]\s+(.+)/);
+        if (numbered) {
+          return (
+            <div key={i} style={{ display: "flex", gap: 10, marginTop: 6, alignItems: "flex-start" }}>
+              <span style={{
+                flexShrink: 0, width: 22, height: 22, borderRadius: "50%",
+                background: "rgba(255,122,24,0.1)", color: C.orange,
+                fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center",
+                marginTop: 1,
+              }}>{numbered[1]}</span>
+              <span style={{ flex: 1, paddingTop: 2 }}>{renderInline(numbered[2])}</span>
+            </div>
+          );
+        }
+
+        return (
+          <div key={i} style={{ marginTop: i > 0 ? 6 : 0 }}>
+            {renderInline(trimmed)}
+          </div>
+        );
       })}
     </div>
   );
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+function AgentAvatar({ size = 40 }: { size?: number }) {
+  return (
+    <div
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        overflow: "hidden",
+        flexShrink: 0,
+        position: "relative",
+        boxShadow: "0 4px 14px rgba(15,20,25,0.12)",
+      }}
+    >
+      <Image src={AGENT} alt="Agent suport" width={size} height={size} style={{ objectFit: "cover", width: "100%", height: "100%" }} />
+    </div>
+  );
+}
 
 type Message = {
   id: number;
@@ -212,144 +112,321 @@ type Message = {
   suggestions?: string[];
 };
 
+type ApiMessage = { role: "user" | "assistant"; content: string };
+
 export default function ChatBot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
   const [started, setStarted] = useState(false);
+  const [hintVisible, setHintVisible] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const idRef = useRef(0);
 
   const nextId = () => ++idRef.current;
 
-  const addBotMessage = useCallback((text: string, suggestions?: string[]) => {
-    const id = nextId();
-    setMessages(prev => [...prev, { id, role: "bot", text, suggestions }]);
+  const openChat = useCallback(() => {
+    setHintVisible(false);
+    setOpen(true);
   }, []);
 
-  // Initialise with welcome message when first opened
+  const closeChat = useCallback(() => setOpen(false), []);
+
+  const addBotMessage = useCallback((text: string, suggestions?: string[]) => {
+    setMessages(prev => [...prev, { id: nextId(), role: "bot", text, suggestions }]);
+  }, []);
+
   useEffect(() => {
     if (open && !started) {
       setStarted(true);
-      setTimeout(() => {
-        addBotMessage(WELCOME, WELCOME_SUGGESTIONS);
-      }, 300);
+      setTimeout(() => addBotMessage(WELCOME, WELCOME_SUGGESTIONS), 400);
     }
   }, [open, started, addBotMessage]);
 
-  // Scroll to bottom on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, typing]);
 
-  // Focus input when opened
   useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 100);
+    if (open) setTimeout(() => inputRef.current?.focus(), 200);
   }, [open]);
 
-  const sendMessage = useCallback((text: string) => {
+  const sendMessage = useCallback(async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || typing) return;
 
     setInput("");
-    setMessages(prev => [...prev, { id: nextId(), role: "user", text: trimmed }]);
+    const userMessage: Message = { id: nextId(), role: "user", text: trimmed };
+    setMessages(prev => [...prev, userMessage]);
     setTyping(true);
 
-    const { response, suggestions } = findResponse(trimmed);
-    const delay = 600 + Math.random() * 600; // 600–1200ms typing simulation
+    const history: ApiMessage[] = [...messages, userMessage]
+      .filter(m => m.role === "user" || m.role === "bot")
+      .map(m => ({
+        role: m.role === "user" ? "user" as const : "assistant" as const,
+        content: m.text,
+      }));
 
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/support/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: history,
+          locale: "ro",
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(typeof data.error === "string" ? data.error : "Request failed");
+      }
+
+      addBotMessage(typeof data.reply === "string" ? data.reply : ERROR_FALLBACK);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : ERROR_FALLBACK;
+      addBotMessage(
+        msg === "Request failed" || msg === "Failed to fetch" ? ERROR_FALLBACK : msg,
+        ["Cât costă un site?", "Contactează suportul"],
+      );
+    } finally {
       setTyping(false);
-      addBotMessage(response, suggestions);
-    }, delay);
-  }, [typing, addBotMessage]);
+    }
+  }, [typing, addBotMessage, messages]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    sendMessage(input);
+    void sendMessage(input);
   };
 
   return (
     <>
       <style>{`
-        @keyframes chatIn { from { opacity:0; transform:translateY(12px) scale(.96); } to { opacity:1; transform:none; } }
-        @keyframes dotBounce { 0%,80%,100% { transform:translateY(0); } 40% { transform:translateY(-5px); } }
-        .chat-window { animation: chatIn .22s ease both; }
-        .msg-in { animation: chatIn .2s ease both; }
-        .dot1 { animation: dotBounce 1.2s .0s infinite ease-in-out; }
-        .dot2 { animation: dotBounce 1.2s .2s infinite ease-in-out; }
-        .dot3 { animation: dotBounce 1.2s .4s infinite ease-in-out; }
-        .chip:hover { background: #0A0E14 !important; color: #fff !important; }
-        .chat-input:focus { outline: none; border-color: #0A0E14 !important; }
-        .send-btn:hover { opacity: .8; }
+        @keyframes chatWindowIn {
+          from { opacity: 0; transform: translateY(20px) scale(0.94); filter: blur(4px); }
+          to { opacity: 1; transform: none; filter: none; }
+        }
+        @keyframes chatBackdropIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes msgSlideIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: none; }
+        }
+        @keyframes fabIn {
+          from { opacity: 0; transform: scale(0.6); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes dotWave {
+          0%, 60%, 100% { transform: translateY(0); opacity: 0.35; }
+          30% { transform: translateY(-5px); opacity: 1; }
+        }
+        @keyframes hintIn {
+          from { opacity: 0; transform: translateX(8px); }
+          to { opacity: 1; transform: none; }
+        }
+        .chat-backdrop { animation: chatBackdropIn .25s ease both; }
+        .chat-window-premium { animation: chatWindowIn .38s cubic-bezier(.22,1,.36,1) both; }
+        .msg-in { animation: msgSlideIn .32s cubic-bezier(.22,1,.36,1) both; }
+        .fab-premium { animation: fabIn .4s cubic-bezier(.22,1,.36,1) both; }
+        .support-hint { animation: hintIn .45s ease .6s both; pointer-events: auto; }
+        .typing-dot:nth-child(1) { animation: dotWave 1.2s .0s infinite ease-in-out; }
+        .typing-dot:nth-child(2) { animation: dotWave 1.2s .15s infinite ease-in-out; }
+        .typing-dot:nth-child(3) { animation: dotWave 1.2s .3s infinite ease-in-out; }
+        .chip-premium {
+          transition: transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease, color .18s ease;
+        }
+        .chip-premium:hover {
+          transform: translateY(-1px);
+          background: linear-gradient(135deg, #FF7A18, #FF9F43) !important;
+          border-color: transparent !important;
+          color: #fff !important;
+          box-shadow: 0 6px 20px rgba(255,122,24,0.28);
+        }
+        .chat-input-premium:focus {
+          outline: none;
+          border-color: rgba(255,122,24,0.45) !important;
+          box-shadow: 0 0 0 4px rgba(255,122,24,0.1);
+        }
+        .send-premium:not(:disabled):hover {
+          transform: scale(1.06);
+          box-shadow: 0 8px 24px rgba(255,122,24,0.4);
+        }
+        .send-premium:not(:disabled):active { transform: scale(0.96); }
+        .fab-btn:hover { transform: scale(1.06); }
+        .fab-btn:active { transform: scale(0.96); }
+        .messages-scroll::-webkit-scrollbar { width: 5px; }
+        .messages-scroll::-webkit-scrollbar-thumb { background: rgba(15,20,25,0.12); border-radius: 99px; }
         @media (max-width: 480px) {
-          .chat-window { width: calc(100vw - 24px) !important; right: 12px !important; bottom: 76px !important; }
+          .chat-window-premium {
+            width: calc(100vw - 20px) !important;
+            right: 10px !important;
+            bottom: 84px !important;
+            max-height: min(78vh, 620px) !important;
+          }
+          .support-hint { display: none !important; }
         }
       `}</style>
 
-      {/* Chat window */}
       {open && (
-        <div className="chat-window" style={{
-          position: "fixed", bottom: 88, right: 20, zIndex: 9998,
-          width: 380, maxHeight: 580,
-          background: "#fff", borderRadius: 18,
-          boxShadow: "0 16px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06)",
-          display: "flex", flexDirection: "column", overflow: "hidden",
-        }}>
+        <div
+          className="chat-backdrop"
+          onClick={closeChat}
+          style={{
+            position: "fixed", inset: 0, zIndex: 100000,
+            background: "rgba(15, 20, 25, 0.18)",
+            backdropFilter: "blur(2px)",
+          }}
+        />
+      )}
+
+      {open && (
+        <div
+          className="chat-window-premium"
+          style={{
+            position: "fixed", bottom: 92, right: 20, zIndex: 100001,
+            width: 400, maxHeight: 620, height: "min(78vh, 620px)",
+            borderRadius: 28,
+            display: "flex", flexDirection: "column", overflow: "hidden",
+            background: C.glass,
+            backdropFilter: "blur(24px) saturate(1.4)",
+            WebkitBackdropFilter: "blur(24px) saturate(1.4)",
+            border: `1px solid ${C.glassBorder}`,
+            boxShadow: "0 32px 80px rgba(15,20,25,0.18), 0 0 0 1px rgba(255,255,255,0.5) inset",
+          }}
+        >
           {/* Header */}
-          <div style={{ background: T.ink, padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 30, height: 30, borderRadius: 9, background: T.six, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <span style={{ fontFamily: T.font, fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1 }}>6</span>
-              </div>
-              <div>
-                <p style={{ fontFamily: T.font, fontSize: 14, fontWeight: 700, color: "#fff", margin: 0, letterSpacing: -0.3 }}>insixlive</p>
-                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  <div style={{ width: 6, height: 6, borderRadius: 3, background: T.em }} />
-                  <p style={{ fontFamily: T.font, fontSize: 11, color: "rgba(255,255,255,0.5)", margin: 0 }}>Online · replies instantly</p>
+          <div style={{
+            padding: "18px 18px 16px",
+            background: "linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(247,248,250,0.85) 100%)",
+            borderBottom: `1px solid ${C.line}`,
+            flexShrink: 0,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <AgentAvatar size={48} />
+                <div>
+                  <p style={{ fontFamily: C.font, fontSize: 15, fontWeight: 700, color: C.ink, margin: 0, letterSpacing: -0.3 }}>
+                    Suport insixlive
+                  </p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+                    <span style={{
+                      width: 7, height: 7, borderRadius: "50%",
+                      background: typing ? C.orange : "#22C55E",
+                      boxShadow: typing ? `0 0 8px ${C.orangeGlow}` : "0 0 6px rgba(34,197,94,0.5)",
+                      transition: "background .3s, box-shadow .3s",
+                    }} />
+                    <p style={{ fontFamily: C.font, fontSize: 12, color: C.muted, margin: 0 }}>
+                      {typing ? "Scrie…" : "Online · răspunde instant"}
+                    </p>
+                  </div>
                 </div>
               </div>
+              <button
+                onClick={closeChat}
+                aria-label="Închide chat-ul"
+                style={{
+                  background: "rgba(15,20,25,0.05)", border: "none", color: C.muted,
+                  width: 32, height: 32, borderRadius: 10, cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 18, lineHeight: 1, transition: "background .15s",
+                }}
+              >
+                ×
+              </button>
             </div>
-            <button onClick={() => setOpen(false)} style={{ background: "rgba(255,255,255,0.1)", border: "none", color: "rgba(255,255,255,0.7)", width: 28, height: 28, borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, lineHeight: 1 }}>×</button>
           </div>
 
           {/* Messages */}
-          <div style={{ flex: 1, overflowY: "auto", padding: "16px 14px 8px", display: "flex", flexDirection: "column", gap: 12, minHeight: 0 }}>
+          <div
+            className="messages-scroll"
+            style={{
+              flex: 1, overflowY: "auto", padding: "18px 16px 10px",
+              display: "flex", flexDirection: "column", gap: 14, minHeight: 0,
+              background: "linear-gradient(180deg, #F7F8FA 0%, #EEF0F4 100%)",
+            }}
+          >
             {messages.map(msg => (
-              <div key={msg.id} className="msg-in" style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start", gap: 8 }}>
-                <div style={{
-                  maxWidth: "85%", padding: "10px 14px", borderRadius: msg.role === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px",
-                  background: msg.role === "user" ? T.ink : T.bg2,
-                  border: msg.role === "bot" ? `1px solid ${T.line}` : "none",
-                }}>
-                  {msg.role === "user"
-                    ? <p style={{ fontFamily: T.font, fontSize: 14, color: "#fff", margin: 0, lineHeight: 1.55 }}>{msg.text}</p>
-                    : <MessageText text={msg.text} />
-                  }
-                </div>
+              <div
+                key={msg.id}
+                className="msg-in"
+                style={{
+                  display: "flex",
+                  flexDirection: msg.role === "user" ? "row-reverse" : "row",
+                  alignItems: "flex-end",
+                  gap: 10,
+                }}
+              >
+                {msg.role === "bot" && <AgentAvatar size={32} />}
 
-                {/* Suggestion chips */}
-                {msg.role === "bot" && msg.suggestions && msg.suggestions.length > 0 && (
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, maxWidth: "95%" }}>
-                    {msg.suggestions.map(s => (
-                      <button key={s} className="chip" onClick={() => sendMessage(s)}
-                        style={{ background: "#fff", border: `1px solid ${T.line}`, color: T.ink, borderRadius: 20, padding: "5px 12px", fontFamily: T.font, fontSize: 12, cursor: "pointer", transition: "all .15s", whiteSpace: "nowrap" as const }}>
-                        {s}
-                      </button>
-                    ))}
+                <div style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start", gap: 8, maxWidth: "calc(100% - 42px)" }}>
+                  <div style={{
+                    padding: "12px 16px",
+                    borderRadius: msg.role === "user" ? "20px 20px 6px 20px" : "20px 20px 20px 6px",
+                    background: msg.role === "user"
+                      ? "linear-gradient(135deg, #0F1419 0%, #1E2633 100%)"
+                      : "rgba(255,255,255,0.92)",
+                    border: msg.role === "bot" ? `1px solid ${C.line}` : "none",
+                    boxShadow: msg.role === "user"
+                      ? "0 8px 24px rgba(15,20,25,0.18)"
+                      : "0 4px 16px rgba(15,20,25,0.06)",
+                  }}>
+                    {msg.role === "user" ? (
+                      <p style={{ fontFamily: C.font, fontSize: 14, color: "#fff", margin: 0, lineHeight: 1.55 }}>{msg.text}</p>
+                    ) : (
+                      <MessageText text={msg.text} />
+                    )}
                   </div>
-                )}
+
+                  {msg.role === "bot" && msg.suggestions && msg.suggestions.length > 0 && (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {msg.suggestions.map(s => (
+                        <button
+                          key={s}
+                          className="chip-premium"
+                          onClick={() => void sendMessage(s)}
+                          style={{
+                            background: "rgba(255,255,255,0.85)",
+                            border: `1px solid ${C.line}`,
+                            color: C.inkSoft,
+                            borderRadius: 999,
+                            padding: "6px 14px",
+                            fontFamily: C.font,
+                            fontSize: 12,
+                            fontWeight: 500,
+                            cursor: "pointer",
+                            whiteSpace: "nowrap" as const,
+                          }}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
 
-            {/* Typing indicator */}
             {typing && (
-              <div className="msg-in" style={{ display: "flex", alignItems: "flex-start" }}>
-                <div style={{ padding: "12px 16px", background: T.bg2, border: `1px solid ${T.line}`, borderRadius: "14px 14px 14px 4px", display: "flex", gap: 4, alignItems: "center" }}>
-                  {[1, 2, 3].map(n => (
-                    <div key={n} className={`dot${n}`} style={{ width: 6, height: 6, borderRadius: 3, background: T.muted }} />
+              <div className="msg-in" style={{ display: "flex", alignItems: "flex-end", gap: 10 }}>
+                <AgentAvatar size={32} />
+                <div style={{
+                  padding: "14px 18px",
+                  background: "rgba(255,255,255,0.92)",
+                  border: `1px solid ${C.line}`,
+                  borderRadius: "20px 20px 20px 6px",
+                  display: "flex", gap: 5, alignItems: "center",
+                  boxShadow: "0 4px 16px rgba(15,20,25,0.06)",
+                }}>
+                  {[0, 1, 2].map(n => (
+                    <div
+                      key={n}
+                      className="typing-dot"
+                      style={{ width: 7, height: 7, borderRadius: "50%", background: C.orange }}
+                    />
                   ))}
                 </div>
               </div>
@@ -359,59 +436,139 @@ export default function ChatBot() {
           </div>
 
           {/* Input */}
-          <div style={{ padding: "10px 12px 12px", borderTop: `1px solid ${T.line}`, flexShrink: 0 }}>
-            <form onSubmit={handleSubmit} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <div style={{
+            padding: "14px 16px 16px",
+            background: "rgba(255,255,255,0.88)",
+            backdropFilter: "blur(12px)",
+            borderTop: `1px solid ${C.line}`,
+            flexShrink: 0,
+          }}>
+            <form onSubmit={handleSubmit} style={{ display: "flex", gap: 10, alignItems: "center" }}>
               <input
                 ref={inputRef}
-                className="chat-input"
+                className="chat-input-premium"
                 value={input}
                 onChange={e => setInput(e.target.value)}
-                placeholder="Ask anything…"
-                style={{ flex: 1, border: `1px solid ${T.line}`, borderRadius: 24, padding: "10px 16px", fontFamily: T.font, fontSize: 14, color: T.ink, background: T.bg2, transition: "border-color .15s" }}
+                placeholder="Întreabă orice…"
+                style={{
+                  flex: 1,
+                  border: `1px solid ${C.line}`,
+                  borderRadius: 999,
+                  padding: "12px 18px",
+                  fontFamily: C.font,
+                  fontSize: 14,
+                  color: C.ink,
+                  background: C.white,
+                  transition: "border-color .2s, box-shadow .2s",
+                }}
               />
-              <button type="submit" disabled={!input.trim() || typing} className="send-btn"
-                style={{ width: 38, height: 38, borderRadius: 19, background: input.trim() && !typing ? T.ink : T.line, border: "none", cursor: input.trim() && !typing ? "pointer" : "default", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "background .15s" }}>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M14 8L2 2l3 6-3 6 12-6z" fill={input.trim() && !typing ? "#fff" : T.muted} />
+              <button
+                type="submit"
+                disabled={!input.trim() || typing}
+                className="send-premium"
+                style={{
+                  width: 44, height: 44, borderRadius: 22, border: "none",
+                  background: input.trim() && !typing
+                    ? "linear-gradient(135deg, #FF7A18 0%, #FF9F43 100%)"
+                    : "rgba(15,20,25,0.08)",
+                  cursor: input.trim() && !typing ? "pointer" : "default",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0,
+                  transition: "transform .18s ease, box-shadow .18s ease, background .18s ease",
+                  boxShadow: input.trim() && !typing ? "0 6px 20px rgba(255,122,24,0.32)" : "none",
+                }}
+              >
+                <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+                  <path d="M14 8L2 2l3 6-3 6 12-6z" fill={input.trim() && !typing ? "#fff" : C.muted} />
                 </svg>
               </button>
             </form>
-            <p style={{ fontFamily: T.font, fontSize: 10, color: T.muted, textAlign: "center", marginTop: 6 }}>
-              Or email <a href="mailto:support@insixlive.com" style={{ color: T.six, textDecoration: "none" }}>support@insixlive.com</a>
+            <p style={{ fontFamily: C.font, fontSize: 11, color: C.muted, textAlign: "center", marginTop: 10, marginBottom: 0 }}>
+              Sau scrie la{" "}
+              <a href="mailto:support@insixlive.com" style={{ color: C.orange, textDecoration: "none", fontWeight: 500 }}>
+                support@insixlive.com
+              </a>
             </p>
           </div>
         </div>
       )}
 
-      {/* Floating button */}
-      <button onClick={() => setOpen(o => !o)}
+      {/* Floating launcher + hint */}
+      <div
+        className="fab-premium"
         style={{
-          position: "fixed", bottom: 20, right: 20, zIndex: 9999,
-          width: 56, height: 56, borderRadius: 28,
-          background: open ? T.muted : T.ink,
-          border: "none", cursor: "pointer",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.22)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          transition: "background .2s, transform .2s",
+          position: "fixed", bottom: 20, right: 20, zIndex: 100000,
+          display: "flex", alignItems: "center", gap: 12,
+          pointerEvents: "none",
         }}
-        onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.08)")}
-        onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")}
       >
-        {open ? (
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M4 4l12 12M16 4L4 16" stroke="#fff" strokeWidth="2.2" strokeLinecap="round"/>
-          </svg>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
-            <span style={{ fontFamily: T.font, fontSize: 20, fontWeight: 800, color: T.six, lineHeight: 1 }}>6</span>
-          </div>
+        {!open && hintVisible && (
+          <button
+            type="button"
+            className="support-hint"
+            onClick={openChat}
+            style={{
+              pointerEvents: "auto",
+              position: "relative",
+              border: `1px solid ${C.line}`,
+              borderRadius: 16,
+              padding: "10px 14px",
+              maxWidth: 220,
+              background: "rgba(255,255,255,0.96)",
+              boxShadow: "0 8px 28px rgba(15,20,25,0.12)",
+              cursor: "pointer",
+              fontFamily: C.font,
+              fontSize: 13,
+              fontWeight: 500,
+              lineHeight: 1.45,
+              color: C.inkSoft,
+              textAlign: "left",
+            }}
+          >
+            Ai nevoie de ajutor? Sunt aici.
+            <span
+              aria-hidden
+              style={{
+                position: "absolute",
+                right: -6,
+                bottom: 18,
+                width: 12,
+                height: 12,
+                background: "rgba(255,255,255,0.96)",
+                borderRight: `1px solid ${C.line}`,
+                borderBottom: `1px solid ${C.line}`,
+                transform: "rotate(-45deg)",
+              }}
+            />
+          </button>
         )}
-      </button>
 
-      {/* Unread dot (shown before first open) */}
-      {!started && !open && (
-        <div style={{ position: "fixed", bottom: 66, right: 18, zIndex: 10000, width: 10, height: 10, borderRadius: 5, background: T.six, border: "2px solid #fff" }} />
-      )}
+        <button
+          type="button"
+          onClick={() => (open ? closeChat() : openChat())}
+          className="fab-btn"
+          aria-label={open ? "Închide suportul" : "Deschide suportul"}
+          style={{
+            pointerEvents: "auto",
+            position: "relative",
+            zIndex: 2,
+            width: 60, height: 60, borderRadius: "50%",
+            border: "none", cursor: "pointer", padding: 0, overflow: "hidden",
+            background: open ? C.ink : C.white,
+            boxShadow: "0 8px 28px rgba(15,20,25,0.18), 0 0 0 3px #fff",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            transition: "transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s ease, background .22s ease",
+          }}
+        >
+          {open ? (
+            <svg width="22" height="22" viewBox="0 0 20 20" fill="none">
+              <path d="M4 4l12 12M16 4L4 16" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" />
+            </svg>
+          ) : (
+            <Image src={AGENT} alt="Deschide suportul" width={60} height={60} style={{ objectFit: "cover", width: "100%", height: "100%", pointerEvents: "none" }} />
+          )}
+        </button>
+      </div>
     </>
   );
 }

@@ -278,7 +278,7 @@ export default function SignupPage() {
             {/* Bottom content */}
             <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", gap: 28 }}>
               <div>
-                <h1 style={{ fontFamily: A.font, fontSize: "clamp(2rem,2.8vw,2.6rem)", fontWeight: 700, letterSpacing: -0.5, color: A.white, lineHeight: 1.1, marginBottom: 12 }}>
+                <h1 className="font-display" style={{ fontSize: "clamp(2rem,2.8vw,2.6rem)", color: A.white, lineHeight: 1.1, marginBottom: 12 }}>
                   Site-ul tău.<br/>Codul tău.<br/><span style={{ color: A.six }}>Al tău pentru totdeauna.</span>
                 </h1>
                 <p style={{ fontFamily: A.font, fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6, maxWidth: 300 }}>
@@ -321,7 +321,7 @@ export default function SignupPage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
 
                   <div>
-                    <h2 style={{ fontFamily: A.font, fontSize: 30, fontWeight: 700, letterSpacing: -0.6, color: A.white, marginBottom: 8 }}>
+                    <h2 className="font-display" style={{ fontSize: 30, color: A.white, marginBottom: 8 }}>
                       Creează cont nou
                     </h2>
                     <p style={{ fontFamily: A.font, fontSize: 14, color: A.m40, lineHeight: 1.5 }}>
@@ -420,7 +420,7 @@ export default function SignupPage() {
                   </div>
 
                   <div>
-                    <h2 style={{ fontFamily: A.font, fontSize: 28, fontWeight: 700, letterSpacing: -0.5, color: A.white, marginBottom: 8 }}>
+                    <h2 className="font-display" style={{ fontSize: 28, color: A.white, marginBottom: 8 }}>
                       Verifică inbox-ul
                     </h2>
                     <p style={{ fontFamily: A.font, fontSize: 14, color: A.m40, marginBottom: 4, lineHeight: 1.5 }}>

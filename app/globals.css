@@ -42,7 +42,31 @@
   --muted:   #6B7180;
 
   --font: var(--font-brand);
+  --font-display-fallback: Anton, sans-serif;
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+}
+
+/* Display titles — Anton (same as hero headline) */
+.font-display,
+h1, h2, h3,
+.page-title,
+.section-title,
+.wf-step-title,
+.wf-brand-word,
+.au-left h1,
+.au-right h2,
+.aw h2,
+.aw .heading-lg,
+.aw .heading,
+.aw .display,
+.aw .display-sm,
+.aw .manifesto-text,
+.aw .own-statement,
+.co-h,
+.row-h {
+  font-family: var(--font-display), var(--font-display-fallback);
+  font-weight: 400;
+  letter-spacing: -0.02em;
 }
 
 html { scroll-behavior: smooth; overflow-x: hidden; font-size: 15px; }
@@ -294,7 +318,7 @@ select.inp option { background: #fff; color: var(--ink); }
   background:rgba(10,13,18,.86); backdrop-filter:blur(12px);
   position:sticky; top:0; z-index:30;
 }
-.wf-topbar .wf-tbstep { font-weight:700; font-size:13.5px; white-space:nowrap; }
+.wf-topbar .wf-tbstep { font-size:13.5px; font-weight:400; font-family:var(--font-display),Anton,sans-serif; white-space:nowrap; }
 .wf-topbar .wf-tbidx { font-family:var(--wf-mono); color:var(--wf-text3); font-weight:500; margin-right:5px; }
 .wf-topbar .wf-tbprog { flex:1; height:5px; border-radius:99px; background:var(--wf-surf3); overflow:hidden; }
 .wf-topbar .wf-tbfill { height:100%; background:var(--wf-acc); border-radius:99px; transition:width .4s ease; }
@@ -312,8 +336,9 @@ select.inp option { background: #fff; color: var(--ink); }
 .wf-eyebrow::before { content:""; width:18px; height:1px; background:var(--wf-acc); }
 .wf-eyebrow .wf-idx { color:var(--wf-text3); }
 .wf-step-title {
-  font-size:clamp(28px,4.2vw,44px); font-weight:700; letter-spacing:-.03em; line-height:1.05;
+  font-size:clamp(28px,4.2vw,44px); font-weight:400; letter-spacing:-.03em; line-height:1.05;
   margin:0 0 12px; color:var(--wf-text); text-wrap:balance;
+  font-family:var(--font-display), Anton, sans-serif;
 }
 .wf-step-sub { font-size:16px; color:var(--wf-text2); margin:0; max-width:50ch; line-height:1.5; }
 

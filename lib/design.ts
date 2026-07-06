@@ -12,6 +12,7 @@ export const P = {
   em2:     "#009062",
   emSoft:  "#E5F7EE",
   font:    '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif',
+  display: 'var(--font-display), Anton, system-ui, sans-serif',
   mono:    'ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace',
 };
 
