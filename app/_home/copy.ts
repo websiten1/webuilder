@@ -1,6 +1,16 @@
 // ─── Translatable copy for the Awesomic homepage (EN + RO) ────────────────
 // Source design: claude.ai/design/p/019e130a-b156-7a53-9abe-2feed797f07c
 
+export type AccentPart = { t: string; c?: string; w?: number };
+
+export const ACCENT = {
+  cyan: "#64CEFB",
+  purple: "#a78bfa",
+  green: "#4ade80",
+} as const;
+
+export type AccentHeading = [AccentPart[], AccentPart[]];
+
 export type HomeCopy = {
   meta: { title: string; description: string };
   banner: { text: string; cta: string };
@@ -20,11 +30,23 @@ export type HomeCopy = {
     previewLabel: string;
     deployReady: string;
   };
-  problem: { eyebrow: string; heading: [string, string]; lead: string; rows: [string, string][] };
-  how: { eyebrow: string; heading: [string, string]; lead: string; steps: [string, string][]; liveBadge: string };
+  problem: {
+    eyebrow: string;
+    heading: [AccentPart[], AccentPart[]];
+    lead: AccentPart[];
+    rows: { lead: AccentPart[]; key: AccentPart[] }[];
+  };
+  how: {
+    eyebrow: string;
+    heading: AccentHeading;
+    lead: AccentPart[];
+    steps: [string, string][];
+    liveStepTitle: AccentPart[];
+    liveBadge: string;
+  };
   examples: {
     eyebrow: string;
-    heading: [string, string];
+    heading: AccentHeading;
     viewAll: string;
     previewTag: string;
     decorativeTag: string;
@@ -34,8 +56,8 @@ export type HomeCopy = {
   stats: [string, string][];
   ownership: {
     eyebrow: string;
-    heading: [string, string];
-    lead: string;
+    heading: AccentHeading;
+    lead: AccentPart[];
     badges: string[];
     repoLabel: string;
     repoFiles: string;
@@ -52,16 +74,16 @@ export type HomeCopy = {
   };
   pricing: {
     eyebrow: string;
-    heading: [string, string];
-    lead: string;
+    heading: AccentHeading;
+    lead: AccentPart[];
     popularBadge: string;
     plans: { name: string; price: string; tag: string; items: string[]; muted?: string; cta: string; after: string; featured?: boolean }[];
     note: { badge: string; text: string };
   };
   domains: {
     eyebrow: string;
-    heading: [string, string];
-    lead: string;
+    heading: AccentHeading;
+    lead: AccentPart[];
     exampleDomain: string;
     registrars: string[];
     bar1: { domain: string; status: string };
@@ -69,12 +91,12 @@ export type HomeCopy = {
   };
   proof: {
     eyebrow: string;
-    heading: [string, string];
+    heading: AccentHeading;
     lead: string;
     testimonials: { initials: string; name: string; biz: string; quote: string }[];
   };
-  faq: { eyebrow: string; heading: string; lead: string; items: [string, string][] };
-  final: { eyebrow: string; heading: string; lead: string; secondaryCta: string };
+  faq: { eyebrow: string; heading: AccentPart[]; lead: AccentPart[]; items: [string, string][] };
+  final: { eyebrow: string; heading: AccentPart[]; lead: AccentPart[]; secondaryCta: string };
   footer: {
     blurb: string;
     productHeader: string;
@@ -110,19 +132,57 @@ export const EN: HomeCopy = {
   },
   problem: {
     eyebrow: "The trap",
-    heading: ["Agencies charge thousands.", "Builders lock you in."],
-    lead: "A professional website shouldn't demand a monthly subscription or an agency retainer. Your business deserves real code you own outright — not rent.",
+    heading: [
+      [{ t: "Builders lock you in." }],
+      [{ t: "Agencies charge " }, { t: "thousands.", c: "#a78bfa", w: 600 }],
+    ],
+    lead: [
+      { t: "Your Instagram account stays online around the clock — and you " },
+      { t: "don't pay", c: "#4ade80", w: 600 },
+      { t: " a monthly fee just to keep it there. Your site can work the same way. Some people charge you every month to keep your site live — that's a " },
+      { t: "scheme", c: "#a78bfa", w: 600 },
+      { t: ". A professional website shouldn't mean a monthly subscription or an agency retainer. Your business deserves " },
+      { t: "real code you own", c: "#4ade80", w: 600 },
+      { t: " — not rent." },
+    ],
     rows: [
-      ["No more", "weeks of back-and-forth with agencies."],
-      ["No more", "paying rent to a closed platform."],
-      ["No more", "extra invoices for minor changes."],
-      ["No more", "code you never fully own."],
+      {
+        lead: [{ t: "Like Instagram" }],
+        key: [{ t: "Always online — no monthly fee just to exist." }],
+      },
+      {
+        lead: [{ t: "Your site" }],
+        key: [{ t: "Pay once, stay live — same idea." }],
+      },
+      {
+        lead: [{ t: "What others do" }],
+        key: [
+          { t: "Charge you every month — " },
+          { t: "rent on your own code", c: "#a78bfa", w: 600 },
+          { t: "." },
+        ],
+      },
+      {
+        lead: [{ t: "What you get here" }],
+        key: [
+          { t: "Real code you own. " },
+          { t: "No lock-in", c: "#4ade80", w: 600 },
+          { t: ", no retainer." },
+        ],
+      },
     ],
   },
   how: {
     eyebrow: "From prompt to live",
-    heading: ["Six steps.", "One live website."],
-    lead: "Builders take days. Agencies take weeks. We take six minutes.",
+    heading: [
+      [{ t: "Six steps." }],
+      [{ t: "One live " }, { t: "website.", c: ACCENT.green, w: 600 }],
+    ],
+    lead: [
+      { t: "Builders take days. Agencies take weeks. We take " },
+      { t: "six minutes", c: ACCENT.cyan, w: 600 },
+      { t: "." },
+    ],
     steps: [
       ["Describe your business", "Name, services, location, audience, and tone."],
       ["Choose the style", "Colors, typography, layout — your aesthetic."],
@@ -131,11 +191,15 @@ export const EN: HomeCopy = {
       ["Pay once", "Stripe checkout. No recurring charge."],
       ["Go live", "Generated and deployed to your Vercel — in ~6 minutes."],
     ],
+    liveStepTitle: [{ t: "Go " }, { t: "live", c: ACCENT.green, w: 600 }],
     liveBadge: "Live",
   },
   examples: {
     eyebrow: "Selected work",
-    heading: ["Websites built", "with insixlive."],
+    heading: [
+      [{ t: "Websites built" }],
+      [{ t: "with " }, { t: "insixlive.", c: ACCENT.cyan, w: 600 }],
+    ],
     viewAll: "View all templates",
     previewTag: "live site",
     decorativeTag: "decorative",
@@ -157,8 +221,17 @@ export const EN: HomeCopy = {
   ],
   ownership: {
     eyebrow: "Ownership",
-    heading: ["You don't rent your website.", "You own every line."],
-    lead: "Most builders keep your business inside their platform. insixlive deploys real Next.js code to your own Vercel account — yours to keep, modify, or move.",
+    heading: [
+      [{ t: "You don't rent your website." }],
+      [{ t: "You own " }, { t: "every line.", c: ACCENT.green, w: 600 }],
+    ],
+    lead: [
+      { t: "Most builders keep your business on " },
+      { t: "their platform", c: ACCENT.purple, w: 600 },
+      { t: ". insixlive deploys real Next.js to " },
+      { t: "your Vercel account", c: ACCENT.cyan, w: 600 },
+      { t: " — yours to keep, modify, or move." },
+    ],
     badges: ["Your Vercel account", "Standard Next.js", "Yours forever"],
     repoLabel: "repo · acme-plumbing",
     repoFiles: "app/page.tsx · components/ · public/",
@@ -186,8 +259,15 @@ export const EN: HomeCopy = {
   },
   pricing: {
     eyebrow: "Pricing",
-    heading: ["One-time pricing.", "No monthly website rent."],
-    lead: "Agency vs. insixlive — same result, a fraction of the cost. One payment, your code, your Vercel.",
+    heading: [
+      [{ t: "One-time pricing.", c: ACCENT.green, w: 600 }],
+      [{ t: "No monthly " }, { t: "website rent.", c: ACCENT.purple, w: 600 }],
+    ],
+    lead: [
+      { t: "Same result as an agency, a fraction of the cost. " },
+      { t: "One payment", c: ACCENT.green, w: 600 },
+      { t: ", your code, your Vercel." },
+    ],
     popularBadge: "Most popular",
     plans: [
       { name: "Website", price: "€59.99", tag: "Your complete site. No edits included.", items: ["AI-generated professional website", "Deployed to your Vercel account", "Full source code ownership", "Mobile-responsive · SSL · domain ready"], muted: "0 free edits", cta: "Get started", after: "€15 per edit after launch", featured: true },
@@ -198,8 +278,17 @@ export const EN: HomeCopy = {
   },
   domains: {
     eyebrow: "Domains",
-    heading: ["Use your own domain.", "Or buy one separately."],
-    lead: "Your generated website goes live first on a Vercel URL. Then connect a custom domain like yourbusiness.com — one you already own, or one you buy from any registrar.",
+    heading: [
+      [{ t: "Use your " }, { t: "own domain.", c: ACCENT.cyan, w: 600 }],
+      [{ t: "Or buy one separately." }],
+    ],
+    lead: [
+      { t: "Your site goes " },
+      { t: "live first", c: ACCENT.green, w: 600 },
+      { t: " on a Vercel URL. Then connect a custom domain like " },
+      { t: "yourbusiness.com", c: ACCENT.cyan, w: 600 },
+      { t: " — one you own or buy from any registrar." },
+    ],
     exampleDomain: "yourbusiness.com",
     registrars: ["GoDaddy", "Namecheap", "Porkbun", "Cloudflare"],
     bar1: { domain: "acme-plumbing.vercel.app", status: "● Live" },
@@ -207,7 +296,10 @@ export const EN: HomeCopy = {
   },
   proof: {
     eyebrow: "Clients",
-    heading: ["Built for small business owners", "who need real websites without agency prices."],
+    heading: [
+      [{ t: "Built for small business owners" }],
+      [{ t: "without " }, { t: "agency prices.", c: ACCENT.purple, w: 600 }],
+    ],
     lead: "Tested with salons, trades, clinics, and freelancers across the EU during private beta.",
     testimonials: [
       { initials: "ML", name: "Markus Lehmann", biz: "Acme Plumbing · Munich · Pro", quote: "I described the business in two sentences. Six minutes later I had a website I could send to the printer. No subscription, no monthly bill." },
@@ -217,8 +309,8 @@ export const EN: HomeCopy = {
   },
   faq: {
     eyebrow: "FAQ",
-    heading: "Questions answered.",
-    lead: "Everything you need to know before you start.",
+    heading: [{ t: "Questions " }, { t: "answered.", c: ACCENT.cyan, w: 600 }],
+    lead: [{ t: "Everything you need to know " }, { t: "before you start.", c: ACCENT.green, w: 600 }],
     items: [
       ["Do I need to know how to code?", "No. You describe your business in plain English. We generate the site, deploy it, and you can edit later through your dashboard or directly in the code."],
       ["Who owns the website?", "You do. The code is yours, the Vercel project is in your account, and the domain (if you connect one) belongs to you."],
@@ -230,8 +322,14 @@ export const EN: HomeCopy = {
   },
   final: {
     eyebrow: "Get started",
-    heading: "Six minutes from now, your website is live.",
-    lead: "Brief to deployed — AI generates your code and ships it to your account.",
+    heading: [
+      { t: "Six minutes from now, your website is " },
+      { t: "live.", c: ACCENT.green, w: 600 },
+    ],
+    lead: [
+      { t: "Brief to deployed — AI generates your code and ships it to " },
+      { t: "your account.", c: ACCENT.cyan, w: 600 },
+    ],
     secondaryCta: "See pricing",
   },
   footer: {
@@ -269,19 +367,57 @@ export const RO: HomeCopy = {
   },
   problem: {
     eyebrow: "Capcana",
-    heading: ["Agențiile cer mii de euro.", "Constructorii te blochează."],
-    lead: "Un site profesional nu ar trebui să implice un abonament lunar sau un retainer de agenție. Afacerea ta merită cod real pe care îl deții complet — nu chirie.",
+    heading: [
+      [{ t: "Constructorii " }, { t: "te blochează.", c: "#64CEFB", w: 600 }],
+      [{ t: "Agențiile cer " }, { t: "mii de euro.", c: "#a78bfa", w: 600 }],
+    ],
+    lead: [
+      { t: "Contul tău de Instagram e online non-stop — și " },
+      { t: "nu plătești", c: "#4ade80", w: 600 },
+      { t: " ca să rămână acolo. Site-ul tău poate fi la fel. Alții îți iau bani lunar ca să țină pagina online: e " },
+      { t: "schemă, e golănie", c: "#a78bfa", w: 600 },
+      { t: ". Un site profesional nu ar trebui să implice abonament lunar sau retainer de agenție. Afacerea ta merită " },
+      { t: "cod real", c: "#4ade80", w: 600 },
+      { t: " pe care îl deții complet — nu chirie." },
+    ],
     rows: [
-      ["Nu mai", "săptămâni de discuții cu agențiile."],
-      ["Nu mai", "plătești chirie unei platforme închise."],
-      ["Nu mai", "facturi pentru modificări minore."],
-      ["Nu mai", "cod pe care nu îl deții cu adevărat."],
+      {
+        lead: [{ t: "Ca pe Instagram" }],
+        key: [{ t: "Online mereu — fără taxă lunară ca să existe." }],
+      },
+      {
+        lead: [{ t: "Site-ul tău" }],
+        key: [{ t: "Plătești o dată, rămâne online." }],
+      },
+      {
+        lead: [{ t: "Ce fac alții" }],
+        key: [
+          { t: "Bani în fiecare lună — " },
+          { t: "schemă pură", c: "#a78bfa", w: 600 },
+          { t: "." },
+        ],
+      },
+      {
+        lead: [{ t: "Ce primești aici" }],
+        key: [
+          { t: "Cod real, al tău. Fără blocare, fără " },
+          { t: "chirie", c: "#a78bfa", w: 600 },
+          { t: "." },
+        ],
+      },
     ],
   },
   how: {
     eyebrow: "De la prompt la online",
-    heading: ["Șase pași.", "Un site online."],
-    lead: "Constructorii durează zile. Agențiile durează săptămâni. Noi durăm șase minute.",
+    heading: [
+      [{ t: "Șase pași." }],
+      [{ t: "Un site " }, { t: "online.", c: ACCENT.green, w: 600 }],
+    ],
+    lead: [
+      { t: "Constructorii durează zile. Agențiile durează săptămâni. Noi durăm " },
+      { t: "șase minute", c: ACCENT.cyan, w: 600 },
+      { t: "." },
+    ],
     steps: [
       ["Descrie-ți afacerea", "Nume, servicii, locație, public și ton."],
       ["Alege stilul", "Culori, tipografie, layout — estetica ta."],
@@ -290,11 +426,15 @@ export const RO: HomeCopy = {
       ["Plătești o dată", "Plată prin Stripe. Fără taxe recurente."],
       ["Intră online", "Generat și publicat pe Vercel-ul tău — în ~6 minute."],
     ],
+    liveStepTitle: [{ t: "Intră " }, { t: "online", c: ACCENT.green, w: 600 }],
     liveBadge: "Online",
   },
   examples: {
     eyebrow: "Lucrări selectate",
-    heading: ["Site-uri construite", "cu insixlive."],
+    heading: [
+      [{ t: "Site-uri construite" }],
+      [{ t: "cu " }, { t: "insixlive.", c: ACCENT.cyan, w: 600 }],
+    ],
     viewAll: "Vezi toate șabloanele",
     previewTag: "site live",
     decorativeTag: "decorativ",
@@ -316,8 +456,17 @@ export const RO: HomeCopy = {
   ],
   ownership: {
     eyebrow: "Proprietate",
-    heading: ["Nu-ți închiriezi site-ul.", "Deții fiecare linie."],
-    lead: "Majoritatea constructorilor îți țin afacerea în platforma lor. insixlive publică cod real Next.js în propriul tău cont Vercel — al tău să îl păstrezi, modifici sau muți.",
+    heading: [
+      [{ t: "Nu-ți închiriezi site-ul." }],
+      [{ t: "Deții " }, { t: "fiecare linie.", c: ACCENT.green, w: 600 }],
+    ],
+    lead: [
+      { t: "Majoritatea constructorilor îți țin afacerea pe " },
+      { t: "platforma lor", c: ACCENT.purple, w: 600 },
+      { t: ". insixlive publică cod Next.js în " },
+      { t: "contul tău Vercel", c: ACCENT.cyan, w: 600 },
+      { t: " — al tău să îl păstrezi, modifici sau muți." },
+    ],
     badges: ["Contul tău Vercel", "Next.js standard", "Al tău pentru totdeauna"],
     repoLabel: "repo · acme-plumbing",
     repoFiles: "app/page.tsx · components/ · public/",
@@ -345,8 +494,15 @@ export const RO: HomeCopy = {
   },
   pricing: {
     eyebrow: "Prețuri",
-    heading: ["Plată unică.", "Fără chirie lunară pentru site."],
-    lead: "Agenție vs. insixlive — același rezultat, o fracțiune din cost. O plată, codul tău, Vercel-ul tău.",
+    heading: [
+      [{ t: "Plată unică.", c: ACCENT.green, w: 600 }],
+      [{ t: "Fără " }, { t: "chirie lunară", c: ACCENT.purple, w: 600 }, { t: " pentru site." }],
+    ],
+    lead: [
+      { t: "Același rezultat ca la agenție, o fracțiune din cost. " },
+      { t: "O plată", c: ACCENT.green, w: 600 },
+      { t: ", codul tău, Vercel-ul tău." },
+    ],
     popularBadge: "Cel mai popular",
     plans: [
       { name: "Site", price: "59,99 €", tag: "Site complet. Fără modificări incluse.", items: ["Site profesional generat de AI", "Publicat în contul tău Vercel", "Deținerea întregului cod sursă", "Responsive · SSL · pregătit pentru domeniu"], muted: "0 modificări gratuite", cta: "Începe acum", after: "15 € per modificare după lansare", featured: true },
@@ -357,8 +513,17 @@ export const RO: HomeCopy = {
   },
   domains: {
     eyebrow: "Domenii",
-    heading: ["Folosește propriul tău domeniu.", "Sau cumpără unul separat."],
-    lead: "Site-ul tău generat intră întâi online pe un URL Vercel. Apoi conectezi un domeniu propriu precum afacereata.ro — unul pe care îl deții deja sau pe care îl cumperi de la orice registrar.",
+    heading: [
+      [{ t: "Folosește " }, { t: "propriul tău domeniu.", c: ACCENT.cyan, w: 600 }],
+      [{ t: "Sau cumpără unul separat." }],
+    ],
+    lead: [
+      { t: "Site-ul tău " },
+      { t: "intră online", c: ACCENT.green, w: 600 },
+      { t: " întâi pe un URL Vercel. Apoi conectezi un domeniu precum " },
+      { t: "afacereata.ro", c: ACCENT.cyan, w: 600 },
+      { t: " — unul pe care îl deții deja sau îl cumperi de la orice registrar." },
+    ],
     exampleDomain: "afacereata.ro",
     registrars: ["GoDaddy", "Namecheap", "Porkbun", "Cloudflare"],
     bar1: { domain: "acme-plumbing.vercel.app", status: "● Online" },
@@ -366,7 +531,10 @@ export const RO: HomeCopy = {
   },
   proof: {
     eyebrow: "Clienți",
-    heading: ["Construit pentru micii antreprenori", "care au nevoie de site-uri reale fără prețuri de agenție."],
+    heading: [
+      [{ t: "Construit pentru micii antreprenori" }],
+      [{ t: "fără " }, { t: "prețuri de agenție", c: ACCENT.purple, w: 600 }, { t: "." }],
+    ],
     lead: "Testat cu saloane, meseriași, clinici și freelanceri din toată UE în timpul beta-ului privat.",
     testimonials: [
       { initials: "BM", name: "Bogdan Mureșan", biz: "Mureșan Electric · Cluj-Napoca · Pro", quote: "Duminică seara am scris că fac instalații electrice în Cluj. Luni dimineața am trimis link-ul la primii trei clienți. Niciunul nu a crezut că m-a costat sub 100 de euro." },
@@ -376,8 +544,8 @@ export const RO: HomeCopy = {
   },
   faq: {
     eyebrow: "Întrebări frecvente",
-    heading: "Întrebări cu răspunsuri.",
-    lead: "Tot ce trebuie să știi înainte să începi.",
+    heading: [{ t: "Întrebări cu " }, { t: "răspunsuri", c: ACCENT.cyan, w: 600 }, { t: "." }],
+    lead: [{ t: "Tot ce trebuie să știi " }, { t: "înainte să începi", c: ACCENT.green, w: 600 }, { t: "." }],
     items: [
       ["Trebuie să știu să programez?", "Nu. Îți descrii afacerea în limbaj simplu. Noi generăm site-ul, îl publicăm, iar tu îl poți edita mai târziu din panoul tău sau direct în cod."],
       ["Cine deține site-ul?", "Tu. Codul e al tău, proiectul Vercel e în contul tău, iar domeniul (dacă conectezi unul) îți aparține."],
@@ -389,8 +557,16 @@ export const RO: HomeCopy = {
   },
   final: {
     eyebrow: "Începe acum",
-    heading: "Peste șase minute, site-ul tău este online.",
-    lead: "De la brief la publicat — AI îți generează codul și îl trimite în contul tău.",
+    heading: [
+      { t: "Peste șase minute, site-ul tău este " },
+      { t: "online", c: ACCENT.green, w: 600 },
+      { t: "." },
+    ],
+    lead: [
+      { t: "De la brief la publicat — AI generează codul și îl trimite în " },
+      { t: "contul tău", c: ACCENT.cyan, w: 600 },
+      { t: "." },
+    ],
     secondaryCta: "Vezi prețurile",
   },
   footer: {

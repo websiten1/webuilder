@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { DM_Sans } from "next/font/google";
 import type { HomeCopy } from "./copy";
+import { AccentText } from "./AccentText";
 import { ProgressiveBlur } from "./ProgressiveBlur";
 import { BrandlyHero } from "./BrandlyHero";
 
@@ -15,10 +16,10 @@ const cosmica = DM_Sans({ subsets: ["latin"], weight: ["300", "400", "500", "600
 
 // "Fără ___." cycling word in the hero headline — each gets its own premium accent colour.
 const HERO_VOID_WORDS = [
-  { word: "agenții", color: "#ff5a00" },
-  { word: "timp pierdut", color: "#fbbf24" },
-  { word: "mii de euro", color: "#34d399" },
-  { word: "stres", color: "#a78bfa" },
+  { word: "agenții", color: "#a78bfa" },
+  { word: "timp pierdut", color: "#64CEFB" },
+  { word: "mii de euro", color: "#a78bfa" },
+  { word: "stres", color: "#64CEFB" },
 ];
 
 
@@ -494,6 +495,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         /* ── ViralMedia: manifesto text ── */
         .aw .manifesto-text { font-size: clamp(2rem,4vw,3.2rem); font-weight: 400; font-family: var(--font-display), Anton, sans-serif; line-height: 1.15; color: var(--color-snow); letter-spacing: -0.02em; margin: 0; }
         .aw .manifesto-text .dim { color: rgba(255,255,255,0.25); }
+        .aw .problem-accent, .aw .section-accent { text-shadow: none; }
 
         /* ── Guardnet: compare / timeline ── */
 
@@ -692,9 +694,10 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           .aw .manifesto-text { font-size: clamp(1.5rem, 7.5vw, 2.4rem) !important; }
           /* Ownership bold statement */
           .aw .own-statement { font-size: clamp(1.6rem, 6.5vw, 2.8rem); }
-          /* Problem section: hide numbered pain list — manifesto + lead is enough on phone */
-          .aw .problem-grid > div:last-child { display: none; }
-          .aw .problem-grid { gap: 0 !important; }
+          /* Problem section: show teaching bullets on phone too */
+          .aw .problem-grid > div:last-child { display: block; }
+          .aw .problem-grid { gap: 32px !important; }
+          .aw .problem-grid .reveal[style*="padding: 22px"] { padding: 16px 0 !important; }
           /* How it works: 3 key steps on phone */
           .aw .how-grid > div:nth-child(2),
           .aw .how-grid > div:nth-child(3),
@@ -817,20 +820,27 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                   <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.5)" }}>{copy.problem.eyebrow}</span>
                 </div>
                 <h2 className="manifesto-text reveal">
-                  {copy.problem.heading[0]}<br/><span className="dim">{copy.problem.heading[1]}</span>
+                  <AccentText parts={copy.problem.heading[0]} /><br/>
+                  <span className="dim"><AccentText parts={copy.problem.heading[1]} /></span>
                 </h2>
-                <p className="reveal" style={{ fontSize: "var(--text-body-lg)", color: "rgba(255,255,255,0.45)", lineHeight: 1.6, marginTop: 24, maxWidth: "44ch" }}>{copy.problem.lead}</p>
+                <p className="reveal" style={{ fontSize: "var(--text-body-lg)", color: "rgba(255,255,255,0.45)", lineHeight: 1.65, marginTop: 24, maxWidth: "52ch" }}>
+                  <AccentText parts={copy.problem.lead} />
+                </p>
               </div>
               {/* Right: numbered pain points */}
               <div>
-                {copy.problem.rows.map(([lead, key], i) => (
-                  <div className="reveal" key={key} style={{ padding: "22px 0", borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", gap: 24, alignItems: "flex-start" }}>
+                {copy.problem.rows.map((row, i) => (
+                  <div className="reveal" key={i} style={{ padding: "22px 0", borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", gap: 24, alignItems: "flex-start" }}>
                     <span style={{ fontSize: "clamp(1.6rem,2.5vw,2.2rem)", fontWeight: 800, color: "rgba(255,255,255,0.08)", lineHeight: 1, flexShrink: 0, minWidth: 52, letterSpacing: "-0.04em" }}>
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <div>
-                      <p style={{ margin: 0, fontSize: "var(--text-subheading)", color: "rgba(255,255,255,0.35)", fontWeight: 300, lineHeight: 1.4 }}>{lead}</p>
-                      <p style={{ margin: 0, fontSize: "var(--text-subheading)", color: "var(--color-snow)", fontWeight: 600, lineHeight: 1.4 }}>{key}</p>
+                      <p style={{ margin: 0, fontSize: "var(--text-subheading)", color: "rgba(255,255,255,0.35)", fontWeight: 300, lineHeight: 1.4 }}>
+                        <AccentText parts={row.lead} />
+                      </p>
+                      <p style={{ margin: 0, fontSize: "var(--text-subheading)", color: "var(--color-snow)", fontWeight: 600, lineHeight: 1.4 }}>
+                        <AccentText parts={row.key} />
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -848,7 +858,8 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                 <span className="s-label">{copy.how.eyebrow}</span>
               </div>
               <h2 className="font-display" style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--color-obsidian)", margin: "0 auto", letterSpacing: "-0.02em", maxWidth: "18ch" }}>
-                {copy.how.heading[0]}<br/><span style={{ color: "var(--color-steel)", fontWeight: 300 }}>{copy.how.heading[1]}</span>
+                <AccentText parts={copy.how.heading[0]} /><br/>
+                <span style={{ color: "var(--color-steel)", fontWeight: 300 }}><AccentText parts={copy.how.heading[1]} /></span>
               </h2>
             </div>
             {/* Clean minimal step cards */}
@@ -880,7 +891,9 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                       {STEP_NUMS[i]}
                     </span>
                     <div style={{ flex: 1 }}>
-                      <h4 style={{ fontSize: "var(--text-subheading)", fontWeight: 600, margin: "0 0 6px", color: isLast ? "#fff" : "var(--color-obsidian)" }}>{t}</h4>
+                      <h4 style={{ fontSize: "var(--text-subheading)", fontWeight: 600, margin: "0 0 6px", color: isLast ? "#fff" : "var(--color-obsidian)" }}>
+                        {isLast ? <AccentText parts={copy.how.liveStepTitle} /> : t}
+                      </h4>
                       <p style={{ fontSize: "var(--text-body)", color: isLast ? "rgba(255,255,255,0.45)" : "var(--color-steel)", margin: 0, lineHeight: 1.55 }}>{s}</p>
                     </div>
                     {isLast && (
@@ -906,7 +919,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                 <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.examples.eyebrow}</span>
               </div>
               <h2 className="font-display" style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.02em" }}>
-                {copy.examples.heading[0]}<br/>{copy.examples.heading[1]}
+                <AccentText parts={copy.examples.heading[0]} /><br/><AccentText parts={copy.examples.heading[1]} />
               </h2>
             </div>
           </div>
@@ -948,9 +961,11 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                   <span className="s-label">{copy.ownership.eyebrow}</span>
                 </div>
                 <h2 className="own-statement">
-                  {copy.ownership.heading[0]}<br/><span className="accent">{copy.ownership.heading[1]}</span>
+                  <AccentText parts={copy.ownership.heading[0]} /><br/><AccentText parts={copy.ownership.heading[1]} />
                 </h2>
-                <p style={{ fontSize: "var(--text-body-lg)", color: "var(--color-steel)", lineHeight: 1.6, marginTop: 24, maxWidth: "44ch" }}>{copy.ownership.lead}</p>
+                <p style={{ fontSize: "var(--text-body-lg)", color: "var(--color-steel)", lineHeight: 1.6, marginTop: 24, maxWidth: "44ch" }}>
+                  <AccentText parts={copy.ownership.lead} />
+                </p>
                 <div style={{ marginTop: 28, display: "flex", gap: 10, flexWrap: "wrap" }}>
                   {copy.ownership.badges.map(b => <span className="badge badge-dark" key={b}>{b}</span>)}
                 </div>
@@ -987,10 +1002,12 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                 <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.pricing.eyebrow}</span>
               </div>
               <h2 className="font-display" style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--color-snow)", margin: "0 auto", letterSpacing: "-0.02em", maxWidth: "20ch" }}>
-                {copy.pricing.heading[0]}<br/>
-                <span style={{ color: "rgba(255,255,255,0.32)", fontWeight: 300 }}>{copy.pricing.heading[1]}</span>
+                <AccentText parts={copy.pricing.heading[0]} /><br/>
+                <span style={{ color: "rgba(255,255,255,0.32)", fontWeight: 300 }}><AccentText parts={copy.pricing.heading[1]} /></span>
               </h2>
-              <p style={{ color: "rgba(255,255,255,0.42)", marginTop: 14, fontSize: "var(--text-body-lg)", maxWidth: "52ch", lineHeight: 1.55, marginLeft: "auto", marginRight: "auto" }}>{copy.pricing.lead}</p>
+              <p style={{ color: "rgba(255,255,255,0.42)", marginTop: 14, fontSize: "var(--text-body-lg)", maxWidth: "52ch", lineHeight: 1.55, marginLeft: "auto", marginRight: "auto" }}>
+                <AccentText parts={copy.pricing.lead} />
+              </p>
             </div>
 
             <div className="pricing-plans-dark reveal">
@@ -1037,8 +1054,11 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
             <div className="grid-2" style={{ gap: 48, alignItems: "center" }}>
               <div className="reveal">
                 <span className="eyebrow">{copy.domains.eyebrow}</span>
-                <h2 className="heading-lg">{copy.domains.heading[0]}<br/><span className="muted-fg light">{copy.domains.heading[1]}</span></h2>
-                <p className="lead">{copy.domains.lead.split(copy.domains.exampleDomain)[0]}<b style={{ color: "var(--color-obsidian)" }}>{copy.domains.exampleDomain}</b>{copy.domains.lead.split(copy.domains.exampleDomain)[1]}</p>
+                <h2 className="heading-lg">
+                  <AccentText parts={copy.domains.heading[0]} /><br/>
+                  <span className="muted-fg light"><AccentText parts={copy.domains.heading[1]} /></span>
+                </h2>
+                <p className="lead"><AccentText parts={copy.domains.lead} /></p>
                 <div style={{ marginTop: 24, display: "flex", gap: 10, flexWrap: "wrap" }}>
                   {copy.domains.registrars.map(r => <span className="badge badge-dark" key={r}>{r}</span>)}
                 </div>
@@ -1075,7 +1095,8 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                 <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.proof.eyebrow}</span>
               </div>
               <h2 className="font-display" style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.02em" }}>
-                {copy.proof.heading[0]}<br/><span style={{ color: "rgba(255,255,255,0.28)", fontWeight: 300 }}>{copy.proof.heading[1]}</span>
+                <AccentText parts={copy.proof.heading[0]} /><br/>
+                <span style={{ color: "rgba(255,255,255,0.28)", fontWeight: 300 }}><AccentText parts={copy.proof.heading[1]} /></span>
               </h2>
             </div>
             <div style={{ position: "relative" }}>
@@ -1120,8 +1141,8 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
                 <span className="s-num">07</span>
                 <span className="s-label">{copy.faq.eyebrow}</span>
               </div>
-              <h2 className="heading-lg">{copy.faq.heading}</h2>
-              <p className="lead">{copy.faq.lead}</p>
+              <h2 className="heading-lg"><AccentText parts={copy.faq.heading} /></h2>
+              <p className="lead"><AccentText parts={copy.faq.lead} /></p>
             </div>
             <div className="faq reveal">
               {copy.faq.items.map(([q, a], i) => (
@@ -1154,8 +1175,8 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
               <div className="glow-blob" style={{ width: 300, height: 300, bottom: -60, right: 60, background: "rgba(100,206,251,0.08)" }}/>
               <div style={{ position: "relative" }}>
                 <span className="eyebrow">{copy.final.eyebrow}</span>
-                <h2 className="display-sm on-dark">{copy.final.heading}</h2>
-                <p className="lead" style={{ margin: "0 auto 32px", maxWidth: "48ch" }}>{copy.final.lead}</p>
+                <h2 className="display-sm on-dark"><AccentText parts={copy.final.heading} /></h2>
+                <p className="lead" style={{ margin: "0 auto 32px", maxWidth: "48ch" }}><AccentText parts={copy.final.lead} /></p>
                 <div className="cta-row">
                   {/* Guardnet gradient fill + Axion TextRoll */}
                   <Link href={ctaHref} className="btn btn-grad-fill btn-roll" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
