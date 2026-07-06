@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Inter } from "next/font/google";
+import { useEffect, useState } from "react";
 
 const inter = Inter({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"], variable: "--font-brandly-sans" });
 
@@ -151,10 +152,24 @@ export function BrandlyHero({
   cycleVisible: boolean;
   onMenuOpen: () => void;
 }) {
+  const [showHeroVideo, setShowHeroVideo] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const apply = () => setShowHeroVideo(!mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
   return (
     <header className={`brandly-hero ${inter.variable}`}>
-      <video className="brandly-hero-video" src={HERO_VIDEO} autoPlay loop muted playsInline aria-hidden />
-      <div className="brandly-hero-gradient" aria-hidden />
+      {showHeroVideo === true && (
+        <>
+          <video className="brandly-hero-video" src={HERO_VIDEO} autoPlay loop muted playsInline aria-hidden />
+          <div className="brandly-hero-gradient" aria-hidden />
+        </>
+      )}
 
       <div className="brandly-hero-bar-wrap">
         <Link href="/" className="brandly-wordmark brandly-display" aria-label="insixlive">insixlive</Link>
@@ -537,32 +552,38 @@ export function BrandlyHero({
         }
         .brandly-lead-short { display: none; }
 
-        /* ── Mobile: full-bleed video + simplified content ── */
+        /* ── Mobile: no video, compact hero ── */
         @media (max-width: 767px) {
           .brandly-hero {
-            height: 100svh;
-            height: 100dvh;
+            height: auto;
             min-height: 0;
+            overflow: visible;
+            background: linear-gradient(165deg, #faf8f4 0%, #f0ece4 55%, #f5f3ee 100%);
+          }
+          .brandly-hero-video,
+          .brandly-hero-gradient {
+            display: none !important;
           }
           .brandly-hero-bar-wrap {
-            padding: 16px 56px 16px 20px;
+            padding: 16px 56px 12px 20px;
           }
           .brandly-hero-main {
-            padding: 0 20px 28px;
-            justify-content: flex-end;
-            gap: 20px;
+            flex: none;
+            padding: 20px 20px 36px;
+            justify-content: flex-start;
+            gap: 22px;
           }
           .brandly-headline-row {
+            flex: none;
             flex-direction: column;
             align-items: flex-start;
-            justify-content: flex-end;
+            justify-content: flex-start;
             gap: 0;
-            padding-top: 0;
-            flex: 1;
-            padding-bottom: 8px;
+            padding-top: 4px;
+            padding-bottom: 0;
           }
           .brandly-headline {
-            font-size: clamp(2.1rem, 10vw, 3rem);
+            font-size: clamp(2.15rem, 10vw, 2.85rem);
             min-height: 0;
             line-height: 0.95;
           }
