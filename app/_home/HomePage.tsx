@@ -114,6 +114,15 @@ function CheckMark() {
 function ArrowIcon() {
   return <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>;
 }
+function SecNum({ desktop, mobile, style }: { desktop: string; mobile?: string; style?: React.CSSProperties }) {
+  const phone = mobile ?? desktop;
+  return (
+    <span className="s-num" style={style}>
+      <span className="sec-num-d">{desktop}</span>
+      {phone !== desktop ? <span className="sec-num-m">{phone}</span> : null}
+    </span>
+  );
+}
 
 // ─── Page ──────────────────────────────────────────────────────────────────
 export default function HomePage({ copy }: { copy: HomeCopy }) {
@@ -451,6 +460,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         .aw .sec-badge { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
         .aw .sec-badge .s-num { width: 26px; height: 26px; border-radius: 50%; background: var(--color-obsidian); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
         .aw .sec-badge .s-label { border: 1px solid var(--color-pebble); border-radius: 9999px; padding: 4px 14px; font-size: 12px; font-weight: 500; color: var(--color-graphite); }
+        .aw .s-num .sec-num-m { display: none; }
         .aw .on-dark .sec-badge .s-num { background: rgba(255,255,255,0.15); }
         .aw .on-dark .sec-badge .s-label { border-color: rgba(255,255,255,0.2); color: var(--color-ash); }
 
@@ -688,6 +698,22 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           .aw .sec-examples { order: -3; padding-top: 32px !important; }
           .aw .sec-problem { order: -2; }
           .aw .sec-how { order: -1; }
+          /* Examples header — no badge on phone, left-aligned single-line title */
+          .aw .sec-examples .examples-badge { display: none !important; }
+          .aw .sec-examples .examples-header {
+            text-align: left !important;
+            margin-bottom: 24px !important;
+          }
+          .aw .sec-examples .container { padding-left: 20px; padding-right: 20px; }
+          .aw .sec-examples .examples-title {
+            font-size: clamp(1.05rem, 4.2vw, 1.35rem) !important;
+            line-height: 1.1 !important;
+            letter-spacing: -0.01em !important;
+          }
+          .aw .sec-examples .examples-title-br { display: none; }
+          /* Section numbers 04→03, 05→04, etc. after examples moved up */
+          .aw .s-num .sec-num-d { display: none; }
+          .aw .s-num .sec-num-m { display: inline; }
           /* Reduce section vertical padding — inline style overridden with !important */
           .aw section { padding-top: 56px !important; padding-bottom: 56px !important; }
           .aw .pad-y { padding: 56px 0 !important; }
@@ -918,13 +944,13 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
         <section className="sec-examples" style={{ background: "var(--color-obsidian)", padding: "100px 0", position: "relative", overflow: "hidden" }} id="examples">
           <div className="gn-dots-overlay"/>
           <div className="container">
-            <div className="reveal" style={{ textAlign: "center", marginBottom: 48 }}>
-              <div className="sec-badge" style={{ justifyContent: "center" }}>
-                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>03</span>
+            <div className="reveal examples-header" style={{ textAlign: "center", marginBottom: 48 }}>
+              <div className="sec-badge examples-badge" style={{ justifyContent: "center" }}>
+                <SecNum desktop="03" style={{ background: "rgba(255,255,255,0.12)" }} />
                 <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.examples.eyebrow}</span>
               </div>
-              <h2 className="font-display" style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.02em" }}>
-                <AccentText parts={copy.examples.heading[0]} /><br/><AccentText parts={copy.examples.heading[1]} />
+              <h2 className="font-display examples-title" style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.02em" }}>
+                <AccentText parts={copy.examples.heading[0]} /><br className="examples-title-br" /><AccentText parts={copy.examples.heading[1]} />
               </h2>
             </div>
           </div>
@@ -962,7 +988,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
               {/* Left: bold statement */}
               <div className="reveal">
                 <div className="sec-badge">
-                  <span className="s-num">04</span>
+                  <SecNum desktop="04" mobile="03" />
                   <span className="s-label">{copy.ownership.eyebrow}</span>
                 </div>
                 <h2 className="own-statement">
@@ -1003,7 +1029,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           <div className="container" style={{ position: "relative" }}>
             <div className="reveal" style={{ textAlign: "center", marginBottom: 56 }}>
               <div className="sec-badge" style={{ justifyContent: "center" }}>
-                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>05</span>
+                <SecNum desktop="05" mobile="04" style={{ background: "rgba(255,255,255,0.12)" }} />
                 <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.pricing.eyebrow}</span>
               </div>
               <h2 className="font-display" style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--color-snow)", margin: "0 auto", letterSpacing: "-0.02em", maxWidth: "20ch" }}>
@@ -1096,7 +1122,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
           <div className="container" style={{ position: "relative" }}>
             <div className="reveal" style={{ marginBottom: 56 }}>
               <div className="sec-badge">
-                <span className="s-num" style={{ background: "rgba(255,255,255,0.12)" }}>06</span>
+                <SecNum desktop="06" mobile="05" style={{ background: "rgba(255,255,255,0.12)" }} />
                 <span className="s-label" style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" }}>{copy.proof.eyebrow}</span>
               </div>
               <h2 className="font-display" style={{ fontSize: "clamp(2rem,4vw,3rem)", fontWeight: 400, color: "var(--color-snow)", margin: 0, letterSpacing: "-0.02em" }}>
@@ -1143,7 +1169,7 @@ export default function HomePage({ copy }: { copy: HomeCopy }) {
             <div className="reveal">
               {/* Axion section badge */}
               <div className="sec-badge">
-                <span className="s-num">07</span>
+                <SecNum desktop="07" mobile="06" />
                 <span className="s-label">{copy.faq.eyebrow}</span>
               </div>
               <h2 className="heading-lg"><AccentText parts={copy.faq.heading} /></h2>
