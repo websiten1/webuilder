@@ -6,9 +6,19 @@ import { detectLangFromHeader } from "@/lib/locale";
 import { generateVerificationCode } from "@/lib/verification";
 import { genericErrorResponse, logServerError, newErrorId } from "@/lib/api-error";
 import { passwordValidationError } from "@/lib/password";
+import { checkRequestRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request);
+    const allowed = await checkRequestRateLimit(ip, "signup", 10, 60 * 60 * 1000);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "Too many signup attempts. Please try again later." },
+        { status: 429 }
+      );
+    }
+
     const { email, password, confirmPassword } = await request.json();
 
     if (!email || !password || !confirmPassword) {

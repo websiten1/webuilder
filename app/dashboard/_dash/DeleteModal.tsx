@@ -6,7 +6,25 @@ import { tt, type Lang } from "./i18n";
 
 export function DeleteModal({ onClose, toast, lang }: { onClose: () => void; toast: (m: string) => void; lang: Lang }) {
   const [val, setVal] = React.useState("");
+  const [deleting, setDeleting] = React.useState(false);
   const ok = val.trim().toLowerCase() === "delete";
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/account/delete", { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast(data.error || tt(lang, "Failed to delete account. Please try again.", "Ștergerea contului a eșuat. Încearcă din nou."));
+        setDeleting(false);
+        return;
+      }
+      window.location.href = "/";
+    } catch {
+      toast(tt(lang, "Failed to delete account. Please try again.", "Ștergerea contului a eșuat. Încearcă din nou."));
+      setDeleting(false);
+    }
+  };
   return (
     <div
       style={{
@@ -50,13 +68,10 @@ export function DeleteModal({ onClose, toast, lang }: { onClose: () => void; toa
           </button>
           <button
             className="b b-danger-solid"
-            disabled={!ok}
-            onClick={() => {
-              onClose();
-              toast(tt(lang, "Account deletion isn't wired up yet — contact support@insixlive.com", "Ștergerea contului nu este încă implementată — contactează support@insixlive.com"));
-            }}
+            disabled={!ok || deleting}
+            onClick={handleDelete}
           >
-            {tt(lang, "Delete account", "Șterge contul")}
+            {deleting ? tt(lang, "Deleting…", "Se șterge…") : tt(lang, "Delete account", "Șterge contul")}
           </button>
         </div>
       </div>

@@ -153,7 +153,9 @@ export async function sendVerificationCode(
   code: string,
   lang: "en" | "ro" = "ro"
 ): Promise<void> {
-  console.log(`\n[OTP] Verification code for ${email}: ${code}\n`);
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`\n[OTP] Verification code for ${email}: ${code}\n`);
+  }
 
   const resend = getResend();
   const from =
@@ -203,7 +205,9 @@ export async function sendPasswordResetEmail(
 ): Promise<void> {
   const baseUrl = process.env.NEXT_PUBLIC_URL || "https://insixlive.com";
   const resetLink = `${baseUrl}/reset-password?token=${encodeURIComponent(token)}`;
-  console.log(`\n[Password reset] Link for ${email}: ${resetLink}\n`);
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`\n[Password reset] Link for ${email}: ${resetLink}\n`);
+  }
 
   const c = RESET_COPY[lang];
   const resend = getResend();
@@ -242,7 +246,9 @@ export async function sendVerificationEmail(
 ): Promise<void> {
   const baseUrl = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
   const verifyLink = `${baseUrl}/verify-email?token=${token}`;
-  console.log("\n[Legacy link] Verification link:", verifyLink, "\n");
+  if (process.env.NODE_ENV !== "production") {
+    console.log("\n[Legacy link] Verification link:", verifyLink, "\n");
+  }
 
   const resend = getResend();
   const from =
@@ -645,4 +651,25 @@ export async function sendWebsiteCreatedEmail(
 
   if (error) console.error("Website created email error:", error.message);
   else console.log("Website created email sent, id:", data?.id);
+}
+
+// Plain-text internal alert for failures that need a human to look — right
+// now just "a refund attempt itself failed," so a customer may be owed money
+// with no other trace of it. Best-effort: never throws, so a broken alert
+// can't take down the flow it's alerting about.
+export async function sendOpsAlert(subject: string, body: string): Promise<void> {
+  const to = process.env.OPS_ALERT_EMAIL || "support@insixlive.com";
+  console.error(`[ops-alert] ${subject}\n${body}`);
+  try {
+    const resend = getResend();
+    const from = process.env.RESEND_FROM_EMAIL || "inSIXlive <onboarding@resend.dev>";
+    await resend.emails.send({
+      from,
+      to,
+      subject: `[insixlive alert] ${subject}`,
+      text: body,
+    });
+  } catch (e) {
+    console.error("Ops alert email failed to send:", e);
+  }
 }

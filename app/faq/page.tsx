@@ -15,7 +15,7 @@ const FAQ_CATEGORIES: [string, [string, string][]][] = [
   ["Pricing", [
     ["Is it really one-time?",       "Yes. €59.99 once — no subscription, no recurring fees from us."],
     ["Are there monthly fees?",      "Not from us. Vercel's Hobby plan is free for most small sites. Custom domains are purchased separately on Vercel (typically €12–30/yr)."],
-    ["What is included?",            "A complete AI-generated website deployed to your own Vercel account. Edits are not included — if you want changes, regenerate a new site for €59.99."],
+    ["What is included?",            "A complete AI-generated website deployed to your own Vercel account. Changes afterward cost €10.00 per edit, or you can regenerate the whole site for €59.99 if you want a bigger overhaul."],
     ["Is the domain included?",      "No. Domains are purchased separately on Vercel. They typically cost €12–30/year depending on the extension."],
   ]],
   ["Ownership", [
@@ -31,7 +31,8 @@ const FAQ_CATEGORIES: [string, [string, string][]][] = [
     ["Is SSL included?",                "Yes. Vercel issues SSL certificates automatically once your DNS resolves."],
   ]],
   ["Changes & regeneration", [
-    ["Can I update my website?",           "You can generate a new version at any time. Each generation creates a fresh AI-built website based on your updated brief."],
+    ["Can I update my website?",           "Yes, two ways: request a specific change for €10.00 from your dashboard, or generate a completely fresh version for €59.99 if you want a bigger overhaul."],
+    ["How much does an edit cost?",        "€10.00 per edit. Describe the change from your dashboard and it's redeployed in about two minutes."],
     ["What if I don't like the result?",  "You can regenerate at any time for €59.99. Each generation is a fresh AI-created website based on your updated brief."],
     ["Can I update my brief and regenerate?", "Yes. Update your business description, style choices, or any other details and generate a completely new version."],
   ]],

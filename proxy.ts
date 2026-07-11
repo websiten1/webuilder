@@ -6,10 +6,43 @@ const protectedRoutes = ["/dashboard", "/generate", "/success", "/edit", "/domai
 // Routes that logged-in users should skip
 const authRoutes = ["/login", "/signup"];
 
+const UNSAFE_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
 export default async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const isProtected = protectedRoutes.some((r) => path.startsWith(r));
   const isAuthRoute = authRoutes.some((r) => path.startsWith(r));
+
+  // CSRF: reject cross-origin state-changing API requests. Stripe webhooks
+  // are exempt — they're verified by signature (constructEvent), not by
+  // Origin, and don't carry a browser Origin header at all. Only enforced
+  // when Origin is present and mismatched, so non-browser API clients that
+  // never send it aren't broken.
+  if (
+    path.startsWith("/api") &&
+    !path.startsWith("/api/webhooks") &&
+    UNSAFE_METHODS.has(req.method)
+  ) {
+    const origin = req.headers.get("origin");
+    if (origin && origin !== req.nextUrl.origin) {
+      return NextResponse.json({ error: "Cross-origin request blocked." }, { status: 403 });
+    }
+  }
+
+  // Root homepage: served in Romanian by default, but a non-Romanian visitor
+  // (by Accept-Language, or an explicit ?lang= override) gets the English
+  // copy — rewritten (not redirected), so the URL stays "/" and both
+  // language variants remain statically generated pages.
+  if (path === "/") {
+    const langParam = req.nextUrl.searchParams.get("lang");
+    const acceptLanguage = req.headers.get("accept-language");
+    const wantsEnglish = langParam
+      ? langParam !== "ro"
+      : !(acceptLanguage?.split(",")[0]?.trim().toLowerCase().startsWith("ro") ?? false);
+    if (wantsEnglish) {
+      return NextResponse.rewrite(new URL("/en", req.nextUrl));
+    }
+  }
 
   const token = req.cookies.get("session")?.value;
   const session = await decrypt(token);
@@ -40,5 +73,5 @@ export default async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\.png$).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.png$).*)"],
 };

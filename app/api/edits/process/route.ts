@@ -25,11 +25,13 @@ import {
   sendEditStartedEmail,
   sendEditCompletedEmail,
   sendEditFailedEmail,
+  sendOpsAlert,
 } from "@/lib/email";
+import * as Sentry from "@sentry/nextjs";
 
 export const maxDuration = 300;
 
-async function issueRefund(sessionId: string) {
+async function issueRefund(sessionId: string, context: { editId: string; userId: string }) {
   try {
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.retrieve(sessionId);
@@ -38,7 +40,15 @@ async function issueRefund(sessionId: string) {
       console.log("Refund issued for session:", sessionId);
     }
   } catch (e) {
+    // The edit already failed — now the refund meant to make it right failed
+    // too. Nothing else in the system tracks that this customer is owed
+    // money, so this has to reach a human directly.
     console.error("Refund failed:", e);
+    Sentry.captureException(e, { tags: { area: "refund" }, extra: { sessionId, ...context } });
+    await sendOpsAlert(
+      "Refund failed",
+      `Refund failed for checkout session ${sessionId} (edit ${context.editId}, user ${context.userId}).\n\nError: ${e instanceof Error ? e.message : String(e)}\n\nThis customer's edit failed and the automatic refund did not go through — they are owed €10.00 and need a manual refund from the Stripe dashboard.`
+    );
   }
 }
 
@@ -96,7 +106,7 @@ export async function POST(request: NextRequest) {
     const site = await getSiteById(edit.site_id, authSession.userId);
     if (!site?.vercel_project_id) {
       await updateSiteEditStatus(editId, "failed");
-      if (!free && sessionId) await issueRefund(sessionId);
+      if (!free && sessionId) await issueRefund(sessionId, { editId, userId: authSession.userId });
       return NextResponse.json({ error: "Site Vercel project not found." }, { status: 500 });
     }
 
@@ -106,7 +116,7 @@ export async function POST(request: NextRequest) {
     const vercelAuth = await getValidVercelToken(authSession.userId);
     if (!vercelAuth) {
       await updateSiteEditStatus(editId, "failed");
-      if (!free && sessionId) await issueRefund(sessionId);
+      if (!free && sessionId) await issueRefund(sessionId, { editId, userId: authSession.userId });
       return NextResponse.json(
         { error: VERCEL_RECONNECT_MESSAGE, code: "VERCEL_NOT_CONNECTED" },
         { status: 403 }
@@ -151,9 +161,6 @@ export async function POST(request: NextRequest) {
           requireUserToken: true,
         });
         const deployedUrl = normalizeDeploymentUrl(deployment.url);
-        // #region agent log
-        fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'fdaeb6'},body:JSON.stringify({sessionId:'fdaeb6',location:'edits/process/route.ts:preset-edit',message:'preset edit redeployed',data:{slug:presetSlug,editId,replacements:personalization.replacements.length,url:deployedUrl},hypothesisId:'preset-flow',timestamp:Date.now()})}).catch(()=>{});
-        // #endregion
 
         await updateSiteEditStatus(editId, "completed", {
           previousVercelUrl: site.vercel_url ?? undefined,
@@ -179,7 +186,7 @@ export async function POST(request: NextRequest) {
       } catch (e) {
         console.error("Preset edit failed:", e);
         await updateSiteEditStatus(editId, "failed");
-        if (!free && sessionId) await issueRefund(sessionId);
+        if (!free && sessionId) await issueRefund(sessionId, { editId, userId: authSession.userId });
         sendEditFailedEmail(user.email, site.name, edit.description, site.id).catch(console.error);
         return NextResponse.json({ error: "Edit processing failed." }, { status: 500 });
       }
@@ -211,7 +218,7 @@ INSTRUCTIONS:
     } catch (e) {
       console.error("Claude generation failed:", e);
       await updateSiteEditStatus(editId, "failed");
-      if (!free && sessionId) await issueRefund(sessionId);
+      if (!free && sessionId) await issueRefund(sessionId, { editId, userId: authSession.userId });
       sendEditFailedEmail(user.email, site.name, edit.description, site.id).catch(console.error);
       return NextResponse.json({ error: "Code generation failed." }, { status: 500 });
     }
@@ -227,7 +234,7 @@ INSTRUCTIONS:
     } catch (e) {
       console.error("Vercel deploy failed:", e);
       await updateSiteEditStatus(editId, "failed");
-      if (!free && sessionId) await issueRefund(sessionId);
+      if (!free && sessionId) await issueRefund(sessionId, { editId, userId: authSession.userId });
       sendEditFailedEmail(user.email, site.name, edit.description, site.id).catch(console.error);
       return NextResponse.json({ error: "Deployment failed." }, { status: 500 });
     }

@@ -4,16 +4,15 @@ export const SUPPORT_KNOWLEDGE = `
 insixlive generates professional websites for small businesses in about six minutes using AI. Sites are real Next.js code deployed to the customer's own Vercel account. One-time payment, no monthly subscription from insixlive. Customer owns the code, Vercel project, and domain (if connected).
 
 ## Pricing (one-time, no subscription)
-- Site — €59.99: complete AI-generated website, deployed to customer's Vercel, full source code ownership, 0 free edits after launch. €10.00 per edit after launch.
-- Pro — €69.99: everything in Site + 5 free edits, edit tracking in dashboard, priority email support. €10.00 per edit after the first 5.
-- Premium — €89.99: everything in Pro + 15 free edits, priority generation queue, optional 1:1 onboarding call. €10.00 per edit after the first 15.
+- One flat price: €59.99 for a complete AI-generated website, deployed to the customer's own Vercel account, full source code ownership.
+- No free edits included. Changes after launch cost €10.00 per edit (dashboard → Request Changes), or the customer can regenerate the whole site fresh for another €59.99 instead.
 - Custom domains are NOT included — typically €12–30/year from a registrar or Vercel.
 - Vercel Hobby hosting is free for most small sites.
 
 ## How it works
 1. Sign up free (email + password, verify email)
 2. Describe business — name, type, style, pages
-3. Choose plan and pay once via Stripe
+3. Pay once via Stripe (€59.99)
 4. AI generates website (~30 seconds) + deploys to Vercel (~1–2 minutes)
 5. Live at yoursitename.vercel.app
 6. Optionally connect or buy a custom domain
@@ -22,7 +21,7 @@ insixlive generates professional websites for small businesses in about six minu
 Customer owns everything: source code, Vercel project, domain. Can download code, move to another host, modify code, stop using insixlive — site stays live. No lock-in.
 
 ## Edits / changes
-From dashboard: Request Changes → describe change → regenerated and redeployed in ~2 minutes. Cost: €10.00 per edit unless included in plan.
+From dashboard: Request Changes → describe change → regenerated and redeployed in ~2 minutes. Cost: €10.00 per edit. Alternative: regenerate the whole site for €59.99 if the customer wants a bigger overhaul.
 
 ## Domains
 Two options:
@@ -72,7 +71,7 @@ RULES:
 - Keep answers under ~120 words unless the user asks for detailed steps.
 
 EXAMPLE (Romanian, good style):
-„Îți faci cont gratuit, descrii afacerea, plătești o dată (de la 59,99 €) și în ~6 minute site-ul e live pe Vercel-ul tău. Primești codul complet — e al tău. Domeniul propriu e opțional, îl conectezi după.”
+„Îți faci cont gratuit, descrii afacerea, plătești o dată (59,99 €) și în ~6 minute site-ul e live pe Vercel-ul tău. Primești codul complet — e al tău. Domeniul propriu e opțional, îl conectezi după.”
 
 EXAMPLE (bad — never do this):
 „Iată cum funcționează: 1. **Înscriere gratuită**: … 2. **Descrierea afacerii**: …”

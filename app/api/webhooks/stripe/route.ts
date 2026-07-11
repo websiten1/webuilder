@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { neon } from "@neondatabase/serverless";
-import { getUserById, markUserPaid, recordPaidOrder } from "@/lib/db";
+import { getUserById, markUserPaid, recordPaidOrder, markOrderRefunded, markOrderDisputed } from "@/lib/db";
 import { getStripe } from "@/lib/stripe";
+import { sendOpsAlert } from "@/lib/email";
+import * as Sentry from "@sentry/nextjs";
 
 function getDb() {
   const url = process.env.DATABASE_URL;
@@ -99,6 +101,53 @@ export async function POST(request: NextRequest) {
         console.log(`Webhook: paid but no wizard draft for user ${userId} — will generate on success page redirect`);
       }
     }
+  } else if (event.type === "charge.refunded") {
+    // Covers refunds issued from the Stripe dashboard directly, not just
+    // ones our own issueRefund() call triggers — either way, the order
+    // record should reflect it instead of staying "paid" forever.
+    const charge = event.data.object as Stripe.Charge;
+    if (charge.payment_intent) {
+      try {
+        const stripe = getStripe();
+        const sessions = await stripe.checkout.sessions.list({
+          payment_intent: charge.payment_intent as string,
+          limit: 1,
+        });
+        const session = sessions.data[0];
+        if (session) await markOrderRefunded(session.id);
+      } catch (e) {
+        console.error("Failed to record refund against order:", e);
+        Sentry.captureException(e, { tags: { area: "webhook-refund" } });
+      }
+    }
+  } else if (event.type === "charge.dispute.created") {
+    // A chargeback — real money at risk and a response deadline from
+    // Stripe. Needs a human immediately, there's no automated recovery.
+    const dispute = event.data.object as Stripe.Dispute;
+    Sentry.captureMessage("Stripe dispute created", { level: "error", extra: { disputeId: dispute.id, chargeId: dispute.charge, amount: dispute.amount, reason: dispute.reason } });
+    await sendOpsAlert(
+      "Stripe dispute opened",
+      `A customer disputed a charge.\n\nDispute ID: ${dispute.id}\nCharge: ${dispute.charge}\nAmount: ${(dispute.amount / 100).toFixed(2)} ${dispute.currency?.toUpperCase()}\nReason: ${dispute.reason}\n\nRespond in the Stripe dashboard before the evidence deadline.`
+    );
+    const disputePaymentIntent = typeof dispute.payment_intent === "string" ? dispute.payment_intent : dispute.payment_intent?.id;
+    if (disputePaymentIntent) {
+      try {
+        const stripe = getStripe();
+        const sessions = await stripe.checkout.sessions.list({ payment_intent: disputePaymentIntent, limit: 1 });
+        const session = sessions.data[0];
+        if (session) await markOrderDisputed(session.id);
+      } catch (e) {
+        console.error("Failed to record dispute against order:", e);
+      }
+    }
+  } else if (event.type === "checkout.session.expired") {
+    // Informational — someone started checkout and never paid. No order
+    // row exists yet at this point, nothing to reconcile.
+    const session = event.data.object as Stripe.Checkout.Session;
+    console.log(`Webhook: checkout session expired, user ${session.metadata?.userId ?? "unknown"}`);
+  } else if (event.type === "payment_intent.payment_failed") {
+    const intent = event.data.object as Stripe.PaymentIntent;
+    console.log(`Webhook: payment failed for intent ${intent.id}: ${intent.last_payment_error?.message ?? "unknown reason"}`);
   }
 
   return NextResponse.json({ received: true });

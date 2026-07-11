@@ -1,3 +1,10 @@
+-- 006_password_reset.sql
+--
+-- Forgot-password flow: a single-use, time-limited token per user.
+--
+-- Apply manually, once:
+--   psql "$DATABASE_URL" -f migrations/006_password_reset.sql
+
 ALTER TABLE users
   ADD COLUMN IF NOT EXISTS password_reset_token TEXT,
   ADD COLUMN IF NOT EXISTS password_reset_expires TIMESTAMPTZ;

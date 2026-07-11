@@ -4,12 +4,43 @@ import { Icons } from "./icons";
 import { Section, Row, Toggle } from "./primitives";
 import { tt, type Lang } from "./i18n";
 
+type EmailPreferences = {
+  websiteUpdates: boolean;
+  rewards: boolean;
+  tips: boolean;
+  promotions: boolean;
+};
+
+const DEFAULT_PREFS: EmailPreferences = { websiteUpdates: true, rewards: true, tips: false, promotions: false };
+
 export function NotificationsPage({ toast, onDelete, lang }: { toast: (m: string) => void; onDelete: () => void; lang: Lang }) {
-  const [pref, setPref] = React.useState({ started: true, completed: true, failed: true, product: false, tips: true });
-  const set = (k: keyof typeof pref, v: boolean) => {
-    setPref((p) => ({ ...p, [k]: v }));
-    toast(tt(lang, "Saved for this session — preferences aren't persisted yet", "Salvat pentru această sesiune — preferințele nu sunt încă salvate permanent"));
+  const [pref, setPref] = React.useState<EmailPreferences>(DEFAULT_PREFS);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    fetch("/api/email-preferences")
+      .then((r) => r.json())
+      .then((d) => { if (d.preferences) setPref(d.preferences); })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const set = async (k: keyof EmailPreferences, v: boolean) => {
+    const next = { ...pref, [k]: v };
+    setPref(next);
+    try {
+      const res = await fetch("/api/email-preferences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(next),
+      });
+      if (!res.ok) throw new Error();
+      toast(tt(lang, "Saved", "Salvat"));
+    } catch {
+      setPref(pref);
+      toast(tt(lang, "Failed to save. Please try again.", "Salvarea a eșuat. Încearcă din nou."));
+    }
   };
+
   return (
     <div className="page narrow view-enter">
       <div className="page-head">
@@ -20,25 +51,22 @@ export function NotificationsPage({ toast, onDelete, lang }: { toast: (m: string
 
       <Section kicker="01" title={tt(lang, "Build emails", "Email-uri de construire")} desc={tt(lang, "Recommended", "Recomandat")}>
         <div className="card">
-          <Row title={tt(lang, "Edit started", "Modificare începută")} desc={tt(lang, "When an edit begins generating.", "Când o modificare începe să se genereze.")}>
-            <Toggle on={pref.started} onChange={(v) => set("started", v)} />
-          </Row>
-          <Row title={tt(lang, "Edit completed", "Modificare finalizată")} desc={tt(lang, "When your site is rebuilt and redeployed.", "Când site-ul tău este reconstruit și republicat.")}>
-            <Toggle on={pref.completed} onChange={(v) => set("completed", v)} />
-          </Row>
-          <Row title={tt(lang, "Build failed", "Construire eșuată")} desc={tt(lang, "If something goes wrong so you can retry.", "Dacă ceva nu funcționează, ca să poți încerca din nou.")}>
-            <Toggle on={pref.failed} onChange={(v) => set("failed", v)} />
+          <Row title={tt(lang, "Website updates", "Actualizări site")} desc={tt(lang, "Confirmations when your website is published or changed.", "Confirmări când site-ul tău este publicat sau modificat.")}>
+            <Toggle on={pref.websiteUpdates} onChange={(v) => set("websiteUpdates", v)} disabled={loading} />
           </Row>
         </div>
       </Section>
 
       <Section kicker="02" title={tt(lang, "From insixlive", "De la insixlive")}>
         <div className="card">
-          <Row title={tt(lang, "Product updates", "Actualizări de produs")} desc={tt(lang, "New templates, features, and improvements.", "Șabloane noi, funcționalități și îmbunătățiri.")}>
-            <Toggle on={pref.product} onChange={(v) => set("product", v)} />
+          <Row title={tt(lang, "Rewards & referrals", "Recompense și recomandări")} desc={tt(lang, "Invite offers and free edits or websites you've earned.", "Oferte de invitație și editări sau site-uri gratuite câștigate.")}>
+            <Toggle on={pref.rewards} onChange={(v) => set("rewards", v)} disabled={loading} />
           </Row>
-          <Row title={tt(lang, "Tips & guides", "Sfaturi și ghiduri")} desc={tt(lang, "Occasional advice on getting the most from your site.", "Sfaturi ocazionale pentru a profita la maximum de site-ul tău.")}>
-            <Toggle on={pref.tips} onChange={(v) => set("tips", v)} />
+          <Row title={tt(lang, "Tips & product news", "Sfaturi și noutăți")} desc={tt(lang, "Guides, new features, and ways to get more from insixlive.", "Ghiduri, funcții noi și moduri de a profita mai mult de insixlive.")}>
+            <Toggle on={pref.tips} onChange={(v) => set("tips", v)} disabled={loading} />
+          </Row>
+          <Row title={tt(lang, "Promotions & offers", "Promoții și oferte")} desc={tt(lang, "Occasional discounts and special deals.", "Reduceri ocazionale și oferte speciale.")}>
+            <Toggle on={pref.promotions} onChange={(v) => set("promotions", v)} disabled={loading} />
           </Row>
         </div>
       </Section>

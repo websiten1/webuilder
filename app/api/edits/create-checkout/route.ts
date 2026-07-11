@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
-import { getSiteById, createSiteEdit, updateSiteEditStatus, decrementFreeEdits } from "@/lib/db";
+import { getSiteById, createSiteEdit, updateSiteEditStatus, claimFreeEdit } from "@/lib/db";
 import { getStripe } from "@/lib/stripe";
 
 export async function POST(request: NextRequest) {
@@ -28,14 +28,14 @@ export async function POST(request: NextRequest) {
     // Create the edit record
     const edit = await createSiteEdit(siteId, session.userId, description.trim());
 
-    // Check if the site has free edits remaining
-    const freeEdits = site.free_edits_remaining ?? 0;
-    if (freeEdits > 0) {
-      // Mark as paid (free) and deduct from remaining
+    // Atomically check-and-spend a free edit credit — the check and the
+    // decrement are one statement, so two concurrent requests can't both
+    // claim the same last credit.
+    const gotFreeEdit = await claimFreeEdit(siteId);
+    if (gotFreeEdit) {
       await updateSiteEditStatus(edit.id, "paid", { stripeSessionId: "free" });
-      await decrementFreeEdits(siteId);
       const baseUrl = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
-      return NextResponse.json({ free: true, editId: edit.id, remainingAfter: freeEdits - 1, redirectTo: `${baseUrl}/edit/processing?free=true&edit_id=${edit.id}` });
+      return NextResponse.json({ free: true, editId: edit.id, redirectTo: `${baseUrl}/edit/processing?free=true&edit_id=${edit.id}` });
     }
 
     // No free edits — charge via Stripe

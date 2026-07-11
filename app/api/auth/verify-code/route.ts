@@ -12,6 +12,11 @@ import {
   MAX_VERIFICATION_ATTEMPTS,
 } from "@/lib/verification";
 import { genericErrorResponse, logServerError, newErrorId } from "@/lib/api-error";
+import { isActionLocked, recordActionFailure, clearActionFailures } from "@/lib/rate-limit";
+
+const VERIFY_ACTION = "verify_code";
+const MAX_LOCKOUT_ATTEMPTS = 5;
+const LOCKOUT_MS = 15 * 60 * 1000;
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,6 +38,17 @@ export async function POST(request: NextRequest) {
     }
 
     const normalizedEmail = email.toLowerCase();
+
+    // Lockout persists across code resends — capped at MAX_LOCKOUT_ATTEMPTS
+    // wrong guesses per email within LOCKOUT_MS, independent of the per-code
+    // attempt counter below (which only protects a single issued code).
+    if (await isActionLocked(normalizedEmail, VERIFY_ACTION)) {
+      return NextResponse.json(
+        { error: INVALID_VERIFICATION_CODE_MESSAGE },
+        { status: 429 }
+      );
+    }
+
     const user = await getUserByEmail(normalizedEmail);
 
     // Opaque response — same message whether the email is unknown, the code is
@@ -46,6 +62,7 @@ export async function POST(request: NextRequest) {
 
     if ((user.verification_attempts ?? 0) >= MAX_VERIFICATION_ATTEMPTS) {
       await invalidateVerificationCode(user.id);
+      await recordActionFailure(normalizedEmail, VERIFY_ACTION, MAX_LOCKOUT_ATTEMPTS, LOCKOUT_MS);
       return NextResponse.json(
         { error: INVALID_VERIFICATION_CODE_MESSAGE },
         { status: 400 }
@@ -58,12 +75,14 @@ export async function POST(request: NextRequest) {
       if (attempts >= MAX_VERIFICATION_ATTEMPTS) {
         await invalidateVerificationCode(user.id);
       }
+      await recordActionFailure(normalizedEmail, VERIFY_ACTION, MAX_LOCKOUT_ATTEMPTS, LOCKOUT_MS);
       return NextResponse.json(
         { error: INVALID_VERIFICATION_CODE_MESSAGE },
         { status: 400 }
       );
     }
 
+    await clearActionFailures(normalizedEmail, VERIFY_ACTION);
     await clearVerificationCode(matched.id);
 
     await createSession({

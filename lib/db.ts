@@ -245,7 +245,7 @@ export type Order = {
   amount_total: number | null;
   currency: string | null;
   tier: "website" | "website_5";
-  status: "paid" | "generating" | "completed" | "failed";
+  status: "paid" | "generating" | "completed" | "failed" | "refunded" | "disputed";
   site_id: string | null;
   error: string | null;
   claimed_at: Date | null;
@@ -281,6 +281,30 @@ export async function getOrderByStripeSessionId(stripeSessionId: string): Promis
     SELECT * FROM orders WHERE stripe_session_id = ${stripeSessionId} LIMIT 1
   `;
   return (rows[0] as Order) || null;
+}
+
+export async function getOrdersByUserId(userId: string): Promise<Order[]> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT * FROM orders WHERE user_id = ${userId} ORDER BY created_at DESC
+  `;
+  return rows as Order[];
+}
+
+export async function markOrderRefunded(stripeSessionId: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE orders SET status = 'refunded', updated_at = NOW()
+    WHERE stripe_session_id = ${stripeSessionId}
+  `;
+}
+
+export async function markOrderDisputed(stripeSessionId: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE orders SET status = 'disputed', updated_at = NOW()
+    WHERE stripe_session_id = ${stripeSessionId}
+  `;
 }
 
 // Atomically claims the order for generation. Returns null if the order does
@@ -447,6 +471,16 @@ export async function clearVercelAuth(userId: string): Promise<void> {
         updated_at = NOW()
     WHERE id = ${userId}
   `;
+}
+
+// Hard-deletes the account and everything owned in our DB (sites, edits,
+// orders, parish calendar modules cascade via FK; wizard_drafts has no FK so
+// it's cleared explicitly). Already-deployed sites stay live on the
+// customer's own Vercel account — only the insixlive-side record disappears.
+export async function deleteUserAccount(userId: string): Promise<void> {
+  const sql = getDb();
+  await sql`DELETE FROM wizard_drafts WHERE user_id = ${userId}`;
+  await sql`DELETE FROM users WHERE id = ${userId}`;
 }
 
 export async function incrementSiteVersion(siteId: string): Promise<void> {
@@ -688,6 +722,22 @@ export async function decrementFreeEdits(siteId: string): Promise<void> {
     SET free_edits_remaining = GREATEST(0, free_edits_remaining - 1)
     WHERE id = ${siteId}
   `;
+}
+
+// Atomically checks-and-spends one free edit credit. The check (>0) and the
+// spend are one statement, so two concurrent requests can't both read "1
+// remaining" and both get granted a free edit — only one UPDATE can match
+// the WHERE clause before the other sees free_edits_remaining already at 0.
+// Returns true if a credit was claimed, false if none were available.
+export async function claimFreeEdit(siteId: string): Promise<boolean> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE sites
+    SET free_edits_remaining = free_edits_remaining - 1
+    WHERE id = ${siteId} AND free_edits_remaining > 0
+    RETURNING id
+  `;
+  return rows.length > 0;
 }
 
 export async function createParishCalendarModule(

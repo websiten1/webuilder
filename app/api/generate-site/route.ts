@@ -514,18 +514,12 @@ export async function POST(request: NextRequest) {
 
     stage = "generating_code";
     if (presetSlug) {
-      // #region agent log
-      fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'fdaeb6'},body:JSON.stringify({sessionId:'fdaeb6',location:'generate-site/route.ts:preset-branch',message:'preset branch entered',data:{slug:presetSlug,siteName},hypothesisId:'preset-flow',timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       const personalization = await generatePresetPersonalization(presetSlug, formData);
       const logoImg = images.find(i => i.placeholder.startsWith("/logo."));
       presetFiles = buildPresetDeployFiles(presetSlug, personalization, {
         logo: logoImg ? { path: logoImg.placeholder.replace(/^\//, ""), base64: logoImg.base64 } : undefined,
         socials: formData.socials,
       });
-      // #region agent log
-      fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'fdaeb6'},body:JSON.stringify({sessionId:'fdaeb6',location:'generate-site/route.ts:preset-personalized',message:'preset files built',data:{slug:presetSlug,replacements:personalization.replacements.length,title:personalization.title,fileCount:presetFiles.length},hypothesisId:'preset-flow',timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       console.log(`✅ Preset "${presetSlug}" personalized: ${personalization.replacements.length} replacements, ${presetFiles.length} files`);
     } else {
       const prompt = buildPrompt(formData);
@@ -607,9 +601,6 @@ export async function POST(request: NextRequest) {
         });
     const vercelProjectId = deployment.projectId ?? projectName;
     console.log("✅ Deployed:", deployment.url, "| vercel project id:", vercelProjectId);
-    // #region agent log
-    if (presetSlug) fetch('http://127.0.0.1:7469/ingest/a117af1e-34fc-4785-aeae-36ebe2d13be6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'fdaeb6'},body:JSON.stringify({sessionId:'fdaeb6',location:'generate-site/route.ts:preset-deployed',message:'preset static deploy done',data:{slug:presetSlug,url:deployment.url,projectId:vercelProjectId},hypothesisId:'preset-flow',timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
 
     const siteUrl = normalizeDeploymentUrl(deployment.url);
 

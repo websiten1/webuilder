@@ -33,10 +33,15 @@ export default function SiteFooter() {
               <div style={{ fontFamily: P.font, fontSize: 14, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, maxWidth: 280 }}>
                 Own your website. Don&apos;t rent it.<br/>AI builds it. Vercel hosts it. You own every line.
               </div>
-              <div style={{ marginTop: 18, display: "flex", gap: 8, alignItems: "center", fontFamily: P.mono, fontSize: 11, color: T.muted }}>
+              <a
+                href="https://www.vercel-status.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ marginTop: 18, display: "flex", gap: 8, alignItems: "center", fontFamily: P.mono, fontSize: 11, color: T.muted, textDecoration: "none" }}
+              >
                 <span style={{ width: 6, height: 6, borderRadius: 3, background: T.green, boxShadow: `0 0 6px ${T.green}` }}/>
-                <span>status · all systems live</span>
-              </div>
+                <span>hosting status — Vercel</span>
+              </a>
             </div>
             {[
               ["Product",  [["How it works","/how-it-works"],["Examples","/examples"],["Pricing","/pricing"],["Domains","/domains"],["FAQ","/faq"]]],

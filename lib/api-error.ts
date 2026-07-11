@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 
 export function newErrorId(): string {
   return crypto.randomUUID();
@@ -16,6 +17,7 @@ export function logServerError(
     stack: error instanceof Error ? error.stack : undefined,
     ...extra,
   });
+  Sentry.captureException(error, { tags: { errorId, context }, extra });
 }
 
 export function genericErrorResponse(errorId: string, status = 500) {

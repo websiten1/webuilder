@@ -3,9 +3,18 @@ import { getUserByEmail, saveVerificationCode, canSendVerificationCode } from "@
 import { sendVerificationCode } from "@/lib/email";
 import { generateVerificationCode, RESEND_MIN_INTERVAL_MS } from "@/lib/verification";
 import { genericErrorResponse, logServerError, newErrorId } from "@/lib/api-error";
+import { checkRequestRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request);
+    // Per-user 60s cooldown (canSendVerificationCode below) stops spamming one
+    // target; this stops one IP from fanning out across many targets.
+    const ipAllowed = await checkRequestRateLimit(ip, "resend_verification", 15, 60 * 60 * 1000);
+    if (!ipAllowed) {
+      return NextResponse.json({ success: true });
+    }
+
     const { email } = await request.json();
 
     if (!email) {

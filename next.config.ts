@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import path from "path";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
@@ -14,4 +15,12 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// No-ops until SENTRY_ORG/SENTRY_PROJECT/SENTRY_AUTH_TOKEN are set (only
+// needed for source-map upload — error reporting itself just needs the DSN
+// in instrumentation.ts / instrumentation-client.ts).
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: true,
+});
