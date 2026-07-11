@@ -255,7 +255,7 @@ export default function DashboardPage() {
               lang={lang}
             />
           )}
-          {page === "analytics" && <AnalyticsPage sites={sites} toast={toast} lang={lang} />}
+          {page === "analytics" && <AnalyticsPage sites={sites} toast={toast} lang={lang} onNavigate={go} />}
           {page === "domains" && <DomainsPage sites={sites} toast={toast} lang={lang} />}
           {page === "profile" && (
             <ProfilePage

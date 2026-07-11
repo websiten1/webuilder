@@ -161,6 +161,7 @@ export async function deployToVercel(
         next: "^14.2.0",
         react: "^18.3.0",
         "react-dom": "^18.3.0",
+        "@vercel/analytics": "^1.4.0",
         ...extraDeps,
       },
       devDependencies: {
@@ -215,6 +216,9 @@ export async function deployToVercel(
           { file: "tsconfig.json", data: tsConfig },
           { file: "next.config.js", data: `/** @type {import('next').NextConfig} */\nmodule.exports = { typescript: { ignoreBuildErrors: true }, eslint: { ignoreDuringBuilds: true } };` },
           { file: "pages/index.tsx", data: code },
+          // Wraps every generated page with Vercel Web Analytics so real
+          // visitor stats are collectable once the project owner enables it.
+          { file: "pages/_app.tsx", data: `import type { AppProps } from "next/app";\nimport { Analytics } from "@vercel/analytics/next";\n\nexport default function App({ Component, pageProps }: AppProps) {\n  return (\n    <>\n      <Component {...pageProps} />\n      <Analytics />\n    </>\n  );\n}\n` },
           // Static image files — deployed to public/ so they're accessible as /logo.png etc.
           ...(options?.staticImages ?? []).map(img => ({
             file: `public/${img.path}`,
@@ -418,4 +422,87 @@ export async function checkDeploymentStatus(
     console.error("Error checking deployment status:", error);
     throw error;
   }
+}
+
+// ─── Web Analytics ──────────────────────────────────────────────────────────
+// Real traffic data for a generated site, read from the site owner's own
+// Vercel project via their connected OAuth token. Requires the project to
+// have Web Analytics enabled (a one-time manual step in the Vercel
+// dashboard — there is no API to toggle it on) and the deployed site to
+// include @vercel/analytics (added automatically in deployToVercel above).
+
+export type WebAnalyticsRow = Record<string, string | number>;
+
+async function webAnalyticsQuery(
+  kind: "count" | "aggregate",
+  token: string,
+  teamId: string | null | undefined,
+  projectId: string,
+  params: Record<string, string>
+): Promise<{ data: WebAnalyticsRow | WebAnalyticsRow[] }> {
+  const url = new URL(`https://api.vercel.com/v1/query/web-analytics/visits/${kind}`);
+  url.searchParams.set("projectId", projectId);
+  if (teamId) url.searchParams.set("teamId", teamId);
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+
+  const response = await fetch(url.toString(), {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) {
+    throw new Error(`Vercel Web Analytics API error: ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function getWebAnalyticsCount(
+  token: string,
+  teamId: string | null | undefined,
+  projectId: string,
+  since: string,
+  until: string
+): Promise<{ pageviews: number; visitors: number }> {
+  const { data } = await webAnalyticsQuery("count", token, teamId, projectId, { since, until });
+  const row = data as WebAnalyticsRow;
+  return { pageviews: Number(row.pageviews) || 0, visitors: Number(row.visitors) || 0 };
+}
+
+export async function getWebAnalyticsAggregate(
+  token: string,
+  teamId: string | null | undefined,
+  projectId: string,
+  opts: { since: string; until: string; by: string; limit?: number }
+): Promise<WebAnalyticsRow[]> {
+  const { data } = await webAnalyticsQuery("aggregate", token, teamId, projectId, {
+    since: opts.since,
+    until: opts.until,
+    by: opts.by,
+    ...(opts.limit ? { limit: String(opts.limit) } : {}),
+  });
+  return Array.isArray(data) ? data : [data];
+}
+
+/** Best-effort deep link to the project's Analytics tab, where the owner enables collection. */
+export async function getVercelAnalyticsEnableUrl(
+  token: string,
+  teamId: string | null | undefined,
+  projectName: string
+): Promise<string> {
+  try {
+    let slug: string | null = null;
+    if (teamId) {
+      const res = await fetch(`https://api.vercel.com/v2/teams/${teamId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) slug = (await res.json())?.slug ?? null;
+    } else {
+      const res = await fetch("https://api.vercel.com/v2/user", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) slug = (await res.json())?.user?.username ?? null;
+    }
+    if (slug && projectName) return `https://vercel.com/${slug}/${projectName}/analytics`;
+  } catch {
+    // fall through to generic dashboard link
+  }
+  return "https://vercel.com/dashboard";
 }
