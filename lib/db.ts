@@ -142,6 +142,18 @@ export async function updateUserEmailPreferences(
   `;
 }
 
+export async function updateUserPreferredLanguage(
+  userId: string,
+  lang: "en" | "ro"
+): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE users
+    SET preferred_language = ${lang}, updated_at = NOW()
+    WHERE id = ${userId}
+  `;
+}
+
 export async function getUserByVerificationToken(
   token: string
 ): Promise<User | null> {
@@ -252,6 +264,7 @@ export type Order = {
   completed_at: Date | null;
   created_at: Date;
   updated_at: Date;
+  promo_code_issued: string | null;
 };
 
 // Idempotent: the UNIQUE constraint on stripe_session_id makes concurrent
@@ -304,6 +317,15 @@ export async function markOrderDisputed(stripeSessionId: string): Promise<void> 
   await sql`
     UPDATE orders SET status = 'disputed', updated_at = NOW()
     WHERE stripe_session_id = ${stripeSessionId}
+  `;
+}
+
+/** Records the retry promo code issued for a failed order, once. */
+export async function markOrderPromoIssued(orderId: string, code: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE orders SET promo_code_issued = ${code}, updated_at = NOW()
+    WHERE id = ${orderId}
   `;
 }
 

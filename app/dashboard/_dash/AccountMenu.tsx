@@ -13,6 +13,7 @@ export function AccountMenu({
   initials,
   planLabel,
   lang,
+  onSetLang,
 }: {
   go: (p: PageId) => void;
   close: () => void;
@@ -21,6 +22,7 @@ export function AccountMenu({
   initials: string;
   planLabel: string;
   lang: Lang;
+  onSetLang: (l: Lang) => void;
 }) {
   React.useEffect(() => {
     const h = (e: MouseEvent) => {
@@ -58,6 +60,31 @@ export function AccountMenu({
       <div className="menu-sect">
         {item(Icons.question, tt(lang, "Help & Support", "Ajutor și asistență"), () => { window.location.href = "mailto:support@insixlive.com"; close(); })}
         {item(Icons.ext, "insixlive.com", () => { window.open("https://insixlive.com", "_blank"); close(); })}
+      </div>
+      <div className="menu-sect">
+        <div className="menu-item" style={{ cursor: "default" }}>
+          {tt(lang, "Language", "Limbă")}
+          <span style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
+            <button
+              onClick={(e) => { e.stopPropagation(); onSetLang("ro"); }}
+              style={{
+                fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 6,
+                border: "1px solid var(--hair-2)", cursor: "pointer",
+                background: lang === "ro" ? "var(--text)" : "transparent",
+                color: lang === "ro" ? "var(--bg)" : "var(--text-3)",
+              }}
+            >RO</button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onSetLang("en"); }}
+              style={{
+                fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 6,
+                border: "1px solid var(--hair-2)", cursor: "pointer",
+                background: lang === "en" ? "var(--text)" : "transparent",
+                color: lang === "en" ? "var(--bg)" : "var(--text-3)",
+              }}
+            >EN</button>
+          </span>
+        </div>
       </div>
       <div className="menu-sect">
         <button className="menu-item danger" onClick={onLogout}>

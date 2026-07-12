@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getPasswordIssues, passwordRequirementLabels } from "@/lib/password";
+import { type Lang, tt, detectLang, persistLang } from "@/lib/i18n";
+import { translateAuthError } from "@/lib/auth-errors";
 
 const AURORA_VIDEO =
   "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260506_081238_406ed0e3-5d83-436e-a512-0bbff7ec5b95.mp4";
@@ -38,6 +40,26 @@ function Wordmark({ style }: { style?: React.CSSProperties }) {
     }}>
       insixlive
     </span>
+  );
+}
+
+function LangToggle({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
+  const pill = (active: boolean): React.CSSProperties => ({
+    fontSize: 11, fontWeight: 700, fontFamily: A.font, padding: "4px 9px", borderRadius: 6,
+    border: "none", cursor: "pointer",
+    background: active ? A.white : "transparent",
+    color: active ? A.black : "rgba(255,255,255,0.45)",
+  });
+  return (
+    <div style={{
+      position: "fixed", top: 16, right: 16, zIndex: 20,
+      display: "flex", gap: 2, background: "rgba(255,255,255,0.06)",
+      border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, padding: 3,
+      backdropFilter: "blur(8px)",
+    }}>
+      <button onClick={() => setLang("ro")} style={pill(lang === "ro")}>RO</button>
+      <button onClick={() => setLang("en")} style={pill(lang === "en")}>EN</button>
+    </div>
   );
 }
 
@@ -160,6 +182,11 @@ function OtpBoxes({ value, onChange, disabled }: { value: string[]; onChange: (v
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function SignupPage() {
   const router = useRouter();
+
+  const [lang, setLangState] = useState<Lang>("en");
+  useEffect(() => { setLangState(detectLang()); }, []);
+  const setLang = (l: Lang) => { setLangState(l); persistLang(l); };
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -191,23 +218,23 @@ export default function SignupPage() {
   }, [resendCooldown]);
 
   const passwordIssues = password ? getPasswordIssues(password) : [];
-  const passwordRequirements = passwordRequirementLabels("ro");
+  const passwordRequirements = passwordRequirementLabels(lang);
 
   const handleSignup = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (password !== confirmPassword) { setError("Parolele nu coincid."); return; }
-    if (passwordIssues.length > 0) { setError("Parola nu îndeplinește cerințele de mai jos."); return; }
+    if (password !== confirmPassword) { setError(tt(lang, "Passwords don't match.", "Parolele nu coincid.")); return; }
+    if (passwordIssues.length > 0) { setError(tt(lang, "Password doesn't meet the requirements below.", "Parola nu îndeplinește cerințele de mai jos.")); return; }
     setLoading(true); setError("");
     try {
       const res = await fetch("/api/auth/signup", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, confirmPassword }),
+        body: JSON.stringify({ email, password, confirmPassword, lang }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "Înregistrarea a eșuat. Încearcă din nou."); return; }
-      if (data.emailWarning) setEmailWarning(data.emailWarning);
+      if (!res.ok) { setError(data.error ? translateAuthError(data.error, lang) : tt(lang, "Sign-up failed. Try again.", "Înregistrarea a eșuat. Încearcă din nou.")); return; }
+      if (data.emailWarning) setEmailWarning(translateAuthError(data.emailWarning, lang));
       setShowOtp(true);
-    } catch { setError("Eroare de rețea. Încearcă din nou."); }
+    } catch { setError(tt(lang, "Network error. Try again.", "Eroare de rețea. Încearcă din nou.")); }
     finally { setLoading(false); }
   };
 
@@ -221,11 +248,11 @@ export default function SignupPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setOtpError(data.error || "Cod incorect. Încearcă din nou.");
+        setOtpError(data.error ? translateAuthError(data.error, lang) : tt(lang, "Incorrect code. Try again.", "Cod incorect. Încearcă din nou."));
         setDigits(["", "", "", "", "", ""]); setVerifying(false); return;
       }
       router.push("/dashboard");
-    } catch { setOtpError("Eroare de rețea. Încearcă din nou."); setVerifying(false); }
+    } catch { setOtpError(tt(lang, "Network error. Try again.", "Eroare de rețea. Încearcă din nou.")); setVerifying(false); }
   };
 
   const handleResend = async () => {
@@ -266,6 +293,8 @@ export default function SignupPage() {
         }
       `}</style>
 
+      <LangToggle lang={lang} setLang={setLang} />
+
       {/* Outer: black wrapper with 8px inset padding — Aurora's signature */}
       <div style={{ minHeight: "100vh", background: A.black, padding: 8, display: "flex" }}>
         <div style={{ display: "flex", flex: 1, borderRadius: 20, overflow: "hidden" }}>
@@ -294,23 +323,26 @@ export default function SignupPage() {
             <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", gap: 28 }}>
               <div>
                 <h1 className="font-display" style={{ fontSize: "clamp(2rem,2.8vw,2.6rem)", color: A.white, lineHeight: 1.1, marginBottom: 12 }}>
-                  Site-ul tău.<br/>Codul tău.<br/><span style={{ color: A.six }}>Al tău pentru totdeauna.</span>
+                  {tt(lang,
+                    <>Your site.<br/>Your code.<br/><span style={{ color: A.six }}>Yours forever.</span></>,
+                    <>Site-ul tău.<br/>Codul tău.<br/><span style={{ color: A.six }}>Al tău pentru totdeauna.</span></>
+                  )}
                 </h1>
                 <p style={{ fontFamily: A.font, fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>
-                  Descrie afacerea ta și generăm un site complet — cod, hosting și tot.
+                  {tt(lang, "Describe your business and we generate a complete site — code, hosting, everything.", "Descrie afacerea ta și generăm un site complet — cod, hosting și tot.")}
                 </p>
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <StepCard number={1} text="Creează-ți contul" active={!showOtp}/>
-                <StepCard number={2} text="Verifică-ți emailul" active={showOtp}/>
-                <StepCard number={3} text="Lansează în 6 minute" active={false}/>
+                <StepCard number={1} text={tt(lang, "Create your account", "Creează-ți contul")} active={!showOtp}/>
+                <StepCard number={2} text={tt(lang, "Verify your email", "Verifică-ți emailul")} active={showOtp}/>
+                <StepCard number={3} text={tt(lang, "Launch in 6 minutes", "Lansează în 6 minute")} active={false}/>
               </div>
 
             </div>
           </section>
 
-          {/* ── Dreapta: formular ── */}
+          {/* ── Right: form ── */}
           <section className="au-right" style={{
             flex: 1, background: A.panel,
             display: "flex", flexDirection: "column",
@@ -329,10 +361,10 @@ export default function SignupPage() {
                       <Wordmark />
                     </div>
                     <h2 className="font-display" style={{ fontSize: 30, color: A.white, marginBottom: 8 }}>
-                      Creează cont nou
+                      {tt(lang, "Create a new account", "Creează cont nou")}
                     </h2>
                     <p style={{ fontFamily: A.font, fontSize: 14, color: A.m40, lineHeight: 1.5 }}>
-                      Completează datele pentru a începe. 30 de secunde, fără card.
+                      {tt(lang, "Fill in your details to get started. 30 seconds, no card.", "Completează datele pentru a începe. 30 de secunde, fără card.")}
                     </p>
                   </div>
 
@@ -354,8 +386,8 @@ export default function SignupPage() {
                   <form onSubmit={handleSignup} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                     <AInput label="Email" value={email} placeholder="tu@afacereata.ro" onChange={setEmail}/>
                     <AInput
-                      label="Parolă" value={password}
-                      placeholder="Alege o parolă"
+                      label={tt(lang, "Password", "Parolă")} value={password}
+                      placeholder={tt(lang, "Choose a password", "Alege o parolă")}
                       type={showPw ? "text" : "password"}
                       onChange={setPassword}
                       suffix={
@@ -366,8 +398,8 @@ export default function SignupPage() {
                       }
                     />
                     <AInput
-                      label="Confirmă parola" value={confirmPassword}
-                      placeholder="Repetă parola"
+                      label={tt(lang, "Confirm password", "Confirmă parola")} value={confirmPassword}
+                      placeholder={tt(lang, "Repeat password", "Repetă parola")}
                       type={showCpw ? "text" : "password"}
                       onChange={setConfirmPassword}
                       suffix={
@@ -410,20 +442,20 @@ export default function SignupPage() {
                       onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
                     >
                       {loading
-                        ? <><span style={{ width: 16, height: 16, borderRadius: 8, border: "2px solid rgba(0,0,0,0.15)", borderTopColor: A.black, animation: "au-spin .8s linear infinite", display: "inline-block" }}/> Se creează contul…</>
-                        : "Creează cont"
+                        ? <><span style={{ width: 16, height: 16, borderRadius: 8, border: "2px solid rgba(0,0,0,0.15)", borderTopColor: A.black, animation: "au-spin .8s linear infinite", display: "inline-block" }}/> {tt(lang, "Creating account…", "Se creează contul…")}</>
+                        : tt(lang, "Create account", "Creează cont")
                       }
                     </button>
                   </form>
 
                   <div style={{ textAlign: "center", fontFamily: A.font, fontSize: 14, color: A.m40 }}>
-                    Ai deja cont?{" "}
-                    <Link href="/login" style={{ color: A.white, fontWeight: 600, textDecoration: "none" }}>Autentifică-te</Link>
+                    {tt(lang, "Already have an account?", "Ai deja cont?")}{" "}
+                    <Link href="/login" style={{ color: A.white, fontWeight: 600, textDecoration: "none" }}>{tt(lang, "Sign in", "Autentifică-te")}</Link>
                   </div>
                   <div style={{ textAlign: "center", fontFamily: A.font, fontSize: 12, color: "rgba(255,255,255,0.22)" }}>
-                    Continuând, ești de acord cu{" "}
-                    <span style={{ color: A.m40, fontWeight: 600 }}>Termenii</span> și{" "}
-                    <span style={{ color: A.m40, fontWeight: 600 }}>Politica de confidențialitate</span>.
+                    {tt(lang, "By continuing, you agree to the", "Continuând, ești de acord cu")}{" "}
+                    <span style={{ color: A.m40, fontWeight: 600 }}>{tt(lang, "Terms", "Termenii")}</span> {tt(lang, "and", "și")}{" "}
+                    <span style={{ color: A.m40, fontWeight: 600 }}>{tt(lang, "Privacy Policy", "Politica de confidențialitate")}</span>.
                   </div>
 
                 </div>
@@ -445,10 +477,10 @@ export default function SignupPage() {
 
                   <div>
                     <h2 className="font-display" style={{ fontSize: 28, color: A.white, marginBottom: 8 }}>
-                      Verifică inbox-ul
+                      {tt(lang, "Check your inbox", "Verifică inbox-ul")}
                     </h2>
                     <p style={{ fontFamily: A.font, fontSize: 14, color: A.m40, marginBottom: 4, lineHeight: 1.5 }}>
-                      Am trimis un cod de 6 cifre la
+                      {tt(lang, "We sent a 6-digit code to", "Am trimis un cod de 6 cifre la")}
                     </p>
                     <p style={{ fontFamily: A.font, fontSize: 15, fontWeight: 600, color: A.white }}>{email}</p>
                   </div>
@@ -464,7 +496,7 @@ export default function SignupPage() {
                   {verifying && (
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontFamily: A.font, fontSize: 14, color: A.m40 }}>
                       <span style={{ width: 14, height: 14, borderRadius: 7, border: "2px solid rgba(255,255,255,0.12)", borderTopColor: A.white, animation: "au-spin .8s linear infinite", display: "inline-block" }}/>
-                      Se verifică…
+                      {tt(lang, "Verifying…", "Se verifică…")}
                     </div>
                   )}
 
@@ -479,15 +511,15 @@ export default function SignupPage() {
                   )}
 
                   <div style={{ fontFamily: A.font, fontSize: 14, color: A.m40 }}>
-                    Nu ai primit codul?{" "}
+                    {tt(lang, "Didn't get the code?", "Nu ai primit codul?")}{" "}
                     {resendCooldown > 0
-                      ? <span>Retrimite în {resendCooldown}s</span>
+                      ? <span>{tt(lang, `Resend in ${resendCooldown}s`, `Retrimite în ${resendCooldown}s`)}</span>
                       : (
                         <button onClick={handleResend} disabled={resendLoading} style={{
                           background: "none", border: "none", cursor: "pointer",
                           color: A.white, fontWeight: 600, fontSize: 14, fontFamily: A.font, padding: 0,
                         }}>
-                          {resendLoading ? "Se trimite…" : "Retrimite codul"}
+                          {resendLoading ? tt(lang, "Sending…", "Se trimite…") : tt(lang, "Resend code", "Retrimite codul")}
                         </button>
                       )
                     }
@@ -497,7 +529,7 @@ export default function SignupPage() {
                     onClick={() => { setShowOtp(false); setDigits(["","","","","",""]); setOtpError(""); }}
                     style={{ background: "none", border: "none", cursor: "pointer", fontFamily: A.font, fontSize: 13, color: "rgba(255,255,255,0.3)", padding: 0 }}
                   >
-                    ← Folosește alt email
+                    {tt(lang, "← Use a different email", "← Folosește alt email")}
                   </button>
 
                 </div>

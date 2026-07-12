@@ -1,9 +1,11 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getPasswordIssues, passwordRequirementLabels } from "@/lib/password";
+import { type Lang, tt, detectLang, persistLang } from "@/lib/i18n";
+import { translateAuthError } from "@/lib/auth-errors";
 
 const AURORA_VIDEO =
   "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260506_081238_406ed0e3-5d83-436e-a512-0bbff7ec5b95.mp4";
@@ -35,6 +37,26 @@ function Wordmark({ style }: { style?: React.CSSProperties }) {
     }}>
       insixlive
     </span>
+  );
+}
+
+function LangToggle({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
+  const pill = (active: boolean): React.CSSProperties => ({
+    fontSize: 11, fontWeight: 700, fontFamily: A.font, padding: "4px 9px", borderRadius: 6,
+    border: "none", cursor: "pointer",
+    background: active ? A.white : "transparent",
+    color: active ? A.black : "rgba(255,255,255,0.45)",
+  });
+  return (
+    <div style={{
+      position: "fixed", top: 16, right: 16, zIndex: 20,
+      display: "flex", gap: 2, background: "rgba(255,255,255,0.06)",
+      border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, padding: 3,
+      backdropFilter: "blur(8px)",
+    }}>
+      <button onClick={() => setLang("ro")} style={pill(lang === "ro")}>RO</button>
+      <button onClick={() => setLang("en")} style={pill(lang === "en")}>EN</button>
+    </div>
   );
 }
 
@@ -86,6 +108,10 @@ function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token") || "";
 
+  const [lang, setLangState] = useState<Lang>("en");
+  useEffect(() => { setLangState(detectLang()); }, []);
+  const setLang = (l: Lang) => { setLangState(l); persistLang(l); };
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -95,24 +121,24 @@ function ResetPasswordContent() {
   const [done, setDone] = useState(false);
 
   const issues = password ? getPasswordIssues(password) : [];
-  const requirements = passwordRequirementLabels("ro");
+  const requirements = passwordRequirementLabels(lang);
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (password !== confirmPassword) { setError("Parolele nu coincid."); return; }
-    if (issues.length > 0) { setError("Parola nu îndeplinește cerințele de mai jos."); return; }
+    if (password !== confirmPassword) { setError(tt(lang, "Passwords don't match.", "Parolele nu coincid.")); return; }
+    if (issues.length > 0) { setError(tt(lang, "Password doesn't meet the requirements below.", "Parola nu îndeplinește cerințele de mai jos.")); return; }
 
     setLoading(true); setError("");
     try {
       const res = await fetch("/api/auth/reset-password", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, password }),
+        body: JSON.stringify({ token, password, lang }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "Ceva nu a mers bine. Încearcă din nou."); return; }
+      if (!res.ok) { setError(data.error ? translateAuthError(data.error, lang) : tt(lang, "Something went wrong. Try again.", "Ceva nu a mers bine. Încearcă din nou.")); return; }
       setDone(true);
       setTimeout(() => router.push("/login"), 2200);
-    } catch { setError("Eroare de rețea. Încearcă din nou."); }
+    } catch { setError(tt(lang, "Network error. Try again.", "Eroare de rețea. Încearcă din nou.")); }
     finally { setLoading(false); }
   };
 
@@ -141,6 +167,8 @@ function ResetPasswordContent() {
         }
       `}</style>
 
+      <LangToggle lang={lang} setLang={setLang} />
+
       <div style={{ minHeight: "100vh", background: A.black, padding: 8, display: "flex" }}>
         <div style={{ display: "flex", flex: 1, borderRadius: 20, overflow: "hidden" }}>
 
@@ -161,10 +189,13 @@ function ResetPasswordContent() {
 
             <div style={{ position: "relative", zIndex: 2 }}>
               <h1 className="font-display" style={{ fontSize: "clamp(2rem,2.8vw,2.6rem)", color: A.white, lineHeight: 1.1, marginBottom: 12 }}>
-                O parolă nouă.<br/><span style={{ color: A.six }}>Un cont în siguranță.</span>
+                {tt(lang,
+                  <>A new password.<br/><span style={{ color: A.six }}>A secure account.</span></>,
+                  <>O parolă nouă.<br/><span style={{ color: A.six }}>Un cont în siguranță.</span></>
+                )}
               </h1>
               <p style={{ fontFamily: A.font, fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6, maxWidth: 300 }}>
-                Alege o parolă puternică pe care nu o mai folosești altundeva.
+                {tt(lang, "Choose a strong password you don't use anywhere else.", "Alege o parolă puternică pe care nu o mai folosești altundeva.")}
               </p>
             </div>
           </section>
@@ -184,22 +215,22 @@ function ResetPasswordContent() {
                     <Wordmark />
                   </div>
                   <h2 className="font-display" style={{ fontSize: 30, color: A.white, marginBottom: 8 }}>
-                    Alege o parolă nouă
+                    {tt(lang, "Choose a new password", "Alege o parolă nouă")}
                   </h2>
                   <p style={{ fontFamily: A.font, fontSize: 14, color: A.m40, lineHeight: 1.5 }}>
-                    Introdu noua parolă pentru contul tău.
+                    {tt(lang, "Enter a new password for your account.", "Introdu noua parolă pentru contul tău.")}
                   </p>
                 </div>
 
                 {!token && (
                   <div style={{ padding: "12px 16px", borderRadius: 12, background: "rgba(255,90,0,0.08)", border: "1px solid rgba(255,90,0,0.2)", fontFamily: A.font, fontSize: 14, color: "#ff7a50" }}>
-                    Acest link de resetare nu este valid. Solicită unul nou din pagina de autentificare.
+                    {tt(lang, "This reset link isn't valid. Request a new one from the sign-in page.", "Acest link de resetare nu este valid. Solicită unul nou din pagina de autentificare.")}
                   </div>
                 )}
 
                 {done ? (
                   <div style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.2)", fontFamily: A.font, fontSize: 14, color: "#4ade80", lineHeight: 1.5 }}>
-                    Parola a fost schimbată. Te redirecționăm spre autentificare…
+                    {tt(lang, "Your password has been changed. Redirecting you to sign in…", "Parola a fost schimbată. Te redirecționăm spre autentificare…")}
                   </div>
                 ) : (
                   <>
@@ -215,8 +246,8 @@ function ResetPasswordContent() {
 
                     <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                       <AInput
-                        label="Parolă nouă" value={password}
-                        placeholder="Parola ta nouă"
+                        label={tt(lang, "New password", "Parolă nouă")} value={password}
+                        placeholder={tt(lang, "Your new password", "Parola ta nouă")}
                         type={showPw ? "text" : "password"}
                         onChange={setPassword}
                         suffix={
@@ -227,8 +258,8 @@ function ResetPasswordContent() {
                         }
                       />
                       <AInput
-                        label="Confirmă parola" value={confirmPassword}
-                        placeholder="Repetă parola"
+                        label={tt(lang, "Confirm password", "Confirmă parola")} value={confirmPassword}
+                        placeholder={tt(lang, "Repeat password", "Repetă parola")}
                         type={showCpw ? "text" : "password"}
                         onChange={setConfirmPassword}
                         suffix={
@@ -272,8 +303,8 @@ function ResetPasswordContent() {
                         onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
                       >
                         {loading
-                          ? <><span style={{ width: 16, height: 16, borderRadius: 8, border: "2px solid rgba(0,0,0,0.15)", borderTopColor: A.black, animation: "au-spin .8s linear infinite", display: "inline-block" }}/> Se salvează…</>
-                          : "Salvează parola nouă"
+                          ? <><span style={{ width: 16, height: 16, borderRadius: 8, border: "2px solid rgba(0,0,0,0.15)", borderTopColor: A.black, animation: "au-spin .8s linear infinite", display: "inline-block" }}/> {tt(lang, "Saving…", "Se salvează…")}</>
+                          : tt(lang, "Save new password", "Salvează parola nouă")
                         }
                       </button>
                     </form>
@@ -281,7 +312,7 @@ function ResetPasswordContent() {
                 )}
 
                 <div style={{ textAlign: "center", fontFamily: A.font, fontSize: 14, color: A.m40 }}>
-                  <Link href="/login" style={{ color: A.white, fontWeight: 600, textDecoration: "none" }}>← Înapoi la autentificare</Link>
+                  <Link href="/login" style={{ color: A.white, fontWeight: 600, textDecoration: "none" }}>{tt(lang, "← Back to sign in", "← Înapoi la autentificare")}</Link>
                 </div>
 
               </div>

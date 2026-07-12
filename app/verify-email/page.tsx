@@ -3,15 +3,42 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { type Lang, tt, detectLang, persistLang } from "@/lib/i18n";
+import { translateAuthError } from "@/lib/auth-errors";
 
 const FONT = "'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
 
 type State = "loading" | "success" | "error" | "no-token";
 
+function LangToggle({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
+  const pill = (active: boolean): React.CSSProperties => ({
+    fontSize: 11, fontWeight: 700, fontFamily: FONT, padding: "4px 9px", borderRadius: 6,
+    border: "none", cursor: "pointer",
+    background: active ? "#fff" : "transparent",
+    color: active ? "#09090b" : "rgba(255,255,255,0.45)",
+  });
+  return (
+    <div style={{
+      position: "fixed", top: 16, right: 16, zIndex: 20,
+      display: "flex", gap: 2, background: "rgba(255,255,255,0.06)",
+      border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, padding: 3,
+      backdropFilter: "blur(8px)",
+    }}>
+      <button onClick={() => setLang("ro")} style={pill(lang === "ro")}>RO</button>
+      <button onClick={() => setLang("en")} style={pill(lang === "en")}>EN</button>
+    </div>
+  );
+}
+
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
+
+  const [lang, setLangState] = useState<Lang>("en");
+  useEffect(() => { setLangState(detectLang()); }, []);
+  const setLang = (l: Lang) => { setLangState(l); persistLang(l); };
+
   const [state, setState] = useState<State>(token ? "loading" : "no-token");
   const [errorMsg, setErrorMsg] = useState("");
   const [resendEmail, setResendEmail] = useState("");
@@ -29,16 +56,21 @@ function VerifyEmailContent() {
           body: JSON.stringify({ token }),
         });
         const data = await res.json();
+        // Uses detectLang() directly rather than the `lang` state: this effect
+        // fires once on mount and its closure would otherwise freeze on the
+        // pre-detection default, and re-running it on lang changes would
+        // resubmit the (single-use) verification token.
+        const l = detectLang();
         if (res.ok) {
           setState("success");
           setTimeout(() => router.push("/dashboard"), 2500);
         } else {
           setState("error");
-          setErrorMsg(data.error || "Verificare eșuată.");
+          setErrorMsg(data.error ? translateAuthError(data.error, l) : tt(l, "Verification failed.", "Verificare eșuată."));
         }
       } catch {
         setState("error");
-        setErrorMsg("Eroare de rețea. Încearcă din nou.");
+        setErrorMsg(tt(detectLang(), "Network error. Try again.", "Eroare de rețea. Încearcă din nou."));
       }
     }
 
@@ -84,6 +116,9 @@ function VerifyEmailContent() {
         .ve-btn:hover { opacity: 0.88; }
         .ve-btn:disabled { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.3); cursor: default; opacity: 1; }
       `}</style>
+
+      <LangToggle lang={lang} setLang={setLang} />
+
       <div style={{ background: "#09090b", minHeight: "100vh", display: "flex", flexDirection: "column", fontFamily: FONT }}>
 
         <nav style={{ padding: "0 24px", height: 64, display: "flex", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
@@ -106,10 +141,10 @@ function VerifyEmailContent() {
                   margin: "0 auto 24px",
                 }}/>
                 <h1 style={{ fontSize: "1.5rem", fontWeight: 700, letterSpacing: -0.5, color: "#fff", marginBottom: 8 }}>
-                  Se verifică emailul…
+                  {tt(lang, "Verifying your email…", "Se verifică emailul…")}
                 </h1>
                 <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 14 }}>
-                  Așteaptă un moment.
+                  {tt(lang, "Just a moment.", "Așteaptă un moment.")}
                 </p>
               </>
             )}
@@ -127,10 +162,10 @@ function VerifyEmailContent() {
                   </svg>
                 </div>
                 <h1 style={{ fontSize: "1.5rem", fontWeight: 700, letterSpacing: -0.5, color: "#fff", marginBottom: 8 }}>
-                  Email verificat!
+                  {tt(lang, "Email verified!", "Email verificat!")}
                 </h1>
                 <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 14 }}>
-                  Te redirecționăm către tabloul de bord…
+                  {tt(lang, "Redirecting you to the dashboard…", "Te redirecționăm către tabloul de bord…")}
                 </p>
               </>
             )}
@@ -148,18 +183,18 @@ function VerifyEmailContent() {
                   </svg>
                 </div>
                 <h1 style={{ fontSize: "1.5rem", fontWeight: 700, letterSpacing: -0.5, color: "#fff", marginBottom: 8 }}>
-                  {state === "no-token" ? "Verifică inbox-ul" : "Link expirat sau invalid"}
+                  {state === "no-token" ? tt(lang, "Check your inbox", "Verifică inbox-ul") : tt(lang, "Link expired or invalid", "Link expirat sau invalid")}
                 </h1>
                 <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 14, marginBottom: 32 }}>
                   {state === "no-token"
-                    ? "Un link de verificare a fost trimis pe email. Apasă-l pentru a-ți verifica contul."
+                    ? tt(lang, "A verification link was sent to your email. Click it to verify your account.", "Un link de verificare a fost trimis pe email. Apasă-l pentru a-ți verifica contul.")
                     : errorMsg}
                 </p>
 
                 {!resendSent ? (
                   <form onSubmit={handleResend} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                     <p style={{ fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>
-                      Ai nevoie de un link nou? Introdu emailul:
+                      {tt(lang, "Need a new link? Enter your email:", "Ai nevoie de un link nou? Introdu emailul:")}
                     </p>
                     <input
                       type="email"
@@ -170,7 +205,7 @@ function VerifyEmailContent() {
                       required
                     />
                     <button type="submit" disabled={resendLoading} className="ve-btn">
-                      {resendLoading ? "Se trimite…" : "Retrimite emailul de verificare"}
+                      {resendLoading ? tt(lang, "Sending…", "Se trimite…") : tt(lang, "Resend verification email", "Retrimite emailul de verificare")}
                     </button>
                   </form>
                 ) : (
@@ -179,13 +214,13 @@ function VerifyEmailContent() {
                     background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)",
                     color: "#6ee7b7",
                   }}>
-                    Email de verificare trimis. Verifică inbox-ul.
+                    {tt(lang, "Verification email sent. Check your inbox.", "Email de verificare trimis. Verifică inbox-ul.")}
                   </div>
                 )}
 
                 <p style={{ fontSize: 14, marginTop: 24, color: "rgba(255,255,255,0.35)" }}>
                   <Link href="/login" style={{ color: "#ff5a00", fontWeight: 600, textDecoration: "none" }}>
-                    Înapoi la autentificare
+                    {tt(lang, "Back to sign in", "Înapoi la autentificare")}
                   </Link>
                 </p>
               </>

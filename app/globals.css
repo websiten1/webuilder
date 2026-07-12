@@ -644,6 +644,7 @@ select.inp option { background: #fff; color: var(--ink); }
 
 /* ── Responsive ── */
 @media (max-width:900px) {
+  .wf-wrap { zoom: 1; }
   .wf-sidebar { display:none; }
   .wf-topbar { display:flex !important; }
   .wf-stage { padding:28px 18px 120px; }
@@ -653,6 +654,10 @@ select.inp option { background: #fff; color: var(--ink); }
   .wf-foot { padding:13px 18px; }
   .wf-tpl-grid { grid-template-columns:repeat(2,1fr); }
   .wf-grid2 { grid-template-columns:1fr; }
+  /* hover-reveal doesn't exist on touch — keep controls visible instead of
+     hidden until a hover event that will never fire */
+  .wf-gal-del { opacity:1; }
+  .wf-pay-close { width:44px; height:44px; }
 }
 @media (max-width:480px) {
   .wf-og-2,.wf-og-3,.wf-og-4 { grid-template-columns:1fr; }

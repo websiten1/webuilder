@@ -1,5 +1,2 @@
-export type Lang = "en" | "ro";
-
-export function tt(lang: Lang, en: string, ro: string): string {
-  return lang === "ro" ? ro : en;
-}
+export { tt } from "@/lib/i18n";
+export type { Lang } from "@/lib/i18n";

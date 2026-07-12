@@ -11,14 +11,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
     }
 
-    const { currentPassword, newPassword } = await request.json();
+    const { currentPassword, newPassword, lang: uiLang } = await request.json();
     if (!currentPassword || !newPassword) {
       return NextResponse.json(
         { error: "Current and new password are required." },
         { status: 400 }
       );
     }
-    const passwordError = passwordValidationError(newPassword, "en");
+    const passwordError = passwordValidationError(newPassword, uiLang === "ro" ? "ro" : "en");
     if (passwordError) {
       return NextResponse.json({ error: passwordError }, { status: 400 });
     }

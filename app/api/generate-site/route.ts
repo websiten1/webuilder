@@ -3,16 +3,19 @@ import { generateWebsiteCode } from "@/lib/anthropic";
 import { deployToVercel, deployStaticSiteToVercel, getValidVercelToken, setProjectEnvVars, createAndConnectBlobStore, deleteVercelProject, normalizeDeploymentUrl, resolveVercelDeployName, VercelAuthError, VERCEL_RECONNECT_MESSAGE } from "@/lib/vercel";
 import { isPresetTemplate, generatePresetPersonalization, buildPresetDeployFiles, type StaticDeployFile } from "@/lib/preset-site";
 import { getSession } from "@/lib/session";
-import { getUserById, saveSiteWithVercel, getSiteById, updateSiteAfterRegeneration, createParishCalendarModule, setParishCalendarBlobConnected, claimOrderForGeneration, getOrderByStripeSessionId, completeOrder, failOrder, type Order } from "@/lib/db";
-import { sendParishCalendarSetupEmail, sendWebsiteCreatedEmail } from "@/lib/email";
+import { getUserById, saveSiteWithVercel, getSiteById, updateSiteAfterRegeneration, createParishCalendarModule, setParishCalendarBlobConnected, claimOrderForGeneration, getOrderByStripeSessionId, completeOrder, failOrder, markOrderPromoIssued, type Order } from "@/lib/db";
+import { sendParishCalendarSetupEmail, sendWebsiteCreatedEmail, sendGenerationFailedPromoEmail } from "@/lib/email";
+import { issueRetryPromoCode } from "@/lib/stripe";
 import { encryptToken } from "@/lib/encryption";
 import { genericErrorResponse, logServerError, newErrorId } from "@/lib/api-error";
+import * as Sentry from "@sentry/nextjs";
 import { PARISH_CALENDAR_FILES } from "@/lib/parish-calendar-templates";
 import type { WizardData } from "@/app/components/GenerateWizard";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
+import * as cheerio from "cheerio";
 
 export const maxDuration = 300;
 
@@ -99,6 +102,112 @@ production version of this template for the user's specific business.
 `;
   } catch (err) {
     console.warn("⚠️  Could not read template file for", templateId, err);
+    return "";
+  }
+}
+
+// ─── Template section skeleton: makes the chosen template structurally
+// binding, not just a colour reference. Every classic template shares the
+// same top-level section shape (id="home"/"about"/"services"/"contact"),
+// but what's inside each one — the heading, the intro line, whether there's
+// a form, how many repeated cards a section has — differs per template and
+// is what actually makes one template read as different from another. ────
+
+type SectionSummary = {
+  id: string;
+  heading: string | null;
+  lede: string | null;
+  hasForm: boolean;
+  repeatedItemCount: number | null;
+};
+
+// Headlines commonly use <br> for a manual line break with no surrounding
+// whitespace in the source — a plain .text() call jams the two lines
+// together with no space, so clone and swap <br> for a space first.
+function cleanInnerText($: cheerio.CheerioAPI, el: ReturnType<cheerio.CheerioAPI>): string {
+  const clone = el.clone();
+  clone.find("br").replaceWith(" ");
+  return clone.text().replace(/\s+/g, " ").trim();
+}
+
+// These templates are hand-editable HTML boilerplates, so their body copy
+// is often a meta-instruction for whoever edits the file by hand ("Replace
+// this paragraph with...", "Tell visitors when you opened...") rather than
+// real descriptive text — that's noise for the model, not a tone reference.
+const META_INSTRUCTION_RE = /^(replace|tell visitors|mention|edit,|choose|this section is yours)/i;
+
+function summarizeSection($: cheerio.CheerioAPI, section: ReturnType<cheerio.CheerioAPI>): SectionSummary {
+  const id = section.attr("id") ?? "";
+  const heading = cleanInnerText($, section.find("h1, h2").first()) || null;
+  const rawLede = cleanInnerText($, section.find("p").first()).slice(0, 180);
+  const lede = rawLede && !META_INSTRUCTION_RE.test(rawLede) ? rawLede : null;
+  const hasForm = section.find("form").length > 0;
+
+  // Largest group of sibling elements that share a class within this
+  // section — a template-agnostic way to say "this is a grid of ~N cards"
+  // without needing to know each template's own class names for it.
+  let repeatedItemCount = 0;
+  section.find("*").each((_, el) => {
+    const children = $(el).children();
+    if (children.length < 3) return;
+    const groups: Record<string, number> = {};
+    children.each((_, child) => {
+      const cls = $(child).attr("class") || "";
+      if (!cls) return;
+      groups[cls] = (groups[cls] || 0) + 1;
+    });
+    const best = Math.max(0, ...Object.values(groups));
+    if (best > repeatedItemCount) repeatedItemCount = best;
+  });
+
+  return { id, heading, lede, hasForm, repeatedItemCount: repeatedItemCount >= 3 ? repeatedItemCount : null };
+}
+
+function getTemplateSectionSkeleton(templateId: string): string {
+  try {
+    const file = TEMPLATE_FILES[templateId];
+    if (!file) return "";
+    const htmlPath = path.join(process.cwd(), "public", "templates", file);
+    const html = fs.readFileSync(htmlPath, "utf-8");
+    const $ = cheerio.load(html);
+
+    const sections = $("section[id]")
+      .toArray()
+      .map(el => summarizeSection($, $(el)))
+      .filter(s => s.heading || s.hasForm || s.repeatedItemCount);
+
+    if (sections.length === 0) return "";
+
+    const lines = sections.map((s, i) => {
+      const bits: string[] = [];
+      if (s.heading) bits.push(`original heading (reference only) "${s.heading}"`);
+      if (s.repeatedItemCount) bits.push(`a grid of ~${s.repeatedItemCount} items`);
+      if (s.hasForm) bits.push("a form");
+      return `${i + 1}. "${s.id}" section — ${bits.join(", ") || "supporting content"}${s.lede ? `\n   Sets up: "${s.lede}"` : ""}`;
+    });
+
+    return `
+════════════════════════════════════════════════
+TEMPLATE STRUCTURE — MANDATORY BASE SKELETON
+════════════════════════════════════════════════
+The "${TEMPLATE_NAMES[templateId] || templateId}" template has this section flow. Keep these
+sections, in this order, as the backbone of the page — do not remove, reorder, or collapse
+them. Match roughly the same content density (a section described as "a grid of ~N items"
+should have around that many, not one or fifty). You MAY add further sections beyond this
+list if the business's own pages/content requirements below call for something this template
+doesn't already cover (e.g. a gallery, testimonials, pricing table) — insert those in a
+sensible place without disturbing the base sections' order.
+
+Every "original heading" and "Sets up" line below is quoted from the template's own placeholder
+copy, shown ONLY so you can match its tone and length — it is not this business's headline.
+Copying it verbatim is wrong: two different generated sites would read identically. Write a
+new, specific headline/paragraph for THIS business using the details later in this brief, in
+roughly the same voice and length as the reference.
+
+${lines.join("\n")}
+`;
+  } catch (err) {
+    console.warn("⚠️  Could not extract section skeleton for", templateId, err);
     return "";
   }
 }
@@ -273,6 +382,7 @@ function buildPrompt(f: WizardData): string {
 
   return `Create a complete, professional, production-ready Next.js website for a ${f.business.type.toLowerCase()} business.
 ${f.templateId ? getTemplateDesignSpec(f.templateId) : ""}
+${f.templateId ? getTemplateSectionSkeleton(f.templateId) : ""}
 ════════════════════════════════════════════════
 BUSINESS DETAILS
 ════════════════════════════════════════════════
@@ -403,6 +513,24 @@ async function failGenerationOrder(
     error: error.slice(0, 500),
   });
   await failOrder(order.id, `[${stage}] ${error}`);
+
+  // The customer paid and got no site. Rather than leave that unresolved,
+  // issue a one-time free-retry code — best-effort: if Stripe or the email
+  // send fails here, it's logged to Sentry for manual follow-up rather than
+  // surfaced to the customer (their original request has already failed).
+  if (!order.promo_code_issued) {
+    try {
+      const code = await issueRetryPromoCode();
+      await markOrderPromoIssued(order.id, code);
+      const user = await getUserById(userId);
+      if (user) {
+        await sendGenerationFailedPromoEmail(user.email, code, user.preferred_language);
+      }
+    } catch (promoError) {
+      console.error("Failed to issue retry promo code:", promoError);
+      Sentry.captureException(promoError, { tags: { area: "generation-failed-promo" }, extra: { orderId: order.id, userId } });
+    }
+  }
 }
 
 export async function POST(request: NextRequest) {

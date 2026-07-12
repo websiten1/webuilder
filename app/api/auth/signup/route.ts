@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email, password, confirmPassword } = await request.json();
+    const { email, password, confirmPassword, lang: uiLang } = await request.json();
 
     if (!email || !password || !confirmPassword) {
       return NextResponse.json(
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const passwordError = passwordValidationError(password, "en");
+    const passwordError = passwordValidationError(password, uiLang === "ro" ? "ro" : "en");
     if (passwordError) {
       return NextResponse.json({ error: passwordError }, { status: 400 });
     }

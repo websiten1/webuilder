@@ -426,6 +426,71 @@ export async function sendEditFailedEmail(
   if (error) console.error("Edit failed email error:", error.message);
 }
 
+const GENERATION_FAILED_PROMO_COPY = {
+  en: {
+    subject: "Your website generation failed — here's a free retry",
+    heading: "Something went wrong on our end",
+    body: "We weren't able to generate your website, but your payment went through. Rather than refund and lose your spot, here's a one-time code for a completely free retry — no card needed this time.",
+    codeLabel: "Your code",
+    cta: "Retry for free",
+    note: "Enter this code at checkout. It's valid for 30 days and works once.",
+    ignore: "Questions? Reply to this email or contact support@insixlive.com.",
+  },
+  ro: {
+    subject: "Generarea site-ului tău a eșuat — reîncercare gratuită",
+    heading: "Ceva n-a mers cum trebuie la noi",
+    body: "Nu am reușit să generăm site-ul tău, dar plata ta a trecut. În loc să te rambursăm și să pierzi locul, îți trimitem un cod de o singură folosință pentru o reîncercare complet gratuită — de data asta fără card.",
+    codeLabel: "Codul tău",
+    cta: "Reîncearcă gratuit",
+    note: "Introdu codul la finalizarea comenzii. E valabil 30 de zile și funcționează o singură dată.",
+    ignore: "Întrebări? Răspunde la acest email sau scrie la support@insixlive.com.",
+  },
+} as const;
+
+export async function sendGenerationFailedPromoEmail(
+  email: string,
+  code: string,
+  lang: "en" | "ro" = "ro"
+): Promise<void> {
+  const baseUrl = process.env.NEXT_PUBLIC_URL || "https://insixlive.com";
+  const retryUrl = `${baseUrl}/generate`;
+  const c = GENERATION_FAILED_PROMO_COPY[lang];
+
+  console.log(`\n[Email] Generation-failed promo code for ${email}: ${code}\n`);
+
+  const resend = getResend();
+  const from = process.env.RESEND_FROM_EMAIL || "inSIXlive <onboarding@resend.dev>";
+
+  const { data, error } = await resend.emails.send({
+    from,
+    to: email,
+    subject: c.subject,
+    html: `
+<!DOCTYPE html><html lang="${lang}"><head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#050510;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#ffffff;">
+  <div style="max-width:520px;margin:48px auto;padding:0 24px;">
+    <p style="font-size:18px;font-weight:700;letter-spacing:-0.02em;margin:0 0 4px;">insixlive</p>
+    <div style="margin:32px 0;padding:32px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;">
+      <h1 style="font-size:20px;font-weight:700;margin:0 0 8px;">${c.heading}</h1>
+      <p style="color:rgba(255,255,255,0.55);margin:0 0 20px;font-size:14px;line-height:1.6;">${c.body}</p>
+      <div style="background:rgba(255,90,0,0.08);border:1px solid rgba(255,90,0,0.2);border-radius:10px;padding:14px 16px;margin-bottom:20px;">
+        <p style="margin:0 0 4px;font-size:12px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;">${c.codeLabel}</p>
+        <p style="margin:0;font-size:20px;font-weight:700;font-family:ui-monospace,'SF Mono',monospace;letter-spacing:0.04em;">${code}</p>
+      </div>
+      <a href="${retryUrl}" style="display:inline-block;background:linear-gradient(135deg,#ff5a00,#ff8a3d);color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px;">${c.cta}</a>
+      <p style="color:rgba(255,255,255,0.4);font-size:13px;margin:16px 0 0;">${c.note}</p>
+      <p style="margin:16px 0 0;font-size:12px;color:rgba(255,255,255,0.3);">${c.ignore}</p>
+    </div>
+  </div>
+</body></html>`,
+  });
+  if (error) {
+    console.error("Generation-failed promo email error:", error.message);
+    throw new Error(`Email delivery failed: ${error.message}`);
+  }
+  console.log("Generation-failed promo email sent, id:", data?.id);
+}
+
 export async function sendParishCalendarSetupEmail(
   email: string,
   params: {

@@ -1944,7 +1944,7 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
           pages:     { ...DEFAULT.pages,     ...p.pages, pageDescriptions: p.pages?.pageDescriptions ?? {} },
           logo:      { ...DEFAULT.logo,      ...p.logo, dataUrl: "" },
           useEmojis: p.useEmojis ?? false,
-          websiteLanguage: p.websiteLanguage ?? "English",
+          websiteLanguage: p.websiteLanguage ?? "Română",
         });
       })
       .catch(err => console.error("Failed to load site for edit:", err));
@@ -2181,7 +2181,6 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
           </div>
           <div className="wf-tbprog"><div className="wf-tbfill" style={{ width: pct + "%" }} /></div>
         </div>
-        <style>{`@media(max-width:900px){.wf-topbar{display:flex!important}}`}</style>
 
         {/* Edit mode banner */}
         {isEditMode && editSiteName && (

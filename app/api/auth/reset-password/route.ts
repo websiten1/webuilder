@@ -6,7 +6,7 @@ import { genericErrorResponse, logServerError, newErrorId } from "@/lib/api-erro
 
 export async function POST(request: NextRequest) {
   try {
-    const { token, password } = await request.json();
+    const { token, password, lang: uiLang } = await request.json();
 
     if (!token || typeof token !== "string" || !password) {
       return NextResponse.json(
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const passwordError = passwordValidationError(password, "en");
+    const passwordError = passwordValidationError(password, uiLang === "ro" ? "ro" : "en");
     if (passwordError) {
       return NextResponse.json({ error: passwordError }, { status: 400 });
     }

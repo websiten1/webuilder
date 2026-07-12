@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { InfiniteSlider } from "@/components/ui/infinite-slider";
 import { PREMIUM_TEMPLATES, premiumPreviewPath } from "./premiumTemplates";
 
 /* ─── Types ─────────────────────────────────────────────────────────────────── */
@@ -329,6 +330,23 @@ const TEMPLATES: Template[] = [
 
 const CATEGORIES = ["All", "Premium", "Healthcare", "Fitness", "Wellness", "Education", "Food & Drink", "Restaurant", "Beauty", "Legal", "Property", "Automotive", "Retail", "Creative", "Media", "Technology"];
 
+/* ─── Responsive card width — tied to viewport, not a measured container.
+   (The old grid measured its own container and divided by a fixed column
+   count, which meant a phone-width container still got 4 columns squeezed
+   into it. Rows now scroll horizontally, so width only needs to track the
+   viewport breakpoint.) ─── */
+function useCardWidth(): number {
+  const [w, setW] = useState(() => (typeof window !== "undefined" ? window.innerWidth : 1200));
+  useEffect(() => {
+    const onResize = () => setW(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  if (w < 480) return 138;
+  if (w < 900) return 164;
+  return 196;
+}
+
 /* ─── Lazy iframe preview ────────────────────────────────────────────────────── */
 const IFRAME_RENDER_W = 1280; // virtual desktop width the template is built for
 
@@ -407,6 +425,8 @@ function TemplateCard({ template, isSelected, cardWidth, onSelect }: {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
+        width: cardWidth,
+        flexShrink: 0,
         borderRadius: "var(--wf-r-sm)",
         overflow: "hidden",
         border: isSelected ? "2.5px solid var(--wf-acc)" : "2.5px solid transparent",
@@ -452,11 +472,11 @@ function TemplateCard({ template, isSelected, cardWidth, onSelect }: {
         borderTop: "1px solid var(--wf-border)",
         display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
-        <div>
-          <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "var(--wf-text)", letterSpacing: -0.1 }}>{template.name}</p>
+        <div style={{ minWidth: 0 }}>
+          <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "var(--wf-text)", letterSpacing: -0.1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{template.name}</p>
           <p style={{ margin: "1px 0 0", fontSize: 10, color: "var(--wf-text3)", fontFamily: "var(--wf-mono)" }}>{template.category}</p>
         </div>
-        <div style={{ width: 8, height: 8, borderRadius: 4, background: template.accent, flexShrink: 0 }}/>
+        <div style={{ width: 8, height: 8, borderRadius: 4, background: template.accent, flexShrink: 0, marginLeft: 6 }}/>
       </div>
     </div>
   );
@@ -474,6 +494,7 @@ function ScratchCard({ isSelected, cardWidth, onSelect }: {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
+        width: cardWidth,
         borderRadius: "var(--wf-r-sm)", overflow: "hidden", cursor: "pointer",
         border: isSelected ? "2.5px solid var(--wf-acc)" : "2.5px dashed var(--wf-border2)",
         boxShadow: isSelected ? "0 0 0 4px var(--wf-acc-soft)" : "none",
@@ -509,41 +530,57 @@ function ScratchCard({ isSelected, cardWidth, onSelect }: {
   );
 }
 
-/* ─── Main gallery component ─────────────────────────────────────────────────── */
-export function TemplateGallery({ selectedId, onSelect }: {
+/* ─── Auto-scrolling row ──────────────────────────────────────────────────────
+   Continuously auto-plays (Netflix-browse style) so the user can scan many
+   templates without a huge static grid. Slows to a near-stop on hover/touch
+   so a card can actually be read and clicked. Manual drag always works even
+   mid-scroll (it's a real horizontal-scroll container underneath). ─── */
+function TemplateRow({ templates, selectedId, onSelect, cardWidth, reverse }: {
+  templates: Template[];
   selectedId: string;
   onSelect: (id: string, mapTo: TemplateMapTo) => void;
+  cardWidth: number;
+  reverse?: boolean;
 }) {
-  const [activeCategory, setActiveCategory] = useState("All");
-  const gridRef = useRef<HTMLDivElement>(null);
-  const [cardWidth, setCardWidth] = useState(200);
+  // Short rows (a sparse category) don't need — and look odd with — a full
+  // marquee loop; lay them out as a plain wrapping row instead.
+  if (templates.length <= 4) {
+    return (
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+        {templates.map(t => (
+          <TemplateCard key={t.id} template={t} isSelected={selectedId === t.id} cardWidth={cardWidth} onSelect={() => onSelect(t.id, t.mapTo)} />
+        ))}
+      </div>
+    );
+  }
 
-  // Measure grid to compute card width — 4 cols, 12px gaps
-  useEffect(() => {
-    const measure = () => {
-      if (!gridRef.current) return;
-      const w = gridRef.current.clientWidth;
-      setCardWidth(Math.floor((w - 36) / 4));
-    };
-    measure();
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, []);
+  return (
+    <InfiniteSlider gap={12} duration={templates.length * 5.5} durationOnHover={140} reverse={reverse}>
+      {templates.map(t => (
+        <TemplateCard key={t.id} template={t} isSelected={selectedId === t.id} cardWidth={cardWidth} onSelect={() => onSelect(t.id, t.mapTo)} />
+      ))}
+    </InfiniteSlider>
+  );
+}
 
-  // Premium designs always lead; classic templates follow (light before dark)
-  const premiumPool = activeCategory === "All" || activeCategory === "Premium"
-    ? PREMIUM
-    : PREMIUM.filter(t => t.category === activeCategory);
-  const baseTemplates = activeCategory === "Premium"
-    ? []
-    : activeCategory === "All"
-    ? TEMPLATES
-    : TEMPLATES.filter(t => t.category === activeCategory);
-  const sorted = [
-    ...premiumPool,
-    ...baseTemplates.filter(t => !t.dark),
-    ...baseTemplates.filter(t => t.dark),
-  ];
+function RowLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p style={{ margin: "0 0 8px", fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: "var(--wf-text3)", fontFamily: "var(--wf-mono)" }}>
+      {children}
+    </p>
+  );
+}
+
+/* ─── Main gallery component ─────────────────────────────────────────────────── */
+export function TemplateGallery({ selectedId, onSelect, suggestedCategory }: {
+  selectedId: string;
+  onSelect: (id: string, mapTo: TemplateMapTo) => void;
+  suggestedCategory?: string;
+}) {
+  const [activeCategory, setActiveCategory] = useState(
+    suggestedCategory && CATEGORIES.includes(suggestedCategory) ? suggestedCategory : "All"
+  );
+  const cardWidth = useCardWidth();
 
   const handleClear = () => onSelect("", {
     businessType: "Restaurant", style: "minimalist",
@@ -551,13 +588,42 @@ export function TemplateGallery({ selectedId, onSelect }: {
     darkMode: false, fontFamily: "modern-sans",
   });
 
+  const classicCategories = CATEGORIES.filter(c => c !== "All" && c !== "Premium");
+
+  // Rows to render: either the full "browse" set (one row per category, with
+  // the suggested one first) or a single row for whichever chip is active.
+  const rows: { label: string; templates: Template[] }[] = (() => {
+    if (activeCategory === "Premium") {
+      return [{ label: "Premium", templates: PREMIUM }];
+    }
+    if (activeCategory !== "All") {
+      const combined = [
+        ...PREMIUM.filter(t => t.category === activeCategory),
+        ...TEMPLATES.filter(t => t.category === activeCategory && !t.dark),
+        ...TEMPLATES.filter(t => t.category === activeCategory && t.dark),
+      ];
+      return [{ label: activeCategory, templates: combined }];
+    }
+    // "All": Premium leads, then every classic category that has templates —
+    // the category matching the business the user already described (if any)
+    // floats to the top so it's the first thing they see.
+    const orderedCategories = suggestedCategory && classicCategories.includes(suggestedCategory)
+      ? [suggestedCategory, ...classicCategories.filter(c => c !== suggestedCategory)]
+      : classicCategories;
+    const categoryRows = orderedCategories
+      .map(cat => ({
+        label: cat,
+        templates: [
+          ...TEMPLATES.filter(t => t.category === cat && !t.dark),
+          ...TEMPLATES.filter(t => t.category === cat && t.dark),
+        ],
+      }))
+      .filter(r => r.templates.length > 0);
+    return [{ label: "Premium", templates: PREMIUM }, ...categoryRows];
+  })();
+
   return (
     <>
-      <style>{`
-        @keyframes tg-fade { from { opacity:0; transform:translateY(4px) } to { opacity:1; transform:translateY(0) } }
-        .tg-item { animation: tg-fade 0.25s ease-out both; }
-      `}</style>
-
       {/* Category filter */}
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
         {CATEGORIES.map(cat => {
@@ -578,22 +644,24 @@ export function TemplateGallery({ selectedId, onSelect }: {
         })}
       </div>
 
-      {/* Grid — scratch first, then sorted templates */}
-      <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
-        {/* Scratch card always first */}
-        {activeCategory === "All" && (
-          <div className="tg-item">
-            <ScratchCard isSelected={!selectedId} cardWidth={cardWidth} onSelect={handleClear} />
-          </div>
-        )}
+      {/* Scratch card — pinned, always available, never part of the scroll */}
+      {activeCategory === "All" && (
+        <div style={{ marginBottom: 18 }}>
+          <ScratchCard isSelected={!selectedId} cardWidth={cardWidth} onSelect={handleClear} />
+        </div>
+      )}
 
-        {sorted.map((t, i) => (
-          <div key={t.id} className="tg-item" style={{ animationDelay: `${i * 0.025}s` }}>
-            <TemplateCard
-              template={t}
-              isSelected={selectedId === t.id}
+      {/* Rows */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        {rows.map((row, i) => (
+          <div key={row.label}>
+            {activeCategory === "All" && <RowLabel>{row.label}</RowLabel>}
+            <TemplateRow
+              templates={row.templates}
+              selectedId={selectedId}
+              onSelect={onSelect}
               cardWidth={cardWidth}
-              onSelect={() => onSelect(t.id, t.mapTo)}
+              reverse={i % 2 === 1}
             />
           </div>
         ))}
@@ -602,7 +670,7 @@ export function TemplateGallery({ selectedId, onSelect }: {
       {/* Selection banner */}
       {selectedId && (
         <div style={{
-          marginTop: 12, padding: "9px 14px",
+          marginTop: 16, padding: "9px 14px",
           background: "var(--wf-acc-soft)",
           border: "1px solid var(--wf-acc-line)",
           borderRadius: "var(--wf-r-sm)",

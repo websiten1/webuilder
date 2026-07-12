@@ -4,6 +4,7 @@ import { Icons } from "./icons";
 import { Section, Row, Field, PasswordInput, Pill, Toggle } from "./primitives";
 import { tt, type Lang } from "./i18n";
 import { getPasswordIssues, passwordRequirementLabels } from "@/lib/password";
+import { translateAuthError } from "@/lib/auth-errors";
 
 function describeDevice(): string {
   if (typeof navigator === "undefined") return "Acest dispozitiv";
@@ -51,10 +52,10 @@ export function SecurityPage({ email, toast, lang }: { email: string; toast: (m:
       const res = await fetch("/api/auth/change-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currentPassword: current, newPassword: next }),
+        body: JSON.stringify({ currentPassword: current, newPassword: next, lang }),
       });
       const data = await res.json();
-      if (!res.ok) return toast(data.error || tt(lang, "Failed to update password", "Actualizarea parolei a eșuat"));
+      if (!res.ok) return toast(data.error ? translateAuthError(data.error, lang) : tt(lang, "Failed to update password", "Actualizarea parolei a eșuat"));
       setCurrent("");
       setNext("");
       setConfirm("");

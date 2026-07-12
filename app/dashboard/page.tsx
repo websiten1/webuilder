@@ -114,6 +114,7 @@ export default function DashboardPage() {
   const [del, setDel] = useState(false);
   const [buy, setBuy] = useState<{ site: DashSite | null } | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [lang, setLangState] = useState<Lang>("ro");
   const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -139,6 +140,7 @@ export default function DashboardPage() {
         if (!r.ok) { router.push("/login"); return; }
         const d = await r.json();
         setUser(d.user);
+        if (d.user?.preferredLanguage) setLangState(d.user.preferredLanguage);
 
         const sr = await fetch("/api/sites");
         if (sr.ok) {
@@ -170,7 +172,14 @@ export default function DashboardPage() {
     window.location.href = "/";
   };
 
-  const lang: Lang = "ro";
+  const setLang = useCallback((l: Lang) => {
+    setLangState(l);
+    fetch("/api/auth/language", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lang: l }),
+    }).catch(() => {});
+  }, [setLangState]);
 
   const handleDisconnectVercel = async () => {
     await fetch("/api/auth/vercel/disconnect", { method: "POST" });
@@ -238,6 +247,7 @@ export default function DashboardPage() {
                 initials={initials}
                 planLabel="PAYG"
                 lang={lang}
+                onSetLang={setLang}
               />
             )}
           </div>

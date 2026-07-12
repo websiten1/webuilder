@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { type Lang, tt, detectLang, persistLang } from "@/lib/i18n";
+import { translateAuthError } from "@/lib/auth-errors";
 
 const AURORA_VIDEO =
   "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260506_081238_406ed0e3-5d83-436e-a512-0bbff7ec5b95.mp4";
@@ -36,6 +38,26 @@ function Wordmark({ style }: { style?: React.CSSProperties }) {
   );
 }
 
+function LangToggle({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
+  const pill = (active: boolean): React.CSSProperties => ({
+    fontSize: 11, fontWeight: 700, fontFamily: A.font, padding: "4px 9px", borderRadius: 6,
+    border: "none", cursor: "pointer",
+    background: active ? A.white : "transparent",
+    color: active ? A.black : "rgba(255,255,255,0.45)",
+  });
+  return (
+    <div style={{
+      position: "fixed", top: 16, right: 16, zIndex: 20,
+      display: "flex", gap: 2, background: "rgba(255,255,255,0.06)",
+      border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, padding: 3,
+      backdropFilter: "blur(8px)",
+    }}>
+      <button onClick={() => setLang("ro")} style={pill(lang === "ro")}>RO</button>
+      <button onClick={() => setLang("en")} style={pill(lang === "en")}>EN</button>
+    </div>
+  );
+}
+
 function AInput({
   label, value, placeholder, type = "text", onChange,
 }: {
@@ -67,6 +89,10 @@ function AInput({
 }
 
 export default function ForgotPasswordPage() {
+  const [lang, setLangState] = useState<Lang>("en");
+  useEffect(() => { setLangState(detectLang()); }, []);
+  const setLang = (l: Lang) => { setLangState(l); persistLang(l); };
+
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -81,9 +107,9 @@ export default function ForgotPasswordPage() {
         body: JSON.stringify({ email }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "Ceva nu a mers bine. Încearcă din nou."); return; }
+      if (!res.ok) { setError(data.error ? translateAuthError(data.error, lang) : tt(lang, "Something went wrong. Try again.", "Ceva nu a mers bine. Încearcă din nou.")); return; }
       setSent(true);
-    } catch { setError("Eroare de rețea. Încearcă din nou."); }
+    } catch { setError(tt(lang, "Network error. Try again.", "Eroare de rețea. Încearcă din nou.")); }
     finally { setLoading(false); }
   };
 
@@ -112,6 +138,8 @@ export default function ForgotPasswordPage() {
         }
       `}</style>
 
+      <LangToggle lang={lang} setLang={setLang} />
+
       <div style={{ minHeight: "100vh", background: A.black, padding: 8, display: "flex" }}>
         <div style={{ display: "flex", flex: 1, borderRadius: 20, overflow: "hidden" }}>
 
@@ -132,10 +160,13 @@ export default function ForgotPasswordPage() {
 
             <div style={{ position: "relative", zIndex: 2 }}>
               <h1 className="font-display" style={{ fontSize: "clamp(2rem,2.8vw,2.6rem)", color: A.white, lineHeight: 1.1, marginBottom: 12 }}>
-                Se întâmplă<br/>tuturor.<br/><span style={{ color: A.six }}>Hai să rezolvăm.</span>
+                {tt(lang,
+                  <>It happens<br/>to everyone.<br/><span style={{ color: A.six }}>Let&apos;s fix it.</span></>,
+                  <>Se întâmplă<br/>tuturor.<br/><span style={{ color: A.six }}>Hai să rezolvăm.</span></>
+                )}
               </h1>
               <p style={{ fontFamily: A.font, fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6, maxWidth: 300 }}>
-                Îți trimitem un link pe email ca să îți alegi o parolă nouă.
+                {tt(lang, "We'll email you a link to choose a new password.", "Îți trimitem un link pe email ca să îți alegi o parolă nouă.")}
               </p>
             </div>
           </section>
@@ -155,16 +186,16 @@ export default function ForgotPasswordPage() {
                     <Wordmark />
                   </div>
                   <h2 className="font-display" style={{ fontSize: 30, color: A.white, marginBottom: 8 }}>
-                    Ai uitat parola?
+                    {tt(lang, "Forgot your password?", "Ai uitat parola?")}
                   </h2>
                   <p style={{ fontFamily: A.font, fontSize: 14, color: A.m40, lineHeight: 1.5 }}>
-                    Introdu emailul contului tău și îți trimitem un link de resetare.
+                    {tt(lang, "Enter your account's email and we'll send you a reset link.", "Introdu emailul contului tău și îți trimitem un link de resetare.")}
                   </p>
                 </div>
 
                 {sent ? (
                   <div style={{ padding: "14px 16px", borderRadius: 12, background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.2)", fontFamily: A.font, fontSize: 14, color: "#4ade80", lineHeight: 1.5 }}>
-                    Dacă există un cont pentru acest email, am trimis un link de resetare a parolei. Verifică inbox-ul (și folderul de spam).
+                    {tt(lang, "If an account exists for this email, we've sent a password reset link. Check your inbox (and spam folder).", "Dacă există un cont pentru acest email, am trimis un link de resetare a parolei. Verifică inbox-ul (și folderul de spam).")}
                   </div>
                 ) : (
                   <>
@@ -197,8 +228,8 @@ export default function ForgotPasswordPage() {
                         onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
                       >
                         {loading
-                          ? <><span style={{ width: 16, height: 16, borderRadius: 8, border: "2px solid rgba(0,0,0,0.15)", borderTopColor: A.black, animation: "au-spin .8s linear infinite", display: "inline-block" }}/> Se trimite…</>
-                          : "Trimite linkul de resetare"
+                          ? <><span style={{ width: 16, height: 16, borderRadius: 8, border: "2px solid rgba(0,0,0,0.15)", borderTopColor: A.black, animation: "au-spin .8s linear infinite", display: "inline-block" }}/> {tt(lang, "Sending…", "Se trimite…")}</>
+                          : tt(lang, "Send reset link", "Trimite linkul de resetare")
                         }
                       </button>
                     </form>
@@ -206,7 +237,7 @@ export default function ForgotPasswordPage() {
                 )}
 
                 <div style={{ textAlign: "center", fontFamily: A.font, fontSize: 14, color: A.m40 }}>
-                  <Link href="/login" style={{ color: A.white, fontWeight: 600, textDecoration: "none" }}>← Înapoi la autentificare</Link>
+                  <Link href="/login" style={{ color: A.white, fontWeight: 600, textDecoration: "none" }}>{tt(lang, "← Back to sign in", "← Înapoi la autentificare")}</Link>
                 </div>
 
               </div>

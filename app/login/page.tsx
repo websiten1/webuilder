@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { type Lang, tt, detectLang, persistLang } from "@/lib/i18n";
+import { translateAuthError } from "@/lib/auth-errors";
 
 const AURORA_VIDEO =
   "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260506_081238_406ed0e3-5d83-436e-a512-0bbff7ec5b95.mp4";
@@ -34,6 +36,26 @@ function Wordmark({ style }: { style?: React.CSSProperties }) {
     }}>
       insixlive
     </span>
+  );
+}
+
+function LangToggle({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
+  const pill = (active: boolean): React.CSSProperties => ({
+    fontSize: 11, fontWeight: 700, fontFamily: A.font, padding: "4px 9px", borderRadius: 6,
+    border: "none", cursor: "pointer",
+    background: active ? A.white : "transparent",
+    color: active ? A.black : "rgba(255,255,255,0.45)",
+  });
+  return (
+    <div style={{
+      position: "fixed", top: 16, right: 16, zIndex: 20,
+      display: "flex", gap: 2, background: "rgba(255,255,255,0.06)",
+      border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, padding: 3,
+      backdropFilter: "blur(8px)",
+    }}>
+      <button onClick={() => setLang("ro")} style={pill(lang === "ro")}>RO</button>
+      <button onClick={() => setLang("en")} style={pill(lang === "en")}>EN</button>
+    </div>
   );
 }
 
@@ -104,6 +126,10 @@ function LoginContent() {
   const searchParams = useSearchParams();
   void searchParams;
 
+  const [lang, setLangState] = useState<Lang>("en");
+  useEffect(() => { setLangState(detectLang()); }, []);
+  const setLang = (l: Lang) => { setLangState(l); persistLang(l); };
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -124,11 +150,11 @@ function LoginContent() {
       const data = await res.json();
       if (!res.ok) {
         if (data.code === "EMAIL_NOT_VERIFIED") setUnverified(true);
-        else setError(data.error || "Email sau parolă incorecte.");
+        else setError(data.error ? translateAuthError(data.error, lang) : tt(lang, "Incorrect email or password.", "Email sau parolă incorecte."));
         return;
       }
       window.location.href = "/dashboard";
-    } catch { setError("Eroare de rețea. Încearcă din nou."); }
+    } catch { setError(tt(lang, "Network error. Try again.", "Eroare de rețea. Încearcă din nou.")); }
     finally { setLoading(false); }
   };
 
@@ -168,10 +194,12 @@ function LoginContent() {
         }
       `}</style>
 
+      <LangToggle lang={lang} setLang={setLang} />
+
       <div style={{ minHeight: "100vh", background: A.black, padding: 8, display: "flex" }}>
         <div style={{ display: "flex", flex: 1, borderRadius: 20, overflow: "hidden" }}>
 
-          {/* ── Stânga: video ── */}
+          {/* ── Left: video ── */}
           <section className="au-left" style={{
             width: "50%", flexShrink: 0, position: "relative",
             flexDirection: "column", justifyContent: "flex-end",
@@ -192,22 +220,25 @@ function LoginContent() {
             <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", gap: 28 }}>
               <div>
                 <h1 className="font-display" style={{ fontSize: "clamp(2rem,2.8vw,2.6rem)", color: A.white, lineHeight: 1.1, marginBottom: 12 }}>
-                  Site-ul tău.<br/>Codul tău.<br/><span style={{ color: A.six }}>Al tău pentru totdeauna.</span>
+                  {tt(lang,
+                    <>Your site.<br/>Your code.<br/><span style={{ color: A.six }}>Yours forever.</span></>,
+                    <>Site-ul tău.<br/>Codul tău.<br/><span style={{ color: A.six }}>Al tău pentru totdeauna.</span></>
+                  )}
                 </h1>
                 <p style={{ fontFamily: A.font, fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6, maxWidth: 300 }}>
-                  Descrie afacerea ta și generăm un site complet — cod, hosting și tot.
+                  {tt(lang, "Describe your business and we generate a complete site — code, hosting, everything.", "Descrie afacerea ta și generăm un site complet — cod, hosting și tot.")}
                 </p>
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <StepCard number={1} text="Autentifică-te în cont" active={true}/>
-                <StepCard number={2} text="Deschide tabloul de bord" active={false}/>
-                <StepCard number={3} text="Lansează sau generează site-uri" active={false}/>
+                <StepCard number={1} text={tt(lang, "Sign in to your account", "Autentifică-te în cont")} active={true}/>
+                <StepCard number={2} text={tt(lang, "Open the dashboard", "Deschide tabloul de bord")} active={false}/>
+                <StepCard number={3} text={tt(lang, "Launch or generate sites", "Lansează sau generează site-uri")} active={false}/>
               </div>
             </div>
           </section>
 
-          {/* ── Dreapta: formular ── */}
+          {/* ── Right: form ── */}
           <section className="au-right" style={{
             flex: 1, background: A.panel,
             display: "flex", flexDirection: "column",
@@ -223,23 +254,23 @@ function LoginContent() {
                     <Wordmark />
                   </div>
                   <h2 className="font-display" style={{ fontSize: 30, color: A.white, marginBottom: 8 }}>
-                    Bun venit înapoi
+                    {tt(lang, "Welcome back", "Bun venit înapoi")}
                   </h2>
                   <p style={{ fontFamily: A.font, fontSize: 14, color: A.m40, lineHeight: 1.5 }}>
-                    Autentifică-te pentru a gestiona și genera site-uri.
+                    {tt(lang, "Sign in to manage and generate sites.", "Autentifică-te pentru a gestiona și genera site-uri.")}
                   </p>
                 </div>
 
-                {/* Email neverificat */}
+                {/* Unverified email */}
                 {unverified && (
                   <div style={{ padding: "12px 16px", borderRadius: 12, background: "rgba(234,179,8,0.08)", border: "1px solid rgba(234,179,8,0.2)", fontFamily: A.font, fontSize: 14, color: "#EAB308" }}>
-                    <p style={{ margin: "0 0 6px", fontWeight: 600 }}>Email neverificat</p>
-                    <p style={{ margin: "0 0 10px", fontSize: 13, opacity: 0.8 }}>Verifică inbox-ul pentru codul de 6 cifre.</p>
+                    <p style={{ margin: "0 0 6px", fontWeight: 600 }}>{tt(lang, "Email not verified", "Email neverificat")}</p>
+                    <p style={{ margin: "0 0 10px", fontSize: 13, opacity: 0.8 }}>{tt(lang, "Check your inbox for the 6-digit code.", "Verifică inbox-ul pentru codul de 6 cifre.")}</p>
                     {!resendSent
                       ? <button onClick={handleResend} disabled={resendLoading} style={{ background: "none", border: "none", cursor: "pointer", color: "#EAB308", fontWeight: 600, fontSize: 13, fontFamily: A.font, padding: 0, textDecoration: "underline" }}>
-                          {resendLoading ? "Se trimite…" : "Retrimite codul de verificare"}
+                          {resendLoading ? tt(lang, "Sending…", "Se trimite…") : tt(lang, "Resend verification code", "Retrimite codul de verificare")}
                         </button>
-                      : <span style={{ color: "#4ade80", fontSize: 13, fontWeight: 600 }}>✓ Cod trimis — verifică inbox-ul</span>
+                      : <span style={{ color: "#4ade80", fontSize: 13, fontWeight: 600 }}>{tt(lang, "✓ Code sent — check your inbox", "✓ Cod trimis — verifică inbox-ul")}</span>
                     }
                   </div>
                 )}
@@ -258,8 +289,8 @@ function LoginContent() {
                 <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                   <AInput label="Email" value={email} placeholder="tu@afacereata.ro" onChange={setEmail}/>
                   <AInput
-                    label="Parolă" value={password}
-                    placeholder="Parola ta"
+                    label={tt(lang, "Password", "Parolă")} value={password}
+                    placeholder={tt(lang, "Your password", "Parola ta")}
                     type={showPw ? "text" : "password"}
                     onChange={setPassword}
                     suffix={
@@ -272,7 +303,7 @@ function LoginContent() {
 
                   <div style={{ textAlign: "right", marginTop: -6 }}>
                     <Link href="/forgot-password" style={{ fontFamily: A.font, fontSize: 13, fontWeight: 600, color: A.white, textDecoration: "underline" }}>
-                      Ai uitat parola?
+                      {tt(lang, "Forgot your password?", "Ai uitat parola?")}
                     </Link>
                   </div>
 
@@ -292,15 +323,15 @@ function LoginContent() {
                     onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
                   >
                     {loading
-                      ? <><span style={{ width: 16, height: 16, borderRadius: 8, border: "2px solid rgba(0,0,0,0.15)", borderTopColor: A.black, animation: "au-spin .8s linear infinite", display: "inline-block" }}/> Se autentifică…</>
-                      : "Autentifică-te"
+                      ? <><span style={{ width: 16, height: 16, borderRadius: 8, border: "2px solid rgba(0,0,0,0.15)", borderTopColor: A.black, animation: "au-spin .8s linear infinite", display: "inline-block" }}/> {tt(lang, "Signing in…", "Se autentifică…")}</>
+                      : tt(lang, "Sign in", "Autentifică-te")
                     }
                   </button>
                 </form>
 
                 <div style={{ textAlign: "center", fontFamily: A.font, fontSize: 14, color: A.m40 }}>
-                  Nu ai cont?{" "}
-                  <Link href="/signup" style={{ color: A.white, fontWeight: 600, textDecoration: "none" }}>Creează unul gratuit</Link>
+                  {tt(lang, "Don't have an account?", "Nu ai cont?")}{" "}
+                  <Link href="/signup" style={{ color: A.white, fontWeight: 600, textDecoration: "none" }}>{tt(lang, "Create one for free", "Creează unul gratuit")}</Link>
                 </div>
 
               </div>
