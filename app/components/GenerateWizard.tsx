@@ -2172,14 +2172,22 @@ export default function GenerateWizard({ editSiteId }: { editSiteId?: string }) 
       <div className="wf-main">
         {/* Mobile top bar */}
         <div className="wf-topbar" style={{ display: "none" }}>
-          <Link href="/" className="wf-brand" style={{ textDecoration: "none", marginBottom: 0 }}>
-            <div className="wf-brand-badge" style={{ width: 24, height: 24 }}>6</div>
-            <span className="wf-brand-word" style={{ fontSize: 15 }}>in<span>six</span>live</span>
-          </Link>
-          <div className="wf-tbstep">
-            <span className="wf-tbidx">{String(step + 1).padStart(2, "0")}/{TOTAL}</span> {STEP_NAMES[lang][step]}
+          <div className="wf-tbrow1">
+            <Link href="/" className="wf-brand" style={{ textDecoration: "none" }}>
+              <div className="wf-brand-badge">6</div>
+              <span className="wf-brand-word">in<span>six</span>live</span>
+            </Link>
+            <div className="wf-lang-toggle">
+              <button type="button" className={`wf-lang-btn${lang === "ro" ? " active" : ""}`} onClick={() => setLang("ro")}>RO</button>
+              <button type="button" className={`wf-lang-btn${lang === "en" ? " active" : ""}`} onClick={() => setLang("en")}>EN</button>
+            </div>
           </div>
-          <div className="wf-tbprog"><div className="wf-tbfill" style={{ width: pct + "%" }} /></div>
+          <div className="wf-tbrow2">
+            <div className="wf-tbstep">
+              <span className="wf-tbidx">{String(step + 1).padStart(2, "0")}/{TOTAL}</span> {STEP_NAMES[lang][step]}
+            </div>
+            <div className="wf-tbprog"><div className="wf-tbfill" style={{ width: pct + "%" }} /></div>
+          </div>
         </div>
 
         {/* Edit mode banner */}

@@ -642,18 +642,39 @@ select.inp option { background: #fff; color: var(--ink); }
 .wf-enter { animation:wfEnter .38s ease both; }
 @keyframes wfEnter { from{opacity:0;transform:translateY(9px)} to{opacity:1;transform:none} }
 
-/* ── Responsive ── */
+/* ── Responsive ──
+   Mobile gets its own, calmer palette: the ember-orange accent is a desktop
+   brand choice that reads as loud/unfinished at phone size next to dense
+   form controls, so it's swapped for a plain light-on-dark neutral (the
+   same "white CTA on black" language as the Aurora auth pages) everywhere
+   the accent variable is used — selection borders, the progress bar,
+   primary buttons, chips — in one place instead of hunting each usage. ── */
 @media (max-width:900px) {
-  .wf-wrap { zoom: 1; }
+  .wf-wrap {
+    zoom: 1;
+    --wf-acc:      #f4f2ec;
+    --wf-acc-ink:  #0a0d12;
+    --wf-acc-soft: rgba(244,242,236,.12);
+    --wf-acc-line: rgba(244,242,236,.38);
+  }
   .wf-sidebar { display:none; }
-  .wf-topbar { display:flex !important; }
-  .wf-stage { padding:28px 18px 120px; }
-  .wf-step-title { font-size:26px; }
+  .wf-topbar { display:flex !important; flex-direction:column; align-items:stretch; gap:10px; padding:14px 18px 12px; }
+  .wf-topbar .wf-tbrow1 { display:flex; align-items:center; justify-content:space-between; }
+  .wf-topbar .wf-brand { flex-shrink:0; margin-bottom:0; }
+  .wf-topbar .wf-brand-badge { width:26px; height:26px; border-radius:8px; }
+  .wf-topbar .wf-brand-word { font-size:17px; }
+  .wf-topbar .wf-tbrow2 { display:flex; align-items:center; gap:10px; }
+  .wf-topbar .wf-tbstep { font-size:12px; color:var(--wf-text3); }
+  .wf-stage { padding:24px 18px 120px; }
+  .wf-step-head { margin-bottom:26px; }
+  .wf-eyebrow::before { display:none; }
+  .wf-step-title { font-size:24px; }
   .wf-og-3,.wf-og-4 { grid-template-columns:repeat(2,1fr); }
   .wf-rev-grid { grid-template-columns:1fr; }
   .wf-foot { padding:13px 18px; }
   .wf-tpl-grid { grid-template-columns:repeat(2,1fr); }
   .wf-grid2 { grid-template-columns:1fr; }
+  .wf-gen-prog .wf-gfill { background:var(--wf-acc); }
   /* hover-reveal doesn't exist on touch — keep controls visible instead of
      hidden until a hover event that will never fire */
   .wf-gal-del { opacity:1; }

@@ -330,20 +330,34 @@ const TEMPLATES: Template[] = [
 
 const CATEGORIES = ["All", "Premium", "Healthcare", "Fitness", "Wellness", "Education", "Food & Drink", "Restaurant", "Beauty", "Legal", "Property", "Automotive", "Retail", "Creative", "Media", "Technology"];
 
-/* ─── Responsive card width — tied to viewport, not a measured container.
+/* ─── Viewport width — tracks the breakpoint, not a measured container.
    (The old grid measured its own container and divided by a fixed column
    count, which meant a phone-width container still got 4 columns squeezed
-   into it. Rows now scroll horizontally, so width only needs to track the
-   viewport breakpoint.) ─── */
-function useCardWidth(): number {
-  const [w, setW] = useState(() => (typeof window !== "undefined" ? window.innerWidth : 1200));
+   into it.) Below 900px the gallery switches entirely to the mobile swipe
+   picker (see MOBILE_BREAKPOINT below), which also sidesteps the freeze
+   caused by running many concurrent auto-scrolling rows on a phone. ─── */
+const MOBILE_BREAKPOINT = 900;
+
+function useViewportWidth(): number {
+  // Starts at the SSR default (desktop) on every render, client included —
+  // reading window.innerWidth in the initializer would give the client's
+  // first render a different value than the server used, and since that
+  // value now picks an entire component branch (mobile picker vs. desktop
+  // rows) rather than just a pixel size, that mismatch broke hydration
+  // instead of just causing a harmless one-frame size difference.
+  const [w, setW] = useState(1200);
   useEffect(() => {
     const onResize = () => setW(window.innerWidth);
+    onResize();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
+  return w;
+}
+
+function cardWidthForViewport(w: number): number {
   if (w < 480) return 138;
-  if (w < 900) return 164;
+  if (w < MOBILE_BREAKPOINT) return 164;
   return 196;
 }
 
@@ -530,6 +544,172 @@ function ScratchCard({ isSelected, cardWidth, onSelect }: {
   );
 }
 
+/* ─── Mobile swipe picker ─────────────────────────────────────────────────────
+   Phones don't get the auto-scrolling rows: running many concurrent marquee
+   animations (one per category, all looping continuously regardless of
+   scroll position) is what was freezing the page on mobile. Instead: a
+   single native horizontal-scroll deck, one card centered at a time,
+   scroll-snapped — no JS animation loop, no auto-play. An industry chip
+   row up top filters which cards are in the deck; swiping left/right moves
+   between them. A card nearest the center gets a subtle scale/opacity lift
+   (driven by a plain scroll listener, not a timer) so the deck still feels
+   alive without ever animating on its own. ─── */
+function MobileTemplatePicker({ selectedId, onSelect, suggestedCategory }: {
+  selectedId: string;
+  onSelect: (id: string, mapTo: TemplateMapTo) => void;
+  suggestedCategory?: string;
+}) {
+  const [activeCategory, setActiveCategory] = useState(
+    suggestedCategory && CATEGORIES.includes(suggestedCategory) ? suggestedCategory : "All"
+  );
+  const viewportW = useViewportWidth();
+  const cardWidth = Math.round(Math.min(300, viewportW - 96));
+  const gap = 14;
+
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const handleClear = () => onSelect("", {
+    businessType: "Restaurant", style: "minimalist",
+    primaryColor: "#6366f1", secondaryColor: "#a855f7",
+    darkMode: false, fontFamily: "modern-sans",
+  });
+
+  const deck: ({ kind: "scratch" } | { kind: "template"; t: Template })[] = (() => {
+    const templates = activeCategory === "Premium"
+      ? PREMIUM
+      : activeCategory !== "All"
+      ? [
+          ...PREMIUM.filter(t => t.category === activeCategory),
+          ...TEMPLATES.filter(t => t.category === activeCategory && !t.dark),
+          ...TEMPLATES.filter(t => t.category === activeCategory && t.dark),
+        ]
+      : [...PREMIUM, ...TEMPLATES];
+    return [{ kind: "scratch" as const }, ...templates.map(t => ({ kind: "template" as const, t }))];
+  })();
+
+  // Switching category resets the deck to the start. No explicit setState
+  // here: scrolling a nonzero scrollLeft back to 0 fires a real 'scroll'
+  // event, which onScroll below already turns into setActiveIndex(0).
+  useEffect(() => {
+    scrollerRef.current?.scrollTo({ left: 0 });
+  }, [activeCategory]);
+
+  const onScroll = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    setActiveIndex(Math.round(el.scrollLeft / (cardWidth + gap)));
+  };
+
+  const scrollToIndex = (i: number) => {
+    scrollerRef.current?.scrollTo({ left: i * (cardWidth + gap), behavior: "smooth" });
+  };
+
+  const sidePad = Math.max(12, (viewportW - 36 - cardWidth) / 2);
+
+  return (
+    <>
+      {/* Industry filter — horizontally scrollable, one line */}
+      <div style={{
+        display: "flex", gap: 6, overflowX: "auto", marginBottom: 16,
+        WebkitOverflowScrolling: "touch", scrollbarWidth: "none",
+      }}>
+        {CATEGORIES.map(cat => {
+          const on = activeCategory === cat;
+          return (
+            <button key={cat} onClick={() => setActiveCategory(cat)} style={{
+              flex: "0 0 auto",
+              height: 30, padding: "0 13px", borderRadius: 999,
+              border: on ? "1px solid var(--wf-acc)" : "1px solid var(--wf-border)",
+              background: on ? "var(--wf-acc)" : "transparent",
+              color: on ? "var(--wf-acc-ink)" : "var(--wf-text2)",
+              fontSize: 12.5, fontWeight: on ? 700 : 600,
+              whiteSpace: "nowrap", cursor: "pointer", fontFamily: "inherit",
+            }}>
+              {cat}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Swipe deck */}
+      <div
+        ref={scrollerRef}
+        onScroll={onScroll}
+        className="wf-mobile-deck"
+        style={{
+          display: "flex", gap, overflowX: "auto",
+          scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch",
+          padding: `4px ${sidePad}px 10px`,
+          marginLeft: -18, marginRight: -18, paddingLeft: sidePad + 18, paddingRight: sidePad + 18,
+          scrollbarWidth: "none",
+        }}
+      >
+        {deck.map((entry, i) => {
+          const isActive = i === activeIndex;
+          const key = entry.kind === "scratch" ? "scratch" : entry.t.id;
+          const isSelected = entry.kind === "scratch" ? !selectedId : selectedId === entry.t.id;
+          return (
+            <div
+              key={key}
+              style={{
+                flex: "0 0 auto", width: cardWidth,
+                scrollSnapAlign: "center",
+                transform: isActive ? "scale(1)" : "scale(0.92)",
+                opacity: isActive ? 1 : 0.55,
+                transition: "transform 0.2s ease, opacity 0.2s ease",
+              }}
+            >
+              {entry.kind === "scratch" ? (
+                <ScratchCard isSelected={isSelected} cardWidth={cardWidth} onSelect={() => { handleClear(); scrollToIndex(i); }} />
+              ) : (
+                <TemplateCard
+                  template={entry.t}
+                  isSelected={isSelected}
+                  cardWidth={cardWidth}
+                  onSelect={() => { onSelect(entry.t.id, entry.t.mapTo); scrollToIndex(i); }}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Position readout */}
+      <p style={{
+        textAlign: "center", margin: "2px 0 0", fontFamily: "var(--wf-mono)",
+        fontSize: 11, color: "var(--wf-text3)",
+      }}>
+        {activeIndex + 1} / {deck.length}
+      </p>
+
+      {/* Selection banner */}
+      {selectedId && (
+        <div style={{
+          marginTop: 16, padding: "9px 14px",
+          background: "var(--wf-acc-soft)",
+          border: "1px solid var(--wf-acc-line)",
+          borderRadius: "var(--wf-r-sm)",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ color: "var(--wf-acc)", fontSize: 13 }}>✓</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "var(--wf-text)" }}>
+              {(PREMIUM.find(t => t.id === selectedId) ?? TEMPLATES.find(t => t.id === selectedId))?.name ?? "Template"} selected
+            </span>
+          </div>
+          <button onClick={handleClear} style={{
+            fontSize: 11, color: "var(--wf-text3)", background: "none",
+            border: "none", cursor: "pointer", textDecoration: "underline",
+          }}>
+            Clear
+          </button>
+        </div>
+      )}
+    </>
+  );
+}
+
 /* ─── Auto-scrolling row ──────────────────────────────────────────────────────
    Continuously auto-plays (Netflix-browse style) so the user can scan many
    templates without a huge static grid. Slows to a near-stop on hover/touch
@@ -580,7 +760,9 @@ export function TemplateGallery({ selectedId, onSelect, suggestedCategory }: {
   const [activeCategory, setActiveCategory] = useState(
     suggestedCategory && CATEGORIES.includes(suggestedCategory) ? suggestedCategory : "All"
   );
-  const cardWidth = useCardWidth();
+  const viewportW = useViewportWidth();
+  const cardWidth = cardWidthForViewport(viewportW);
+  const isMobile = viewportW < MOBILE_BREAKPOINT;
 
   const handleClear = () => onSelect("", {
     businessType: "Restaurant", style: "minimalist",
@@ -621,6 +803,10 @@ export function TemplateGallery({ selectedId, onSelect, suggestedCategory }: {
       .filter(r => r.templates.length > 0);
     return [{ label: "Premium", templates: PREMIUM }, ...categoryRows];
   })();
+
+  if (isMobile) {
+    return <MobileTemplatePicker selectedId={selectedId} onSelect={onSelect} suggestedCategory={suggestedCategory} />;
+  }
 
   return (
     <>
