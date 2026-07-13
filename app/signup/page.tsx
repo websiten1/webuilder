@@ -16,7 +16,7 @@ const A = {
   gray:   "#18181b",
   gray2:  "#222222",
   white:  "#ffffff",
-  six:    "#ff5a00",
+  blue:   "#64CEFB",
   m20:    "rgba(255,255,255,0.20)",
   m30:    "rgba(255,255,255,0.30)",
   m40:    "rgba(255,255,255,0.40)",
@@ -324,8 +324,8 @@ export default function SignupPage() {
               <div>
                 <h1 className="font-display" style={{ fontSize: "clamp(2rem,2.8vw,2.6rem)", color: A.white, lineHeight: 1.1, marginBottom: 12 }}>
                   {tt(lang,
-                    <>Your site.<br/>Your code.<br/><span style={{ color: A.six }}>Yours forever.</span></>,
-                    <>Site-ul tău.<br/>Codul tău.<br/><span style={{ color: A.six }}>Al tău pentru totdeauna.</span></>
+                    <>Your site.<br/>Your code.<br/><span style={{ color: A.blue }}>Yours forever.</span></>,
+                    <>Site-ul tău.<br/>Codul tău.<br/><span style={{ color: A.blue }}>Al tău pentru totdeauna.</span></>
                   )}
                 </h1>
                 <p style={{ fontFamily: A.font, fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>
@@ -360,7 +360,7 @@ export default function SignupPage() {
                     <div className="au-mobile-logo" style={{ marginBottom: 8 }}>
                       <Wordmark />
                     </div>
-                    <h2 className="font-display" style={{ fontSize: 30, color: A.white, marginBottom: 8 }}>
+                    <h2 style={{ fontSize: 30, fontWeight: 700, color: A.white, marginBottom: 8 }}>
                       {tt(lang, "Create a new account", "Creează cont nou")}
                     </h2>
                     <p style={{ fontFamily: A.font, fontSize: 14, color: A.m40, lineHeight: 1.5 }}>
@@ -476,7 +476,7 @@ export default function SignupPage() {
                   </div>
 
                   <div>
-                    <h2 className="font-display" style={{ fontSize: 28, color: A.white, marginBottom: 8 }}>
+                    <h2 style={{ fontSize: 28, fontWeight: 700, color: A.white, marginBottom: 8 }}>
                       {tt(lang, "Check your inbox", "Verifică inbox-ul")}
                     </h2>
                     <p style={{ fontFamily: A.font, fontSize: 14, color: A.m40, marginBottom: 4, lineHeight: 1.5 }}>

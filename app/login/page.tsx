@@ -14,7 +14,7 @@ const A = {
   panel:  "#09090b",
   gray:   "#18181b",
   white:  "#ffffff",
-  six:    "#ff5a00",
+  blue:   "#64CEFB",
   m20:    "rgba(255,255,255,0.20)",
   m30:    "rgba(255,255,255,0.30)",
   m40:    "rgba(255,255,255,0.40)",
@@ -103,7 +103,7 @@ function AInput({
             color: A.white, boxSizing: "border-box" as const,
             transition: "border-color .18s",
           }}
-          onFocus={e => (e.currentTarget.style.borderColor = "rgba(255,90,0,0.5)")}
+          onFocus={e => (e.currentTarget.style.borderColor = "rgba(100,206,251,0.5)")}
           onBlur={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
         />
         {suffix && (
@@ -221,8 +221,8 @@ function LoginContent() {
               <div>
                 <h1 className="font-display" style={{ fontSize: "clamp(2rem,2.8vw,2.6rem)", color: A.white, lineHeight: 1.1, marginBottom: 12 }}>
                   {tt(lang,
-                    <>Your site.<br/>Your code.<br/><span style={{ color: A.six }}>Yours forever.</span></>,
-                    <>Site-ul tău.<br/>Codul tău.<br/><span style={{ color: A.six }}>Al tău pentru totdeauna.</span></>
+                    <>Your site.<br/>Your code.<br/><span style={{ color: A.blue }}>Yours forever.</span></>,
+                    <>Site-ul tău.<br/>Codul tău.<br/><span style={{ color: A.blue }}>Al tău pentru totdeauna.</span></>
                   )}
                 </h1>
                 <p style={{ fontFamily: A.font, fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.6, maxWidth: 300 }}>
@@ -253,7 +253,7 @@ function LoginContent() {
                   <div className="au-mobile-logo" style={{ marginBottom: 8 }}>
                     <Wordmark />
                   </div>
-                  <h2 className="font-display" style={{ fontSize: 30, color: A.white, marginBottom: 8 }}>
+                  <h2 style={{ fontSize: 30, fontWeight: 700, color: A.white, marginBottom: 8 }}>
                     {tt(lang, "Welcome back", "Bun venit înapoi")}
                   </h2>
                   <p style={{ fontFamily: A.font, fontSize: 14, color: A.m40, lineHeight: 1.5 }}>

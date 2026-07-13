@@ -16,6 +16,7 @@
   --color-mist:     #f4f4f5;
   --color-snow:     #ffffff;
   --color-ember:    #ff5a00;
+  --color-azure:    #64CEFB;
 
   /* ── legacy aliases (wizard + older pages) ───────────────── */
   --ink:    #0A0E14;
@@ -51,10 +52,7 @@
 h1, h2, h3,
 .page-title,
 .section-title,
-.wf-step-title,
-.wf-brand-word,
 .au-left h1,
-.au-right h2,
 .aw h2,
 .aw .heading-lg,
 .aw .heading,
@@ -67,6 +65,20 @@ h1, h2, h3,
   font-family: var(--font-display), var(--font-display-fallback);
   font-weight: 400;
   letter-spacing: -0.02em;
+}
+
+/* Form-side titles (auth screens + generate wizard) opt out of the Anton
+   display face — at form/step-heading size it reads as loud and makes RO
+   diacritics cramped, so these use the plain brand font instead, matching
+   the rest of the form. The bigger marketing headline on the auth video
+   panel (.au-left h1) keeps Anton; this is only the form-side heading. */
+.au-right h2,
+.wf-step-title,
+.wf-brand-word,
+.wf-topbar .wf-tbstep {
+  font-family: var(--font-brand);
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 html { scroll-behavior: smooth; overflow-x: hidden; font-size: 15px; }
@@ -220,10 +232,10 @@ select.inp option { background: #fff; color: var(--ink); }
   --wf-ok:       #35d07f;
   --wf-ok-soft:  rgba(53,208,127,.13);
   --wf-ok-line:  rgba(53,208,127,.32);
-  --wf-acc:      var(--color-ember, #ff5a00);
-  --wf-acc-ink:  #fff;
-  --wf-acc-soft: rgba(255,90,0,.14);
-  --wf-acc-line: rgba(255,90,0,.40);
+  --wf-acc:      var(--color-azure, #64CEFB);
+  --wf-acc-ink:  #0a0d12;
+  --wf-acc-soft: rgba(100,206,251,.14);
+  --wf-acc-line: rgba(100,206,251,.40);
   --wf-shadow:   0 24px 60px -20px rgba(0,0,0,.7);
   --wf-glow:     0 0 0 1px var(--wf-acc-line), 0 0 0 4px var(--wf-acc-soft);
   --wf-r:        22px;
@@ -318,7 +330,7 @@ select.inp option { background: #fff; color: var(--ink); }
   background:rgba(10,13,18,.86); backdrop-filter:blur(12px);
   position:sticky; top:0; z-index:30;
 }
-.wf-topbar .wf-tbstep { font-size:13.5px; font-weight:400; font-family:var(--font-display),Anton,sans-serif; white-space:nowrap; }
+.wf-topbar .wf-tbstep { font-size:13.5px; white-space:nowrap; }
 .wf-topbar .wf-tbidx { font-family:var(--wf-mono); color:var(--wf-text3); font-weight:500; margin-right:5px; }
 .wf-topbar .wf-tbprog { flex:1; height:5px; border-radius:99px; background:var(--wf-surf3); overflow:hidden; }
 .wf-topbar .wf-tbfill { height:100%; background:var(--wf-acc); border-radius:99px; transition:width .4s ease; }
@@ -336,9 +348,8 @@ select.inp option { background: #fff; color: var(--ink); }
 .wf-eyebrow::before { content:""; width:18px; height:1px; background:var(--wf-acc); }
 .wf-eyebrow .wf-idx { color:var(--wf-text3); }
 .wf-step-title {
-  font-size:clamp(28px,4.2vw,44px); font-weight:400; letter-spacing:-.03em; line-height:1.05;
+  font-size:clamp(26px,3.4vw,38px); font-weight:700; letter-spacing:-.02em; line-height:1.15;
   margin:0 0 12px; color:var(--wf-text); text-wrap:balance;
-  font-family:var(--font-display), Anton, sans-serif;
 }
 .wf-step-sub { font-size:16px; color:var(--wf-text2); margin:0; max-width:50ch; line-height:1.5; }
 
@@ -424,7 +435,7 @@ select.inp option { background: #fff; color: var(--ink); }
   width:18px; height:18px; border-radius:50%; background:var(--wf-acc);
   display:grid; place-items:center; opacity:0; transform:scale(.5); transition:all .15s;
 }
-.wf-opt-card .wf-tick svg { width:11px; height:11px; color:#fff; }
+.wf-opt-card .wf-tick svg { width:11px; height:11px; color:var(--wf-acc-ink); }
 .wf-opt-card.sel .wf-tick { opacity:1; transform:scale(1); }
 
 /* checkrow */
@@ -441,7 +452,7 @@ select.inp option { background: #fff; color: var(--ink); }
   display:grid; place-items:center; flex:0 0 auto; transition:all .14s;
 }
 .wf-checkrow.on .wf-checkbox { background:var(--wf-acc); border-color:var(--wf-acc); }
-.wf-checkbox svg { width:11px; height:11px; color:#fff; opacity:0; }
+.wf-checkbox svg { width:11px; height:11px; color:var(--wf-acc-ink); opacity:0; }
 .wf-checkrow.on .wf-checkbox svg { opacity:1; }
 
 /* ── Chips ── */
@@ -452,7 +463,7 @@ select.inp option { background: #fff; color: var(--ink); }
   padding:8px 15px; cursor:pointer; transition:all .13s; display:inline-flex; align-items:center; gap:6px;
 }
 .wf-chip:hover { border-color:var(--wf-border2); color:var(--wf-text); }
-.wf-chip.on { background:var(--wf-acc); border-color:var(--wf-acc); color:#fff; }
+.wf-chip.on { background:var(--wf-acc); border-color:var(--wf-acc); color:var(--wf-acc-ink); }
 
 /* ── Color picker ── */
 .wf-color-readout {
@@ -527,7 +538,7 @@ select.inp option { background: #fff; color: var(--ink); }
   background:var(--wf-acc); display:grid; place-items:center;
   opacity:0; transform:scale(.5); transition:all .16s; z-index:2;
 }
-.wf-tpl-card .wf-tick svg { width:13px; height:13px; color:#fff; }
+.wf-tpl-card .wf-tick svg { width:13px; height:13px; color:var(--wf-acc-ink); }
 .wf-tpl-card.sel .wf-tick { opacity:1; transform:scale(1); }
 
 .wf-scratch {
@@ -636,27 +647,15 @@ select.inp option { background: #fff; color: var(--ink); }
 .wf-gen-prog { margin-bottom:16px; }
 .wf-gen-prog .wf-gstage { font-size:13px; color:var(--wf-text2); display:flex; justify-content:space-between; margin-bottom:9px; }
 .wf-gen-prog .wf-gbar { height:4px; background:var(--wf-surf3); border-radius:99px; overflow:hidden; }
-.wf-gen-prog .wf-gfill { height:100%; background:linear-gradient(90deg,var(--wf-acc),#ff8a4c); border-radius:99px; transition:width .8s ease; }
+.wf-gen-prog .wf-gfill { height:100%; background:var(--wf-acc); border-radius:99px; transition:width .8s ease; }
 
 /* ── Animate ── */
 .wf-enter { animation:wfEnter .38s ease both; }
 @keyframes wfEnter { from{opacity:0;transform:translateY(9px)} to{opacity:1;transform:none} }
 
-/* ── Responsive ──
-   Mobile gets its own, calmer palette: the ember-orange accent is a desktop
-   brand choice that reads as loud/unfinished at phone size next to dense
-   form controls, so it's swapped for a plain light-on-dark neutral (the
-   same "white CTA on black" language as the Aurora auth pages) everywhere
-   the accent variable is used — selection borders, the progress bar,
-   primary buttons, chips — in one place instead of hunting each usage. ── */
+/* ── Responsive ── */
 @media (max-width:900px) {
-  .wf-wrap {
-    zoom: 1;
-    --wf-acc:      #f4f2ec;
-    --wf-acc-ink:  #0a0d12;
-    --wf-acc-soft: rgba(244,242,236,.12);
-    --wf-acc-line: rgba(244,242,236,.38);
-  }
+  .wf-wrap { zoom: 1; }
   .wf-sidebar { display:none; }
   .wf-topbar { display:flex !important; flex-direction:column; align-items:stretch; gap:10px; padding:14px 18px 12px; }
   .wf-topbar .wf-tbrow1 { display:flex; align-items:center; justify-content:space-between; }
@@ -674,7 +673,6 @@ select.inp option { background: #fff; color: var(--ink); }
   .wf-foot { padding:13px 18px; }
   .wf-tpl-grid { grid-template-columns:repeat(2,1fr); }
   .wf-grid2 { grid-template-columns:1fr; }
-  .wf-gen-prog .wf-gfill { background:var(--wf-acc); }
   /* hover-reveal doesn't exist on touch — keep controls visible instead of
      hidden until a hover event that will never fire */
   .wf-gal-del { opacity:1; }
@@ -721,7 +719,7 @@ select.inp option { background: #fff; color: var(--ink); }
 .wf-pay-close:hover { color:var(--wf-text); }
 .wf-pay-sum { padding:20px 24px 18px; background:var(--wf-surf2); border-bottom:1px solid var(--wf-border); }
 .wf-pay-brand { display:flex; align-items:center; gap:8px; font-weight:800; font-size:14px; }
-.wf-pay-badge { width:20px; height:20px; border-radius:5px; background:var(--wf-acc); color:#fff; display:grid; place-items:center; font-family:var(--wf-mono); font-size:11px; font-weight:700; }
+.wf-pay-badge { width:20px; height:20px; border-radius:5px; background:var(--wf-acc); color:var(--wf-acc-ink); display:grid; place-items:center; font-family:var(--wf-mono); font-size:11px; font-weight:700; }
 .wf-pay-item { margin-top:14px; font-size:12.5px; color:var(--wf-text2); }
 .wf-pay-price { font-size:30px; font-weight:800; letter-spacing:-.03em; line-height:1.1; margin-top:2px; }
 .wf-pay-price span { font-size:15px; color:var(--wf-text3); font-weight:500; }
@@ -786,7 +784,7 @@ select.inp option { background: #fff; color: var(--ink); }
 .wf-gal-item img { width:100%; height:100%; object-fit:cover; display:block; }
 .wf-gal-del { position:absolute; top:6px; right:6px; width:26px; height:26px; border-radius:8px; border:1px solid var(--wf-border2,var(--wf-border)); background:rgba(10,13,18,.76); backdrop-filter:blur(6px); color:var(--wf-text); display:grid; place-items:center; cursor:pointer; opacity:0; transition:opacity .15s,background .15s; }
 .wf-gal-item:hover .wf-gal-del { opacity:1; }
-.wf-gal-del:hover { background:var(--wf-acc); border-color:transparent; color:#fff; }
+.wf-gal-del:hover { background:var(--wf-acc); border-color:transparent; color:var(--wf-acc-ink); }
 .wf-gal-add { aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; border:1px dashed var(--wf-border2,var(--wf-border)); border-radius:var(--wf-r); background:var(--wf-surf2); color:var(--wf-text3); cursor:pointer; transition:border-color .15s,background .15s,color .15s; font-family:inherit; }
 .wf-gal-add:hover { border-color:var(--wf-acc-line); background:var(--wf-acc-soft); color:var(--wf-acc); }
 .wf-gal-add .wf-ga-ico { width:32px; height:32px; border-radius:50%; background:var(--wf-bg2); border:1px solid var(--wf-border); display:grid; place-items:center; }

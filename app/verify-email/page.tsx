@@ -106,7 +106,7 @@ function VerifyEmailContent() {
           transition: border-color .18s;
         }
         .ve-input::placeholder { color: rgba(255,255,255,0.25); }
-        .ve-input:focus { border-color: rgba(255,90,0,0.5); }
+        .ve-input:focus { border-color: rgba(100,206,251,0.5); }
         .ve-btn {
           width: 100%; height: 48px; border-radius: 12px; border: none;
           cursor: pointer; background: #fff; color: #09090b;
@@ -134,13 +134,13 @@ function VerifyEmailContent() {
               <>
                 <div style={{
                   width: 48, height: 48,
-                  border: "3px solid rgba(255,90,0,0.2)",
-                  borderTopColor: "#ff5a00",
+                  border: "3px solid rgba(100,206,251,0.2)",
+                  borderTopColor: "#64CEFB",
                   borderRadius: "50%",
                   animation: "ve-spin 0.8s linear infinite",
                   margin: "0 auto 24px",
                 }}/>
-                <h1 style={{ fontSize: "1.5rem", fontWeight: 700, letterSpacing: -0.5, color: "#fff", marginBottom: 8 }}>
+                <h1 style={{ fontFamily: FONT, fontSize: "1.5rem", fontWeight: 700, letterSpacing: -0.5, color: "#fff", marginBottom: 8 }}>
                   {tt(lang, "Verifying your email…", "Se verifică emailul…")}
                 </h1>
                 <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 14 }}>
@@ -161,7 +161,7 @@ function VerifyEmailContent() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
                   </svg>
                 </div>
-                <h1 style={{ fontSize: "1.5rem", fontWeight: 700, letterSpacing: -0.5, color: "#fff", marginBottom: 8 }}>
+                <h1 style={{ fontFamily: FONT, fontSize: "1.5rem", fontWeight: 700, letterSpacing: -0.5, color: "#fff", marginBottom: 8 }}>
                   {tt(lang, "Email verified!", "Email verificat!")}
                 </h1>
                 <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 14 }}>
@@ -182,7 +182,7 @@ function VerifyEmailContent() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
                   </svg>
                 </div>
-                <h1 style={{ fontSize: "1.5rem", fontWeight: 700, letterSpacing: -0.5, color: "#fff", marginBottom: 8 }}>
+                <h1 style={{ fontFamily: FONT, fontSize: "1.5rem", fontWeight: 700, letterSpacing: -0.5, color: "#fff", marginBottom: 8 }}>
                   {state === "no-token" ? tt(lang, "Check your inbox", "Verifică inbox-ul") : tt(lang, "Link expired or invalid", "Link expirat sau invalid")}
                 </h1>
                 <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 14, marginBottom: 32 }}>
@@ -219,7 +219,7 @@ function VerifyEmailContent() {
                 )}
 
                 <p style={{ fontSize: 14, marginTop: 24, color: "rgba(255,255,255,0.35)" }}>
-                  <Link href="/login" style={{ color: "#ff5a00", fontWeight: 600, textDecoration: "none" }}>
+                  <Link href="/login" style={{ color: "#64CEFB", fontWeight: 600, textDecoration: "none" }}>
                     {tt(lang, "Back to sign in", "Înapoi la autentificare")}
                   </Link>
                 </p>
